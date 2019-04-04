@@ -254,6 +254,11 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             } else {
                 return NotificationViewType.GROUP_COLLAPSED;
             }
+        } else if (mExpandedNotifications.contains(notificationGroup.getGroupKey())) {
+            // when there are 2 notifications left in the expanded notification and one of them is
+            // removed at that time the item type changes from group to normal and hence the
+            // notification should be removed from expanded notifications.
+            setExpanded(notificationGroup.getGroupKey(), false);
         }
 
         Notification notification =

@@ -15,10 +15,6 @@
     limitations under the License.
 -->
 <resources>
-    <!-- Columns -->
-    <integer name="notification_center_column_number">@integer/column_card_default_column_span</integer>
-    <integer name="notification_headsup_column_number">12</integer>
-
     <!-- Maximum number of group children shown after expansion -->
     <integer name="max_group_children_number">8</integer>
 

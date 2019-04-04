@@ -16,8 +16,6 @@
 
 package com.android.car.notification.template;
 
-import static com.android.internal.util.Preconditions.checkArgument;
-
 import android.annotation.CallSuper;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
@@ -34,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.R;
-import com.android.car.theme.Themes;
+import com.android.car.notification.ThemesUtil;
 
 /**
  * The base view holder class that all template view holders should extend.
@@ -74,12 +72,12 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         Context context = itemView.getContext();
         mPackageManager = context.getPackageManager();
         mClickHandlerFactory = clickHandlerFactory;
-        mCardView = itemView.findViewById(R.id.column_card_view);
+        mCardView = itemView.findViewById(R.id.card_view);
         mInnerView = itemView.findViewById(R.id.inner_template_view);
         mHeaderView = itemView.findViewById(R.id.notification_header);
         mBodyView = itemView.findViewById(R.id.notification_body);
         mActionsView = itemView.findViewById(R.id.notification_actions);
-        mDefaultBackgroundColor = Themes.getAttrColor(context, android.R.attr.colorPrimary);
+        mDefaultBackgroundColor = ThemesUtil.getAttrColor(context, android.R.attr.colorPrimary);
         mDefaultPrimaryForegroundColor = context.getColor(R.color.primary_text_color);
         mDefaultSecondaryForegroundColor = context.getColor(R.color.secondary_text_color);
     }
@@ -147,12 +145,6 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         if (mBodyView != null) {
             mBodyView.setPrimaryTextColor(calculatedPrimaryForegroundColor);
             mBodyView.setSecondaryTextColor(calculatedSecondaryForegroundColor);
-        }
-
-        if (mActionsView != null) {
-            mActionsView.setActionTextColor(
-                    hasCustomBackgroundColor() ? calculatedPrimaryForegroundColor
-                            : getAccentColor());
         }
     }
 

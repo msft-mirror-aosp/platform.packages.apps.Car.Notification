@@ -20,8 +20,10 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.RemoteInput;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
@@ -121,39 +123,41 @@ public class NotificationClickHandlerFactory {
             StatusBarNotification statusBarNotification, int index) {
         return v -> {
             Notification notification = statusBarNotification.getNotification();
-            Notification.Action[] actions = notification.actions;
+            Notification.Action action = notification.actions[index];
             NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
                     statusBarNotification.getKey(),
                     /* rank= */ -1, /* count= */ -1, /* visible= */ true);
             boolean canceledExceptionThrown = false;
-            int semanticAction = actions[index].getSemanticAction();
-            if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)
-                    && CarAssistUtils.isSupportedSemanticAction(semanticAction)) {
+            int semanticAction = action.getSemanticAction();
+            if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)) {
                 Context context = v.getContext().getApplicationContext();
-                if (mCarAssistUtils == null) {
-                    mCarAssistUtils = new CarAssistUtils(context);
-                }
-                CarAssistUtils.ActionRequestCallback requestCallback = (error) -> {
-                    if (error) {
-                        mCallback.onNotificationClicked(ActivityManager.START_ABORTED);
-                        showToast(context, R.string.assist_action_failed_toast);
-                    } else {
-                        mCallback.onNotificationClicked(ActivityManager.START_SUCCESS);
+                if (semanticAction == Notification.Action.SEMANTIC_ACTION_MARK_AS_READ) {
+                    if (mCarAssistUtils == null) {
+                        mCarAssistUtils = new CarAssistUtils(context);
                     }
-                };
-                mCarAssistUtils.requestAssistantVoiceAction(statusBarNotification, semanticAction,
-                        requestCallback);
+                    CarAssistUtils.ActionRequestCallback requestCallback = (error) -> {
+                        if (error) {
+                            mCallback.onNotificationClicked(ActivityManager.START_ABORTED);
+                            showToast(context, R.string.assist_action_failed_toast);
+                        } else {
+                            mCallback.onNotificationClicked(ActivityManager.START_SUCCESS);
+                        }
+                    };
+                    mCarAssistUtils.requestAssistantVoiceAction(statusBarNotification,
+                            semanticAction,
+                            requestCallback);
+                } else if (semanticAction == Notification.Action.SEMANTIC_ACTION_REPLY) {
+                    Intent resultIntent = addCannedReplyMessage(action, context);
+                    int result = sendPendingIntent(action, context, resultIntent);
+                    if (result == ActivityManager.START_SUCCESS) {
+                        showToast(context, R.string.toast_message_sent_success);
+                    } else if (result == ActivityManager.START_ABORTED) {
+                        canceledExceptionThrown = true;
+                    }
+                }
             } else {
-                int result = ActivityManager.START_ABORTED;
-                PendingIntent intent = actions[index].actionIntent;
-                try {
-                    result = intent.sendAndReturnResult(/* context= */ null, /* code= */ 0,
-                            /* intent= */ null, /* onFinished= */null,
-                            /* handler= */ null, /* requiredPermissions= */ null,
-                            /* options= */ null);
-                } catch (PendingIntent.CanceledException e) {
-                    // Do not take down the app over this
-                    Log.w(TAG, "Sending contentIntent failed: " + e);
+                int result = sendPendingIntent(action, /* context= */ null, /* resultIntent= */ null);
+                if (result == ActivityManager.START_ABORTED) {
                     canceledExceptionThrown = true;
                 }
                 mCallback.onNotificationClicked(result);
@@ -163,7 +167,7 @@ public class NotificationClickHandlerFactory {
                     mBarService.onNotificationActionClick(
                             statusBarNotification.getKey(),
                             index,
-                            actions[index],
+                            action,
                             notificationVisibility,
                             /* generatedByAssistant= */ false);
                 } catch (RemoteException e) {
@@ -171,6 +175,38 @@ public class NotificationClickHandlerFactory {
                 }
             }
         };
+    }
+
+    private int sendPendingIntent(Notification.Action action, Context context,
+            Intent resultIntent) {
+        PendingIntent pendingIntent = action.actionIntent;
+        try {
+            return pendingIntent.sendAndReturnResult(/* context= */ context, /* code= */ 0,
+                    /* intent= */ resultIntent, /* onFinished= */null,
+                    /* handler= */ null, /* requiredPermissions= */ null,
+                    /* options= */ null);
+        } catch (PendingIntent.CanceledException e) {
+            // Do not take down the app over this
+            Log.w(TAG, "Sending contentIntent failed: " + e);
+            return ActivityManager.START_ABORTED;
+        }
+    }
+
+    /** Adds the canned reply sms message to the {@link Notification.Action}'s RemoteInput. **/
+    @Nullable
+    private Intent addCannedReplyMessage(Notification.Action action, Context context) {
+        RemoteInput remoteInput = action.getRemoteInputs()[0];
+        if (remoteInput == null) {
+            Log.w("TAG", "Cannot add canned reply message to action with no RemoteInput.");
+            return null;
+        }
+        Bundle messageDataBundle = new Bundle();
+        messageDataBundle.putCharSequence(remoteInput.getResultKey(),
+                context.getString(R.string.canned_reply_message));
+        Intent resultIntent = new Intent();
+        RemoteInput.addResultsToIntent(
+                new RemoteInput[]{remoteInput}, resultIntent, messageDataBundle);
+        return resultIntent;
     }
 
     private void showToast(Context context, int resourceId) {

@@ -33,12 +33,12 @@ android_app {
     },
 
     static_libs: [
-        "androidx.car_car",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-theme-lib-bp",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout-solver"
+        "androidx-constraintlayout_constraintlayout"
     ],
 
     libs: ["android.car"],
@@ -70,12 +70,12 @@ android_library {
     },
 
     static_libs: [
-        "androidx.car_car",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-theme-lib-bp",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout-solver"
+        "androidx-constraintlayout_constraintlayout"
     ],
 
     libs: ["android.car"],
@@ -107,12 +107,12 @@ android_app {
     },
 
     static_libs: [
-        "androidx.car_car",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-theme-lib-bp",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout-solver"
+        "androidx-constraintlayout_constraintlayout"
     ],
 
     libs: ["android.car"],
@@ -144,12 +144,12 @@ android_library {
     },
 
     static_libs: [
-        "androidx.car_car",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-theme-lib-bp",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout-solver"
+        "androidx-constraintlayout_constraintlayout"
     ],
 
     libs: ["android.car"],

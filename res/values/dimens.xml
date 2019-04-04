@@ -16,11 +16,15 @@
 -->
 <resources>
     <dimen name="notification_app_bar_height">@*android:dimen/car_app_bar_height</dimen>
-    <dimen name="notification_card_header_height">@*android:dimen/car_card_action_bar_height</dimen>
-    <dimen name="notification_card_action_bar_height">@*android:dimen/car_card_action_bar_height</dimen>
-    <dimen name="notification_list_divider_height">@*android:dimen/car_list_divider_height</dimen>
-
     <dimen name="notification_scroll_margin">@*android:dimen/car_margin</dimen>
+    <dimen name="notification_list_divider_height">@*android:dimen/car_list_divider_height</dimen>
+    <dimen name="notification_headsup_card_margin_horizontal">165dp</dimen>
+    <dimen name="notification_card_margin_horizontal">270dp</dimen>
+
+    <!-- Header View -->
+    <dimen name="notification_card_header_height">@*android:dimen/car_card_action_bar_height</dimen>
+
+    <!-- Card View -->
     <dimen name="card_start_margin">@*android:dimen/car_keyline_1</dimen>
     <dimen name="card_end_margin">@*android:dimen/car_keyline_1</dimen>
     <dimen name="card_min_top_padding">@*android:dimen/car_padding_3</dimen>
@@ -31,18 +35,25 @@
     <dimen name="unshown_count_start_margin">@*android:dimen/car_padding_1</dimen>
     <dimen name="headsup_notification_top_margin">@*android:dimen/car_padding_1</dimen>
     <dimen name="item_spacing">@*android:dimen/car_padding_2</dimen>
-    <dimen name="notification_list_top_offset">@*android:dimen/car_padding_4</dimen>
     <dimen name="header_small_icon_padding">@*android:dimen/car_padding_3</dimen>
     <dimen name="body_bottom_padding">@*android:dimen/car_padding_3</dimen>
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
-    <dimen name="action_button_margin">@*android:dimen/car_padding_5</dimen>
     <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
 
+    <!-- Action View -->
+    <dimen name="action_button_radius">28dp</dimen>
+    <dimen name="action_button_min_width">@*android:dimen/car_button_min_width</dimen>
+    <dimen name="action_button_height">@*android:dimen/car_button_height</dimen>
+    <dimen name="action_button_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="action_button_spacing">@*android:dimen/car_padding_2</dimen>
+
+    <!-- Icons -->
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
     <dimen name="notification_secondary_icon_size">@*android:dimen/car_secondary_icon_size</dimen>
     <dimen name="notification_touch_target_size">@*android:dimen/car_touch_target_size</dimen>
     <dimen name="media_action_icon_size">@*android:dimen/car_primary_icon_size</dimen>
 
+    <!-- Scrim -->
     <dimen name="headsup_scrim_height_below_notification">164dp</dimen>
 
     <!-- Swipe Animation -->

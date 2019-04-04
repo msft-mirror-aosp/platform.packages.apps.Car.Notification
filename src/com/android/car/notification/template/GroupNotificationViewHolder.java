@@ -71,7 +71,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
         mPaint = new Paint();
         mPaint.setColor(mContext.getColor(R.color.notification_list_divider_color));
         mDividerHeight = mContext.getResources().getDimensionPixelSize(
-                R.dimen.car_list_divider_height);
+                R.dimen.notification_list_divider_height);
 
         mNotificationListView.setLayoutManager(new LinearLayoutManager(mContext));
         mNotificationListView.addItemDecoration(new GroupedNotificationItemDecoration());

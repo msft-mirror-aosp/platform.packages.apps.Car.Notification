@@ -3,11 +3,14 @@ package com.android.car.notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.Button;
 
-import androidx.car.widget.PagedListView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import java.util.List;
@@ -37,14 +40,21 @@ public class CarNotificationView extends ConstraintLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        PagedListView listView = findViewById(R.id.notifications);
+        RecyclerView listView = findViewById(R.id.notifications);
+
         listView.setClipChildren(false);
-        mAdapter = new CarNotificationViewAdapter(mContext,/* isGroupNotificationAdapter= */ false);
+        listView.setLayoutManager(new LinearLayoutManager(mContext));
+        listView.addItemDecoration(new TopAndBottomOffsetDecoration(
+                mContext.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+        listView.addItemDecoration(new ItemSpacingDecoration(
+                mContext.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+
+        mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
+                false);
         listView.setAdapter(mAdapter);
-        ((SimpleItemAnimator) listView.getRecyclerView().getItemAnimator())
-                .setSupportsChangeAnimations(false);
-        listView.getRecyclerView().addOnItemTouchListener(
-                new CarNotificationItemTouchListener(mContext, mAdapter));
+
+        ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
+        listView.addOnItemTouchListener(new CarNotificationItemTouchListener(mContext, mAdapter));
 
         Button clearAllButton = findViewById(R.id.clear_all_button);
         if (clearAllButton != null) {
@@ -71,5 +81,57 @@ public class CarNotificationView extends ConstraintLayout
      */
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
+    }
+
+    /**
+     * A {@link RecyclerView.ItemDecoration} that will add a top offset to the first item and bottom
+     * offset to the last item in the RecyclerView it is added to.
+     */
+    private static class TopAndBottomOffsetDecoration extends RecyclerView.ItemDecoration {
+        private int mTopAndBottomOffset;
+
+        private TopAndBottomOffsetDecoration(int topOffset) {
+            mTopAndBottomOffset = topOffset;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            int position = parent.getChildAdapterPosition(view);
+
+            if (position == 0) {
+                outRect.top = mTopAndBottomOffset;
+            }
+            if (position == state.getItemCount() - 1) {
+                outRect.bottom = mTopAndBottomOffset;
+            }
+        }
+    }
+
+    /**
+     * A {@link RecyclerView.ItemDecoration} that will add spacing between each item in the
+     * RecyclerView that it is added to.
+     */
+    private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
+        private int mItemSpacing;
+
+        private ItemSpacingDecoration(int itemSpacing) {
+            mItemSpacing = itemSpacing;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            int position = parent.getChildAdapterPosition(view);
+
+            // Skip offset for last item.
+            if (position == state.getItemCount() - 1) {
+                return;
+            }
+
+            outRect.bottom = mItemSpacing;
+        }
     }
 }

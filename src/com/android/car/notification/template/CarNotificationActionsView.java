@@ -15,7 +15,6 @@
  */
 package com.android.car.notification.template;
 
-import android.annotation.ColorInt;
 import android.app.Notification;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
@@ -27,7 +26,6 @@ import android.widget.RelativeLayout;
 import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.R;
-import com.android.car.theme.Themes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +39,7 @@ public class CarNotificationActionsView extends RelativeLayout {
     // Maximum 3 actions
     // https://developer.android.com/reference/android/app/Notification.Builder.html#addAction
     private static final int MAX_NUM_ACTIONS = 3;
-
-    private final int mCardBackgroundColor;
-    private final int mDefaultTextColor;
+    private static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
 
     private final List<Button> mActionButtons = new ArrayList<>();
 
@@ -65,8 +61,6 @@ public class CarNotificationActionsView extends RelativeLayout {
     }
 
     {
-        mCardBackgroundColor = Themes.getAttrColor(getContext(), android.R.attr.colorPrimary);
-        mDefaultTextColor = Themes.getAttrColor(getContext(), android.R.attr.textColorPrimary);
         inflate(getContext(), R.layout.car_notification_actions_view, /* root= */ this);
     }
 
@@ -95,7 +89,8 @@ public class CarNotificationActionsView extends RelativeLayout {
         }
 
         if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)) {
-            mapActionLabels(statusBarNotification);
+            createMessageNotificationButtons(clickHandlerFactory, statusBarNotification);
+            return;
         }
 
         int length = Math.min(actions.length, MAX_NUM_ACTIONS);
@@ -114,38 +109,40 @@ public class CarNotificationActionsView extends RelativeLayout {
     }
 
     /**
-     * Replaces the action labels of the Assistant callbacks with the corresponding
-     * Assistant action labels.
-     * This method has no effect if the notification is not a Car-Compatible Messaging Notification.
+     * Message notifications should only have a "Play" button and a "Mute" button.
      *
-     * @param sbn the notification whose action labels should be mapped
+     * The Play button triggers the assistant to read the message aloud, optionally prompting the
+     * user to reply to the message afterwards.
+     * The Mute button allows users to toggle whether or not incoming notification with the same
+     * statusBarNotification key will be shown with a HUN and trigger a notification sound.
      */
-    private void mapActionLabels(StatusBarNotification sbn) {
-        if (CarAssistUtils.isCarCompatibleMessagingNotification(sbn)) {
-            for (Notification.Action action : sbn.getNotification().actions) {
-                mapActionLabels(action);
+    private void createMessageNotificationButtons(
+            NotificationClickHandlerFactory clickHandlerFactory,
+            StatusBarNotification statusBarNotification) {
+
+        Notification.Action[] actions = statusBarNotification.getNotification().actions;
+
+        for (int i = 0; i < actions.length; i++) {
+            Notification.Action action = actions[i];
+            Button button = null;
+            switch (action.getSemanticAction()) {
+                case Notification.Action.SEMANTIC_ACTION_MARK_AS_READ:
+                    button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
+                    button.setText(mContext.getString(R.string.assist_action_play_label));
+                    break;
+                case Notification.Action.SEMANTIC_ACTION_REPLY:
+                    // This action is not associated with any buttons for now.
+                    break;
+                default:
+                    break;
+            }
+            if (button != null) {
+                button.setOnClickListener(clickHandlerFactory.getActionClickHandler(
+                        statusBarNotification, i));
+                button.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    private void mapActionLabels(Notification.Action action) {
-        switch (action.getSemanticAction()) {
-            case Notification.Action.SEMANTIC_ACTION_REPLY:
-                action.title = mContext.getString(R.string.assist_action_reply_label);
-                break;
-            case Notification.Action.SEMANTIC_ACTION_MARK_AS_READ:
-                action.title = mContext.getString(R.string.assist_action_read_label);
-            default:
-                // no effect
-                break;
-        }
-    }
-
-    /**
-     * Sets the text color for action buttons.
-     */
-    void setActionTextColor(@ColorInt int color) {
-        mActionButtons.forEach(button -> button.setTextColor(color));
+        // TODO: add mute button here.
     }
 
     /**
@@ -155,8 +152,6 @@ public class CarNotificationActionsView extends RelativeLayout {
         for (Button button : mActionButtons) {
             button.setVisibility(View.GONE);
             button.setText(null);
-            button.setTextColor(mDefaultTextColor);
-            button.setCompoundDrawables(null, null, null, null);
             button.setOnClickListener(null);
         }
     }

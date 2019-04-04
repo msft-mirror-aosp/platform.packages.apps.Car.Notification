@@ -55,6 +55,7 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
     private boolean mSwiping;
     private int mSwipingSlop;
     private float mTranslationX;
+    private boolean mDismissOnSwipe = true;
 
     /**
      * The callback indicating the supplied view has been dismissed.
@@ -63,9 +64,11 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
         void onDismiss();
     }
 
-    HeadsUpNotificationOnTouchListener(View view, DismissCallbacks callbacks) {
+    HeadsUpNotificationOnTouchListener(View view, boolean dismissOnSwipe,
+            DismissCallbacks callbacks) {
         mView = view;
         mCallbacks = callbacks;
+        mDismissOnSwipe = dismissOnSwipe;
     }
 
     @Override
@@ -106,7 +109,7 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                     dismiss = (velocityX < 0) == (deltaX < 0);
                     dismissRight = mVelocityTracker.getXVelocity() > 0;
                 }
-                if (dismiss) {
+                if (dismiss && mDismissOnSwipe) {
                     mCallbacks.onDismiss();
                     mView.animate()
                             .translationX(dismissRight ? viewWidth : -viewWidth)
@@ -158,6 +161,9 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                 if (mSwiping) {
                     mTranslationX = deltaX;
                     mView.setTranslationX(deltaX - mSwipingSlop);
+                    if (!mDismissOnSwipe) {
+                        return true;
+                    }
                     mView.setAlpha(Math.max(0f, Math.min(1f,
                             1f - 2f * Math.abs(deltaX) / viewWidth)));
                     return true;

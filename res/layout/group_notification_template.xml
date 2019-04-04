@@ -20,14 +20,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- Note: the width is 0dp because ColumnCardView will automatically set a width based
-         on the number of columns it should take up. See ColumnCardView for more details. -->
-    <androidx.car.widget.ColumnCardView
-        android:id="@+id/column_card_view"
-        android:layout_width="0dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:columnSpan="@integer/notification_center_column_number"
+        android:layout_marginEnd="@dimen/notification_card_margin_horizontal"
+        android:layout_marginStart="@dimen/notification_card_margin_horizontal"
         app:cardBackgroundColor="?android:attr/colorPrimary"
         app:cardCornerRadius="@dimen/notification_card_radius">
 
@@ -39,11 +38,11 @@
                 android:id="@+id/group_header"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/notification_card_header_height"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/group_toggle_button"
-                android:layout_marginStart="@dimen/card_start_margin"
+                android:layout_alignParentTop="true"
                 android:layout_marginBottom="@dimen/card_header_margin_bottom"
+                android:layout_marginStart="@dimen/card_start_margin"
+                android:layout_toStartOf="@+id/group_toggle_button"
                 android:gravity="center_vertical"/>
 
             <View
@@ -57,9 +56,8 @@
                 android:id="@+id/group_toggle_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/notification_card_header_height"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginStart="@dimen/header_small_icon_padding"
+                android:layout_alignParentTop="true"
                 android:layout_marginEnd="@dimen/card_end_margin"
                 android:tint="@color/icon_tint"
                 android:focusable="false"/>
@@ -77,6 +75,5 @@
             android:id="@+id/touch_interceptor_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
-    </androidx.car.widget.ColumnCardView>
+    </androidx.cardview.widget.CardView>
 </FrameLayout>

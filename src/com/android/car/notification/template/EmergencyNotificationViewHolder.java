@@ -42,7 +42,7 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
     public EmergencyNotificationViewHolder(View view,
             NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
-        mCardView = view.findViewById(R.id.column_card_view);
+        mCardView = view.findViewById(R.id.card_view);
         mHeaderView = view.findViewById(R.id.notification_header);
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);

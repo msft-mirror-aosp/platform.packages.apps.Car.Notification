@@ -20,14 +20,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- Note: the width is 0dp because ColumnCardView will automatically set a width based
-         on the number of columns it should take up. See ColumnCardView for more details. -->
-    <androidx.car.widget.ColumnCardView
-        android:id="@+id/column_card_view"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:columnSpan="@integer/notification_center_column_number"
+        android:layout_marginEnd="@dimen/notification_card_margin_horizontal"
+        android:layout_marginStart="@dimen/notification_card_margin_horizontal"
         app:cardBackgroundColor="?android:attr/colorPrimary"
         app:cardCornerRadius="@dimen/notification_card_radius">
 
@@ -36,5 +35,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    </androidx.car.widget.ColumnCardView>
+    </androidx.cardview.widget.CardView>
 </FrameLayout>

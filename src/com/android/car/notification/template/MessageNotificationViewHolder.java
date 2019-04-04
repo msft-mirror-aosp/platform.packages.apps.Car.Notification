@@ -31,7 +31,6 @@ import android.widget.TextView;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.PreprocessingManager;
 import com.android.car.notification.R;
-import com.android.car.theme.Themes;
 
 import java.util.List;
 
