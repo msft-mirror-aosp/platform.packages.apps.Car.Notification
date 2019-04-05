@@ -22,7 +22,7 @@
     <integer name="heads_up_notification_minimum_time">2000</integer>
 
     <!-- Duration of heads-up notifications in milliseconds -->
-    <integer name="headsup_notification_duration_ms">5000</integer>
+    <integer name="headsup_notification_duration_ms">8000</integer>
 
     <!-- Total duration of fly-in animation for heads-up notifications in milliseconds -->
     <integer name="headsup_total_enter_duration_ms">233</integer>
