@@ -19,7 +19,7 @@
     <!-- The Action label displayed for Assistant Read and Reply actions [CHAR_LIMIT=20]-->
     <string name="assist_action_play_label">Play</string>
 
-    <!-- The Action label displayed to reply with a canned response to a SMS message [CHAR_LIMIT=25]-->
+    <!-- The Action label displayed to reply with a canned response to a SMS message [CHAR_LIMIT=35]-->
     <string name="action_canned_reply">\"I\'m driving right now.\"</string>
 
     <!-- The canned reply SMS message, meant to be sent as a response to an incoming SMS. [CHAR_LIMIT=NONE] -->
