@@ -188,6 +188,8 @@ public class PreprocessingManager {
      * This can happen if a notification group only contains less important notifications that are
      * filtered out in the previous {@link #filter} step.
      *
+     * <p> A group of child notifications without a summary notification will not be grouped.
+     *
      * @param list list of ungrouped {@link StatusBarNotification}s.
      * @return list of grouped notifications as {@link NotificationGroup}s.
      */
@@ -195,6 +197,7 @@ public class PreprocessingManager {
     List<NotificationGroup> group(List<StatusBarNotification> list) {
         SortedMap<String, NotificationGroup> groupedNotifications = new TreeMap<>();
 
+        // First pass: group all notifications according to their groupKey.
         for (int i = 0; i < list.size(); i++) {
             StatusBarNotification statusBarNotification = list.get(i);
             Notification notification = statusBarNotification.getNotification();
@@ -212,8 +215,10 @@ public class PreprocessingManager {
             }
         }
 
+        // Second pass: remove automatically generated group summary if it contains no child
+        // notifications. This can happen if a notification group only contains less important
+        // notifications that are filtered out in the previous filter step.
         List<NotificationGroup> groupList = new ArrayList<>(groupedNotifications.values());
-        // remove automatically generated group summary if it contains no child notifications
         groupList.removeIf(
                 notificationGroup -> {
                     StatusBarNotification summaryNotification =
@@ -222,7 +227,25 @@ public class PreprocessingManager {
                             && summaryNotification != null
                             && summaryNotification.getOverrideGroupKey() != null;
                 });
-        return groupList;
+
+        // Third pass: a notification group without a group summary should be restored back into
+        // individual notifications.
+        List<NotificationGroup> validGroupList = new ArrayList<>();
+        groupList.forEach(
+                group -> {
+                    if (group.getChildCount() > 1 && group.getGroupSummaryNotification() == null) {
+                        group.getChildNotifications().forEach(
+                                notification -> {
+                                    NotificationGroup newGroup = new NotificationGroup();
+                                    newGroup.addNotification(notification);
+                                    validGroupList.add(newGroup);
+                                });
+                    } else {
+                        validGroupList.add(group);
+                    }
+                });
+
+        return validGroupList;
     }
 
     /**
