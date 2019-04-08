@@ -17,8 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="assist_action_reply_label" msgid="6946087036560525072">"जवाब दें"</string>
-    <string name="assist_action_read_label" msgid="5779806540783232628">"पढ़ें"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"चलाएं"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"गाड़ी चला रहा/रही हूं.\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"मैं अभी गाड़ी चला रहा/रही हूं."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"मैसेज भेजा गया."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"कार सूचना सुनने की सेवा"</string>
     <string name="notifications" msgid="2865534625906329283">"सूचना केंद्र"</string>
     <string name="clear_all" msgid="1845314281571237722">"सभी सूचनाएं हटाएं"</string>

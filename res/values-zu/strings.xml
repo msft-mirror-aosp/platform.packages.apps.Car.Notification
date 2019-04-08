@@ -17,8 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="assist_action_reply_label" msgid="6946087036560525072">"Phendula"</string>
-    <string name="assist_action_read_label" msgid="5779806540783232628">"Funda"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"Dlala"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"Ngiyashayela manje.\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"Ngiyashayela manje."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"Umlayezo uthunyelwe ngempumelelo"</string>
     <string name="notification_service_label" msgid="7512186049723777468">"Isevisi yokulalela yesaziso semoto"</string>
     <string name="notifications" msgid="2865534625906329283">"Isikhungo sokwazisa"</string>
     <string name="clear_all" msgid="1845314281571237722">"Sula konke"</string>

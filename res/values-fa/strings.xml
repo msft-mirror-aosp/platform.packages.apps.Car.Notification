@@ -17,8 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="assist_action_reply_label" msgid="6946087036560525072">"پاسخ دادن"</string>
-    <string name="assist_action_read_label" msgid="5779806540783232628">"خواندن"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"پخش"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"«اکنون درحال رانندگی هستم.»"</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"اکنون درحال رانندگی هستم."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"پیام باموفقیت ارسال شد."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"سرویس شنونده اعلان خودرو"</string>
     <string name="notifications" msgid="2865534625906329283">"مرکز اعلان"</string>
     <string name="clear_all" msgid="1845314281571237722">"پاک کردن همه"</string>
