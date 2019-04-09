@@ -17,8 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="assist_action_reply_label" msgid="6946087036560525072">"Responder"</string>
-    <string name="assist_action_read_label" msgid="5779806540783232628">"Ler"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"Reproducir"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"Estou conducindo.\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"Estou conducindo."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"A mensaxe enviouse correctamente."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"Servizo de escoita de notificacións do coche"</string>
     <string name="notifications" msgid="2865534625906329283">"Centro de notificacións"</string>
     <string name="clear_all" msgid="1845314281571237722">"Borrar todo"</string>
