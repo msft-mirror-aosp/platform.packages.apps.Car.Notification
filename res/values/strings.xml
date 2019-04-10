@@ -16,7 +16,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- The Action label displayed for Assistant Read and Reply actions [CHAR_LIMIT=20]-->
+    <!-- The assistant action label to read aloud a message notification and optionally prompt user to respond [CHAR_LIMIT=20]-->
     <string name="assist_action_play_label">Play</string>
 
     <!-- The Action label displayed to reply with a canned response to a SMS message [CHAR_LIMIT=35]-->
