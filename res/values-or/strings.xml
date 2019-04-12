@@ -17,14 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for assist_action_play_label (6278705468288338172) -->
-    <skip />
-    <!-- no translation found for action_canned_reply (4045960823021872834) -->
-    <skip />
-    <!-- no translation found for canned_reply_message (7959257272917598063) -->
-    <skip />
-    <!-- no translation found for toast_message_sent_success (1159956191974273064) -->
-    <skip />
+    <string name="assist_action_play_label" msgid="6278705468288338172">"ଚଲାନ୍ତୁ"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"ମୁଁ ବର୍ତ୍ତମାନ ଡ୍ରାଇଭ୍ କରୁଛି।\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"ମୁଁ ବର୍ତ୍ତମାନ ଡ୍ରାଇଭ୍ କରୁଛି।"</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"ମେସେଜ୍ ସଫଳତାର ସହ ପଠାଗଲା।"</string>
     <string name="notification_service_label" msgid="7512186049723777468">"କାର୍‌ର ବିଜ୍ଞପ୍ତି ଶ୍ରୋତା ସେବା"</string>
     <string name="notifications" msgid="2865534625906329283">"ବିଜ୍ଞପ୍ତି କେନ୍ଦ୍ର"</string>
     <string name="clear_all" msgid="1845314281571237722">"ସବୁ ଖାଲି କରନ୍ତୁ"</string>
