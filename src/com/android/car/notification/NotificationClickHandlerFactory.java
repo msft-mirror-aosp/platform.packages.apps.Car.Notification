@@ -29,6 +29,7 @@ import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.car.assist.client.CarAssistUtils;
@@ -46,12 +47,30 @@ public class NotificationClickHandlerFactory {
     private final Callback mCallback;
     private CarAssistUtils mCarAssistUtils;
     @Nullable private CarHeadsUpNotificationManager.Callback mHeadsUpManagerCallback;
+    @Nullable private NotificationDataManager mNotificationDataManager;
 
     public NotificationClickHandlerFactory(IStatusBarService barService,
             @Nullable Callback callback) {
         mBarService = barService;
         mCallback = callback != null ? callback : launchResult -> { };
         mCarAssistUtils = null;
+    }
+
+    /**
+     * Sets the {@link NotificationDataManager} which contains additional state information of the
+     * {@link StatusBarNotification}s.
+     */
+    public void setNotificationDataManager(NotificationDataManager manager) {
+      mNotificationDataManager = manager;
+    }
+
+    /**
+     * Returns the {@link NotificationDataManager} which contains additional state information of
+     * the {@link StatusBarNotification}s.
+     */
+    @Nullable
+    public NotificationDataManager getNotificationDataManager() {
+      return mNotificationDataManager;
     }
 
     /**
@@ -100,7 +119,7 @@ public class NotificationClickHandlerFactory {
                             notificationVisibility);
                 }
             } catch (RemoteException ex) {
-                // system process is dead if we're here.
+                Log.e(TAG, "Remote exception in getClickHandler", ex);
             }
             mCallback.onNotificationClicked(result);
         };
@@ -171,8 +190,29 @@ public class NotificationClickHandlerFactory {
                             notificationVisibility,
                             /* generatedByAssistant= */ false);
                 } catch (RemoteException e) {
-                    // system process is dead if we're here.
+                    Log.e(TAG, "Remote exception in getActionClickHandler", e);
                 }
+            }
+        };
+    }
+
+    /**
+     * Returns a {@link View.OnClickListener} that should be used for the
+     * {@param messageNotification}'s {@param muteButton}.
+     */
+    public View.OnClickListener getMuteClickHandler(
+            Button muteButton, StatusBarNotification messageNotification) {
+        return v -> {
+            if (mNotificationDataManager != null) {
+                mNotificationDataManager.toggleMute(messageNotification);
+                Context context = v.getContext().getApplicationContext();
+                muteButton.setText(
+                        (mNotificationDataManager.isMessageNotificationMuted(messageNotification))
+                                ? context.getString(R.string.action_unmute_long)
+                                : context.getString(R.string.action_mute_long));
+                mCallback.onNotificationClicked(ActivityManager.START_SUCCESS);
+            } else {
+              Log.d(TAG, "Could not set mute click handler as NotificationDataManager is null");
             }
         };
     }

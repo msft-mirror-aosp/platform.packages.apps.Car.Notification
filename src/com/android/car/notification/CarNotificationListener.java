@@ -17,7 +17,6 @@ package com.android.car.notification;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +29,8 @@ import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import com.android.car.assist.client.CarAssistUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,8 @@ public class CarNotificationListener extends NotificationListenerService {
     private Handler mHandler;
     private RankingMap mRankingMap;
     private CarHeadsUpNotificationManager mHeadsUpManager;
+    private NotificationDataManager mNotificationDataManager;
+
     /**
      * Map that contains all the active notifications. These notifications may or may not be
      * visible to the user if they get filtered out. The only time these will be removed from the
@@ -76,10 +79,11 @@ public class CarNotificationListener extends NotificationListenerService {
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
                     ActivityManager.getCurrentUser());
+            initializeDataManager();
             // Note: The first call to CarHeadsUpNotificationManager.getInstance will build the
             // UI thus we do it here to be sure it's ready.
             mHeadsUpManager = CarHeadsUpNotificationManager.getInstance(context,
-                    clickHandlerFactory);
+                    clickHandlerFactory, mNotificationDataManager);
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(mHeadsUpManager);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to register notification listener", e);
@@ -89,9 +93,11 @@ public class CarNotificationListener extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
+        initializeDataManager();
         NotificationApplication app = (NotificationApplication) getApplication();
+        app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
         mHeadsUpManager = CarHeadsUpNotificationManager.getInstance(/* context= */this,
-                app.getClickHandlerFactory());
+                app.getClickHandlerFactory(), mNotificationDataManager);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
 
@@ -189,6 +195,9 @@ public class CarNotificationListener extends NotificationListenerService {
     }
 
     private void onNotificationAdded(StatusBarNotification sbn) {
+        if (CarAssistUtils.isCarCompatibleMessagingNotification(sbn)) {
+            mNotificationDataManager.addNewMessageNotification(sbn);
+        }
         mHeadsUpManager.maybeShowHeadsUp(sbn, getCurrentRanking(), mActiveNotifications);
         if (mHandler == null) {
             return;
@@ -197,6 +206,12 @@ public class CarNotificationListener extends NotificationListenerService {
         msg.what = NOTIFY_NOTIFICATIONS_CHANGED;
         msg.obj = sbn;
         mHandler.sendMessage(msg);
+    }
+
+    private void initializeDataManager() {
+        if (mNotificationDataManager == null) {
+            mNotificationDataManager = new NotificationDataManager();
+        }
     }
 
     class LocalBinder extends Binder {

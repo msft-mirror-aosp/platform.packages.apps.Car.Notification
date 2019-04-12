@@ -71,6 +71,7 @@ public class CarHeadsUpNotificationManager
 
     private boolean mShouldRestrictMessagePreview;
     private NotificationClickHandlerFactory mClickHandlerFactory;
+    private NotificationDataManager mNotificationDataManager;
 
     // key for the map is the statusbarnotification key
     private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications;
@@ -592,6 +593,7 @@ public class CarHeadsUpNotificationManager
      * <ul>
      * <li> Keyguard (lock screen) is showing
      * <li> OEMs configured CATEGORY_NAVIGATION should not be shown
+     * <li> Notification is muted.
      * </ul>
      *
      * <p> A notification will be shown as a heads-up if:
@@ -620,6 +622,10 @@ public class CarHeadsUpNotificationManager
         if (notification.suppressAlertingDueToGrouping()) {
             return false;
         }
+        // Messaging notification muted by user.
+        if (mNotificationDataManager.isMessageNotificationMuted(statusBarNotification)) {
+            return false;
+        }
         // Show if importance >= HIGH
         NotificationListenerService.Ranking ranking = getRanking();
         if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
@@ -642,11 +648,13 @@ public class CarHeadsUpNotificationManager
      * @param clickHandlerFactory used to generate onClickListeners
      */
     public static CarHeadsUpNotificationManager getInstance(Context context,
-            NotificationClickHandlerFactory clickHandlerFactory) {
+            NotificationClickHandlerFactory clickHandlerFactory,
+            NotificationDataManager notificationDataManager) {
         if (sManager == null) {
             sManager = new CarHeadsUpNotificationManager(context);
         }
         sManager.setClickHandlerFactory(clickHandlerFactory);
+        sManager.setNotificationDataManager(notificationDataManager);
         return sManager;
     }
 
@@ -665,6 +673,14 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     protected void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
+    }
+
+    /**
+     * Sets the {@link NotificationDataManager} which contains additional state information of the
+     * {@link StatusBarNotification}s.
+     */
+    protected void setNotificationDataManager(NotificationDataManager manager) {
+        mNotificationDataManager = manager;
     }
 
     /**
