@@ -19,6 +19,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
@@ -55,6 +56,8 @@ public class CarHeadsUpNotificationManager
     private static final String TAG = CarHeadsUpNotificationManager.class.getSimpleName();
 
     private static CarHeadsUpNotificationManager sManager;
+
+    private final Beeper mBeeper;
     private final Context mContext;
     private final boolean mEnableNavigationHeadsup;
     private final long mDuration;
@@ -71,6 +74,7 @@ public class CarHeadsUpNotificationManager
 
     private boolean mShouldRestrictMessagePreview;
     private NotificationClickHandlerFactory mClickHandlerFactory;
+    private NotificationDataManager mNotificationDataManager;
 
     // key for the map is the statusbarnotification key
     private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications;
@@ -80,6 +84,7 @@ public class CarHeadsUpNotificationManager
         mContext = context.getApplicationContext();
         mEnableNavigationHeadsup =
                 context.getResources().getBoolean(R.bool.config_showNavigationHeadsup);
+        mBeeper = new Beeper(mContext);
         mDuration = mContext.getResources().getInteger(R.integer.headsup_notification_duration_ms);
         mMinDisplayDuration = mContext.getResources().getInteger(
                 R.integer.heads_up_notification_minimum_time);
@@ -96,8 +101,6 @@ public class CarHeadsUpNotificationManager
         mWindowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mInflater = LayoutInflater.from(mContext);
-
-
         mActiveHeadsUpNotifications = new HashMap<>();
     }
 
@@ -160,6 +163,13 @@ public class CarHeadsUpNotificationManager
         }
         if (!activeNotifications.containsKey(statusBarNotification.getKey()) || canUpdate(
                 statusBarNotification) || alertAgain(statusBarNotification.getNotification())) {
+            NotificationListenerService.Ranking ranking = getRanking();
+            if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
+                NotificationChannel notificationChannel = ranking.getChannel();
+                // make the sound
+                mBeeper.beep(statusBarNotification.getPackageName(),
+                        notificationChannel.getSound());
+            }
             showHeadsUp(mPreprocessingManager.optimizeForDriving(statusBarNotification));
         }
         activeNotifications.put(statusBarNotification.getKey(), statusBarNotification);
@@ -592,6 +602,7 @@ public class CarHeadsUpNotificationManager
      * <ul>
      * <li> Keyguard (lock screen) is showing
      * <li> OEMs configured CATEGORY_NAVIGATION should not be shown
+     * <li> Notification is muted.
      * </ul>
      *
      * <p> A notification will be shown as a heads-up if:
@@ -620,6 +631,10 @@ public class CarHeadsUpNotificationManager
         if (notification.suppressAlertingDueToGrouping()) {
             return false;
         }
+        // Messaging notification muted by user.
+        if (mNotificationDataManager.isMessageNotificationMuted(statusBarNotification)) {
+            return false;
+        }
         // Show if importance >= HIGH
         NotificationListenerService.Ranking ranking = getRanking();
         if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
@@ -642,11 +657,13 @@ public class CarHeadsUpNotificationManager
      * @param clickHandlerFactory used to generate onClickListeners
      */
     public static CarHeadsUpNotificationManager getInstance(Context context,
-            NotificationClickHandlerFactory clickHandlerFactory) {
+            NotificationClickHandlerFactory clickHandlerFactory,
+            NotificationDataManager notificationDataManager) {
         if (sManager == null) {
             sManager = new CarHeadsUpNotificationManager(context);
         }
         sManager.setClickHandlerFactory(clickHandlerFactory);
+        sManager.setNotificationDataManager(notificationDataManager);
         return sManager;
     }
 
@@ -665,6 +682,14 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     protected void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
+    }
+
+    /**
+     * Sets the {@link NotificationDataManager} which contains additional state information of the
+     * {@link StatusBarNotification}s.
+     */
+    protected void setNotificationDataManager(NotificationDataManager manager) {
+        mNotificationDataManager = manager;
     }
 
     /**

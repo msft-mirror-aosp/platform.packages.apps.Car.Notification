@@ -60,6 +60,9 @@ public class CarHeadsUpNotificationManagerTest {
     @Mock
     NotificationClickHandlerFactory mClickHandlerFactory;
 
+    @Mock
+    NotificationDataManager mNotificationDataManager;
+
     @Spy
     StatusBarNotification mStatusBarNotificationSpy;
 
@@ -312,6 +315,37 @@ public class CarHeadsUpNotificationManagerTest {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
     }
 
+    @Test
+    public void maybeShowHeadsUp_nonMutedNotification_headsUpShown() {
+        when(mNotificationDataManager.isMessageNotificationMuted(any())).thenReturn(false);
+        when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
+        when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
+
+        Context context = RuntimeEnvironment.application;
+        Shadows.shadowOf(context.getPackageManager()).addPackage(PKG_1);
+        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock, mActiveNotifications);
+        View notificationView = mManager.getNotificationView(
+                mManager.getActiveHeadsUpNotifications().get(mNotification_inboxHeadsUp.getKey()));
+
+        assertThat(notificationView).isNotNull();
+        assertThat(mManager.getActiveHeadsUpNotifications().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void maybeShowHeadsUp_mutedNotification_headsUpNotShown() {
+        when(mNotificationDataManager.isMessageNotificationMuted(any())).thenReturn(true);
+        when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
+        when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
+
+        Context context = RuntimeEnvironment.application;
+        Shadows.shadowOf(context.getPackageManager()).addPackage(PKG_1);
+        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock, mActiveNotifications);
+        View notificationView = mManager.getNotificationView(
+                mManager.getActiveHeadsUpNotifications().get(mNotification_inboxHeadsUp.getKey()));
+
+        assertThat(notificationView).isNull();
+    }
+
 
     private void initializeWithFactory() {
         mManager = new CarHeadsUpNotificationManager(mContext) {
@@ -321,5 +355,6 @@ public class CarHeadsUpNotificationManagerTest {
             }
         };
         mManager.setClickHandlerFactory(mClickHandlerFactory);
+        mManager.setNotificationDataManager(mNotificationDataManager);
     }
 }

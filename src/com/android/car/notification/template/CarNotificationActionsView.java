@@ -25,6 +25,7 @@ import android.widget.RelativeLayout;
 
 import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.NotificationDataManager;
 import com.android.car.notification.R;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class CarNotificationActionsView extends RelativeLayout {
     // https://developer.android.com/reference/android/app/Notification.Builder.html#addAction
     private static final int MAX_NUM_ACTIONS = 3;
     private static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
+    private static final int MUTE_MESSAGE_ACTION_BUTTON_INDEX = 1;
 
     private final List<Button> mActionButtons = new ArrayList<>();
 
@@ -142,7 +144,20 @@ public class CarNotificationActionsView extends RelativeLayout {
                 button.setVisibility(View.VISIBLE);
             }
         }
-        // TODO: add mute button here.
+        createMuteButton(clickHandlerFactory, statusBarNotification);
+    }
+
+    private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
+            StatusBarNotification statusBarNotification) {
+        Button button = mActionButtons.get(MUTE_MESSAGE_ACTION_BUTTON_INDEX);
+        NotificationDataManager manager = clickHandlerFactory.getNotificationDataManager();
+        button.setText((manager != null && manager.isMessageNotificationMuted(
+                statusBarNotification))
+                        ? mContext.getString(R.string.action_unmute_long)
+                        : mContext.getString(R.string.action_mute_long));
+        button.setVisibility(View.VISIBLE);
+        button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(
+                button, statusBarNotification));
     }
 
     /**
