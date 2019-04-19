@@ -57,6 +57,8 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     @ColorInt
     private final int mDefaultBackgroundColor;
     @ColorInt
+    private final int mDefaultCarAccentColor;
+    @ColorInt
     private final int mDefaultPrimaryForegroundColor;
     @ColorInt
     private final int mDefaultSecondaryForegroundColor;
@@ -78,6 +80,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mBodyView = itemView.findViewById(R.id.notification_body);
         mActionsView = itemView.findViewById(R.id.notification_actions);
         mDefaultBackgroundColor = ThemesUtil.getAttrColor(context, android.R.attr.colorPrimary);
+        mDefaultCarAccentColor = ThemesUtil.getAttrColor(context, android.R.attr.colorAccent);
         mDefaultPrimaryForegroundColor = context.getColor(R.color.primary_text_color);
         mDefaultSecondaryForegroundColor = context.getColor(R.color.secondary_text_color);
     }
@@ -157,7 +160,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         if (color != Notification.COLOR_DEFAULT) {
             return color;
         }
-        return mDefaultPrimaryForegroundColor;
+        return mDefaultCarAccentColor;
     }
 
     /**

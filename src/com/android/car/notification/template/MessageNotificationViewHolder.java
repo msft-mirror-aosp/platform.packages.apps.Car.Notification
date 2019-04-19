@@ -16,7 +16,6 @@
 package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
-import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.Person;
 import android.content.Context;
@@ -26,6 +25,8 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.DateTimeView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.car.notification.NotificationClickHandlerFactory;
@@ -38,21 +39,31 @@ import java.util.List;
  * Messaging notification template that displays a messaging notification and a voice reply button.
  */
 public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder {
+    @ColorInt
+    private final int mDefaultPrimaryForegroundColor;
     private final Context mContext;
     private final CarNotificationHeaderView mHeaderView;
-    private final CarNotificationBodyView mBodyView;
     private final CarNotificationActionsView mActionsView;
-    private final TextView mMessageCountView;
+    private final TextView mSenderNameView;
+    private final DateTimeView mTimeView;
+    private final TextView mMessageView;
+    private final TextView mUnshownCountView;
+    private final ImageButton mAvatarView;
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
     public MessageNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
         mContext = view.getContext();
+        mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);
         mHeaderView = view.findViewById(R.id.notification_header);
-        mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
-        mMessageCountView = view.findViewById(R.id.message_count);
+        mSenderNameView = view.findViewById(R.id.notification_body_title);
+        mTimeView = view.findViewById(R.id.in_group_time_stamp);
+        mTimeView.setShowRelativeTime(true);
+        mMessageView = view.findViewById(R.id.notification_body_content);
+        mUnshownCountView = view.findViewById(R.id.message_count);
+        mAvatarView = view.findViewById(R.id.notification_body_icon);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -63,7 +74,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     @Override
     public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
         super.bind(statusBarNotification, isInGroup);
-        bindBody(statusBarNotification, /* isRestricted= */ false);
+        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ false);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
     }
@@ -74,7 +85,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     public void bindRestricted(StatusBarNotification statusBarNotification, boolean isInGroup) {
         super.bind(statusBarNotification, isInGroup);
-        bindBody(statusBarNotification, /* isRestricted= */ true);
+        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ true);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
     }
@@ -83,7 +94,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * Private method that binds the data to the view.
      */
     private void bindBody(
-            @Nullable StatusBarNotification statusBarNotification, boolean isRestricted) {
+            StatusBarNotification statusBarNotification, boolean isInGroup, boolean isRestricted) {
         Notification notification = statusBarNotification.getNotification();
 
         CharSequence messageText = null;
@@ -134,23 +145,53 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             avatar = notification.getLargeIcon();
         }
 
-        mBodyView.bind(
-                senderName,
-                PreprocessingManager.getInstance(mContext).trimText(messageText),
-                avatar);
+        if (!TextUtils.isEmpty(senderName)) {
+            mSenderNameView.setVisibility(View.VISIBLE);
+            mSenderNameView.setText(senderName);
+        }
 
-        // bind unshown count for unrestricted mode
+        if (isInGroup && notification.showsTime()) {
+            mTimeView.setVisibility(View.VISIBLE);
+            mTimeView.setTime(notification.when);
+        }
+
+        if (!TextUtils.isEmpty(messageText)) {
+            messageText = PreprocessingManager.getInstance(mContext).trimText(messageText);
+            mMessageView.setVisibility(View.VISIBLE);
+            mMessageView.setText(messageText);
+        }
+
+        if (avatar != null) {
+            mAvatarView.setVisibility(View.VISIBLE);
+            mAvatarView.setImageIcon(avatar);
+        }
+
         int unshownCount = messageCount - 1;
         if (!isRestricted && unshownCount > 0) {
-            mMessageCountView.setText(mContext.getString(R.string.unshown_count, unshownCount));
-            mMessageCountView.setTextColor(getAccentColor());
-            mMessageCountView.setVisibility(View.VISIBLE);
+            String unshownCountText =
+                    mContext.getString(R.string.message_unshown_count, unshownCount);
+            mUnshownCountView.setVisibility(View.VISIBLE);
+            mUnshownCountView.setText(unshownCountText);
+            mUnshownCountView.setTextColor(getAccentColor());
         }
     }
 
     @Override
     void reset() {
         super.reset();
-        mMessageCountView.setVisibility(View.GONE);
+        mSenderNameView.setVisibility(View.GONE);
+        mSenderNameView.setText(null);
+
+        mTimeView.setVisibility(View.GONE);
+
+        mMessageView.setVisibility(View.GONE);
+        mMessageView.setText(null);
+
+        mAvatarView.setVisibility(View.GONE);
+        mAvatarView.setImageIcon(null);
+
+        mUnshownCountView.setVisibility(View.GONE);
+        mUnshownCountView.setText(null);
+        mUnshownCountView.setTextColor(mDefaultPrimaryForegroundColor);
     }
 }
