@@ -23,6 +23,7 @@
 
     <!-- Header View -->
     <dimen name="notification_card_header_height">@*android:dimen/car_card_action_bar_height</dimen>
+    <dimen name="notification_card_footer_height">@*android:dimen/car_card_action_bar_height</dimen>
 
     <!-- Card View -->
     <dimen name="card_start_margin">@*android:dimen/car_keyline_1</dimen>

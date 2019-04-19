@@ -59,8 +59,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="@dimen/card_end_margin"
-                android:tint="@color/icon_tint"
-                android:focusable="false"/>
+                android:focusable="false"
+                android:tint="@color/icon_tint"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notification_list"
@@ -68,6 +68,23 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/header_divider"
                 android:background="@color/group_notification_background_color"/>
+
+            <View
+                android:id="@+id/footer_divider"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/notification_list_divider_height"
+                android:layout_below="@id/notification_list"
+                android:background="@color/notification_list_divider_color"/>
+
+            <TextView
+                android:id="@+id/expansion_footer"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/notification_card_footer_height"
+                android:layout_below="@id/footer_divider"
+                android:layout_marginEnd="@dimen/card_end_margin"
+                android:layout_marginStart="@dimen/card_start_margin"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/NotificationBodyContentText"/>
         </RelativeLayout>
 
         <!-- This view intercepts all clicks on the card in the collapsed state -->
