@@ -18,6 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Пушти"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"Исклучи звук"</string>
+    <string name="action_mute_long" msgid="670936611165098834">"Исклучи звук на разговорот"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"Вклучи звук"</string>
+    <string name="action_unmute_long" msgid="750697270532622459">"Вклучи звук на разговорот"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"„Возам во моментов.“"</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"Возам во моментов."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"Пораката е успешно испратена."</string>
