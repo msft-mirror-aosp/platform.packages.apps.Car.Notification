@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +44,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     private final Context mContext;
     private final View mHeaderDividerView;
     private final ImageView mToggleIcon;
+    private final TextView mExpansionFooterView;
     private final RecyclerView mNotificationListView;
     private final CarNotificationViewAdapter mAdapter;
     private final Drawable mExpandDrawable;
@@ -62,6 +64,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
         mGroupHeaderView = view.findViewById(R.id.group_header);
         mHeaderDividerView = view.findViewById(R.id.header_divider);
         mToggleIcon = view.findViewById(R.id.group_toggle_icon);
+        mExpansionFooterView = view.findViewById(R.id.expansion_footer);
         mNotificationListView = view.findViewById(R.id.notification_list);
         mTouchInterceptorView = view.findViewById(R.id.touch_interceptor_view);
 
@@ -148,13 +151,25 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     }
 
     private void updateExpansionIcon(int childCount, boolean isExpanded) {
+        // expansion button in the group header
         if (childCount == 0) {
             mToggleIcon.setVisibility(View.GONE);
             return;
         }
-
         mToggleIcon.setVisibility(View.VISIBLE);
         mToggleIcon.setImageDrawable(isExpanded ? mCollapseDrawable : mExpandDrawable);
+
+        // expansion button in the group footer
+        if (isExpanded) {
+            mExpansionFooterView.setText(mContext.getString(R.string.show_less));
+            return;
+        }
+
+        int unshownCount = childCount - 2;
+        mExpansionFooterView.setText(
+                unshownCount <= 0
+                        ? mContext.getString(R.string.show_more)
+                        : mContext.getString(R.string.show_count_more, unshownCount));
     }
 
     private void updateOnClickListener(
@@ -167,6 +182,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
         };
 
         mGroupHeaderView.setOnClickListener(expansionClickListener);
+        mExpansionFooterView.setOnClickListener(expansionClickListener);
         mTouchInterceptorView.setOnClickListener(expansionClickListener);
         mTouchInterceptorView.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
     }
