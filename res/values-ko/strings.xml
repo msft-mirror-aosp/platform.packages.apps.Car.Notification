@@ -18,6 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"재생"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"음소거"</string>
+    <string name="action_mute_long" msgid="670936611165098834">"대화 숨기기"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"숨기기 취소"</string>
+    <string name="action_unmute_long" msgid="750697270532622459">"대화 숨기기 취소"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\'운전 중입니다.\'"</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"운전 중입니다."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"메시지가 전송되었습니다."</string>
@@ -25,6 +29,12 @@
     <string name="notifications" msgid="2865534625906329283">"알림 센터"</string>
     <string name="clear_all" msgid="1845314281571237722">"모두 삭제"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <!-- no translation found for show_more (7291378544926443344) -->
+    <skip />
+    <!-- no translation found for show_less (7342677676229302829) -->
+    <skip />
+    <!-- no translation found for show_count_more (480555295700318609) -->
+    <skip />
     <string name="unshown_count" msgid="3983441624645436587">"외 <xliff:g id="COUNT">%d</xliff:g>개"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other">새 메시지 <xliff:g id="COUNT">%d</xliff:g>개</item>
