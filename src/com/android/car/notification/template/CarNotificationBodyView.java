@@ -20,6 +20,7 @@ import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Icon;
+import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -94,8 +95,7 @@ public class CarNotificationBodyView extends RelativeLayout {
 
         if (!TextUtils.isEmpty(content)) {
             mContentView.setVisibility(View.VISIBLE);
-            // clear spannables and only use the text
-            mContentView.setText(content.toString());
+            mContentView.setText(content);
         }
 
         if (icon != null) {

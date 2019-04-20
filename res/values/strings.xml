@@ -64,8 +64,8 @@
     <!-- The label for the button that expands a grouped notification with an unread count [CHAR_LIMIT=25] -->
     <string name="show_count_more">Show&#160;<xliff:g id="count">%d</xliff:g>&#160;more</string>
 
-    <!-- Text indicating the number of the unshown notifications in the group summary or in the message history [CHAR_LIMIT=10] -->
-    <string name="unshown_count">+<xliff:g id="count">%d</xliff:g></string>
+    <!-- Text indicating the number of the unshown messages in a messaging style notification [CHAR_LIMIT=15] -->
+    <string name="message_unshown_count">&#160;+<xliff:g id="count">%d</xliff:g>&#160;more</string>
 
     <!-- Text indicating the number of messages a user has received when driving [CHAR_LIMIT=20] -->
     <plurals name="restricted_message_text">
