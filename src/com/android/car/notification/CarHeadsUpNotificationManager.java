@@ -166,9 +166,13 @@ public class CarHeadsUpNotificationManager
             NotificationListenerService.Ranking ranking = getRanking();
             if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
                 NotificationChannel notificationChannel = ranking.getChannel();
-                // make the sound
-                mBeeper.beep(statusBarNotification.getPackageName(),
-                        notificationChannel.getSound());
+                // If sound is not set on the notification channel and default is not chosen it
+                // can be null.
+                if (notificationChannel.getSound() != null) {
+                    // make the sound
+                    mBeeper.beep(statusBarNotification.getPackageName(),
+                            notificationChannel.getSound());
+                }
             }
             showHeadsUp(mPreprocessingManager.optimizeForDriving(statusBarNotification));
         }

@@ -29,6 +29,12 @@
     <string name="notifications" msgid="2865534625906329283">"ಅಧಿಸೂಚನೆಯ ಕೇಂದ್ರ"</string>
     <string name="clear_all" msgid="1845314281571237722">"ತೆರವುಗೊಳಿಸಿ"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <!-- no translation found for show_more (7291378544926443344) -->
+    <skip />
+    <!-- no translation found for show_less (7342677676229302829) -->
+    <skip />
+    <!-- no translation found for show_count_more (480555295700318609) -->
+    <skip />
     <string name="unshown_count" msgid="3983441624645436587">"+<xliff:g id="COUNT">%d</xliff:g>"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> ಹೊಸ ಸಂದೇಶಗಳು</item>

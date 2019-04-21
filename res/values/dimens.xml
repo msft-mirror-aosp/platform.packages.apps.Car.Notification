@@ -23,6 +23,7 @@
 
     <!-- Header View -->
     <dimen name="notification_card_header_height">@*android:dimen/car_card_action_bar_height</dimen>
+    <dimen name="notification_card_footer_height">@*android:dimen/car_card_action_bar_height</dimen>
 
     <!-- Card View -->
     <dimen name="card_start_margin">@*android:dimen/car_keyline_1</dimen>
@@ -33,12 +34,17 @@
     <dimen name="card_body_margin_bottom">@*android:dimen/car_padding_0</dimen>
     <dimen name="text_padding">@*android:dimen/car_padding_0</dimen>
     <dimen name="unshown_count_start_margin">@*android:dimen/car_padding_1</dimen>
+    <dimen name="unread_message_count_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="headsup_notification_top_margin">@*android:dimen/car_padding_1</dimen>
+    <dimen name="in_group_timestamp_start_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="item_spacing">@*android:dimen/car_padding_2</dimen>
     <dimen name="header_small_icon_padding">@*android:dimen/car_padding_3</dimen>
     <dimen name="body_bottom_padding">@*android:dimen/car_padding_3</dimen>
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
+
+    <!-- Text Size -->
+    <dimen name="time_stamp_text_size_in_group">@*android:dimen/car_body3_size</dimen>
 
     <!-- Action View -->
     <dimen name="action_button_radius">28dp</dimen>
