@@ -67,24 +67,20 @@ public class CarNotificationListener extends NotificationListenerService {
      * Call this if to register this service as a system service and connect to HUN. This is useful
      * if the notification service is being used as a lib instead of a standalone app. The
      * standalone app version has a manifest entry that will have the same effect.
-     *
-     * @param context Context required for registering the service.
+     *  @param context Context required for registering the service.
      * @param carUxRestrictionManagerWrapper will have the heads up manager registered with it.
-     * @param clickHandlerFactory used to construct Heads up manager
      */
     public void registerAsSystemService(Context context,
             CarUxRestrictionManagerWrapper carUxRestrictionManagerWrapper,
-            NotificationClickHandlerFactory clickHandlerFactory) {
+            CarHeadsUpNotificationManager carHeadsUpNotificationManager,
+            NotificationDataManager notificationDataManager) {
         try {
+        mNotificationDataManager = notificationDataManager;
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
                     ActivityManager.getCurrentUser());
-            initializeDataManager();
-            // Note: The first call to CarHeadsUpNotificationManager.getInstance will build the
-            // UI thus we do it here to be sure it's ready.
-            mHeadsUpManager = CarHeadsUpNotificationManager.getInstance(context,
-                    clickHandlerFactory, mNotificationDataManager);
-            carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(mHeadsUpManager);
+            mHeadsUpManager = carHeadsUpNotificationManager;
+            carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(carHeadsUpNotificationManager);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to register notification listener", e);
         }
@@ -93,11 +89,13 @@ public class CarNotificationListener extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        initializeDataManager();
+        mNotificationDataManager = new NotificationDataManager();
         NotificationApplication app = (NotificationApplication) getApplication();
         app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
-        mHeadsUpManager = CarHeadsUpNotificationManager.getInstance(/* context= */this,
-                app.getClickHandlerFactory(), mNotificationDataManager);
+
+        mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */this,
+                app.getClickHandlerFactory(),
+                mNotificationDataManager);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
 
@@ -206,12 +204,6 @@ public class CarNotificationListener extends NotificationListenerService {
         msg.what = NOTIFY_NOTIFICATIONS_CHANGED;
         msg.obj = sbn;
         mHandler.sendMessage(msg);
-    }
-
-    private void initializeDataManager() {
-        if (mNotificationDataManager == null) {
-            mNotificationDataManager = new NotificationDataManager();
-        }
     }
 
     class LocalBinder extends Binder {

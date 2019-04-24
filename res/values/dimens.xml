@@ -59,8 +59,9 @@
     <dimen name="notification_touch_target_size">@*android:dimen/car_touch_target_size</dimen>
     <dimen name="media_action_icon_size">@*android:dimen/car_primary_icon_size</dimen>
 
-    <!-- Scrim -->
-    <dimen name="headsup_scrim_height_below_notification">164dp</dimen>
+    <!-- HUN Scrim -->
+    <dimen name="headsup_scrim_height">464dp</dimen>
+
 
     <!-- Swipe Animation -->
     <item name="error_factor_multiplier" format="float" type="dimen">1.2</item>
