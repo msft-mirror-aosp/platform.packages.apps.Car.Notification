@@ -40,7 +40,7 @@ public class NotificationDataManager {
      */
     private static Map<String, Boolean> mMessageNotificationToMuteStateMap = new HashMap<>();
 
-    NotificationDataManager() {
+    public NotificationDataManager() {
         mMessageNotificationToMuteStateMap.clear();
     }
 
