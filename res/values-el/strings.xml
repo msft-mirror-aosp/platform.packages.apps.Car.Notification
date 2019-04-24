@@ -18,6 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Αναπαραγωγή"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"Σίγαση"</string>
+    <string name="action_mute_long" msgid="670936611165098834">"Σίγαση συνομιλίας"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"Κατάργηση σίγασης"</string>
+    <string name="action_unmute_long" msgid="750697270532622459">"Κατάργηση σίγασης συνομιλίας"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\"Οδηγώ αυτήν τη στιγμή.\""</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"Οδηγώ αυτήν τη στιγμή."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"Επιτυχής αποστολή μηνύματος."</string>
@@ -25,6 +29,12 @@
     <string name="notifications" msgid="2865534625906329283">"Κέντρο ειδοποιήσεων"</string>
     <string name="clear_all" msgid="1845314281571237722">"Διαγραφή όλων"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <!-- no translation found for show_more (7291378544926443344) -->
+    <skip />
+    <!-- no translation found for show_less (7342677676229302829) -->
+    <skip />
+    <!-- no translation found for show_count_more (480555295700318609) -->
+    <skip />
     <string name="unshown_count" msgid="3983441624645436587">"+<xliff:g id="COUNT">%d</xliff:g>"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> νέα μηνύματα</item>
