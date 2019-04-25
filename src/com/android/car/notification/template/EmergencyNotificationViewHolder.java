@@ -59,8 +59,9 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
      * Binds a {@link StatusBarNotification} to a car emergency notification template.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
-        super.bind(statusBarNotification, isInGroup);
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
+        super.bind(statusBarNotification, isInGroup, isHeadsUp);
 
         Notification notification = statusBarNotification.getNotification();
 

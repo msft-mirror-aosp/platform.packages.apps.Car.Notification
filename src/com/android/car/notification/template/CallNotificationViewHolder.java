@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,30 +25,29 @@ import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.R;
 
 /**
- * Inbox notification view template that
- * displays a {@link android.app.Notification.InboxStyle} notification.
+ * incoming phone call notification view template that displays notification.
  */
-public class InboxNotificationViewHolder extends CarNotificationBaseViewHolder {
-    private final CarNotificationHeaderView mHeaderView;
+public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
+
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationActionsView mActionsView;
-    private NotificationClickHandlerFactory mClickHandlerFactory;
+    private final CarNotificationHeaderView mHeaderView;
+    private final NotificationClickHandlerFactory mClickHandlerFactory;
 
-    public InboxNotificationViewHolder(
+    public CallNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
-        mHeaderView = view.findViewById(R.id.notification_header);
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mClickHandlerFactory = clickHandlerFactory;
+        mHeaderView = view.findViewById(R.id.notification_header);
     }
 
     /**
-     * Binds a {@link StatusBarNotification} to an inbox style car notification template.
+     * Binds a {@link StatusBarNotification} to a basic car notification template.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
-            boolean isHeadsUp) {
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup, boolean isHeadsUp) {
         super.bind(statusBarNotification, isInGroup, isHeadsUp);
         bindBody(statusBarNotification);
         mHeaderView.bind(statusBarNotification, isInGroup);
@@ -61,9 +60,9 @@ public class InboxNotificationViewHolder extends CarNotificationBaseViewHolder {
     private void bindBody(StatusBarNotification statusBarNotification) {
         Notification notification = statusBarNotification.getNotification();
         Bundle extraData = notification.extras;
-        CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE_BIG);
-        CharSequence text = extraData.getCharSequence(Notification.EXTRA_SUMMARY_TEXT);
-        Icon icon = notification.getLargeIcon();
+        CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
+        CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
+        Icon icon = notification.getSmallIcon();
         mBodyView.bind(title, text, icon);
     }
 }

@@ -19,8 +19,8 @@ package com.android.car.notification.template;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Icon;
-import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -43,6 +43,7 @@ public class CarNotificationBodyView extends RelativeLayout {
     private final int mDefaultPrimaryTextColor;
     @ColorInt
     private final int mDefaultSecondaryTextColor;
+    private boolean mShowBigIcon;
     private TextView mTitleView;
     private TextView mContentView;
     private ImageButton mIconView;
@@ -53,15 +54,18 @@ public class CarNotificationBodyView extends RelativeLayout {
 
     public CarNotificationBodyView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(attrs);
     }
 
     public CarNotificationBodyView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(attrs);
     }
 
     public CarNotificationBodyView(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(attrs);
     }
 
     {
@@ -70,6 +74,15 @@ public class CarNotificationBodyView extends RelativeLayout {
         mDefaultSecondaryTextColor =
                 ThemesUtil.getAttrColor(getContext(), android.R.attr.textColorSecondary);
         inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
+    }
+
+    private void init(AttributeSet attrs) {
+        TypedArray attributes =
+                getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationBodyView);
+        mShowBigIcon =
+                attributes.getBoolean(R.styleable.CarNotificationBodyView_showBigIcon,
+                        /* defValue= */ false);
+        attributes.recycle();
     }
 
     @Override
@@ -83,9 +96,9 @@ public class CarNotificationBodyView extends RelativeLayout {
     /**
      * Binds the notification body.
      *
-     * @param title   the primary text.
+     * @param title the primary text.
      * @param content the secondary text.
-     * @param icon    the large icon, usually used for avatars.
+     * @param icon the large icon, usually used for avatars.
      */
     public void bind(CharSequence title, @Nullable CharSequence content, @Nullable Icon icon) {
         setVisibility(View.VISIBLE);
@@ -98,9 +111,21 @@ public class CarNotificationBodyView extends RelativeLayout {
             mContentView.setText(content);
         }
 
-        if (icon != null) {
+        if (icon != null && mShowBigIcon) {
             mIconView.setVisibility(View.VISIBLE);
             mIconView.setImageIcon(icon);
+        }
+    }
+
+    public void bindTitleAndMessage(CharSequence title, CharSequence content) {
+        setVisibility(View.VISIBLE);
+
+        mTitleView.setVisibility(View.VISIBLE);
+        mTitleView.setText(title);
+        if (!TextUtils.isEmpty(content)) {
+            mContentView.setVisibility(View.VISIBLE);
+            mContentView.setText(content);
+            mIconView.setVisibility(View.GONE);
         }
     }
 

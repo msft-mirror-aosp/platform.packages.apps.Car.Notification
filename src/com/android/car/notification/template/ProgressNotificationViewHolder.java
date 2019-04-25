@@ -48,7 +48,8 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mProgressBarView = view.findViewById(R.id.progress_bar);
-        mCardBackgroundColor = ThemesUtil.getAttrColor(view.getContext(), android.R.attr.colorPrimary);
+        mCardBackgroundColor = ThemesUtil.getAttrColor(view.getContext(),
+                android.R.attr.colorPrimary);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -56,8 +57,9 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
      * Binds a {@link StatusBarNotification} to a car progress notification template.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
-        super.bind(statusBarNotification, isInGroup);
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
+        super.bind(statusBarNotification, isInGroup, isHeadsUp);
         bindBody(statusBarNotification);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);

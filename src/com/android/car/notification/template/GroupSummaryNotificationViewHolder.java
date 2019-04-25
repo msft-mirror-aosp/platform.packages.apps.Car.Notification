@@ -17,7 +17,6 @@
 package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
-import android.app.Notification;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
@@ -69,7 +68,7 @@ public class GroupSummaryNotificationViewHolder extends CarNotificationBaseViewH
      */
     public void bind(NotificationGroup notificationGroup) {
         // isInGroup is always true for group summaries
-        super.bind(notificationGroup.getSingleNotification(), /* isInGroup= */ true);
+        super.bind(notificationGroup.getSingleNotification(), /* isInGroup= */ true, false);
 
         List<String> titles = notificationGroup.getChildTitles();
 

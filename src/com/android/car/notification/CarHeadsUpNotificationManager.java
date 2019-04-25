@@ -43,9 +43,11 @@ import android.widget.FrameLayout;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
+import com.android.car.notification.template.CallNotificationViewHolder;
 import com.android.car.notification.template.EmergencyNotificationViewHolder;
 import com.android.car.notification.template.InboxNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
+import com.android.car.notification.template.NavigationNotificationViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -317,7 +319,37 @@ public class CarHeadsUpNotificationManager
                                     mClickHandlerFactory));
                 }
                 currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */false);
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
+                break;
+            }
+            case NotificationViewType.NAVIGATION: {
+                if (currentNotification.getNotificationView() == null) {
+                    currentNotification.setNotificationView(mInflater.inflate(
+                            R.layout.navigation_headsup_notification_template,
+                            null));
+                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
+                    currentNotification.setViewHolder(
+                            new NavigationNotificationViewHolder(
+                                    currentNotification.getNotificationView(),
+                                    mClickHandlerFactory));
+                }
+                currentNotification.getViewHolder().bind(statusBarNotification,
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
+                break;
+            }
+            case NotificationViewType.CALL: {
+                if (currentNotification.getNotificationView() == null) {
+                    currentNotification.setNotificationView(mInflater.inflate(
+                            R.layout.call_headsup_notification_template,
+                            null));
+                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
+                    currentNotification.setViewHolder(
+                            new CallNotificationViewHolder(
+                                    currentNotification.getNotificationView(),
+                                    mClickHandlerFactory));
+                }
+                currentNotification.getViewHolder().bind(statusBarNotification,
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
                 break;
             }
             case NotificationViewType.CAR_WARNING_HEADSUP: {
@@ -334,7 +366,7 @@ public class CarHeadsUpNotificationManager
                                     mClickHandlerFactory));
                 }
                 currentNotification.getViewHolder().bind(statusBarNotification, /* isInGroup= */
-                        false);
+                        false, /* isHeadsUp= */ true);
                 break;
             }
             case NotificationViewType.CAR_INFORMATION_HEADSUP: {
@@ -351,7 +383,7 @@ public class CarHeadsUpNotificationManager
                                     mClickHandlerFactory));
                 }
                 currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false);
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
                 break;
             }
             case NotificationViewType.MESSAGE_HEADSUP: {
@@ -367,10 +399,10 @@ public class CarHeadsUpNotificationManager
                 }
                 if (mShouldRestrictMessagePreview) {
                     ((MessageNotificationViewHolder) currentNotification.getViewHolder())
-                            .bindRestricted(statusBarNotification, /* isInGroup= */ false);
+                            .bindRestricted(statusBarNotification, /* isInGroup= */ false, /* isHeadsUp= */ true);
                 } else {
                     currentNotification.getViewHolder().bind(statusBarNotification, /* isInGroup= */
-                            false);
+                            false, /* isHeadsUp= */ true);
                 }
                 break;
             }
@@ -386,7 +418,7 @@ public class CarHeadsUpNotificationManager
                                     mClickHandlerFactory));
                 }
                 currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false);
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
                 break;
             }
             case NotificationViewType.BASIC_HEADSUP:
@@ -402,7 +434,7 @@ public class CarHeadsUpNotificationManager
                                     mClickHandlerFactory));
                 }
                 currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false);
+                        /* isInGroup= */ false, /* isHeadsUp= */ true);
                 break;
             }
         }
@@ -586,6 +618,10 @@ public class CarHeadsUpNotificationManager
             switch (category) {
                 case Notification.CATEGORY_CAR_EMERGENCY:
                     return NotificationViewType.CAR_EMERGENCY_HEADSUP;
+                case Notification.CATEGORY_NAVIGATION:
+                    return NotificationViewType.NAVIGATION;
+                case Notification.CATEGORY_CALL:
+                    return NotificationViewType.CALL;
                 case Notification.CATEGORY_CAR_WARNING:
                     return NotificationViewType.CAR_WARNING_HEADSUP;
                 case Notification.CATEGORY_CAR_INFORMATION:
