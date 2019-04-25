@@ -411,6 +411,8 @@ public class CarHeadsUpNotificationManager
         currentNotification.getNotificationView().getViewTreeObserver()
                 .addOnComputeInternalInsetsListener(
                         info -> {
+                            // If the panel is not on screen don't modify the touch region
+                            if (mHeadsUpPanel.getVisibility() != View.VISIBLE) return;
                             int[] mTmpTwoArray = new int[2];
                             View cardView = currentNotification.getNotificationView().findViewById(
                                     R.id.card_view);
