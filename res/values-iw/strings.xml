@@ -29,13 +29,10 @@
     <string name="notifications" msgid="2865534625906329283">"מרכז ההתראות"</string>
     <string name="clear_all" msgid="1845314281571237722">"ניקוי הכול"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
-    <!-- no translation found for show_more (7291378544926443344) -->
-    <skip />
-    <!-- no translation found for show_less (7342677676229302829) -->
-    <skip />
-    <!-- no translation found for show_count_more (480555295700318609) -->
-    <skip />
-    <string name="unshown_count" msgid="3983441624645436587">"+<xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="show_more" msgid="7291378544926443344">"הצגת יותר פריטים"</string>
+    <string name="show_less" msgid="7342677676229302829">"הצגת פחות פריטים"</string>
+    <string name="show_count_more" msgid="480555295700318609">"הצגת עוד <xliff:g id="COUNT">%d</xliff:g> פריטים"</string>
+    <string name="message_unshown_count" msgid="2234421277246741233">" ועוד <xliff:g id="COUNT">%d</xliff:g> "</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="two"><xliff:g id="COUNT">%d</xliff:g> הודעות חדשות</item>
       <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> הודעות חדשות</item>
