@@ -20,6 +20,7 @@
     <dimen name="notification_list_divider_height">@*android:dimen/car_list_divider_height</dimen>
     <dimen name="notification_headsup_card_margin_horizontal">165dp</dimen>
     <dimen name="notification_card_margin_horizontal">270dp</dimen>
+    <dimen name="car_notification_card_inner_top_margin">0dp</dimen>
 
     <!-- Header View -->
     <dimen name="notification_card_header_height">@*android:dimen/car_card_action_bar_height</dimen>
@@ -36,6 +37,7 @@
     <dimen name="unshown_count_start_margin">@*android:dimen/car_padding_1</dimen>
     <dimen name="unread_message_count_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="headsup_notification_top_margin">@*android:dimen/car_padding_1</dimen>
+    <dimen name="headsup_notification_big_icon_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="in_group_timestamp_start_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="item_spacing">@*android:dimen/car_padding_2</dimen>
     <dimen name="header_small_icon_padding">@*android:dimen/car_padding_3</dimen>
@@ -57,11 +59,11 @@
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
     <dimen name="notification_secondary_icon_size">@*android:dimen/car_secondary_icon_size</dimen>
     <dimen name="notification_touch_target_size">@*android:dimen/car_touch_target_size</dimen>
+    <dimen name="notification_heads_up_icon_size">@*android:dimen/car_touch_target_size</dimen>
     <dimen name="media_action_icon_size">@*android:dimen/car_primary_icon_size</dimen>
 
     <!-- HUN Scrim -->
     <dimen name="headsup_scrim_height">464dp</dimen>
-
 
     <!-- Swipe Animation -->
     <item name="error_factor_multiplier" format="float" type="dimen">1.2</item>

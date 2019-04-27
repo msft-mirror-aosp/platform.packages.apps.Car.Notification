@@ -74,4 +74,7 @@ import java.lang.annotation.RetentionPolicy;
     int CAR_INFORMATION = 19;
     int CAR_INFORMATION_HEADSUP = 20;
     int CAR_INFORMATION_IN_GROUP = 21;
+
+    int NAVIGATION = 22;
+    int CALL = 23;
 }
