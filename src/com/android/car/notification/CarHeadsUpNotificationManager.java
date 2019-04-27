@@ -15,6 +15,8 @@
  */
 package com.android.car.notification;
 
+import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessagingNotification;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -26,6 +28,9 @@ import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
@@ -654,6 +659,11 @@ public class CarHeadsUpNotificationManager
      * <p> A notification will be shown as a heads-up if:
      * <ul>
      * <li> Importance >= HIGH
+     * <li> it comes from an app signed with the platform key.
+     * <li> it comes from a privileged system app.
+     * <li> is a car compatible notification.
+     * {@link com.android.car.assist.client.CarAssistUtils#isCarCompatibleMessagingNotification}
+     * <li> Notification category is one of CATEGORY_CALL or CATEGORY_NAVIGATION
      * </ul>
      *
      * <p> Group alert behavior still follows API documentation.
@@ -670,7 +680,7 @@ public class CarHeadsUpNotificationManager
 
         // Navigation notification configured by OEM
         if (!mEnableNavigationHeadsup && Notification.CATEGORY_NAVIGATION.equals(
-                statusBarNotification.getNotification().category)) {
+                notification.category)) {
             return false;
         }
         // Group alert behavior
@@ -681,13 +691,44 @@ public class CarHeadsUpNotificationManager
         if (mNotificationDataManager.isMessageNotificationMuted(statusBarNotification)) {
             return false;
         }
-        // Show if importance >= HIGH
+
+        // Do not show if importance < HIGH
         NotificationListenerService.Ranking ranking = getRanking();
         if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
-            if (ranking.getImportance() >= NotificationManager.IMPORTANCE_HIGH) {
-                return true;
+            if (ranking.getImportance() < NotificationManager.IMPORTANCE_HIGH) {
+                return false;
             }
         }
+
+        PackageManager pm = mContext.getPackageManager();
+        PackageInfo packageInfo = null;
+        String packageName = statusBarNotification.getPackageName();
+
+        try {
+            packageInfo = pm.getPackageInfo(packageName, /* flags= */ 0);
+        } catch (NameNotFoundException ex) {
+            Log.e(TAG, "package not found: " + packageName);
+        }
+        if (packageInfo == null) return false;
+
+        // Allow for platform, privileged system apps
+        if (packageInfo.applicationInfo.isSignedWithPlatformKey() ||
+                (packageInfo.applicationInfo.isSystemApp()
+                        && packageInfo.applicationInfo.isPrivilegedApp())) {
+            return true;
+        }
+
+        // Allow car messaging type.
+        if (isCarCompatibleMessagingNotification(statusBarNotification)) {
+            return true;
+        }
+
+        // Allow for Call, and nav TBT categories.
+        if (notification.category.equals(Notification.CATEGORY_CALL)
+                || notification.category.equals(Notification.CATEGORY_NAVIGATION) ) {
+            return true;
+        }
+
         return false;
     }
 
