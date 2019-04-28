@@ -42,6 +42,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     @ColorInt
     private final int mDefaultPrimaryForegroundColor;
     private final Context mContext;
+    private final CarNotificationBodyView mBodyView;
     private final CarNotificationHeaderView mHeaderView;
     private final CarNotificationActionsView mActionsView;
     private final TextView mSenderNameView;
@@ -60,8 +61,12 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         mActionsView = view.findViewById(R.id.notification_actions);
         mSenderNameView = view.findViewById(R.id.notification_body_title);
         mTimeView = view.findViewById(R.id.in_group_time_stamp);
-        mTimeView.setShowRelativeTime(true);
+        if (mTimeView != null) {
+            // HUN template does not include the time stamp.
+            mTimeView.setShowRelativeTime(true);
+        }
         mMessageView = view.findViewById(R.id.notification_body_content);
+        mBodyView = view.findViewById(R.id.notification_body);
         mUnshownCountView = view.findViewById(R.id.message_count);
         mAvatarView = view.findViewById(R.id.notification_body_icon);
         mClickHandlerFactory = clickHandlerFactory;
@@ -72,9 +77,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * UX restriction.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
-        super.bind(statusBarNotification, isInGroup);
-        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ false);
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
+        super.bind(statusBarNotification, isInGroup, isHeadsUp);
+        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ false, isHeadsUp);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
     }
@@ -83,9 +89,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * Binds a {@link StatusBarNotification} to a messaging car notification template with
      * UX restriction.
      */
-    public void bindRestricted(StatusBarNotification statusBarNotification, boolean isInGroup) {
-        super.bind(statusBarNotification, isInGroup);
-        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ true);
+    public void bindRestricted(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
+        super.bind(statusBarNotification, isInGroup, isHeadsUp);
+        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ true, isHeadsUp);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
     }
@@ -94,9 +101,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * Private method that binds the data to the view.
      */
     private void bindBody(
-            StatusBarNotification statusBarNotification, boolean isInGroup, boolean isRestricted) {
-        Notification notification = statusBarNotification.getNotification();
+            StatusBarNotification statusBarNotification, boolean isInGroup, boolean isRestricted,
+            boolean isHeadsUp) {
 
+        Notification notification = statusBarNotification.getNotification();
         CharSequence messageText = null;
         CharSequence senderName = null;
         Icon avatar = null;
@@ -133,7 +141,6 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         if (TextUtils.isEmpty(senderName)) {
             senderName = extras.getCharSequence(Notification.EXTRA_TITLE);
         }
-
         if (isRestricted) {
             messageText = mContext.getResources().getQuantityString(
                     R.plurals.restricted_message_text, messageCount, messageCount);
@@ -174,6 +181,13 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             mUnshownCountView.setText(unshownCountText);
             mUnshownCountView.setTextColor(getAccentColor());
         }
+
+        if (isHeadsUp) {
+            mBodyView.bindTitleAndMessage(senderName, messageText);
+        } else if (!isInGroup) {
+            mBodyView.bind(senderName, messageText, avatar);
+        }
+
     }
 
     @Override
@@ -181,8 +195,9 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         super.reset();
         mSenderNameView.setVisibility(View.GONE);
         mSenderNameView.setText(null);
-
-        mTimeView.setVisibility(View.GONE);
+        if (mTimeView != null) {
+            mTimeView.setVisibility(View.GONE);
+        }
 
         mMessageView.setVisibility(View.GONE);
         mMessageView.setText(null);

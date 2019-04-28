@@ -90,10 +90,11 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      * clicking event for the card view and calls recycling methods.
      *
      * @param statusBarNotification the notification to be bound.
-     * @param isInGroup             whether this notification is part of a grouped notification.
+     * @param isInGroup whether this notification is part of a grouped notification.
      */
     @CallSuper
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
         reset();
         mStatusBarNotification = statusBarNotification;
 

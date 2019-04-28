@@ -23,6 +23,7 @@ import android.view.View;
 
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.R;
+
 /**
  * Basic notification view template that displays a minimal notification.
  */
@@ -46,8 +47,9 @@ public class BasicNotificationViewHolder extends CarNotificationBaseViewHolder {
      * Binds a {@link StatusBarNotification} to a basic car notification template.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
-        super.bind(statusBarNotification, isInGroup);
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
+        super.bind(statusBarNotification, isInGroup, isHeadsUp);
         bindBody(statusBarNotification);
         mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
