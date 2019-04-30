@@ -17,6 +17,7 @@ package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
 import android.app.Notification;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -33,6 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.android.car.notification.R;
 
 /**
@@ -43,6 +46,7 @@ public class CarNotificationHeaderView extends LinearLayout {
     private static final String TAG = "car_notification_header";
 
     private final PackageManager mPackageManager;
+    private final CarUserManagerHelper mCarUserManagerHelper;
     private final int mDefaultTextColor;
     private final String mSeparatorText;
 
@@ -73,6 +77,7 @@ public class CarNotificationHeaderView extends LinearLayout {
 
     {
         mPackageManager = getContext().getPackageManager();
+        mCarUserManagerHelper = new CarUserManagerHelper(getContext());
         mDefaultTextColor = getContext().getColor(R.color.primary_text_color);
         mSeparatorText = getContext().getString(R.string.header_text_separator);
         inflate(getContext(), R.layout.car_notification_header_view, this);
@@ -110,13 +115,6 @@ public class CarNotificationHeaderView extends LinearLayout {
         }
 
         Notification notification = statusBarNotification.getNotification();
-        ApplicationInfo appInfo;
-        try {
-            appInfo = mPackageManager.getApplicationInfo(statusBarNotification.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException exception) {
-            Log.e(TAG, "app name not found when binding notification header", exception);
-            return;
-        }
 
         Context packageContext = statusBarNotification.getPackageContext(getContext());
 
@@ -137,7 +135,7 @@ public class CarNotificationHeaderView extends LinearLayout {
 
         // app name
         mHeaderTextView.setVisibility(View.VISIBLE);
-        stringBuilder.append(mPackageManager.getApplicationLabel(appInfo));
+        stringBuilder.append(loadHeaderAppName(statusBarNotification.getPackageName()));
 
         Bundle extras = notification.extras;
 
@@ -214,5 +212,24 @@ public class CarNotificationHeaderView extends LinearLayout {
         mTimeView.setVisibility(View.GONE);
         mTimeView.setTime(0);
         setTimeTextColor(mDefaultTextColor);
+    }
+
+    /**
+     * Fetches the application label given the package name.
+     *
+     * @param packageName The package name of the application.
+     * @return application label. Returns {@code null} when application name is not found.
+     */
+    @Nullable
+    private String loadHeaderAppName(String packageName) {
+        ApplicationInfo info;
+        try {
+            info = mPackageManager.getApplicationInfoAsUser(packageName.trim(), /* flags= */ 0,
+                    mCarUserManagerHelper.getCurrentForegroundUserId());
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Error fetching app name in car notification header" + e);
+            return null;
+        }
+        return String.valueOf(mPackageManager.getApplicationLabel(info));
     }
 }

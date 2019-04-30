@@ -20,6 +20,7 @@ import android.annotation.CallSuper;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.app.Notification;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -62,6 +63,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     private final int mDefaultPrimaryForegroundColor;
     @ColorInt
     private final int mDefaultSecondaryForegroundColor;
+    private final CarUserManagerHelper mCarUserManagerHelper;
 
     private StatusBarNotification mStatusBarNotification;
     private boolean mIsAnimating;
@@ -74,6 +76,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         Context context = itemView.getContext();
         mPackageManager = context.getPackageManager();
         mClickHandlerFactory = clickHandlerFactory;
+        mCarUserManagerHelper = new CarUserManagerHelper(context);
         mCardView = itemView.findViewById(R.id.card_view);
         mInnerView = itemView.findViewById(R.id.inner_template_view);
         mHeaderView = itemView.findViewById(R.id.notification_header);
@@ -110,7 +113,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         ApplicationInfo appInfo;
         try {
             appInfo =
-                    mPackageManager.getApplicationInfo(mStatusBarNotification.getPackageName(), 0);
+                    mPackageManager.getApplicationInfoAsUser(
+                            mStatusBarNotification.getPackageName(), 0,
+                            mCarUserManagerHelper.getCurrentForegroundUserId());
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Cannot find app in bind() " + e);
             return;
