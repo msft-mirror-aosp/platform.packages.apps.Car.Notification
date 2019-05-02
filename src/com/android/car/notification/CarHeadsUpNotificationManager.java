@@ -27,6 +27,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -64,8 +65,6 @@ public class CarHeadsUpNotificationManager
         implements CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
     private static final String TAG = CarHeadsUpNotificationManager.class.getSimpleName();
 
-    private static CarHeadsUpNotificationManager sManager;
-
     private final Beeper mBeeper;
     private final Context mContext;
     private final boolean mEnableNavigationHeadsup;
@@ -76,6 +75,7 @@ public class CarHeadsUpNotificationManager
     private final long mExitAnimationDuration;
 
     private final KeyguardManager mKeyguardManager;
+    private final CarUserManagerHelper mCarUserManagerHelper;
     private final PreprocessingManager mPreprocessingManager;
     private final WindowManager mWindowManager;
     private final LayoutInflater mInflater;
@@ -117,6 +117,7 @@ public class CarHeadsUpNotificationManager
         mActiveHeadsUpNotifications = new HashMap<>();
         mHeadsUpPanel = createHeadsUpPanel();
         mHeadsUpContentFrame = mHeadsUpPanel.findViewById(R.id.headsup_content);
+        mCarUserManagerHelper = new CarUserManagerHelper(mContext);
         addHeadsUpPanelToDisplay();
     }
 
@@ -404,7 +405,8 @@ public class CarHeadsUpNotificationManager
                 }
                 if (mShouldRestrictMessagePreview) {
                     ((MessageNotificationViewHolder) currentNotification.getViewHolder())
-                            .bindRestricted(statusBarNotification, /* isInGroup= */ false, /* isHeadsUp= */ true);
+                            .bindRestricted(statusBarNotification, /* isInGroup= */
+                                    false, /* isHeadsUp= */ true);
                 } else {
                     currentNotification.getViewHolder().bind(statusBarNotification, /* isInGroup= */
                             false, /* isHeadsUp= */ true);
@@ -705,7 +707,8 @@ public class CarHeadsUpNotificationManager
         String packageName = statusBarNotification.getPackageName();
 
         try {
-            packageInfo = pm.getPackageInfo(packageName, /* flags= */ 0);
+            packageInfo = pm.getPackageInfoAsUser(packageName, /* flags= */ 0,
+                    mCarUserManagerHelper.getCurrentForegroundUserId());
         } catch (NameNotFoundException ex) {
             Log.e(TAG, "package not found: " + packageName);
         }
@@ -725,10 +728,9 @@ public class CarHeadsUpNotificationManager
 
         // Allow for Call, and nav TBT categories.
         if (notification.category.equals(Notification.CATEGORY_CALL)
-                || notification.category.equals(Notification.CATEGORY_NAVIGATION) ) {
+                || notification.category.equals(Notification.CATEGORY_NAVIGATION)) {
             return true;
         }
-
         return false;
     }
 
@@ -752,14 +754,6 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
-    }
-
-    /**
-     * Sets the {@link NotificationDataManager} which contains additional state information of the
-     * {@link StatusBarNotification}s.
-     */
-    protected void setNotificationDataManager(NotificationDataManager manager) {
-        mNotificationDataManager = manager;
     }
 
     /**
