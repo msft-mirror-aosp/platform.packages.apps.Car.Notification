@@ -48,6 +48,8 @@ android_app {
             enabled: false,
         },
     },
+
+    required: ["privapp_whitelist_com.android.car.notification"]
 }
 
 // As Lib
