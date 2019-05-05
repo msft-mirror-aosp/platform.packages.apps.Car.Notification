@@ -726,9 +726,13 @@ public class CarHeadsUpNotificationManager
             return true;
         }
 
+        if (notification.category == null) {
+            Log.d(TAG, "category not set for: " + packageName);
+        }
+
         // Allow for Call, and nav TBT categories.
-        if (notification.category.equals(Notification.CATEGORY_CALL)
-                || notification.category.equals(Notification.CATEGORY_NAVIGATION)) {
+        if (Notification.CATEGORY_CALL.equals(notification.category)
+                || Notification.CATEGORY_NAVIGATION.equals(notification.category) ) {
             return true;
         }
         return false;
