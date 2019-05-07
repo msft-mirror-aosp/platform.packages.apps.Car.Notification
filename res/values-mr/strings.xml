@@ -34,7 +34,7 @@
     <string name="show_count_more" msgid="480555295700318609">"आणखी <xliff:g id="COUNT">%d</xliff:g> दाखवा"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" <xliff:g id="COUNT">%d</xliff:g> हून अधिक"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> नवीन मेसेज</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> नवीन मेसेज</item>
+      <item quantity="one">एक नवीन मेसेज</item>
     </plurals>
 </resources>
