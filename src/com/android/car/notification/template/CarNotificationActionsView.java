@@ -112,7 +112,8 @@ public class CarNotificationActionsView extends RelativeLayout {
         }
 
         if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)) {
-            createMessageNotificationButtons(clickHandlerFactory, statusBarNotification);
+            createPlayButton(clickHandlerFactory, statusBarNotification);
+            createMuteButton(clickHandlerFactory, statusBarNotification);
             return;
         }
 
@@ -148,42 +149,21 @@ public class CarNotificationActionsView extends RelativeLayout {
     }
 
     /**
-     * Message notifications should only have a "Play" button and a "Mute" button.
-     *
      * The Play button triggers the assistant to read the message aloud, optionally prompting the
      * user to reply to the message afterwards.
+     */
+    private void createPlayButton(NotificationClickHandlerFactory clickHandlerFactory,
+            StatusBarNotification statusBarNotification) {
+        Button button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
+        button.setText(mContext.getString(R.string.assist_action_play_label));
+        button.setVisibility(View.VISIBLE);
+        button.setOnClickListener(clickHandlerFactory.getPlayClickHandler(statusBarNotification));
+    }
+
+    /**
      * The Mute button allows users to toggle whether or not incoming notification with the same
      * statusBarNotification key will be shown with a HUN and trigger a notification sound.
      */
-    private void createMessageNotificationButtons(
-            NotificationClickHandlerFactory clickHandlerFactory,
-            StatusBarNotification statusBarNotification) {
-
-        Notification.Action[] actions = statusBarNotification.getNotification().actions;
-
-        for (int i = 0; i < actions.length; i++) {
-            Notification.Action action = actions[i];
-            Button button = null;
-            switch (action.getSemanticAction()) {
-                case Notification.Action.SEMANTIC_ACTION_MARK_AS_READ:
-                    button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
-                    button.setText(mContext.getString(R.string.assist_action_play_label));
-                    break;
-                case Notification.Action.SEMANTIC_ACTION_REPLY:
-                    // This action is not associated with any buttons for now.
-                    break;
-                default:
-                    break;
-            }
-            if (button != null) {
-                button.setOnClickListener(clickHandlerFactory.getActionClickHandler(
-                        statusBarNotification, i));
-                button.setVisibility(View.VISIBLE);
-            }
-        }
-        createMuteButton(clickHandlerFactory, statusBarNotification);
-    }
-
     private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
             StatusBarNotification statusBarNotification) {
         Button button = mActionButtons.get(MUTE_MESSAGE_ACTION_BUTTON_INDEX);
