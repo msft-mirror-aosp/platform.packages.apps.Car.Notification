@@ -32,7 +32,7 @@
     <string name="show_more" msgid="7291378544926443344">"Yana"</string>
     <string name="show_less" msgid="7342677676229302829">"Kamroq"</string>
     <string name="show_count_more" msgid="480555295700318609">"Yana <xliff:g id="COUNT">%d</xliff:g> ta xabarni ochish"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">"Yana <xliff:g id="COUNT">%d</xliff:g> ta"</string>
+    <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> ta"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ta yangi xabar</item>
       <item quantity="one">1 ta yangi xabar</item>
