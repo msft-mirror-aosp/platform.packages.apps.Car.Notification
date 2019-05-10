@@ -66,7 +66,7 @@ public class CarNotificationView extends ConstraintLayout
      * Updates notifications and update views.
      */
     public void setNotifications(List<NotificationGroup> notifications) {
-        mAdapter.setNotifications(notifications);
+        mAdapter.setNotifications(notifications, /* setHeader= */ true);
     }
 
     @Override
