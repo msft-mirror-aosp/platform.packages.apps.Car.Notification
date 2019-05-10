@@ -47,7 +47,8 @@ public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
      * Binds a {@link StatusBarNotification} to a basic car notification template.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup, boolean isHeadsUp) {
+    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+            boolean isHeadsUp) {
         super.bind(statusBarNotification, isInGroup, isHeadsUp);
         bindBody(statusBarNotification);
         mHeaderView.bind(statusBarNotification, isInGroup);

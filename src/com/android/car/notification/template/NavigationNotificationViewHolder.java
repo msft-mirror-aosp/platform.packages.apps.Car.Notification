@@ -31,12 +31,14 @@ public class NavigationNotificationViewHolder extends CarNotificationBaseViewHol
 
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationActionsView mActionsView;
+    private final CarNotificationHeaderView mHeaderView;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
 
     public NavigationNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
         mBodyView = view.findViewById(R.id.notification_body);
+        mHeaderView = view.findViewById(R.id.notification_header);
         mActionsView = view.findViewById(R.id.notification_actions);
         mClickHandlerFactory = clickHandlerFactory;
     }
@@ -49,6 +51,7 @@ public class NavigationNotificationViewHolder extends CarNotificationBaseViewHol
             boolean isHeadsUp) {
         super.bind(statusBarNotification, isInGroup, isHeadsUp);
         bindBody(statusBarNotification);
+        mHeaderView.bind(statusBarNotification, isInGroup);
         mActionsView.bind(mClickHandlerFactory, statusBarNotification);
     }
 

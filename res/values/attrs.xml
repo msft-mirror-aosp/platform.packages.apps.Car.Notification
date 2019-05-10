@@ -16,7 +16,7 @@
 -->
 <resources>
     <declare-styleable name="CarNotificationHeaderView">
-        <attr name="onlyShowIcon" format="boolean"/>
+        <attr name="isHeadsUp" format="boolean"/>
     </declare-styleable>
     <declare-styleable name="CarNotificationBodyView">
         <attr name="showBigIcon" format="boolean"/>

@@ -47,7 +47,7 @@
                 android:layout_marginEnd="@dimen/card_end_margin"
                 android:layout_marginStart="@dimen/card_start_margin"
                 android:minHeight="@dimen/card_min_top_padding"
-                app:onlyShowIcon="false"/>
+                app:isHeadsUp="false"/>
 
             <com.android.car.notification.template.CarNotificationBodyView
                 android:id="@+id/notification_body"
