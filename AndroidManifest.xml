@@ -18,7 +18,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.android.car.notification">
-
     <!-- Permission to show display overlay window for heads-up notifications -->
     <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
     <!-- Permission to get the current user id to cancel a notification -->

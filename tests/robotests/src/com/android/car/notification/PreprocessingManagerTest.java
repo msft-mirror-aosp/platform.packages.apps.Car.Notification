@@ -27,12 +27,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(CarNotificationRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class PreprocessingManagerTest {
 
     private Context mContext;
