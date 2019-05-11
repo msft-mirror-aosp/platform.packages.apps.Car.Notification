@@ -57,6 +57,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private RecyclerView.RecycledViewPool mViewPool;
     private CarUxRestrictions mCarUxRestrictions;
     private NotificationClickHandlerFactory mClickHandlerFactory;
+    private NotificationDataManager mNotificationDataManager;
 
     /**
      * Constructor for a notification adapter.
@@ -472,5 +473,28 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
      */
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
+    }
+
+    /**
+     * Sets NotificationDataManager that handles additional states for notifications such as "seen",
+     * and muting a messaging type notification.
+     * @param notificationDataManager An instance of NotificationDataManager.
+     */
+    public void setNotificationDataManager(NotificationDataManager notificationDataManager) {
+        mNotificationDataManager = notificationDataManager;
+    }
+
+    /**
+     * Set the notification group as seen.
+     * @param position Adapter position of the notification group.
+     */
+    public void setNotificationAsSeen(int position) {
+        NotificationGroup notificationGroup = mNotifications.get(position);
+
+        if (mNotificationDataManager != null) {
+            for (StatusBarNotification notification : notificationGroup.getChildNotifications()) {
+                mNotificationDataManager.setNotificationAsSeen(notification);
+            }
+        }
     }
 }

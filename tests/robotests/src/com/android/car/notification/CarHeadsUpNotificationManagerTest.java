@@ -20,6 +20,7 @@ import static android.content.pm.ApplicationInfo.FLAG_INSTALLED;
 import static android.content.pm.ApplicationInfo.FLAG_SYSTEM;
 import static android.content.pm.ApplicationInfo.PRIVATE_FLAG_PRIVILEGED;
 import static android.content.pm.ApplicationInfo.PRIVATE_FLAG_SIGNED_WITH_PLATFORM_KEY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +40,9 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
 
+import com.android.car.notification.testutils.ShadowApplicationPackageManager;
 import com.android.car.notification.testutils.ShadowCarAssistUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,17 +50,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowPackageManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.robolectric.shadows.ShadowPackageManager;
 
-@RunWith(CarNotificationRobolectricTestRunner.class)
-@Config(shadows = {ShadowCarAssistUtils.class, ShadowPackageManager.class})
+@RunWith(RobolectricTestRunner.class)
+@Config(shadows = {ShadowCarAssistUtils.class, ShadowApplicationPackageManager.class})
 public class CarHeadsUpNotificationManagerTest {
 
     private Context mContext;
@@ -95,7 +99,6 @@ public class CarHeadsUpNotificationManagerTest {
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    private ShadowPackageManager mShadowPackageManager;
     private StatusBarNotification mNotification1;
     private StatusBarNotification mNotification2;
     private StatusBarNotification mNotification_carInformationHeadsUp;
@@ -110,8 +113,7 @@ public class CarHeadsUpNotificationManagerTest {
         MockitoAnnotations.initMocks(this);
 
         mContext = RuntimeEnvironment.application;
-        mShadowPackageManager = Shadows.shadowOf(mContext.getPackageManager());
-
+        ShadowApplicationPackageManager.setResources(mContext.getResources());
         when(mRankingMock.getChannel()).thenReturn(mNotificationChannelMock);
 
         when(mClickHandlerFactory.getClickHandler(any())).thenReturn(new View.OnClickListener() {
@@ -192,7 +194,7 @@ public class CarHeadsUpNotificationManagerTest {
         mManager = null;
         mContext = null;
         ShadowCarAssistUtils.reset();
-        mShadowPackageManager = null;
+        ShadowApplicationPackageManager.reset();
     }
 
     /**
@@ -217,7 +219,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_DEFAULT);
 
-        mShadowPackageManager.addPackage(PKG_2);
+        setPackageInfo(PKG_2);
         mManager.maybeShowHeadsUp(mNotification2, mRankingMapMock, mActiveNotifications);
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mNotification2.getKey()));
@@ -240,7 +242,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mNotification1.getKey()));
@@ -253,7 +255,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
 
         assertThat(mManager.getActiveHeadsUpNotifications().size()).isEqualTo(1);
@@ -264,8 +266,8 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
-        mShadowPackageManager.addPackage(PKG_2);
+        setPackageInfo(PKG_1);
+        setPackageInfo(PKG_2);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
         mManager.maybeShowHeadsUp(mNotification2, mRankingMapMock, mActiveNotifications);
 
@@ -277,7 +279,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
 
@@ -289,7 +291,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification_carInformationHeadsUp, mRankingMapMock,
                 mActiveNotifications);
         View notificationView = getNotificationView(
@@ -305,7 +307,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         ShadowCarAssistUtils.addMessageNotification(mNotification_inboxHeadsUp.getKey());
 
         mManager.maybeShowHeadsUp(mNotification_messageHeadsUp, mRankingMapMock,
@@ -324,7 +326,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification_callHeadsUp, mRankingMapMock,
                 mActiveNotifications);
         View notificationView = getNotificationView(
@@ -341,7 +343,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification_navigationHeadsUp, mRankingMapMock,
                 mActiveNotifications);
         View notificationView = getNotificationView(
@@ -357,7 +359,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         ShadowCarAssistUtils.addMessageNotification(mNotification_inboxHeadsUp.getKey());
 
         mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock,
@@ -379,10 +381,11 @@ public class CarHeadsUpNotificationManagerTest {
 
         pkgInfo.applicationInfo = new ApplicationInfo();
         pkgInfo.applicationInfo.packageName = PKG_1;
-        pkgInfo.applicationInfo.flags = PRIVATE_FLAG_SIGNED_WITH_PLATFORM_KEY|FLAG_INSTALLED;
+        pkgInfo.applicationInfo.flags = PRIVATE_FLAG_SIGNED_WITH_PLATFORM_KEY | FLAG_INSTALLED;
 
-        mShadowPackageManager.removePackage(PKG_1);
-        mShadowPackageManager.addPackage(pkgInfo);
+        getShadowPackageManager().removePackage(PKG_1);
+        getShadowPackageManager().addPackage(pkgInfo);
+        ShadowApplicationPackageManager.setPackageInfo(pkgInfo);
 
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock,
                 mActiveNotifications);
@@ -403,10 +406,11 @@ public class CarHeadsUpNotificationManagerTest {
 
         pkgInfo.applicationInfo = new ApplicationInfo();
         pkgInfo.applicationInfo.packageName = PKG_1;
-        pkgInfo.applicationInfo.flags = PRIVATE_FLAG_PRIVILEGED|FLAG_SYSTEM|FLAG_INSTALLED;
+        pkgInfo.applicationInfo.flags = PRIVATE_FLAG_PRIVILEGED | FLAG_SYSTEM | FLAG_INSTALLED;
 
-        mShadowPackageManager.removePackage(PKG_1);
-        mShadowPackageManager.addPackage(pkgInfo);
+        getShadowPackageManager().removePackage(PKG_1);
+        getShadowPackageManager().addPackage(pkgInfo);
+        ShadowApplicationPackageManager.setPackageInfo(pkgInfo);
 
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock,
                 mActiveNotifications);
@@ -423,7 +427,7 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
 
         assertThat(mManager.getActiveHeadsUpNotifications().size()).isEqualTo(1);
@@ -437,10 +441,11 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
+        setPackageInfo(PKG_1);
         ShadowCarAssistUtils.addMessageNotification(mNotification_inboxHeadsUp.getKey());
 
-        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock, mActiveNotifications);
+        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock,
+                mActiveNotifications);
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mNotification_inboxHeadsUp.getKey()));
 
@@ -454,8 +459,9 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
 
-        mShadowPackageManager.addPackage(PKG_1);
-        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock, mActiveNotifications);
+        setPackageInfo(PKG_1);
+        mManager.maybeShowHeadsUp(mNotification_inboxHeadsUp, mRankingMapMock,
+                mActiveNotifications);
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mNotification_inboxHeadsUp.getKey()));
 
@@ -474,5 +480,21 @@ public class CarHeadsUpNotificationManagerTest {
 
     private View getNotificationView(HeadsUpEntry currentNotification) {
         return currentNotification == null ? null : currentNotification.getNotificationView();
+    }
+
+    private void setPackageInfo(String packageName) {
+        PackageInfo packageInfo = new PackageInfo();
+        packageInfo.packageName = packageName;
+
+        ApplicationInfo applicationInfo = new ApplicationInfo();
+        packageInfo.applicationInfo = applicationInfo;
+
+        ShadowApplicationPackageManager.setPackageInfo(packageInfo);
+        getShadowPackageManager().addPackage(packageInfo);
+
+    }
+
+    private ShadowPackageManager getShadowPackageManager() {
+        return Shadow.extract(mContext.getPackageManager());
     }
 }
