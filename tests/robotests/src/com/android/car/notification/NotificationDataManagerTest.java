@@ -24,6 +24,8 @@ import android.service.notification.StatusBarNotification;
 
 import com.android.car.notification.testutils.ShadowCarAssistUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +83,7 @@ public class NotificationDataManagerTest {
     }
 
     @Test
-    public void addNewNotification_newNonMessageNotification_doesNothing() {
+    public void addNewMessageNotification_newNonMessageNotification_doesNothing() {
         mNotificationDataManager.addNewMessageNotification(mNonMessageNotification);
 
         assertThat(mNotificationDataManager.isMessageNotificationMuted(mNonMessageNotification))
@@ -89,7 +91,7 @@ public class NotificationDataManagerTest {
     }
 
     @Test
-    public void addNewNotification_notificationExists_muteStateNotUpdated() {
+    public void addNewMessageNotification_notificationExists_muteStateNotUpdated() {
         mNotificationDataManager.addNewMessageNotification(mMessageNotification);
         mNotificationDataManager.toggleMute(mMessageNotification);
 
@@ -129,4 +131,46 @@ public class NotificationDataManagerTest {
         assertThat(mNotificationDataManager.isMessageNotificationMuted(mMessageNotification))
                 .isFalse();
     }
+
+    @Test
+    public void updateUnseenNotification_addNewUnseenNotification_updatesUnseenCount() {
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mMessageNotification);
+        notificationGroups.add(notificationGroup);
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+
+        assertThat(mNotificationDataManager.getUnseenNotificationCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void setNotificationAsSeen_notificationIsSeen_decrementsUnseenCount() {
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mMessageNotification);
+        notificationGroups.add(notificationGroup);
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        mNotificationDataManager.setNotificationAsSeen(mMessageNotification);
+
+        assertThat(mNotificationDataManager.getUnseenNotificationCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void clearAll_clearsAllUnseenData() {
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mMessageNotification);
+        notificationGroups.add(notificationGroup);
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        mNotificationDataManager.clearAll();
+
+        assertThat(mNotificationDataManager.getUnseenNotificationCount()).isEqualTo(0);
+    }
 }
+
