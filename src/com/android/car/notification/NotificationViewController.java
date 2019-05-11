@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import java.util.List;
 
 /**
  * This class is a bridge to collect signals from the notification and ux restriction services and
@@ -19,17 +20,20 @@ public class NotificationViewController {
     private final PreprocessingManager mPreprocessingManager;
     private final CarNotificationListener mCarNotificationListener;
     private CarUxRestrictionManagerWrapper mUxResitrictionListener;
+    private NotificationDataManager mNotificationDataManager;
     private NotificationUpdateHandler mNotificationUpdateHandler = new NotificationUpdateHandler();
     private boolean mShowLessImportantNotifications;
 
     public NotificationViewController(CarNotificationView carNotificationView,
             PreprocessingManager preprocessingManager,
             CarNotificationListener carNotificationListener,
-            CarUxRestrictionManagerWrapper uxResitrictionListener) {
+            CarUxRestrictionManagerWrapper uxResitrictionListener,
+            NotificationDataManager notificationDataManager) {
         mCarNotificationView = carNotificationView;
         mPreprocessingManager = preprocessingManager;
         mCarNotificationListener = carNotificationListener;
         mUxResitrictionListener = uxResitrictionListener;
+        mNotificationDataManager = notificationDataManager;
 
         // Temporary hack for demo purposes: Long clicking on the notification center title toggles
         // hiding media, navigation, and less important (< IMPORTANCE_DEFAULT) ongoing
@@ -74,16 +78,17 @@ public class NotificationViewController {
         mUxResitrictionListener.setCarNotificationView(null);
     }
 
-
     /**
      * Update all notifications and ranking
      */
     private void updateNotifications(boolean showLessImportantNotifications) {
-        mCarNotificationView.setNotifications(
-                mPreprocessingManager.process(
-                        showLessImportantNotifications,
-                        mCarNotificationListener.getNotifications(),
-                        mCarNotificationListener.getCurrentRanking()));
+        List<NotificationGroup> notifications = mPreprocessingManager.process(
+                showLessImportantNotifications,
+                mCarNotificationListener.getNotifications(),
+                mCarNotificationListener.getCurrentRanking());
+
+        mNotificationDataManager.updateUnseenNotification(notifications);
+        mCarNotificationView.setNotifications(notifications);
     }
 
     private class NotificationUpdateHandler extends Handler {

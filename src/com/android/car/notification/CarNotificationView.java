@@ -8,9 +8,11 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import java.util.List;
@@ -27,6 +29,8 @@ public class CarNotificationView extends ConstraintLayout
 
     private CarNotificationViewAdapter mAdapter;
     private Context mContext;
+    private LinearLayoutManager mLayoutManager;
+    private NotificationDataManager mNotificationDataManager;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -43,7 +47,8 @@ public class CarNotificationView extends ConstraintLayout
         RecyclerView listView = findViewById(R.id.notifications);
 
         listView.setClipChildren(false);
-        listView.setLayoutManager(new LinearLayoutManager(mContext));
+        mLayoutManager = new LinearLayoutManager(mContext);
+        listView.setLayoutManager(mLayoutManager);
         listView.addItemDecoration(new TopAndBottomOffsetDecoration(
                 mContext.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
         listView.addItemDecoration(new ItemSpacingDecoration(
@@ -60,6 +65,18 @@ public class CarNotificationView extends ConstraintLayout
         if (clearAllButton != null) {
             clearAllButton.setOnClickListener(view -> mAdapter.clearAllNotifications());
         }
+
+        listView.addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                // RecyclerView is not currently scrolling.
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    setVisibleNotificationsAsSeen();
+                }
+            }
+        });
     }
 
     /**
@@ -81,6 +98,16 @@ public class CarNotificationView extends ConstraintLayout
      */
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
+    }
+
+    /**
+     * Sets NotificationDataManager that handles additional states for notifications such as "seen",
+     * and muting a messaging type notification.
+     * @param notificationDataManager An instance of NotificationDataManager.
+     */
+    public void setNotificationDataManager(NotificationDataManager notificationDataManager) {
+        mNotificationDataManager = notificationDataManager;
+        mAdapter.setNotificationDataManager(notificationDataManager);
     }
 
     /**
@@ -132,6 +159,22 @@ public class CarNotificationView extends ConstraintLayout
             }
 
             outRect.bottom = mItemSpacing;
+        }
+    }
+
+    /**
+     * Sets currently visible notifications as "seen".
+     */
+    public void setVisibleNotificationsAsSeen() {
+        int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+        int lastVisible = mLayoutManager.findLastVisibleItemPosition();
+
+        // No visible items are found.
+        if (firstVisible == RecyclerView.NO_POSITION) return;
+
+
+        for (int i = firstVisible; i <= lastVisible; i++) {
+            mAdapter.setNotificationAsSeen(i);
         }
     }
 }
