@@ -46,7 +46,9 @@ public class CarNotificationCenterActivity extends Activity {
                     new NotificationViewController(mCarNotificationView,
                             mPreprocessingManager,
                             mNotificationListener,
-                            app.getCarUxRestrictionWrapper());
+                            app.getCarUxRestrictionWrapper(),
+                            new NotificationDataManager()
+                    );
             mNotificationViewController.enable();
             mNotificationListenerBound = true;
         }
