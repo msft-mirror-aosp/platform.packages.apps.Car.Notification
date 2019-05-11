@@ -77,4 +77,6 @@ import java.lang.annotation.RetentionPolicy;
 
     int NAVIGATION = 22;
     int CALL = 23;
+
+    int HEADER = 24;
 }

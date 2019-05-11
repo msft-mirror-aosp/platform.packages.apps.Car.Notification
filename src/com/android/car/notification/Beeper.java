@@ -16,10 +16,12 @@
 
 package com.android.car.notification;
 
+import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -28,6 +30,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -50,6 +53,7 @@ class Beeper {
     private final Context mContext;
     private final AudioManager mAudioManager;
     private final Uri mInCallSoundToPlayUri;
+    private final CarUserManagerHelper mCarUserManagerHelper;
     private AudioAttributes mPlaybackAttributes;
 
     private boolean mInCall;
@@ -79,6 +83,7 @@ class Beeper {
         mAudioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
         mInCallSoundToPlayUri = Uri.parse("file://" + context.getResources().getString(
                 com.android.internal.R.string.config_inCallNotificationSound));
+        mCarUserManagerHelper = new CarUserManagerHelper(context);
         packageLastPostedTime = new HashMap<>();
         IntentFilter filter = new IntentFilter();
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
@@ -166,7 +171,7 @@ class Beeper {
                 Log.d(TAG, "playing sound: ");
             }
             try {
-                mPlayer.setDataSource(mContext, mBeepUri);
+                mPlayer.setDataSource(getContextForForegroundUser(), mBeepUri);
                 mPlaybackAttributes = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -236,6 +241,19 @@ class Beeper {
         public void onAudioFocusChange(int i) {
         }
 
+        /**
+         * Notifications is running in the system process, so we want to make sure we lookup sounds
+         * in the foreground user's space.
+         */
+        private Context getContextForForegroundUser() {
+            try {
+                return mContext.createPackageContextAsUser(mContext.getPackageName(), /* flags= */
+                        0, UserHandle.of(mCarUserManagerHelper.getCurrentForegroundUserId()));
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         /** Handle an error by trying to play the sound through {@link RingtoneManager}. */
         private void handleError() {
             cleanUp();
@@ -261,7 +279,7 @@ class Beeper {
          * MediaPlayer before we give up and hand over to RingtoneManager.
          */
         private void playViaRingtoneManager() {
-            mRingtone = RingtoneManager.getRingtone(mContext, mBeepUri);
+            mRingtone = RingtoneManager.getRingtone(getContextForForegroundUser(), mBeepUri);
             if (mRingtone != null) {
                 mRingtone.setStreamType(mBeepStream);
                 mRingtone.play();
