@@ -30,6 +30,10 @@
     <string name="clear_all" msgid="1845314281571237722">"සියල්ල හිස් කරන්න"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"තව පෙන්වන්න"</string>
+    <!-- no translation found for notification_header (324550431063568049) -->
+    <skip />
+    <!-- no translation found for empty_notification_header (4928379791607839720) -->
+    <skip />
     <string name="show_less" msgid="7342677676229302829">"අඩුවෙන් පෙන්වන්න"</string>
     <string name="show_count_more" msgid="480555295700318609">"තව <xliff:g id="COUNT">%d</xliff:g>ක් පෙන්වන්න"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" තව +<xliff:g id="COUNT">%d</xliff:g>"</string>
