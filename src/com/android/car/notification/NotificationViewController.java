@@ -4,6 +4,7 @@ import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
 import android.os.Handler;
 import android.os.Message;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ public class NotificationViewController {
     private NotificationDataManager mNotificationDataManager;
     private NotificationUpdateHandler mNotificationUpdateHandler = new NotificationUpdateHandler();
     private boolean mShowLessImportantNotifications;
+    private boolean mIsInForeground;
 
     public NotificationViewController(CarNotificationView carNotificationView,
             PreprocessingManager preprocessingManager,
@@ -48,7 +50,7 @@ public class NotificationViewController {
                         "Foreground, navigation and media notifications " + (
                                 mShowLessImportantNotifications ? "ENABLED" : "DISABLED"),
                         Toast.LENGTH_SHORT).show();
-                updateNotifications(mShowLessImportantNotifications);
+                resetNotifications(mShowLessImportantNotifications);
                 return true;
             });
         }
@@ -67,11 +69,10 @@ public class NotificationViewController {
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected", e);
         }
-        updateNotifications(mShowLessImportantNotifications);
     }
 
     /**
-     * Removes listeners
+     * Remove listeners.
      */
     public void disable() {
         mCarNotificationListener.setHandler(null);
@@ -79,23 +80,52 @@ public class NotificationViewController {
     }
 
     /**
-     * Update all notifications and ranking
+     * Reset the list view. Called when the notification list is in the foreground.
      */
-    private void updateNotifications(boolean showLessImportantNotifications) {
-        List<NotificationGroup> notifications = mPreprocessingManager.process(
-                showLessImportantNotifications,
+    public void setIsInForeground(boolean isInForeground) {
+        mIsInForeground = isInForeground;
+        if (mIsInForeground) {
+            resetNotifications(mShowLessImportantNotifications);
+        }
+    }
+
+    /**
+     * Reset notifications to the latest state.
+     */
+
+    private void resetNotifications(boolean showLessImportantNotifications) {
+        mPreprocessingManager.init(
                 mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
+        mCarNotificationView.setNotifications(
+                mPreprocessingManager.process(
+                        showLessImportantNotifications,
+                        mCarNotificationListener.getNotifications(),
+                        mCarNotificationListener.getCurrentRanking()));
+    }
 
-        mNotificationDataManager.updateUnseenNotification(notifications);
-        mCarNotificationView.setNotifications(notifications);
+    /**
+     * Update notifications: no grouping/ranking updates will go through.
+     * Insertion, deletion and content update will apply immediately.
+     */
+    private void updateNotifications(
+            boolean showLessImportantNotifications, int what, StatusBarNotification sbn) {
+        mCarNotificationView.setNotifications(
+                mPreprocessingManager.updateNotifications(
+                        showLessImportantNotifications,
+                        sbn,
+                        what,
+                        mCarNotificationListener.getCurrentRanking()));
     }
 
     private class NotificationUpdateHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            if (message.what == CarNotificationListener.NOTIFY_NOTIFICATIONS_CHANGED) {
-                updateNotifications(mShowLessImportantNotifications);
+            if (mIsInForeground) {
+                updateNotifications(
+                        mShowLessImportantNotifications,
+                        message.what,
+                        (StatusBarNotification) message.obj);
             }
         }
     }
