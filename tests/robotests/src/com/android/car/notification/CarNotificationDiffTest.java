@@ -31,12 +31,13 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(CarNotificationRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class CarNotificationDiffTest {
 
     private Context mContext;

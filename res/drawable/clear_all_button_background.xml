@@ -14,14 +14,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<resources>
-    <declare-styleable name="CarNotificationHeaderView">
-        <attr name="isHeadsUp" format="boolean"/>
-    </declare-styleable>
-    <declare-styleable name="CarNotificationBodyView">
-        <attr name="showBigIcon" format="boolean"/>
-    </declare-styleable>
-    <declare-styleable name="CarNotificationActionsView">
-        <attr name="categoryCall" format="boolean"/>
-    </declare-styleable>
-</resources>
+<ripple
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/notification_ripple_untinted_color">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/clear_all_button_radius"/>
+            <solid android:color="@color/clear_all_button_background_color"/>
+        </shape>
+    </item>
+</ripple>

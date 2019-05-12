@@ -71,4 +71,20 @@
     <item name="percentage_of_width_to_dismiss" format="float" type="dimen">0.40</item>
     <item name="max_percentage_of_width_with_resistance" format="float" type="dimen">0.4</item>
     <dimen name="touch_slop">20dp</dimen>
+
+    <!-- Clear all button -->
+    <dimen name="clear_all_button_margin">@*android:dimen/car_padding_3</dimen>
+    <dimen name="clear_all_button_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="clear_all_button_height">@*android:dimen/car_button_height</dimen>
+    <dimen name="clear_all_button_radius">28dp</dimen>
+
+    <dimen name="notification_header_text_padding_start">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_header_text_padding_end">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_header_text_padding_top">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_header_text_padding_bottom">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_header_text_margin">@*android:dimen/car_padding_3</dimen>
+
+    <dimen name="no_notification_header_text_padding_top">@*android:dimen/car_padding_5</dimen>
+    <dimen name="no_notification_header_text_padding_bottom">@*android:dimen/car_padding_5</dimen>
+
 </resources>

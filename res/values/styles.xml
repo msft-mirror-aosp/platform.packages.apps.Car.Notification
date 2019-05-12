@@ -60,12 +60,12 @@
     </style>
 
     <style name="ClearAllButton" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
-        <item name="android:paddingStart">@dimen/action_button_padding</item>
-        <item name="android:paddingEnd">@dimen/action_button_padding</item>
-        <item name="android:textColor">?attr/android:colorAccent</item>
+        <item name="android:paddingStart">@dimen/clear_all_button_padding</item>
+        <item name="android:paddingEnd">@dimen/clear_all_button_padding</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:gravity">center</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:background">@drawable/clear_all_button_background</item>
     </style>
 
 </resources>

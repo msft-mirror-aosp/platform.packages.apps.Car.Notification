@@ -50,7 +50,7 @@ public class CarNotificationHeaderView extends LinearLayout {
     private final int mDefaultTextColor;
     private final String mSeparatorText;
 
-    private boolean mOnlyShowIcon;
+    private boolean mIsHeadsUp;
     private ImageView mIconView;
     private TextView mHeaderTextView;
     private DateTimeView mTimeView;
@@ -86,8 +86,8 @@ public class CarNotificationHeaderView extends LinearLayout {
     private void init(AttributeSet attrs) {
         TypedArray attributes =
                 getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationHeaderView);
-        mOnlyShowIcon =
-                attributes.getBoolean(R.styleable.CarNotificationHeaderView_onlyShowIcon,
+        mIsHeadsUp =
+                attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
                         /* defValue= */ false);
         attributes.recycle();
     }
@@ -123,20 +123,18 @@ public class CarNotificationHeaderView extends LinearLayout {
         Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
         mIconView.setImageDrawable(drawable);
 
-        if (mOnlyShowIcon) {
-            mIconView.setLayoutParams(
-                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            mHeaderTextView.setVisibility(View.GONE);
-            mTimeView.setVisibility(View.GONE);
-            return;
-        }
-
         StringBuilder stringBuilder = new StringBuilder();
 
         // app name
         mHeaderTextView.setVisibility(View.VISIBLE);
-        stringBuilder.append(loadHeaderAppName(statusBarNotification.getPackageName()));
 
+        if (mIsHeadsUp) {
+            mHeaderTextView.setText(loadHeaderAppName(statusBarNotification.getPackageName()));
+            mTimeView.setVisibility(View.GONE);
+            return;
+        }
+
+        stringBuilder.append(loadHeaderAppName(statusBarNotification.getPackageName()));
         Bundle extras = notification.extras;
 
         // optional field: sub text
@@ -159,21 +157,6 @@ public class CarNotificationHeaderView extends LinearLayout {
         }
 
         mHeaderTextView.setText(stringBuilder);
-    }
-
-    /**
-     * Binds the notification header that contains the issuer app icon and name.
-     *
-     * @param statusBarNotification the notification to be bound.
-     * @param mediaForegroundColor the foreground color used for the texts and icons of media
-     * notifications.
-     */
-    public void bindWithMediaColor(
-            StatusBarNotification statusBarNotification, @ColorInt int mediaForegroundColor) {
-        bind(statusBarNotification, false);
-        mIconView.setColorFilter(mediaForegroundColor);
-        mHeaderTextView.setTextColor(mediaForegroundColor);
-        mTimeView.setTextColor(mediaForegroundColor);
     }
 
     /**

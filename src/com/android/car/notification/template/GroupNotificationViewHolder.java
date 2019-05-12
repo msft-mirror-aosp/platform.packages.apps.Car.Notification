@@ -144,7 +144,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
             newGroup.setChildTitles(group.generateChildTitles());
             list.add(newGroup);
         }
-        mAdapter.setNotifications(list);
+        mAdapter.setNotifications(list, /* setHeader= */ false);
 
         updateExpansionIcon(group.getChildCount(), isExpanded);
         updateOnClickListener(parentAdapter, group, isExpanded);

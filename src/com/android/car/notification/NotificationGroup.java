@@ -42,6 +42,8 @@ public class NotificationGroup {
     @Nullable
     private StatusBarNotification mGroupSummaryNotification;
 
+    private boolean mIsHeader;
+
     public void addNotification(StatusBarNotification statusBarNotification) {
         assertSameGroupKey(statusBarNotification.getGroupKey());
         mNotifications.add(statusBarNotification);
@@ -84,6 +86,20 @@ public class NotificationGroup {
      */
     public boolean isGroup() {
         return mGroupSummaryNotification != null && getChildCount() > 1;
+    }
+
+    /**
+     * Return true if the header is set to be displayed.
+     */
+    public boolean isHeader() {
+        return mIsHeader;
+    }
+
+    /**
+     * Set this to true if a header needs to be displayed with a title and a clear all button.
+     */
+    public void setHeader(boolean header) {
+        mIsHeader = header;
     }
 
     /**

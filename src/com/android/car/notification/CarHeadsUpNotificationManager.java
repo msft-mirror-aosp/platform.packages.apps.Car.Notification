@@ -181,18 +181,8 @@ public class CarHeadsUpNotificationManager
         }
         if (!activeNotifications.containsKey(statusBarNotification.getKey()) || canUpdate(
                 statusBarNotification) || alertAgain(statusBarNotification.getNotification())) {
-            NotificationListenerService.Ranking ranking = getRanking();
-            if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
-                NotificationChannel notificationChannel = ranking.getChannel();
-                // If sound is not set on the notification channel and default is not chosen it
-                // can be null.
-                if (notificationChannel.getSound() != null) {
-                    // make the sound
-                    mBeeper.beep(statusBarNotification.getPackageName(),
-                            notificationChannel.getSound());
-                }
-            }
-            showHeadsUp(mPreprocessingManager.optimizeForDriving(statusBarNotification));
+            showHeadsUp(mPreprocessingManager.optimizeForDriving(statusBarNotification),
+                    rankingMap);
         }
         activeNotifications.put(statusBarNotification.getKey(), statusBarNotification);
     }
@@ -296,13 +286,15 @@ public class CarHeadsUpNotificationManager
      * will only be done if {@link Notification#FLAG_ONLY_ALERT_ONCE} flag is not set.
      * </ol>
      */
-    private void showHeadsUp(StatusBarNotification statusBarNotification) {
+    private void showHeadsUp(StatusBarNotification statusBarNotification,
+            NotificationListenerService.RankingMap rankingMap) {
         // Show animations only when there is no active HUN and notification is new. This check
         // needs to be done here because after this the new notification will be added to the map
         // holding ongoing notifications.
         boolean shouldShowAnimation = !isUpdate(statusBarNotification);
         HeadsUpEntry currentNotification = addNewHeadsUpEntry(statusBarNotification);
         if (currentNotification.isNewHeadsUp) {
+            playSound(statusBarNotification, rankingMap);
             setHeadsUpVisible();
             setAutoDismissViews(currentNotification, statusBarNotification);
         } else if (currentNotification.isAlertAgain) {
@@ -514,6 +506,21 @@ public class CarHeadsUpNotificationManager
             cardView.setOnTouchListener(
                     new HeadsUpNotificationOnTouchListener(cardView, shouldDismissOnSwipe,
                             () -> resetView(statusBarNotification)));
+        }
+    }
+
+    private void playSound(StatusBarNotification statusBarNotification,
+            NotificationListenerService.RankingMap rankingMap) {
+        NotificationListenerService.Ranking ranking = getRanking();
+        if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
+            NotificationChannel notificationChannel = ranking.getChannel();
+            // If sound is not set on the notification channel and default is not chosen it
+            // can be null.
+            if (notificationChannel.getSound() != null) {
+                // make the sound
+                mBeeper.beep(statusBarNotification.getPackageName(),
+                        notificationChannel.getSound());
+            }
         }
     }
 
@@ -732,7 +739,7 @@ public class CarHeadsUpNotificationManager
 
         // Allow for Call, and nav TBT categories.
         if (Notification.CATEGORY_CALL.equals(notification.category)
-                || Notification.CATEGORY_NAVIGATION.equals(notification.category) ) {
+                || Notification.CATEGORY_NAVIGATION.equals(notification.category)) {
             return true;
         }
         return false;
