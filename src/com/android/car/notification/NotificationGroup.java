@@ -43,6 +43,8 @@ public class NotificationGroup {
     private StatusBarNotification mGroupSummaryNotification;
 
     private boolean mIsHeader;
+    private boolean mIsFooter;
+
     public NotificationGroup() {
     }
 
@@ -101,6 +103,20 @@ public class NotificationGroup {
      */
     public void setHeader(boolean header) {
         mIsHeader = header;
+    }
+
+    /**
+     * Return true if the header is set to be displayed.
+     */
+    public boolean isFooter() {
+        return mIsFooter;
+    }
+
+    /**
+     * Set this to true if a footer needs to be displayed with a clear all button.
+     */
+    public void setFooter(boolean footer) {
+        mIsFooter = footer;
     }
 
     /**

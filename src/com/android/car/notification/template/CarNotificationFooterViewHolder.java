@@ -18,7 +18,6 @@ package com.android.car.notification.template;
 import android.annotation.CallSuper;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,38 +25,29 @@ import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.R;
 
 /**
- * Header template for the notification shade. This templates supports the clear all button with id
- * clear_all_button, a header text with id notification_header_text when the notification list is
- * not empty and a secondary header text with id empty_notification_header_text when notification
- * list is empty.
+ * Footer template for the notification shade. This templates supports the clear all button with id
+ * clear_all_button.
  */
-public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
+public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
 
-    private final TextView mNotificationHeaderText;
     private final Button mClearAllButton;
-    private final TextView mEmptyNotificationHeaderText;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
 
-    public CarNotificationHeaderViewHolder(View view,
+    public CarNotificationFooterViewHolder(View view,
             NotificationClickHandlerFactory clickHandlerFactory) {
         super(view);
 
-        mNotificationHeaderText = view.findViewById(R.id.notification_header_text);
         mClearAllButton = view.findViewById(R.id.clear_all_button);
-        mEmptyNotificationHeaderText = view.findViewById(R.id.empty_notification_header_text);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
     @CallSuper
     public void bind(boolean containsNotification) {
+        if (mClearAllButton == null) {
+            return;
+        }
+
         if (containsNotification) {
-            mNotificationHeaderText.setVisibility(View.VISIBLE);
-            mEmptyNotificationHeaderText.setVisibility(View.GONE);
-
-            if (mClearAllButton == null) {
-                return;
-            }
-
             mClearAllButton.setVisibility(View.VISIBLE);
             if (!mClearAllButton.hasOnClickListeners()) {
                 mClearAllButton.setOnClickListener(
@@ -65,11 +55,6 @@ public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
             }
             return;
         }
-        mNotificationHeaderText.setVisibility(View.GONE);
-        mEmptyNotificationHeaderText.setVisibility(View.VISIBLE);
-
-        if (mClearAllButton != null) {
-            mClearAllButton.setVisibility(View.GONE);
-        }
+        mClearAllButton.setVisibility(View.GONE);
     }
 }
