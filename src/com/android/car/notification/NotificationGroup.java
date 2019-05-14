@@ -43,6 +43,12 @@ public class NotificationGroup {
     private StatusBarNotification mGroupSummaryNotification;
 
     private boolean mIsHeader;
+    public NotificationGroup() {
+    }
+
+    public NotificationGroup(StatusBarNotification statusBarNotification) {
+        addNotification(statusBarNotification);
+    }
 
     public void addNotification(StatusBarNotification statusBarNotification) {
         assertSameGroupKey(statusBarNotification.getGroupKey());
@@ -51,11 +57,6 @@ public class NotificationGroup {
 
     void setGroupSummaryNotification(StatusBarNotification groupSummaryNotification) {
         assertSameGroupKey(groupSummaryNotification.getGroupKey());
-        // There exists a group summary notification
-        if (mGroupSummaryNotification != null) {
-            mNotifications.add(groupSummaryNotification);
-            return;
-        }
         mGroupSummaryNotification = groupSummaryNotification;
     }
 
