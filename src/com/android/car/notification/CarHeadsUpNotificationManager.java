@@ -563,7 +563,6 @@ public class CarHeadsUpNotificationManager
         // active notification maps and cancel all other call backs if any.
         HeadsUpEntry currentHeadsUpNotification = mActiveHeadsUpNotifications.get(
                 statusBarNotification.getKey());
-        mActiveHeadsUpNotifications.remove(statusBarNotification.getKey());
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
         currentHeadsUpNotification.getClickHandlerFactory().setHeadsUpNotificationCallBack(null);
 
@@ -589,6 +588,10 @@ public class CarHeadsUpNotificationManager
             @Override
             public void onAnimationEnd(Animator animation) {
                 removeNotificationFromPanel(currentHeadsUpNotification);
+
+                // Remove HUN after the animation ends to prevent accidental touch on the card
+                // triggering another remove call.
+                mActiveHeadsUpNotifications.remove(statusBarNotification.getKey());
             }
         });
         animatorSet.start();
@@ -611,9 +614,11 @@ public class CarHeadsUpNotificationManager
      * Removes the view for the active heads up notification and also removes the HUN from the map
      * of active Notifications.
      */
-    protected void resetView(StatusBarNotification statusBarNotification) {
+    private void resetView(StatusBarNotification statusBarNotification) {
         HeadsUpEntry currentHeadsUpNotification = mActiveHeadsUpNotifications.get(
                 statusBarNotification.getKey());
+        if (currentHeadsUpNotification == null) return;
+
         currentHeadsUpNotification.getClickHandlerFactory().setHeadsUpNotificationCallBack(null);
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
         removeNotificationFromPanel(currentHeadsUpNotification);
