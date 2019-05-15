@@ -79,4 +79,5 @@ import java.lang.annotation.RetentionPolicy;
     int CALL = 23;
 
     int HEADER = 24;
+    int FOOTER = 25;
 }

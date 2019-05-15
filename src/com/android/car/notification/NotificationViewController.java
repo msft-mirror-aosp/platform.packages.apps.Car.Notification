@@ -92,7 +92,6 @@ public class NotificationViewController {
     /**
      * Reset notifications to the latest state.
      */
-
     private void resetNotifications(boolean showLessImportantNotifications) {
         mPreprocessingManager.init(
                 mCarNotificationListener.getNotifications(),
