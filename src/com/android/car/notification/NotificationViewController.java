@@ -96,11 +96,14 @@ public class NotificationViewController {
         mPreprocessingManager.init(
                 mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
-        mCarNotificationView.setNotifications(
-                mPreprocessingManager.process(
-                        showLessImportantNotifications,
-                        mCarNotificationListener.getNotifications(),
-                        mCarNotificationListener.getCurrentRanking()));
+
+        List<NotificationGroup> notificationGroups = mPreprocessingManager.process(
+                showLessImportantNotifications,
+                mCarNotificationListener.getNotifications(),
+                mCarNotificationListener.getCurrentRanking());
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        mCarNotificationView.setNotifications(notificationGroups);
     }
 
     /**
@@ -125,6 +128,8 @@ public class NotificationViewController {
                         mShowLessImportantNotifications,
                         message.what,
                         (StatusBarNotification) message.obj);
+            } else {
+                resetNotifications(mShowLessImportantNotifications);
             }
         }
     }
