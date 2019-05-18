@@ -30,9 +30,13 @@
     <string name="clear_all" msgid="1845314281571237722">"Tozalash"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"Yana"</string>
+    <!-- no translation found for notification_header (324550431063568049) -->
+    <skip />
+    <!-- no translation found for empty_notification_header (4928379791607839720) -->
+    <skip />
     <string name="show_less" msgid="7342677676229302829">"Kamroq"</string>
     <string name="show_count_more" msgid="480555295700318609">"Yana <xliff:g id="COUNT">%d</xliff:g> ta xabarni ochish"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">"Yana <xliff:g id="COUNT">%d</xliff:g> ta"</string>
+    <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> ta"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ta yangi xabar</item>
       <item quantity="one">1 ta yangi xabar</item>
