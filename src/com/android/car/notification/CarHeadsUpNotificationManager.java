@@ -29,9 +29,6 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
@@ -714,22 +711,8 @@ public class CarHeadsUpNotificationManager
             }
         }
 
-        PackageManager pm = mContext.getPackageManager();
-        PackageInfo packageInfo = null;
-        String packageName = statusBarNotification.getPackageName();
-
-        try {
-            packageInfo = pm.getPackageInfoAsUser(packageName, /* flags= */ 0,
-                    mCarUserManagerHelper.getCurrentForegroundUserId());
-        } catch (NameNotFoundException ex) {
-            Log.e(TAG, "package not found: " + packageName);
-        }
-        if (packageInfo == null) return false;
-
-        // Allow for platform, privileged system apps
-        if (packageInfo.applicationInfo.isSignedWithPlatformKey() ||
-                (packageInfo.applicationInfo.isSystemApp()
-                        && packageInfo.applicationInfo.isPrivilegedApp())) {
+        if (NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext,
+                statusBarNotification)) {
             return true;
         }
 
@@ -739,7 +722,7 @@ public class CarHeadsUpNotificationManager
         }
 
         if (notification.category == null) {
-            Log.d(TAG, "category not set for: " + packageName);
+            Log.d(TAG, "category not set for: " + statusBarNotification.getPackageName());
         }
 
         // Allow for Call, and nav TBT categories.
