@@ -19,6 +19,7 @@ import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +51,11 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private final LayoutInflater mInflater;
     private final int mMaxNumberGroupChildrenShown;
     private final boolean mIsGroupNotificationAdapter;
+    private final Handler mHandler = new Handler();
+
+    // Delay in posting notifyDataSetChanged for the adapter in milliseconds.
+    private final int mNotifyDataSetChangedDelay = 15;
+
     // book keeping expanded notification groups
     private final List<String> mExpandedNotifications = new ArrayList<>();
 
@@ -58,7 +64,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private CarUxRestrictions mCarUxRestrictions;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
-    private boolean mIsHeaderCreated;
+
+    private Runnable mNotifyDataSetChangedRunnable = this::notifyDataSetChanged;
 
     /**
      * Constructor for a notification adapter.
@@ -449,7 +456,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         mNotifications = notificationGroupList;
 
-        notifyDataSetChanged();
+        mHandler.removeCallbacks(mNotifyDataSetChangedRunnable);
+        mHandler.postDelayed(mNotifyDataSetChangedRunnable, mNotifyDataSetChangedDelay);
     }
 
     private NotificationGroup getNotifictaionHeader(){
