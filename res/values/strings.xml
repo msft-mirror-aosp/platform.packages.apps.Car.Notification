@@ -23,13 +23,13 @@
     <string name="action_mute_short">Mute</string>
 
     <!-- The Action label displayed to mute a message notification with more context [CHAR_LIMIT=35]-->
-    <string name="action_mute_long">Mute Conversation</string>
+    <string name="action_mute_long">Mute conversation</string>
 
     <!-- The Action label displayed to unmute a message notification [CHAR_LIMIT=23]-->
     <string name="action_unmute_short">Unmute</string>
 
     <!-- The Action label displayed to unmute a message notification with more context [CHAR_LIMIT=35]-->
-    <string name="action_unmute_long">Unmute Conversation</string>
+    <string name="action_unmute_long">Unmute conversation</string>
 
     <!-- The Action label displayed to reply with a canned response to a SMS message [CHAR_LIMIT=35]-->
     <string name="action_canned_reply">\"I\'m driving right now.\"</string>
