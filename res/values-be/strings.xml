@@ -19,9 +19,11 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Прайграць"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Выключыць гук"</string>
-    <string name="action_mute_long" msgid="670936611165098834">"Выключыць апавяшчэнні для размовы"</string>
+    <!-- no translation found for action_mute_long (6846675719189989477) -->
+    <skip />
     <string name="action_unmute_short" msgid="7157822835069715986">"Уключыць гук"</string>
-    <string name="action_unmute_long" msgid="750697270532622459">"Уключыць апавяшчэнні для размовы"</string>
+    <!-- no translation found for action_unmute_long (22482625837159466) -->
+    <skip />
     <string name="action_canned_reply" msgid="4045960823021872834">"\"Я цяпер за рулём\"."</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"Я цяпер за рулём."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"Паведамленне адпраўлена."</string>
@@ -30,10 +32,8 @@
     <string name="clear_all" msgid="1845314281571237722">"Ачысціць усё"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"Разгарнуць"</string>
-    <!-- no translation found for notification_header (324550431063568049) -->
-    <skip />
-    <!-- no translation found for empty_notification_header (4928379791607839720) -->
-    <skip />
+    <string name="notification_header" msgid="324550431063568049">"Апавяшчэнні"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"Апавяшчэнняў няма"</string>
     <string name="show_less" msgid="7342677676229302829">"Згарнуць"</string>
     <string name="show_count_more" msgid="480555295700318609">"Паказаць яшчэ <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" яшчэ +<xliff:g id="COUNT">%d</xliff:g>"</string>
