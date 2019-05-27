@@ -48,10 +48,13 @@ import java.util.TreeMap;
  */
 public class PreprocessingManager {
     private static final String TAG = "PreprocessingManager";
-    private static PreprocessingManager mInstance;
-    private final String mEllipsizedString;
-    private int mMaxStringLength = Integer.MAX_VALUE;
 
+    private final String mEllipsizedString;
+    private final Context mContext;
+
+    private static PreprocessingManager sInstance;
+
+    private int mMaxStringLength = Integer.MAX_VALUE;
     private Map<String, StatusBarNotification> mOldNotifications;
     private List<NotificationGroup> mOldProcessedNotifications;
     private NotificationListenerService.RankingMap mOldRankingMap;
@@ -59,13 +62,14 @@ public class PreprocessingManager {
 
     private PreprocessingManager(Context context) {
         mEllipsizedString = context.getString(R.string.ellipsized_string);
+        mContext = context;
     }
 
     public static PreprocessingManager getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new PreprocessingManager(context);
+        if (sInstance == null) {
+            sInstance = new PreprocessingManager(context);
         }
-        return mInstance;
+        return sInstance;
     }
 
     /**
@@ -183,7 +187,9 @@ public class PreprocessingManager {
         if (rankingMap.getRanking(statusBarNotification.getKey(), ranking)) {
             importance = ranking.getImportance();
         }
-        return importance < NotificationManager.IMPORTANCE_DEFAULT;
+        return importance < NotificationManager.IMPORTANCE_DEFAULT
+                && NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext,
+                statusBarNotification);
     }
 
     private boolean isMediaOrNavigationNotification(StatusBarNotification statusBarNotification) {

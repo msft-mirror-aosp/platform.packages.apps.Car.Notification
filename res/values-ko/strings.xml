@@ -30,10 +30,8 @@
     <string name="clear_all" msgid="1845314281571237722">"모두 삭제"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"더보기"</string>
-    <!-- no translation found for notification_header (324550431063568049) -->
-    <skip />
-    <!-- no translation found for empty_notification_header (4928379791607839720) -->
-    <skip />
+    <string name="notification_header" msgid="324550431063568049">"알림"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"알림 없음"</string>
     <string name="show_less" msgid="7342677676229302829">"간략히"</string>
     <string name="show_count_more" msgid="480555295700318609">"알림 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">"외 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
