@@ -318,6 +318,31 @@ public class PreprocessingManager {
                     }
                 });
 
+        // Fourth pass: if a notification is a group notification, update the timestamp if one of
+        // the children notifications shows a timestamp.
+        validGroupList.forEach(group -> {
+            if (!group.isGroup()) {
+                return;
+            }
+
+            StatusBarNotification groupSummaryNotification = group.getGroupSummaryNotification();
+            boolean showWhen = false;
+            long greatestTimestamp = 0;
+            for (StatusBarNotification notification : group.getChildNotifications()) {
+                if (notification.getNotification().showsTime()) {
+                    showWhen = true;
+                    greatestTimestamp = Math.max(greatestTimestamp,
+                            notification.getNotification().when);
+                }
+            }
+
+            if (showWhen) {
+                groupSummaryNotification.getNotification().extras.putBoolean(
+                        Notification.EXTRA_SHOW_WHEN, true);
+                groupSummaryNotification.getNotification().when = greatestTimestamp;
+            }
+        });
+
         return validGroupList;
     }
 
