@@ -84,7 +84,7 @@
                 android:layout_marginEnd="@dimen/card_end_margin"
                 android:layout_marginStart="@dimen/card_start_margin"
                 android:gravity="center_vertical"
-                android:textAppearance="@style/NotificationBodyContentText"/>
+                style="@style/NotificationBodyContentText"/>
         </RelativeLayout>
 
         <!-- This view intercepts all clicks on the card in the collapsed state -->
