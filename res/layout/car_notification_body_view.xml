@@ -35,7 +35,7 @@
         android:layout_toStartOf="@id/notification_body_icon"
         android:layout_marginStart="@dimen/card_start_margin"
         android:layout_marginEnd="@dimen/card_end_margin"
-        android:textAppearance="@style/NotificationBodyContentText"/>
+        style="@style/NotificationBodyContentText"/>
 
     <ImageButton
         android:id="@+id/notification_body_icon"
