@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
+import com.android.car.notification.template.CallNotificationViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
 import com.android.car.notification.template.EmergencyNotificationViewHolder;
@@ -109,6 +110,11 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
                 view = mInflater
                         .inflate(R.layout.group_summary_notification_template, parent, false);
                 viewHolder = new GroupSummaryNotificationViewHolder(view, mClickHandlerFactory);
+                break;
+            case NotificationViewType.CALL:
+                view = mInflater
+                        .inflate(R.layout.call_notification_template, parent, false);
+                viewHolder = new CallNotificationViewHolder(view, mClickHandlerFactory);
                 break;
             case NotificationViewType.CAR_EMERGENCY:
                 view = mInflater.inflate(
@@ -202,6 +208,12 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             case NotificationViewType.GROUP_SUMMARY:
                 ((GroupSummaryNotificationViewHolder) holder).bind(notificationGroup);
                 break;
+            case NotificationViewType.CALL: {
+                StatusBarNotification notification = notificationGroup.getSingleNotification();
+                ((CallNotificationViewHolder) holder)
+                        .bind(notification, /* isInGroup= */ false, /* isHeadsUp= */ false);
+                break;
+            }
             case NotificationViewType.CAR_EMERGENCY: {
                 StatusBarNotification notification = notificationGroup.getSingleNotification();
                 ((EmergencyNotificationViewHolder) holder)
@@ -307,6 +319,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         String category = notification.category;
         if (category != null) {
             switch (category) {
+                case Notification.CATEGORY_CALL:
+                    return NotificationViewType.CALL;
                 case Notification.CATEGORY_CAR_EMERGENCY:
                     return NotificationViewType.CAR_EMERGENCY;
                 case Notification.CATEGORY_CAR_WARNING:
