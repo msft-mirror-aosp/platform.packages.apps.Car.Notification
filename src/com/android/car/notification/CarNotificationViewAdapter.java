@@ -192,10 +192,10 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         switch (holder.getItemViewType()) {
             case NotificationViewType.HEADER:
-                ((CarNotificationHeaderViewHolder) holder).bind(getItemCount() > 1);
+                ((CarNotificationHeaderViewHolder) holder).bind(hasNotifications());
                 break;
             case NotificationViewType.FOOTER:
-                ((CarNotificationFooterViewHolder) holder).bind(getItemCount() > 1);
+                ((CarNotificationFooterViewHolder) holder).bind(hasNotifications());
                 break;
             case NotificationViewType.GROUP_EXPANDED:
                 ((GroupNotificationViewHolder) holder)
@@ -457,15 +457,20 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
     /**
      * Updates notifications and update views.
+     *
+     * @param setRecyclerViewListHeaderAndFooter sets the header and footer on the entire list of
+     * items within the recycler view. This is NOT the header/footer for the grouped notifications.
      */
-    public void setNotifications(List<NotificationGroup> notifications, boolean setHeader) {
+    public void setNotifications(List<NotificationGroup> notifications,
+            boolean setRecyclerViewListHeaderAndFooter) {
 
-        List<NotificationGroup> notificationGroupList =  new ArrayList<>(notifications);
+        List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
 
-        if (setHeader) {
-            // add it as the first item of the list.
-            notificationGroupList.add(0, getNotifictaionHeader());
-            notificationGroupList.add(getNotifictaionFooter());
+        if (setRecyclerViewListHeaderAndFooter) {
+            // add header as the first item of the list.
+            notificationGroupList.add(0, createNotificationHeader());
+            // add footer as the last item of the list.
+            notificationGroupList.add(createNotificationFooter());
         }
 
         mNotifications = notificationGroupList;
@@ -474,14 +479,23 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         mHandler.postDelayed(mNotifyDataSetChangedRunnable, mNotifyDataSetChangedDelay);
     }
 
-    private NotificationGroup getNotifictaionHeader(){
+    /**
+     * Notification list has header and footer by default. Therefore the min number of items in the
+     * adapter will always be two. If there are any notifications present the size will be more than
+     * two.
+     */
+    private boolean hasNotifications() {
+        return getItemCount() > 2;
+    }
+
+    private NotificationGroup createNotificationHeader() {
         NotificationGroup notificationGroupWithHeader = new NotificationGroup();
         notificationGroupWithHeader.setHeader(true);
         notificationGroupWithHeader.setGroupKey("notification_header");
         return notificationGroupWithHeader;
     }
 
-    private NotificationGroup getNotifictaionFooter(){
+    private NotificationGroup createNotificationFooter() {
         NotificationGroup notificationGroupWithFooter = new NotificationGroup();
         notificationGroupWithFooter.setFooter(true);
         notificationGroupWithFooter.setGroupKey("notification_footer");
@@ -546,9 +560,9 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public void setNotificationAsSeen(int position) {
         NotificationGroup notificationGroup = null;
 
-        try{
+        try {
             notificationGroup = mNotifications.get(position);
-        }catch(IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, "trying to mark none existent notification as seen.");
             return;
         }
