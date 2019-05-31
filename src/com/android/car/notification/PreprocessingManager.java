@@ -397,10 +397,10 @@ public class PreprocessingManager {
     /**
      * Rank notifications according to the ranking key supplied by the notification.
      */
-    public List<NotificationGroup> rank(
-            List<NotificationGroup> notifications, RankingMap rankingMap) {
+    private List<NotificationGroup> rank(List<NotificationGroup> notifications,
+            RankingMap rankingMap) {
 
-        Collections.sort(notifications, new NotificationComparator());
+        Collections.sort(notifications, new NotificationComparator(rankingMap));
 
         // Rank within each group
         notifications.forEach(notificationGroup -> {
@@ -470,13 +470,26 @@ public class PreprocessingManager {
     }
 
     /**
-     * Comparator that sorts the notification groups by their representative notification's
-     * rank.
+     * Comparator that sorts the notification groups by their representative notification's rank.
      */
     private class NotificationComparator implements Comparator<NotificationGroup> {
+        private final NotificationListenerService.RankingMap mRankingMap;
+
+        NotificationComparator(NotificationListenerService.RankingMap rankingMap) {
+            mRankingMap = rankingMap;
+        }
+
         @Override
         public int compare(NotificationGroup left, NotificationGroup right) {
-            return getRanking(left, null) - getRanking(right, null);
+            NotificationListenerService.Ranking leftRanking =
+                    new NotificationListenerService.Ranking();
+            mRankingMap.getRanking(left.getNotificationForSorting().getKey(), leftRanking);
+
+            NotificationListenerService.Ranking rightRanking =
+                    new NotificationListenerService.Ranking();
+            mRankingMap.getRanking(right.getNotificationForSorting().getKey(), rightRanking);
+
+            return leftRanking.getRank() - rightRanking.getRank();
         }
     }
 
