@@ -59,7 +59,7 @@
         style="@style/ClearAllButtonHeader"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.android.car.apps.common.widget.PagedRecyclerView
         android:id="@+id/notifications"
         android:layout_width="0dp"
         android:layout_height="0dp"
