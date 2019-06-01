@@ -99,17 +99,21 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
 
     /**
      * Group notification view holder is special in that it requires extra data to bind,
-     * therefore the standard bind() method is no used. We are calling super.reset()
+     * therefore the standard bind() method is not used. We are calling super.reset()
      * directly and binding the onclick listener manually because the card's on click behavior is
      * different when collapsed/expanded.
      */
     public void bind(
             NotificationGroup group, CarNotificationViewAdapter parentAdapter, boolean isExpanded) {
-        super.reset();
+        reset();
 
         mNotificationGroup = group;
         mSummaryNotification = group.getGroupSummaryNotification();
+
+        // Bind the notification's data to the headerView.
         mGroupHeaderView.bind(mSummaryNotification, /* isInGroup= */ false);
+        // Set the header's UI attributes (i.e. smallIconColor, etc.) based on the BaseViewHolder.
+        bindHeader(mGroupHeaderView, /* isInGroup= */ false);
 
         mAdapter.setCarUxRestrictions(parentAdapter.getCarUxRestrictions());
 
@@ -144,7 +148,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
             newGroup.setChildTitles(group.generateChildTitles());
             list.add(newGroup);
         }
-        mAdapter.setNotifications(list, /* setHeader= */ false);
+        mAdapter.setNotifications(list, /* setRecyclerViewListHeaderAndFooter= */ false);
 
         updateExpansionIcon(group.getChildCount(), isExpanded);
         updateOnClickListener(parentAdapter, group, isExpanded);
@@ -190,6 +194,12 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     @Override
     public boolean isDismissible() {
         return mNotificationGroup == null || mNotificationGroup.isDismissible();
+    }
+
+    @Override
+    void reset() {
+        super.reset();
+        mGroupHeaderView.reset();
     }
 
     private class GroupedNotificationItemDecoration extends RecyclerView.ItemDecoration {

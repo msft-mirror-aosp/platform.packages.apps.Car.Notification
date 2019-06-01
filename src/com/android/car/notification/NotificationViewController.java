@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import java.util.List;
 
 /**
@@ -80,11 +81,12 @@ public class NotificationViewController {
     }
 
     /**
-     * Reset the list view. Called when the notification list is in the foreground.
+     * Reset the list view. Called when the notification list is not in the foreground.
      */
     public void setIsInForeground(boolean isInForeground) {
         mIsInForeground = isInForeground;
-        if (mIsInForeground) {
+        // Reset when we are not in foreground.
+        if (!mIsInForeground) {
             resetNotifications(mShowLessImportantNotifications);
         }
     }
@@ -112,6 +114,12 @@ public class NotificationViewController {
      */
     private void updateNotifications(
             boolean showLessImportantNotifications, int what, StatusBarNotification sbn) {
+
+        if (mPreprocessingManager.shouldFilter(sbn, mCarNotificationListener.getCurrentRanking())) {
+            // if the new notification should be filtered out, return early
+            return;
+        }
+
         mCarNotificationView.setNotifications(
                 mPreprocessingManager.updateNotifications(
                         showLessImportantNotifications,

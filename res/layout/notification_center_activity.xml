@@ -47,9 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/notification_app_bar_height"
         android:gravity="center_vertical"
-        android:maxLines="1"
         android:text="@string/notifications"
-        android:textAppearance="@style/NotificationCenterAppTitle"
+        style="@style/NotificationCenterAppTitle"
         app:layout_constraintStart_toEndOf="@+id/exit_button_container"/>
 
     <Button
@@ -60,7 +59,7 @@
         style="@style/ClearAllButtonHeader"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.android.car.apps.common.widget.PagedRecyclerView
         android:id="@+id/notifications"
         android:layout_width="0dp"
         android:layout_height="0dp"
