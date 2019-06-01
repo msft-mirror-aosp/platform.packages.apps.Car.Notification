@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import java.util.List;
 
 /**
@@ -113,6 +114,12 @@ public class NotificationViewController {
      */
     private void updateNotifications(
             boolean showLessImportantNotifications, int what, StatusBarNotification sbn) {
+
+        if (mPreprocessingManager.shouldFilter(sbn, mCarNotificationListener.getCurrentRanking())) {
+            // if the new notification should be filtered out, return early
+            return;
+        }
+
         mCarNotificationView.setNotifications(
                 mPreprocessingManager.updateNotifications(
                         showLessImportantNotifications,
