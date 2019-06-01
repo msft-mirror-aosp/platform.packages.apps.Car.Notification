@@ -80,11 +80,12 @@ public class NotificationViewController {
     }
 
     /**
-     * Reset the list view. Called when the notification list is in the foreground.
+     * Reset the list view. Called when the notification list is not in the foreground.
      */
     public void setIsInForeground(boolean isInForeground) {
         mIsInForeground = isInForeground;
-        if (mIsInForeground) {
+        // Reset when we are not in foreground.
+        if (!mIsInForeground) {
             resetNotifications(mShowLessImportantNotifications);
         }
     }
