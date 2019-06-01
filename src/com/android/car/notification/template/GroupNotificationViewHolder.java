@@ -105,7 +105,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
      */
     public void bind(
             NotificationGroup group, CarNotificationViewAdapter parentAdapter, boolean isExpanded) {
-        super.reset();
+        reset();
 
         mNotificationGroup = group;
         mSummaryNotification = group.getGroupSummaryNotification();
@@ -194,6 +194,12 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     @Override
     public boolean isDismissible() {
         return mNotificationGroup == null || mNotificationGroup.isDismissible();
+    }
+
+    @Override
+    void reset() {
+        super.reset();
+        mGroupHeaderView.reset();
     }
 
     private class GroupedNotificationItemDecoration extends RecyclerView.ItemDecoration {
