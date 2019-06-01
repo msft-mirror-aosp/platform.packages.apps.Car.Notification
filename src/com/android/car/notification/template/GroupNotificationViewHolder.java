@@ -99,7 +99,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
 
     /**
      * Group notification view holder is special in that it requires extra data to bind,
-     * therefore the standard bind() method is no used. We are calling super.reset()
+     * therefore the standard bind() method is not used. We are calling super.reset()
      * directly and binding the onclick listener manually because the card's on click behavior is
      * different when collapsed/expanded.
      */
@@ -109,7 +109,11 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
 
         mNotificationGroup = group;
         mSummaryNotification = group.getGroupSummaryNotification();
+
+        // Bind the notification's data to the headerView.
         mGroupHeaderView.bind(mSummaryNotification, /* isInGroup= */ false);
+        // Set the header's UI attributes (i.e. smallIconColor, etc.) based on the BaseViewHolder.
+        bindHeader(mGroupHeaderView, /* isInGroup= */ false);
 
         mAdapter.setCarUxRestrictions(parentAdapter.getCarUxRestrictions());
 
