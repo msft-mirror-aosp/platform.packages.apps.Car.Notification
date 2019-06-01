@@ -117,14 +117,6 @@ public class PreprocessingManager {
             int updateType,
             RankingMap newRankingMap) {
 
-        boolean shouldFilter =
-                isLessImportantForegroundNotification(sbn, newRankingMap)
-                        || isMediaOrNavigationNotification(sbn);
-        if (shouldFilter) {
-            // if the new notification should be filtered out, return early
-            return mOldProcessedNotifications;
-        }
-
         if (updateType == CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED) {
             // removal of a notification is the same as a normal preprocessing
             mOldNotifications.remove(sbn.getKey());
@@ -135,11 +127,11 @@ public class PreprocessingManager {
         if (updateType == CarNotificationListener.NOTIFY_NOTIFICATION_POSTED) {
             StatusBarNotification notification = optimizeForDriving(sbn);
             boolean isUpdate = mOldNotifications.containsKey(notification.getKey());
-
             if (isUpdate) {
                 // if is an update of the previous notification
                 mOldNotifications.put(notification.getKey(), notification);
-                return process(showLessImportantNotifications, mOldNotifications, mOldRankingMap);
+                mOldProcessedNotifications = process(showLessImportantNotifications,
+                        mOldNotifications, mOldRankingMap);
             } else {
                 // insert a new notification into the list
                 mOldNotifications.put(notification.getKey(), notification);
@@ -149,6 +141,15 @@ public class PreprocessingManager {
         }
 
         return mOldProcessedNotifications;
+    }
+
+    /**
+     * Returns true if the current {@link StatusBarNotification} should be filtered out and not
+     * added to the list.
+     */
+    boolean shouldFilter(StatusBarNotification sbn, RankingMap rankingMap) {
+        return isLessImportantForegroundNotification(sbn, rankingMap)
+                || isMediaOrNavigationNotification(sbn);
     }
 
     /**
