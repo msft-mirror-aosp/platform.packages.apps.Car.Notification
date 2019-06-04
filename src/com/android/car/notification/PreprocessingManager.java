@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 
 /**
  * Manager that filters, groups and ranks the notifications in the notification center.
@@ -276,7 +277,14 @@ public class PreprocessingManager {
             StatusBarNotification statusBarNotification = list.get(i);
             Notification notification = statusBarNotification.getNotification();
 
-            String groupKey = statusBarNotification.getGroupKey();
+            String groupKey;
+            if (Notification.CATEGORY_CALL.equals(notification.category)) {
+                // DO NOT group CATEGORY_CALL.
+                groupKey = UUID.randomUUID().toString();
+            } else {
+                groupKey = statusBarNotification.getGroupKey();
+            }
+
             if (!groupedNotifications.containsKey(groupKey)) {
                 NotificationGroup notificationGroup = new NotificationGroup();
                 groupedNotifications.put(groupKey, notificationGroup);
