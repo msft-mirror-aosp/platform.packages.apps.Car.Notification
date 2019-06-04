@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
+import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
@@ -113,17 +114,41 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                             /* rank= */ -1,
                             /* count= */ -1,
                             /* visible= */ true);
-                    mBarService.onNotificationClear(
-                            notification.getPackageName(),
-                            notification.getTag(),
-                            notification.getId(),
-                            notification.getUser().getIdentifier(),
-                            notification.getKey(),
-                            NotificationStats.DISMISSAL_SHADE,
-                            NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                            notificationVisibility
-                    );
 
+                    // The grouped notification view holder returns a notification representing the
+                    // group (SummaryNotification) when viewHolder.getStatusBarNotification() is
+                    // called. The platform will clear all notifications sharing the group key
+                    // attached to this notification. Since grouping is not strictly based on
+                    // group key, it is preferred to dismiss notifications bound to the view holder
+                    // individually.
+                    if (viewHolder instanceof GroupNotificationViewHolder) {
+                        NotificationGroup notificationGroup =
+                                ((GroupNotificationViewHolder)viewHolder).getNotificationGroup();
+                        for (StatusBarNotification sbn
+                                : notificationGroup.getChildNotifications()) {
+                            mBarService.onNotificationClear(
+                                    sbn.getPackageName(),
+                                    sbn.getTag(),
+                                    sbn.getId(),
+                                    sbn.getUser().getIdentifier(),
+                                    sbn.getKey(),
+                                    NotificationStats.DISMISSAL_SHADE,
+                                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                                    notificationVisibility
+                            );
+                        }
+                    } else {
+                        mBarService.onNotificationClear(
+                                notification.getPackageName(),
+                                notification.getTag(),
+                                notification.getId(),
+                                notification.getUser().getIdentifier(),
+                                notification.getKey(),
+                                NotificationStats.DISMISSAL_SHADE,
+                                NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                                notificationVisibility
+                        );
+                    }
                 } catch (RemoteException e) {
                     throw e.rethrowFromSystemServer();
                 }
