@@ -98,6 +98,15 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     }
 
     /**
+     * Returns the notification group for this viewholder.
+     *
+     * @return NotificationGroup {@link NotificationGroup}.
+     */
+    public NotificationGroup getNotificationGroup() {
+        return mNotificationGroup;
+    }
+
+    /**
      * Group notification view holder is special in that it requires extra data to bind,
      * therefore the standard bind() method is not used. We are calling super.reset()
      * directly and binding the onclick listener manually because the card's on click behavior is
