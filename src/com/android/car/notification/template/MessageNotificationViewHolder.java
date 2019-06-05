@@ -184,7 +184,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
 
         if (isHeadsUp) {
             mBodyView.bindTitleAndMessage(senderName, messageText);
+        } else if (!isInGroup) {
+            mBodyView.bind(senderName, messageText, avatar);
         }
+
     }
 
     @Override
