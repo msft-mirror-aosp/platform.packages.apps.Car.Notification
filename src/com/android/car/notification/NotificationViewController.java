@@ -2,6 +2,7 @@ package com.android.car.notification;
 
 import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.service.notification.StatusBarNotification;
@@ -38,12 +39,11 @@ public class NotificationViewController {
         mUxResitrictionListener = uxResitrictionListener;
         mNotificationDataManager = notificationDataManager;
 
-        // Temporary hack for demo purposes: Long clicking on the notification center title toggles
-        // hiding media, navigation, and less important (< IMPORTANCE_DEFAULT) ongoing
-        // foreground service notifications.
-        // This hack should be removed after OEM integration.
+        // Long clicking on the notification center title toggles hiding media, navigation, and
+        // less important (< IMPORTANCE_DEFAULT) ongoing foreground service notifications.
+        // This is only available for ENG and USERDEBUG builds.
         View view = mCarNotificationView.findViewById(R.id.notification_center_title);
-        if (view != null) {
+        if (view != null && (Build.IS_ENG || Build.IS_USERDEBUG)) {
             view.setOnLongClickListener(v -> {
                 mShowLessImportantNotifications = !mShowLessImportantNotifications;
                 Toast.makeText(
