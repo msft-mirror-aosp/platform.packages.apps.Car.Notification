@@ -45,12 +45,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.android.car.notification.template.BasicNotificationViewHolder;
-import com.android.car.notification.template.CallNotificationViewHolder;
-import com.android.car.notification.template.EmergencyNotificationViewHolder;
-import com.android.car.notification.template.InboxNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
-import com.android.car.notification.template.NavigationNotificationViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,7 +95,7 @@ public class CarHeadsUpNotificationManager
         mBeeper = new Beeper(mContext);
         mDuration = mContext.getResources().getInteger(R.integer.headsup_notification_duration_ms);
         mNotificationHeadsUpCardMarginTop = (int) mContext.getResources().getDimension(
-                        R.dimen.headsup_notification_top_margin);
+                R.dimen.headsup_notification_top_margin);
         mMinDisplayDuration = mContext.getResources().getInteger(
                 R.integer.heads_up_notification_minimum_time);
         mEnterAnimationDuration =
@@ -300,142 +295,30 @@ public class CarHeadsUpNotificationManager
         } else if (currentNotification.isAlertAgain) {
             setAutoDismissViews(currentNotification, statusBarNotification);
         }
-        @NotificationViewType int viewType = getNotificationViewType(statusBarNotification);
+        CarNotificationTypeItem notificationTypeItem = getNotificationViewType(
+                statusBarNotification);
         mClickHandlerFactory.setHeadsUpNotificationCallBack(
                 () -> animateOutHUN(statusBarNotification));
         currentNotification.setClickHandlerFactory(mClickHandlerFactory);
-        switch (viewType) {
-            case NotificationViewType.CAR_EMERGENCY_HEADSUP: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.car_emergency_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new EmergencyNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.NAVIGATION: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.navigation_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new NavigationNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.CALL: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.call_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new CallNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.CAR_WARNING_HEADSUP: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.car_warning_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    // Using the basic view holder because they share the same view binding logic
-                    // OEMs should create view holders if needed
-                    currentNotification.setViewHolder(
-                            new BasicNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification, /* isInGroup= */
-                        false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.CAR_INFORMATION_HEADSUP: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.car_information_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    // Using the basic view holder because they share the same view binding logic
-                    // OEMs should create view holders if needed
-                    currentNotification.setViewHolder(
-                            new BasicNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.MESSAGE_HEADSUP: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.message_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new MessageNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                if (mShouldRestrictMessagePreview) {
-                    ((MessageNotificationViewHolder) currentNotification.getViewHolder())
-                            .bindRestricted(statusBarNotification, /* isInGroup= */
-                                    false, /* isHeadsUp= */ true);
-                } else {
-                    currentNotification.getViewHolder().bind(statusBarNotification, /* isInGroup= */
+
+        if (currentNotification.getNotificationView() == null) {
+            currentNotification.setNotificationView(mInflater.inflate(
+                    notificationTypeItem.getHeadsUpTemplate(),
+                    null));
+            mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
+            currentNotification.setViewHolder(
+                    notificationTypeItem.getViewHolder(currentNotification.getNotificationView(),
+                            mClickHandlerFactory));
+        }
+
+        if (mShouldRestrictMessagePreview && notificationTypeItem.getNotificationType()
+                == NotificationViewType.MESSAGE) {
+            ((MessageNotificationViewHolder) currentNotification.getViewHolder())
+                    .bindRestricted(statusBarNotification, /* isInGroup= */
                             false, /* isHeadsUp= */ true);
-                }
-                break;
-            }
-            case NotificationViewType.INBOX_HEADSUP: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.inbox_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new InboxNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
-            case NotificationViewType.BASIC_HEADSUP:
-            default: {
-                if (currentNotification.getNotificationView() == null) {
-                    currentNotification.setNotificationView(mInflater.inflate(
-                            R.layout.basic_headsup_notification_template,
-                            null));
-                    mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
-                    currentNotification.setViewHolder(
-                            new BasicNotificationViewHolder(
-                                    currentNotification.getNotificationView(),
-                                    mClickHandlerFactory));
-                }
-                currentNotification.getViewHolder().bind(statusBarNotification,
-                        /* isInGroup= */ false, /* isHeadsUp= */ true);
-                break;
-            }
+        } else {
+            currentNotification.getViewHolder().bind(statusBarNotification,
+                    /* isInGroup= */ false, /* isHeadsUp= */ true);
         }
 
         // measure the size of the card and make that area of the screen touchable
@@ -635,23 +518,23 @@ public class CarHeadsUpNotificationManager
      * Note that the layout chosen can be different for the same notification
      * in the notification center.
      */
-    @NotificationViewType
-    private static int getNotificationViewType(StatusBarNotification statusBarNotification) {
+    private static CarNotificationTypeItem getNotificationViewType(
+            StatusBarNotification statusBarNotification) {
         String category = statusBarNotification.getNotification().category;
         if (category != null) {
             switch (category) {
                 case Notification.CATEGORY_CAR_EMERGENCY:
-                    return NotificationViewType.CAR_EMERGENCY_HEADSUP;
+                    return CarNotificationTypeItem.EMERGENCY;
                 case Notification.CATEGORY_NAVIGATION:
-                    return NotificationViewType.NAVIGATION;
+                    return CarNotificationTypeItem.NAVIGATION;
                 case Notification.CATEGORY_CALL:
-                    return NotificationViewType.CALL;
+                    return CarNotificationTypeItem.CALL;
                 case Notification.CATEGORY_CAR_WARNING:
-                    return NotificationViewType.CAR_WARNING_HEADSUP;
+                    return CarNotificationTypeItem.WARNING;
                 case Notification.CATEGORY_CAR_INFORMATION:
-                    return NotificationViewType.CAR_INFORMATION_HEADSUP;
+                    return CarNotificationTypeItem.INFORMATION;
                 case Notification.CATEGORY_MESSAGE:
-                    return NotificationViewType.MESSAGE_HEADSUP;
+                    return CarNotificationTypeItem.MESSAGE;
                 default:
                     break;
             }
@@ -659,10 +542,10 @@ public class CarHeadsUpNotificationManager
         Bundle extras = statusBarNotification.getNotification().extras;
         if (extras.containsKey(Notification.EXTRA_BIG_TEXT)
                 && extras.containsKey(Notification.EXTRA_SUMMARY_TEXT)) {
-            return NotificationViewType.INBOX_HEADSUP;
+            return CarNotificationTypeItem.INBOX;
         }
         // progress, media, big text, big picture, and basic templates
-        return NotificationViewType.BASIC_HEADSUP;
+        return CarNotificationTypeItem.BASIC;
     }
 
     /**
