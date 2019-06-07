@@ -48,14 +48,15 @@ import java.util.List;
 public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "CarNotificationAdapter";
 
+    // Delay in posting notifyDataSetChanged for the adapter in milliseconds.
+    private static final int NOTIFY_DATASET_CHANGED_DELAY = 100;
+
     private final Context mContext;
     private final LayoutInflater mInflater;
     private final int mMaxNumberGroupChildrenShown;
     private final boolean mIsGroupNotificationAdapter;
     private final Handler mHandler = new Handler();
 
-    // Delay in posting notifyDataSetChanged for the adapter in milliseconds.
-    private final int mNotifyDataSetChangedDelay = 15;
 
     // book keeping expanded notification groups
     private final List<String> mExpandedNotifications = new ArrayList<>();
@@ -476,7 +477,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         mNotifications = notificationGroupList;
 
         mHandler.removeCallbacks(mNotifyDataSetChangedRunnable);
-        mHandler.postDelayed(mNotifyDataSetChangedRunnable, mNotifyDataSetChangedDelay);
+        mHandler.postDelayed(mNotifyDataSetChangedRunnable, NOTIFY_DATASET_CHANGED_DELAY);
     }
 
     /**
