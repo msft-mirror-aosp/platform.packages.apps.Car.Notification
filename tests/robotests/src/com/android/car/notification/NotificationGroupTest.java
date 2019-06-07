@@ -116,8 +116,8 @@ public class NotificationGroupTest {
     @Test
     public void setGroupSummaryNotification_shouldReturnTrue() {
         mNotificationGroup.setGroupSummaryNotification(mNOTIFICATION1);
-        mNotificationGroup.setGroupSummaryNotification(mNOTIFICATION1);
-        mNotificationGroup.setGroupSummaryNotification(mNOTIFICATION1);
+        mNotificationGroup.addNotification(mNOTIFICATION1);
+        mNotificationGroup.addNotification(mNOTIFICATION1);
         assertThat(mNotificationGroup.getChildCount()).isEqualTo(2);
         assertThat(mNotificationGroup.getGroupSummaryNotification()).isEqualTo(mNOTIFICATION1);
         assertThat(mNotificationGroup.isGroup()).isTrue();
