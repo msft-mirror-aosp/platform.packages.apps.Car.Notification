@@ -19,11 +19,9 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Пускане"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Спиране"</string>
-    <!-- no translation found for action_mute_long (6846675719189989477) -->
-    <skip />
+    <string name="action_mute_long" msgid="6846675719189989477">"Спиране на разговора"</string>
     <string name="action_unmute_short" msgid="7157822835069715986">"Пускане"</string>
-    <!-- no translation found for action_unmute_long (22482625837159466) -->
-    <skip />
+    <string name="action_unmute_long" msgid="22482625837159466">"Пускане на разговора"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"„В момента шофирам.“"</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"В момента шофирам."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"Съобщението е изпратено успешно."</string>

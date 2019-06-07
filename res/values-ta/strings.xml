@@ -19,11 +19,9 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"ப்ளே பண்ணு"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"ஒலியடக்கு"</string>
-    <!-- no translation found for action_mute_long (6846675719189989477) -->
-    <skip />
+    <string name="action_mute_long" msgid="6846675719189989477">"உரையாடலை ஒலியடக்கு"</string>
     <string name="action_unmute_short" msgid="7157822835069715986">"ஒலி எழுப்பு"</string>
-    <!-- no translation found for action_unmute_long (22482625837159466) -->
-    <skip />
+    <string name="action_unmute_long" msgid="22482625837159466">"உரையாடல் அறிவிப்பிற்கு ஒலி எழுப்பு"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\"டிரைவிங்ல இருக்கேன்\"."</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"டிரைவிங்ல இருக்கேன்."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"செய்தி அனுப்பப்பட்டது."</string>
