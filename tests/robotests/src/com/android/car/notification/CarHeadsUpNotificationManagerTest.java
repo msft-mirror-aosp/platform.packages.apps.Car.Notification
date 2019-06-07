@@ -198,20 +198,6 @@ public class CarHeadsUpNotificationManagerTest {
     }
 
     /**
-     * Test that Heads up notification should not be shown.
-     */
-    @Test
-    public void maybeShowHeadsUp_hasNoRanking_returnsFalse() {
-        when(mRankingMapMock.getRanking(any(), any())).thenReturn(false);
-
-        mManager.maybeShowHeadsUp(mNotification1, mRankingMapMock, mActiveNotifications);
-        View notificationView = getNotificationView(
-                mManager.getActiveHeadsUpNotifications().get(mNotification1.getKey()));
-
-        assertThat(notificationView).isNull();
-    }
-
-    /**
      * Heads up notification not be shown when is not important.
      */
     @Test
