@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
-import com.android.car.notification.ThemesUtil;
 
 /**
  * The base view holder class that all template view holders should extend.
@@ -88,8 +87,8 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mHeaderView = itemView.findViewById(R.id.notification_header);
         mBodyView = itemView.findViewById(R.id.notification_body);
         mActionsView = itemView.findViewById(R.id.notification_actions);
-        mDefaultBackgroundColor = ThemesUtil.getAttrColor(mContext, android.R.attr.colorPrimary);
-        mDefaultCarAccentColor = ThemesUtil.getAttrColor(mContext, android.R.attr.colorAccent);
+        mDefaultBackgroundColor = NotificationUtils.getAttrColor(mContext, android.R.attr.colorPrimary);
+        mDefaultCarAccentColor = NotificationUtils.getAttrColor(mContext, android.R.attr.colorAccent);
         mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);
         mDefaultSecondaryForegroundColor = mContext.getColor(R.color.secondary_text_color);
     }

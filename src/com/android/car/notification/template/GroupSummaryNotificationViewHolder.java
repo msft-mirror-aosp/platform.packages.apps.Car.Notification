@@ -24,8 +24,8 @@ import android.widget.TextView;
 
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationGroup;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
-import com.android.car.notification.ThemesUtil;
 
 import java.util.List;
 
@@ -52,8 +52,8 @@ public class GroupSummaryNotificationViewHolder extends CarNotificationBaseViewH
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
         mContext = view.getContext();
-        mCardBackgroundColor = ThemesUtil.getAttrColor(mContext, android.R.attr.colorPrimary);
-        mDefaultTextColor = ThemesUtil.getAttrColor(mContext, android.R.attr.textColorPrimary);
+        mCardBackgroundColor = NotificationUtils.getAttrColor(mContext, android.R.attr.colorPrimary);
+        mDefaultTextColor = NotificationUtils.getAttrColor(mContext, android.R.attr.textColorPrimary);
         mTitle1View = view.findViewById(R.id.child_notification_title_1);
         mTitle2View = view.findViewById(R.id.child_notification_title_2);
     }

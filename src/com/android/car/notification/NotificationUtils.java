@@ -20,6 +20,7 @@ import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -27,6 +28,16 @@ public class NotificationUtils {
     private static final String TAG = "NotificationUtils";
 
     private NotificationUtils() {
+    }
+
+    /**
+     * Returns the color assigned to the given attribute.
+     */
+    public static int getAttrColor(Context context, int attr) {
+        TypedArray ta = context.obtainStyledAttributes(new int[]{attr});
+        int colorAccent = ta.getColor(0, 0);
+        ta.recycle();
+        return colorAccent;
     }
 
     /**

@@ -25,8 +25,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
-import com.android.car.notification.ThemesUtil;
 
 /**
  * Basic notification view template that displays a progress bar notification.
@@ -48,7 +48,7 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mProgressBarView = view.findViewById(R.id.progress_bar);
-        mCardBackgroundColor = ThemesUtil.getAttrColor(view.getContext(),
+        mCardBackgroundColor = NotificationUtils.getAttrColor(view.getContext(),
                 android.R.attr.colorPrimary);
         mClickHandlerFactory = clickHandlerFactory;
     }
