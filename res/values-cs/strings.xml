@@ -19,11 +19,9 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Přehrát"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Ztlumit"</string>
-    <!-- no translation found for action_mute_long (6846675719189989477) -->
-    <skip />
+    <string name="action_mute_long" msgid="6846675719189989477">"Ignorovat konverzaci"</string>
     <string name="action_unmute_short" msgid="7157822835069715986">"Zapnout zvuk"</string>
-    <!-- no translation found for action_unmute_long (22482625837159466) -->
-    <skip />
+    <string name="action_unmute_long" msgid="22482625837159466">"Přestat ignorovat konverzaci"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"„Zrovna řídím auto.“"</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"Zrovna řídím auto."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"Zpráva byla úspěšně odeslána."</string>

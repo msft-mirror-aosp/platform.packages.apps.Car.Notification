@@ -19,11 +19,9 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"ચલાવો"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"મ્યૂટ કરો"</string>
-    <!-- no translation found for action_mute_long (6846675719189989477) -->
-    <skip />
+    <string name="action_mute_long" msgid="6846675719189989477">"વાતચીત મ્યૂટ કરો"</string>
     <string name="action_unmute_short" msgid="7157822835069715986">"અનમ્યૂટ કરો"</string>
-    <!-- no translation found for action_unmute_long (22482625837159466) -->
-    <skip />
+    <string name="action_unmute_long" msgid="22482625837159466">"વાતચીત અનમ્યૂટ કરો"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\"હાલમાં ડ્રાઇવ કરું છું.\""</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"હાલમાં ડ્રાઇવ કરું છું."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"સંદેશ સફળતાપૂર્વક મોકલ્યો."</string>
