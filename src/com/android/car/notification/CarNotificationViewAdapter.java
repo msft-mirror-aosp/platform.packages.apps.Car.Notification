@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -62,7 +63,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
 
-    private Runnable mNotifyDataSetChangedRunnable = this::notifyDataSetChanged;
+    private Runnable mSetNotificationsRunnable;
 
     /**
      * Constructor for a notification adapter.
@@ -322,19 +323,25 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public void setNotifications(List<NotificationGroup> notifications,
             boolean setRecyclerViewListHeaderAndFooter) {
 
-        List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
+        mHandler.removeCallbacks(mSetNotificationsRunnable);
+        mSetNotificationsRunnable = () -> {
+            List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
 
-        if (setRecyclerViewListHeaderAndFooter) {
-            // add header as the first item of the list.
-            notificationGroupList.add(0, createNotificationHeader());
-            // add footer as the last item of the list.
-            notificationGroupList.add(createNotificationFooter());
-        }
+            if (setRecyclerViewListHeaderAndFooter) {
+                // add header as the first item of the list.
+                notificationGroupList.add(0, createNotificationHeader());
+                // add footer as the last item of the list.
+                notificationGroupList.add(createNotificationFooter());
+            }
+            DiffUtil.DiffResult diffResult =
+                    DiffUtil.calculateDiff(
+                            new CarNotificationDiff(mContext, mNotifications,
+                                    notificationGroupList), true);
+            mNotifications = notificationGroupList;
+            diffResult.dispatchUpdatesTo(this);
+        };
 
-        mNotifications = notificationGroupList;
-
-        mHandler.removeCallbacks(mNotifyDataSetChangedRunnable);
-        mHandler.postDelayed(mNotifyDataSetChangedRunnable, NOTIFY_DATASET_CHANGED_DELAY);
+        mHandler.postDelayed(mSetNotificationsRunnable, NOTIFY_DATASET_CHANGED_DELAY);
     }
 
     /**
