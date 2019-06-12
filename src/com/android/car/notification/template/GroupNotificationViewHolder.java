@@ -19,7 +19,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import com.android.car.notification.AlertEntry;
 import com.android.car.notification.CarNotificationItemTouchListener;
 import com.android.car.notification.CarNotificationViewAdapter;
 import com.android.car.notification.NotificationClickHandlerFactory;
@@ -53,7 +53,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     private final int mDividerHeight;
     private final CarNotificationHeaderView mGroupHeaderView;
     private final View mTouchInterceptorView;
-    private StatusBarNotification mSummaryNotification;
+    private AlertEntry mSummaryNotification;
     private NotificationGroup mNotificationGroup;
 
     public GroupNotificationViewHolder(
@@ -93,7 +93,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
      * we need to override this method.
      */
     @Override
-    public StatusBarNotification getStatusBarNotification() {
+    public AlertEntry getAlertEntry() {
         return mSummaryNotification;
     }
 

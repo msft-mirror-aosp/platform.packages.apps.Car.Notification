@@ -16,12 +16,9 @@
 
 package com.android.car.notification;
 
-import android.content.Context;
 import android.os.Handler;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
 
@@ -30,9 +27,8 @@ import com.android.car.notification.template.CarNotificationBaseViewHolder;
  * time, handler, and Layout. This class ensures to store it as a separate state so that each Heads
  * up notification can be controlled independently.
  */
-public class HeadsUpEntry {
+public class HeadsUpEntry extends AlertEntry {
 
-    private final StatusBarNotification mStatusBarNotification;
     private long mPostTime;
     private final Handler mHandler;
     protected boolean isAlertAgain;
@@ -42,7 +38,7 @@ public class HeadsUpEntry {
     private CarNotificationBaseViewHolder mCarNotificationBaseViewHolder;
 
     HeadsUpEntry(StatusBarNotification statusBarNotification) {
-        mStatusBarNotification = statusBarNotification;
+        super(statusBarNotification);
         mPostTime = calculatePostTime();
         mHandler = new Handler();
     }
@@ -61,10 +57,6 @@ public class HeadsUpEntry {
      */
     protected void updatePostTime() {
         mPostTime = calculatePostTime();
-    }
-
-    protected StatusBarNotification getStatusBarNotification() {
-        return mStatusBarNotification;
     }
 
     /**

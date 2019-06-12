@@ -24,7 +24,6 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -36,6 +35,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.notification.AlertEntry;
 import com.android.car.notification.R;
 
 /**
@@ -104,19 +104,22 @@ public class CarNotificationHeaderView extends LinearLayout {
     /**
      * Binds the notification header that contains the issuer app icon and name.
      *
-     * @param statusBarNotification the notification to be bound.
-     * @param isInGroup whether this notification is part of a grouped notification.
+     * @param alertEntry the notification to be bound.
+     * @param isInGroup  whether this notification is part of a grouped notification.
      */
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup) {
+    public void bind(AlertEntry alertEntry, boolean isInGroup) {
         if (isInGroup) {
             // if the notification is part of a group, individual headers are not shown
             // instead, there is a header for the entire group in the group notification template
             return;
         }
 
-        Notification notification = statusBarNotification.getNotification();
+        Notification notification = alertEntry.getNotification();
 
-        Context packageContext = statusBarNotification.getPackageContext(getContext());
+        Context packageContext = alertEntry.getStatusBarNotification().getPackageContext(
+                getContext());
+
+        String packageName = alertEntry.getStatusBarNotification().getPackageName();
 
         // app icon
         mIconView.setVisibility(View.VISIBLE);
@@ -129,12 +132,12 @@ public class CarNotificationHeaderView extends LinearLayout {
         mHeaderTextView.setVisibility(View.VISIBLE);
 
         if (mIsHeadsUp) {
-            mHeaderTextView.setText(loadHeaderAppName(statusBarNotification.getPackageName()));
+            mHeaderTextView.setText(loadHeaderAppName(packageName));
             mTimeView.setVisibility(View.GONE);
             return;
         }
 
-        stringBuilder.append(loadHeaderAppName(statusBarNotification.getPackageName()));
+        stringBuilder.append(loadHeaderAppName(packageName));
         Bundle extras = notification.extras;
 
         // optional field: sub text

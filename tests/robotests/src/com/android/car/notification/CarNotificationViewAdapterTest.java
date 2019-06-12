@@ -80,7 +80,7 @@ public class CarNotificationViewAdapterTest {
     @Mock
     CarUxRestrictions mCarUxRestrictionsMock;
 
-    private StatusBarNotification mNotification1;
+    private AlertEntry mNotification1;
     private Notification.Builder mNotificationBuilder1;
     private CarNotificationViewAdapter mCarNotificationViewAdapter;
     private NotificationGroup mNotificationGroup1;
@@ -106,9 +106,9 @@ public class CarNotificationViewAdapterTest {
                 .setContentTitle(CONTENT_TITLE)
                 .setSmallIcon(android.R.drawable.sym_def_app_icon);
 
-        mNotification1 = new StatusBarNotification(PKG_1, OP_PKG,
+        mNotification1 = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder1.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
+                OVERRIDE_GROUP_KEY, POST_TIME));
         getShadowPackageManager().addPackage(PKG_1);
 
         mNotificationGroup1 = new NotificationGroup();
@@ -292,7 +292,6 @@ public class CarNotificationViewAdapterTest {
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
                 NotificationViewType.BASIC);
-
         mCarNotificationViewAdapter.onBindViewHolder(vh, 0);
     }
 
@@ -738,16 +737,16 @@ public class CarNotificationViewAdapterTest {
         assertThat(itemId).isEqualTo(notificationGroup.getSingleNotification().getKey().hashCode());
     }
 
-    private StatusBarNotification getNotificationWithCategory(String category) {
+    private AlertEntry getNotificationWithCategory(String category) {
         Notification.Builder nb = new Notification.Builder(mContext,
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
                 .setCategory(category)
                 .setSmallIcon(android.R.drawable.sym_def_app_icon);
 
-        return new StatusBarNotification(PKG_1, OP_PKG,
+        return new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, nb.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
+                OVERRIDE_GROUP_KEY, POST_TIME));
     }
 
 

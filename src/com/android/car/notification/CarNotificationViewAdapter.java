@@ -20,7 +20,6 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,16 +133,14 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         CarNotificationTypeItem carNotificationTypeItem = CarNotificationTypeItem.of(viewType);
-        StatusBarNotification statusBarNotification = notificationGroup.getSingleNotification();
+        AlertEntry alertEntry = notificationGroup.getSingleNotification();
 
         if (shouldRestrictMessagePreview() && (viewType == NotificationViewType.MESSAGE
                 || viewType == NotificationViewType.MESSAGE_IN_GROUP)) {
             ((MessageNotificationViewHolder) holder)
-                    .bindRestricted(statusBarNotification, /* isInGroup= */ false, /* isHeadsUp= */
-                            false);
+                    .bindRestricted(alertEntry, /* isInGroup= */ false, /* isHeadsUp= */false);
         } else {
-            carNotificationTypeItem.bind(statusBarNotification, false,
-                    (CarNotificationBaseViewHolder) holder);
+            carNotificationTypeItem.bind(alertEntry, false, (CarNotificationBaseViewHolder) holder);
         }
     }
 
@@ -439,7 +436,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         if (mNotificationDataManager != null) {
-            for (StatusBarNotification notification : notificationGroup.getChildNotifications()) {
+            for (AlertEntry notification : notificationGroup.getChildNotifications()) {
                 mNotificationDataManager.setNotificationAsSeen(notification);
             }
         }
