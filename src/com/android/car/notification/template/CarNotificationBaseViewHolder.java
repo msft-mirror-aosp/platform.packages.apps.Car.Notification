@@ -87,8 +87,10 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mHeaderView = itemView.findViewById(R.id.notification_header);
         mBodyView = itemView.findViewById(R.id.notification_body);
         mActionsView = itemView.findViewById(R.id.notification_actions);
-        mDefaultBackgroundColor = NotificationUtils.getAttrColor(mContext, android.R.attr.colorPrimary);
-        mDefaultCarAccentColor = NotificationUtils.getAttrColor(mContext, android.R.attr.colorAccent);
+        mDefaultBackgroundColor = NotificationUtils.getAttrColor(mContext,
+                android.R.attr.colorPrimary);
+        mDefaultCarAccentColor = NotificationUtils.getAttrColor(mContext,
+                android.R.attr.colorAccent);
         mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);
         mDefaultSecondaryForegroundColor = mContext.getColor(R.color.secondary_text_color);
     }
@@ -110,7 +112,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
             mInnerView.setBackgroundColor(mDefaultBackgroundColor);
             mInnerView.setOnClickListener(
                     mClickHandlerFactory.getClickHandler(mStatusBarNotification));
-        } else {
+        } else if (mCardView != null) {
             mCardView.setOnClickListener(
                     mClickHandlerFactory.getClickHandler(mStatusBarNotification));
         }
@@ -128,6 +130,10 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      */
     void bindCardView(CardView cardView, boolean isInGroup) {
         initializeColors(isInGroup);
+
+        if (cardView == null) {
+            return;
+        }
 
         if (isSystemOrNavigationNotification() && mHasColor && mIsColorized && !isInGroup) {
             cardView.setCardBackgroundColor(mBackgroundColor);
