@@ -69,6 +69,8 @@ public class CarHeadsUpNotificationManager
     private final PreprocessingManager mPreprocessingManager;
     private final WindowManager mWindowManager;
     private final LayoutInflater mInflater;
+    private final NotificationClickHandlerFactory.OnNotificationClickListener mClickListener =
+            (launchResult, alertEntry) -> animateOutHUN(alertEntry);
 
     private boolean mShouldRestrictMessagePreview;
     private NotificationClickHandlerFactory mClickHandlerFactory;
@@ -110,6 +112,7 @@ public class CarHeadsUpNotificationManager
         mHeadsUpPanel = createHeadsUpPanel();
         mHeadsUpContentFrame = mHeadsUpPanel.findViewById(R.id.headsup_content);
         addHeadsUpPanelToDisplay();
+        mClickHandlerFactory.registerClickListener(mClickListener);
     }
 
     /**
@@ -291,8 +294,6 @@ public class CarHeadsUpNotificationManager
             setAutoDismissViews(currentNotification, alertEntry);
         }
         CarNotificationTypeItem notificationTypeItem = getNotificationViewType(alertEntry);
-        mClickHandlerFactory.setHeadsUpNotificationCallBack(
-                () -> animateOutHUN(alertEntry));
         currentNotification.setClickHandlerFactory(mClickHandlerFactory);
 
         if (currentNotification.getNotificationView() == null) {
@@ -443,7 +444,6 @@ public class CarHeadsUpNotificationManager
             return;
         }
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
-        currentHeadsUpNotification.getClickHandlerFactory().setHeadsUpNotificationCallBack(null);
 
         Interpolator exitInterpolator = AnimationUtils.loadInterpolator(mContext,
                 R.interpolator.heads_up_exit_direction_interpolator);
@@ -498,7 +498,6 @@ public class CarHeadsUpNotificationManager
                 alertEntry.getKey());
         if (currentHeadsUpNotification == null) return;
 
-        currentHeadsUpNotification.getClickHandlerFactory().setHeadsUpNotificationCallBack(null);
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
         removeNotificationFromPanel(currentHeadsUpNotification);
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
@@ -635,15 +634,5 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
-    }
-
-    /**
-     * Callback that will be issued after a heads up notification is clicked
-     */
-    public interface Callback {
-        /**
-         * Clears Heads up notification on click.
-         */
-        void clearHeadsUpNotification();
     }
 }
