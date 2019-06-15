@@ -20,14 +20,11 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.VisibleForTesting;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -64,7 +61,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
 
-    private Runnable mSetNotificationsRunnable;
+    private Runnable mNotifyDataSetChangedRunnable = this::notifyDataSetChanged;
 
     /**
      * Constructor for a notification adapter.
@@ -134,16 +131,14 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         CarNotificationTypeItem carNotificationTypeItem = CarNotificationTypeItem.of(viewType);
-        StatusBarNotification statusBarNotification = notificationGroup.getSingleNotification();
+        AlertEntry alertEntry = notificationGroup.getSingleNotification();
 
         if (shouldRestrictMessagePreview() && (viewType == NotificationViewType.MESSAGE
                 || viewType == NotificationViewType.MESSAGE_IN_GROUP)) {
             ((MessageNotificationViewHolder) holder)
-                    .bindRestricted(statusBarNotification, /* isInGroup= */ false, /* isHeadsUp= */
-                            false);
+                    .bindRestricted(alertEntry, /* isInGroup= */ false, /* isHeadsUp= */false);
         } else {
-            carNotificationTypeItem.bind(statusBarNotification, false,
-                    (CarNotificationBaseViewHolder) holder);
+            carNotificationTypeItem.bind(alertEntry, false, (CarNotificationBaseViewHolder) holder);
         }
     }
 
@@ -324,16 +319,6 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public void setNotifications(List<NotificationGroup> notifications,
             boolean setRecyclerViewListHeaderAndFooter) {
 
-        mHandler.removeCallbacks(mSetNotificationsRunnable);
-        mSetNotificationsRunnable = () -> updateNotifications(notifications,
-                setRecyclerViewListHeaderAndFooter);
-
-        mHandler.postDelayed(mSetNotificationsRunnable, NOTIFY_DATASET_CHANGED_DELAY);
-    }
-
-    @VisibleForTesting
-    void updateNotifications(List<NotificationGroup> notifications,
-            boolean setRecyclerViewListHeaderAndFooter) {
         List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
 
         if (setRecyclerViewListHeaderAndFooter) {
@@ -342,12 +327,11 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             // add footer as the last item of the list.
             notificationGroupList.add(createNotificationFooter());
         }
-        DiffUtil.DiffResult diffResult =
-                DiffUtil.calculateDiff(
-                        new CarNotificationDiff(mContext, mNotifications,
-                                notificationGroupList), true);
+
         mNotifications = notificationGroupList;
-        diffResult.dispatchUpdatesTo(this);
+
+        mHandler.removeCallbacks(mNotifyDataSetChangedRunnable);
+        mHandler.postDelayed(mNotifyDataSetChangedRunnable, NOTIFY_DATASET_CHANGED_DELAY);
     }
 
     /**
@@ -439,7 +423,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         if (mNotificationDataManager != null) {
-            for (StatusBarNotification notification : notificationGroup.getChildNotifications()) {
+            for (AlertEntry notification : notificationGroup.getChildNotifications()) {
                 mNotificationDataManager.setNotificationAsSeen(notification);
             }
         }

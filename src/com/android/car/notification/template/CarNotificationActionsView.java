@@ -21,13 +21,13 @@ import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.service.notification.StatusBarNotification;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.android.car.assist.client.CarAssistUtils;
+import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationDataManager;
 import com.android.car.notification.R;
@@ -99,21 +99,20 @@ public class CarNotificationActionsView extends RelativeLayout {
      * Binds the notification action buttons.
      *
      * @param clickHandlerFactory factory class used to generate {@link OnClickListener}s.
-     * @param statusBarNotification the notification that contains the actions.
+     * @param alertEntry          the notification that contains the actions.
      */
-    public void bind(
-            NotificationClickHandlerFactory clickHandlerFactory,
-            StatusBarNotification statusBarNotification) {
+    public void bind(NotificationClickHandlerFactory clickHandlerFactory, AlertEntry alertEntry) {
 
-        Notification notification = statusBarNotification.getNotification();
+        Notification notification = alertEntry.getNotification();
         Notification.Action[] actions = notification.actions;
         if (actions == null || actions.length == 0) {
             return;
         }
 
-        if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)) {
-            createPlayButton(clickHandlerFactory, statusBarNotification);
-            createMuteButton(clickHandlerFactory, statusBarNotification);
+        if (CarAssistUtils.isCarCompatibleMessagingNotification(
+                alertEntry.getStatusBarNotification())) {
+            createPlayButton(clickHandlerFactory, alertEntry);
+            createMuteButton(clickHandlerFactory, alertEntry);
             return;
         }
 
@@ -126,8 +125,7 @@ public class CarNotificationActionsView extends RelativeLayout {
             button.setText(action.title.toString());
 
             if (action.actionIntent != null) {
-                button.setOnClickListener(clickHandlerFactory.getActionClickHandler(
-                        statusBarNotification, i));
+                button.setOnClickListener(clickHandlerFactory.getActionClickHandler(alertEntry, i));
             }
         }
 
@@ -153,11 +151,12 @@ public class CarNotificationActionsView extends RelativeLayout {
      * user to reply to the message afterwards.
      */
     private void createPlayButton(NotificationClickHandlerFactory clickHandlerFactory,
-            StatusBarNotification statusBarNotification) {
+            AlertEntry alertEntry) {
         Button button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
         button.setText(mContext.getString(R.string.assist_action_play_label));
         button.setVisibility(View.VISIBLE);
-        button.setOnClickListener(clickHandlerFactory.getPlayClickHandler(statusBarNotification));
+        button.setOnClickListener(
+                clickHandlerFactory.getPlayClickHandler(alertEntry));
     }
 
     /**
@@ -165,16 +164,14 @@ public class CarNotificationActionsView extends RelativeLayout {
      * statusBarNotification key will be shown with a HUN and trigger a notification sound.
      */
     private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
-            StatusBarNotification statusBarNotification) {
+            AlertEntry alertEntry) {
         Button button = mActionButtons.get(MUTE_MESSAGE_ACTION_BUTTON_INDEX);
         NotificationDataManager manager = clickHandlerFactory.getNotificationDataManager();
-        button.setText((manager != null && manager.isMessageNotificationMuted(
-                statusBarNotification))
+        button.setText((manager != null && manager.isMessageNotificationMuted(alertEntry))
                 ? mContext.getString(R.string.action_unmute_long)
                 : mContext.getString(R.string.action_mute_long));
         button.setVisibility(View.VISIBLE);
-        button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(
-                button, statusBarNotification));
+        button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(button, alertEntry));
     }
 
     /**

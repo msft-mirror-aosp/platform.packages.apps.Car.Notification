@@ -51,8 +51,8 @@ public class NotificationDataManagerTest {
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    private StatusBarNotification mMessageNotification;
-    private StatusBarNotification mNonMessageNotification;
+    private AlertEntry mMessageNotification;
+    private AlertEntry mNonMessageNotification;
 
     private NotificationDataManager mNotificationDataManager;
 
@@ -65,12 +65,12 @@ public class NotificationDataManagerTest {
                 .setContentTitle(CONTENT_TITLE)
                 .setCategory(Notification.CATEGORY_MESSAGE);
 
-        mMessageNotification = new StatusBarNotification(PKG_1, OP_PKG,
+        mMessageNotification = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder1.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
-        mNonMessageNotification = new StatusBarNotification(PKG_2, OP_PKG,
+                OVERRIDE_GROUP_KEY, POST_TIME));
+        mNonMessageNotification = new AlertEntry (new StatusBarNotification(PKG_2, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder2.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
+                OVERRIDE_GROUP_KEY, POST_TIME));
 
         ShadowCarAssistUtils.addMessageNotification(mMessageNotification.getKey());
         mNotificationDataManager = new NotificationDataManager();

@@ -31,7 +31,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.UserHandle;
-import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -93,7 +92,7 @@ class Beeper {
     /**
      * Beep with a provided sound.
      *
-     * @param packageName of which {@link StatusBarNotification} belongs to.
+     * @param packageName of which {@link AlertEntry} belongs to.
      * @param soundToPlay {@link Uri} from where the sound will be played.
      */
     @MainThread

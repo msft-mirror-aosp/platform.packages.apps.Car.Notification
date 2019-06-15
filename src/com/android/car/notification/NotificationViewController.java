@@ -5,7 +5,6 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -113,9 +112,10 @@ public class NotificationViewController {
      * Insertion, deletion and content update will apply immediately.
      */
     private void updateNotifications(
-            boolean showLessImportantNotifications, int what, StatusBarNotification sbn) {
+            boolean showLessImportantNotifications, int what, AlertEntry alertEntry) {
 
-        if (mPreprocessingManager.shouldFilter(sbn, mCarNotificationListener.getCurrentRanking())) {
+        if (mPreprocessingManager.shouldFilter(alertEntry,
+                mCarNotificationListener.getCurrentRanking())) {
             // if the new notification should be filtered out, return early
             return;
         }
@@ -123,7 +123,7 @@ public class NotificationViewController {
         mCarNotificationView.setNotifications(
                 mPreprocessingManager.updateNotifications(
                         showLessImportantNotifications,
-                        sbn,
+                        alertEntry,
                         what,
                         mCarNotificationListener.getCurrentRanking()));
     }
@@ -135,7 +135,7 @@ public class NotificationViewController {
                 updateNotifications(
                         mShowLessImportantNotifications,
                         message.what,
-                        (StatusBarNotification) message.obj);
+                        (AlertEntry) message.obj);
             } else {
                 resetNotifications(mShowLessImportantNotifications);
             }

@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.service.notification.NotificationStats;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -47,8 +46,10 @@ public class NotificationClickHandlerFactory {
     private final IStatusBarService mBarService;
     private final Callback mCallback;
     private CarAssistUtils mCarAssistUtils;
-    @Nullable private CarHeadsUpNotificationManager.Callback mHeadsUpManagerCallback;
-    @Nullable private NotificationDataManager mNotificationDataManager;
+    @Nullable
+    private CarHeadsUpNotificationManager.Callback mHeadsUpManagerCallback;
+    @Nullable
+    private NotificationDataManager mNotificationDataManager;
 
     public NotificationClickHandlerFactory(IStatusBarService barService,
             @Nullable Callback callback) {
@@ -59,30 +60,30 @@ public class NotificationClickHandlerFactory {
 
     /**
      * Sets the {@link NotificationDataManager} which contains additional state information of the
-     * {@link StatusBarNotification}s.
+     * {@link AlertEntry}s.
      */
     public void setNotificationDataManager(NotificationDataManager manager) {
-      mNotificationDataManager = manager;
+        mNotificationDataManager = manager;
     }
 
     /**
      * Returns the {@link NotificationDataManager} which contains additional state information of
-     * the {@link StatusBarNotification}s.
+     * the {@link AlertEntry}s.
      */
     @Nullable
     public NotificationDataManager getNotificationDataManager() {
-      return mNotificationDataManager;
+        return mNotificationDataManager;
     }
 
     /**
      * Returns a {@link View.OnClickListener} that should be used for the given
-     * {@link StatusBarNotification}
+     * {@link AlertEntry}
      *
-     * @param statusBarNotification that will be considered clicked when onClick is called.
+     * @param alertEntry that will be considered clicked when onClick is called.
      */
-    public View.OnClickListener getClickHandler(StatusBarNotification statusBarNotification) {
+    public View.OnClickListener getClickHandler(AlertEntry alertEntry) {
         return v -> {
-            Notification notification = statusBarNotification.getNotification();
+            Notification notification = alertEntry.getNotification();
             final PendingIntent intent = notification.contentIntent != null
                     ? notification.contentIntent
                     : notification.fullScreenIntent;
@@ -103,18 +104,18 @@ public class NotificationClickHandlerFactory {
                 Log.w(TAG, "Sending contentIntent failed: " + e);
             }
             NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
-                    statusBarNotification.getKey(),
+                    alertEntry.getKey(),
                     /* rank= */ -1, /* count= */ -1, /* visible= */ true);
             try {
-                mBarService.onNotificationClick(statusBarNotification.getKey(),
+                mBarService.onNotificationClick(alertEntry.getKey(),
                         notificationVisibility);
-                if (shouldAutoCancel(statusBarNotification)) {
+                if (shouldAutoCancel(alertEntry)) {
                     mBarService.onNotificationClear(
-                            statusBarNotification.getPackageName(),
-                            statusBarNotification.getTag(),
-                            statusBarNotification.getId(),
-                            statusBarNotification.getUser().getIdentifier(),
-                            statusBarNotification.getKey(),
+                            alertEntry.getStatusBarNotification().getPackageName(),
+                            alertEntry.getStatusBarNotification().getTag(),
+                            alertEntry.getStatusBarNotification().getId(),
+                            alertEntry.getStatusBarNotification().getUser().getIdentifier(),
+                            alertEntry.getKey(),
                             NotificationStats.DISMISSAL_SHADE,
                             NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
                             notificationVisibility);
@@ -134,22 +135,22 @@ public class NotificationClickHandlerFactory {
 
     /**
      * Returns a {@link View.OnClickListener} that should be used for the
-     * {@link android.app.Notification.Action} contained in the {@link StatusBarNotification}
+     * {@link android.app.Notification.Action} contained in the {@link AlertEntry}
      *
-     * @param statusBarNotification that contains the clicked action.
+     * @param alertEntry that contains the clicked action.
      * @param index the index of the action clicked
      */
-    public View.OnClickListener getActionClickHandler(
-            StatusBarNotification statusBarNotification, int index) {
+    public View.OnClickListener getActionClickHandler(AlertEntry alertEntry, int index) {
         return v -> {
-            Notification notification = statusBarNotification.getNotification();
+            Notification notification = alertEntry.getNotification();
             Notification.Action action = notification.actions[index];
             NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
-                    statusBarNotification.getKey(),
+                    alertEntry.getKey(),
                     /* rank= */ -1, /* count= */ -1, /* visible= */ true);
             boolean canceledExceptionThrown = false;
             int semanticAction = action.getSemanticAction();
-            if (CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)) {
+            if (CarAssistUtils.isCarCompatibleMessagingNotification(
+                    alertEntry.getStatusBarNotification())) {
                 if (semanticAction == Notification.Action.SEMANTIC_ACTION_REPLY) {
                     Context context = v.getContext().getApplicationContext();
                     Intent resultIntent = addCannedReplyMessage(action, context);
@@ -171,7 +172,7 @@ public class NotificationClickHandlerFactory {
             if (!canceledExceptionThrown) {
                 try {
                     mBarService.onNotificationActionClick(
-                            statusBarNotification.getKey(),
+                            alertEntry.getKey(),
                             index,
                             action,
                             notificationVisibility,
@@ -188,9 +189,10 @@ public class NotificationClickHandlerFactory {
      * {@param messageNotification}'s {@param playButton}. Once the message is read aloud, the
      * pending intent should be returned to the messaging app, so it can mark it as read.
      */
-    public View.OnClickListener getPlayClickHandler(StatusBarNotification messageNotification) {
+    public View.OnClickListener getPlayClickHandler(AlertEntry messageNotification) {
         return view -> {
-            if (!CarAssistUtils.isCarCompatibleMessagingNotification(messageNotification)) {
+            if (!CarAssistUtils.isCarCompatibleMessagingNotification(
+                    messageNotification.getStatusBarNotification())) {
                 return;
             }
             Context context = view.getContext().getApplicationContext();
@@ -204,7 +206,8 @@ public class NotificationClickHandlerFactory {
                 }
                 // Don't trigger mCallback so the shade remains open.
             };
-            mCarAssistUtils.requestAssistantVoiceAction(messageNotification,
+            mCarAssistUtils.requestAssistantVoiceAction(
+                    messageNotification.getStatusBarNotification(),
                     CarVoiceInteractionSession.VOICE_ACTION_READ_NOTIFICATION,
                     requestCallback);
         };
@@ -215,7 +218,7 @@ public class NotificationClickHandlerFactory {
      * {@param messageNotification}'s {@param muteButton}.
      */
     public View.OnClickListener getMuteClickHandler(
-            Button muteButton, StatusBarNotification messageNotification) {
+            Button muteButton, AlertEntry messageNotification) {
         return v -> {
             if (mNotificationDataManager != null) {
                 mNotificationDataManager.toggleMute(messageNotification);
@@ -226,7 +229,7 @@ public class NotificationClickHandlerFactory {
                                 : context.getString(R.string.action_mute_long));
                 // Don't trigger mCallback so the shade remains open.
             } else {
-              Log.d(TAG, "Could not set mute click handler as NotificationDataManager is null");
+                Log.d(TAG, "Could not set mute click handler as NotificationDataManager is null");
             }
         };
     }
@@ -266,8 +269,8 @@ public class NotificationClickHandlerFactory {
         Toast.makeText(context, context.getString(resourceId), Toast.LENGTH_LONG).show();
     }
 
-    private boolean shouldAutoCancel(StatusBarNotification sbn) {
-        int flags = sbn.getNotification().flags;
+    private boolean shouldAutoCancel(AlertEntry alertEntry) {
+        int flags = alertEntry.getNotification().flags;
         if ((flags & Notification.FLAG_AUTO_CANCEL) != Notification.FLAG_AUTO_CANCEL) {
             return false;
         }

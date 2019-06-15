@@ -18,10 +18,10 @@ package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
 import android.content.Context;
-import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.widget.TextView;
 
+import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationGroup;
 import com.android.car.notification.NotificationUtils;
@@ -62,8 +62,8 @@ public class GroupSummaryNotificationViewHolder extends CarNotificationBaseViewH
      * Binds a {@link NotificationGroup} to a group summary notification template.
      *
      * <p> Group summary notification view holder is special in that it binds a
-     * {@link NotificationGroup} instead of a {@link StatusBarNotification}, therefore the standard
-     * bind() method is no used. Still calling super.bind() because the touch events/animations
+     * {@link NotificationGroup} instead of a {@link AlertEntry}, therefore the standard
+     * bind() method is not used. Still calling super.bind() because the touch events/animations
      * need to work.
      */
     public void bind(NotificationGroup notificationGroup) {

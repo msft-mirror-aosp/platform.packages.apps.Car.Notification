@@ -18,7 +18,6 @@ package com.android.car.notification;
 import android.app.Notification;
 import android.content.Context;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 
 import androidx.recyclerview.widget.DiffUtil;
 
@@ -32,10 +31,10 @@ import java.util.Objects;
  * <p> Two notifications are considered the same if they have the same:
  * <ol>
  * <li> GroupKey
- * <li> Number of StatusBarNotifications contained
- * <li> The order of each StatusBarNotification
- * <li> The identifier of each individual StatusBarNotification contained
- * <li> The content of each individual StatusBarNotification contained
+ * <li> Number of AlertEntry contained
+ * <li> The order of each AlertEntry
+ * <li> The identifier of each individual AlertEntry contained
+ * <li> The content of each individual AlertEntry contained
  * </ol>
  */
 class CarNotificationDiff extends DiffUtil.Callback {
@@ -78,11 +77,11 @@ class CarNotificationDiff extends DiffUtil.Callback {
      * <li> GroupSummaryKey
      * </ol>
      * <p>
-     * Checks for individual StatusBarNotification contained is not done because child will itself
-     * take care of it.
+     * Checks for individual AlertEntry contained is not done because child will itself take care of
+     * it.
      */
-    static boolean sameGroupUniqueIdentifiers(
-            NotificationGroup oldItem, NotificationGroup newItem) {
+    static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
+            NotificationGroup newItem) {
 
         if (oldItem == newItem) {
             return true;
@@ -92,21 +91,16 @@ class CarNotificationDiff extends DiffUtil.Callback {
             return false;
         }
 
-        if (!sameNotificationKey(
-                oldItem.getGroupSummaryNotification(), newItem.getGroupSummaryNotification())) {
-            return false;
-        }
-
-        return true;
+        return sameNotificationKey(
+                oldItem.getGroupSummaryNotification(), newItem.getGroupSummaryNotification());
     }
 
     /**
-     * Shallow comparison for {@link StatusBarNotification}: only comparing the unique IDs.
+     * Shallow comparison for {@link AlertEntry}: only comparing the unique IDs.
      *
      * <p> Returns true if two notifications have the same key.
      */
-    static boolean sameNotificationKey(
-            StatusBarNotification oldItem, StatusBarNotification newItem) {
+    static boolean sameNotificationKey(AlertEntry oldItem, AlertEntry newItem) {
         if (oldItem == newItem) {
             return true;
         }
@@ -117,13 +111,12 @@ class CarNotificationDiff extends DiffUtil.Callback {
     }
 
     /**
-     * Shallow comparison for {@link StatusBarNotification}: comparing the unique IDs and the
+     * Shallow comparison for {@link AlertEntry}: comparing the unique IDs and the
      * notification Flags.
      *
      * <p> Returns true if two notifications have the same key and notification flags.
      */
-    static boolean sameNotificationKeyAndFlags(
-            StatusBarNotification oldItem, StatusBarNotification newItem) {
+    static boolean sameNotificationKeyAndFlags(AlertEntry oldItem, AlertEntry newItem) {
         return sameNotificationKey(oldItem, newItem)
                 && oldItem.getNotification().flags == newItem.getNotification().flags;
     }
@@ -131,7 +124,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
     /**
      * Deep comparison for {@link NotificationGroup}.
      *
-     * <p> Compare the size and contents of each StatusBarNotification inside the NotificationGroup.
+     * <p> Compare the size and contents of each AlertEntry inside the NotificationGroup.
      *
      * <p> This method will only be called if {@link #areItemsTheSame} returns true.
      */
@@ -149,12 +142,12 @@ class CarNotificationDiff extends DiffUtil.Callback {
             return false;
         }
 
-        List<StatusBarNotification> oldChildNotifications = oldItem.getChildNotifications();
-        List<StatusBarNotification> newChildNotifications = newItem.getChildNotifications();
+        List<AlertEntry> oldChildNotifications = oldItem.getChildNotifications();
+        List<AlertEntry> newChildNotifications = newItem.getChildNotifications();
 
         for (int i = 0; i < oldItem.getChildCount(); i++) {
-            StatusBarNotification oldNotification = oldChildNotifications.get(i);
-            StatusBarNotification newNotification = newChildNotifications.get(i);
+            AlertEntry oldNotification = oldChildNotifications.get(i);
+            AlertEntry newNotification = newChildNotifications.get(i);
             if (!sameNotificationContent(oldNotification, newNotification)) {
                 return false;
             }
@@ -164,14 +157,13 @@ class CarNotificationDiff extends DiffUtil.Callback {
     }
 
     /**
-     * Deep comparison for {@link StatusBarNotification}.
+     * Deep comparison for {@link AlertEntry}.
      *
      * <p> We are only comparing a subset of the fields that have visible effects on our product.
      * Most of the deprecated fields are not compared.
      * Fields that do not have visible effects, e.g. privacy-related things are ignored for now.
      */
-    private boolean sameNotificationContent(
-            StatusBarNotification oldItem, StatusBarNotification newItem) {
+    private boolean sameNotificationContent(AlertEntry oldItem, AlertEntry newItem) {
 
         if (oldItem == newItem) {
             return true;
@@ -181,9 +173,12 @@ class CarNotificationDiff extends DiffUtil.Callback {
             return false;
         }
 
-        if (oldItem.isGroup() != newItem.isGroup()
-                || oldItem.isClearable() != newItem.isClearable()
-                || oldItem.isOngoing() != newItem.isOngoing()) {
+        if (oldItem.getStatusBarNotification().isGroup()
+                != newItem.getStatusBarNotification().isGroup()
+                || oldItem.getStatusBarNotification().isClearable()
+                != newItem.getStatusBarNotification().isClearable()
+                || oldItem.getStatusBarNotification().isOngoing()
+                != newItem.getStatusBarNotification().isOngoing()) {
             return false;
         }
 
