@@ -60,7 +60,7 @@ public class CarNotificationListener extends NotificationListenerService {
      * map is when the {@llink NotificationListenerService} calls the onNotificationRemoved method.
      * New notifications will be added to the map from {@link CarHeadsUpNotificationManager}.
      */
-    private Map<String, StatusBarNotification> mActiveNotifications = new HashMap<>();
+    private Map<String, AlertEntry> mActiveNotifications = new HashMap<>();
 
     /**
      * Call this if to register this service as a system service and connect to HUN. This is useful
@@ -115,35 +115,37 @@ public class CarNotificationListener extends NotificationListenerService {
                 && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
             return;
         }
+        AlertEntry alertEntry = new AlertEntry(sbn);
         mRankingMap = rankingMap;
-        notifyNotificationPosted(sbn);
+        notifyNotificationPosted(alertEntry);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.d(TAG, "onNotificationRemoved: " + sbn);
-        mActiveNotifications.remove(sbn.getKey());
-        mHeadsUpManager.maybeRemoveHeadsUp(sbn);
-        notifyNotificationRemoved(sbn);
+        AlertEntry alertEntry = mActiveNotifications.get(sbn.getKey());
+        mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
+        notifyNotificationRemoved(alertEntry);
+        mActiveNotifications.remove(alertEntry.getKey());
     }
 
     @Override
     public void onNotificationRankingUpdate(RankingMap rankingMap) {
         mRankingMap = rankingMap;
-        for (StatusBarNotification sbn : mActiveNotifications.values()) {
-            if (!mRankingMap.getRanking(sbn.getKey(), mTemporaryRanking)) {
+        for (AlertEntry alertEntry : mActiveNotifications.values()) {
+            if (!mRankingMap.getRanking(alertEntry.getKey(), mTemporaryRanking)) {
                 continue;
             }
-            String oldOverrideGroupKey = sbn.getOverrideGroupKey();
-            String newOverrideGroupKey = getOverrideGroupKey(sbn.getKey());
+            String oldOverrideGroupKey = alertEntry.getStatusBarNotification().getOverrideGroupKey();
+            String newOverrideGroupKey = getOverrideGroupKey(alertEntry.getKey());
             if (!Objects.equals(oldOverrideGroupKey, newOverrideGroupKey)) {
-                sbn.setOverrideGroupKey(newOverrideGroupKey);
+                alertEntry.getStatusBarNotification().setOverrideGroupKey(newOverrideGroupKey);
             }
         }
     }
 
     /**
-     * Get the override group key of a {@link StatusBarNotification} given its key.
+     * Get the override group key of a {@link AlertEntry} given its key.
      */
     @Nullable
     private String getOverrideGroupKey(String key) {
@@ -159,7 +161,7 @@ public class CarNotificationListener extends NotificationListenerService {
      *
      * @return a map of all active notifications with key being the notification key.
      */
-    Map<String, StatusBarNotification> getNotifications() {
+    Map<String, AlertEntry> getNotifications() {
         return mActiveNotifications;
     }
 
@@ -171,7 +173,7 @@ public class CarNotificationListener extends NotificationListenerService {
     @Override
     public void onListenerConnected() {
         mActiveNotifications = Stream.of(getActiveNotifications()).collect(
-                Collectors.toMap(StatusBarNotification::getKey, sbn -> sbn));
+                Collectors.toMap(StatusBarNotification::getKey, sbn -> new AlertEntry(sbn)));
         mRankingMap = super.getCurrentRanking();
     }
 
@@ -183,31 +185,29 @@ public class CarNotificationListener extends NotificationListenerService {
         mHandler = handler;
     }
 
-    private void notifyNotificationRemoved(StatusBarNotification sbn) {
-        if (mHandler == null) {
-            return;
-        }
-        Message msg = Message.obtain(mHandler);
-        msg.what = NOTIFY_NOTIFICATION_REMOVED;
-        msg.obj = sbn;
-        mHandler.sendMessage(msg);
+    private void notifyNotificationRemoved(AlertEntry alertEntry) {
+        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
     }
 
-    private void notifyNotificationPosted(StatusBarNotification sbn) {
-        mNotificationDataManager.addNewMessageNotification(sbn);
-        mHeadsUpManager.maybeShowHeadsUp(sbn, getCurrentRanking(), mActiveNotifications);
-        if (mHandler == null) {
-            return;
-        }
-        Message msg = Message.obtain(mHandler);
-        msg.what = NOTIFY_NOTIFICATION_POSTED;
-        msg.obj = sbn;
-        mHandler.sendMessage(msg);
+    private void notifyNotificationPosted(AlertEntry alertEntry) {
+        mNotificationDataManager.addNewMessageNotification(alertEntry);
+        mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(), mActiveNotifications);
+        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
     }
 
     class LocalBinder extends Binder {
         public CarNotificationListener getService() {
             return CarNotificationListener.this;
         }
+    }
+
+    private void sendNotificationEventToHandler(AlertEntry alertEntry, int eventType) {
+        if (mHandler == null) {
+            return;
+        }
+        Message msg = Message.obtain(mHandler);
+        msg.what = eventType;
+        msg.obj = alertEntry;
+        mHandler.sendMessage(msg);
     }
 }

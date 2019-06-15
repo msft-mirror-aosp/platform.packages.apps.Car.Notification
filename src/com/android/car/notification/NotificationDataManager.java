@@ -15,7 +15,6 @@
  */
 package com.android.car.notification;
 
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.android.car.assist.client.CarAssistUtils;
@@ -69,17 +68,18 @@ public class NotificationDataManager {
 
     /**
      * Sets listener for unseen notification count change event.
+     *
      * @param listener UnseenCountUpdateListener
      */
     public void setOnUnseenCountUpdateListener(OnUnseenCountUpdateListener listener) {
         mOnUnseenCountUpdateListener = listener;
     }
 
-    void addNewMessageNotification(StatusBarNotification notification) {
-        if (CarAssistUtils.isCarCompatibleMessagingNotification(notification)) {
+    void addNewMessageNotification(AlertEntry alertEntry) {
+        if (CarAssistUtils.isCarCompatibleMessagingNotification(
+                alertEntry.getStatusBarNotification())) {
             mMessageNotificationToMuteStateMap
-                    .putIfAbsent(notification.getKey(), /* muteState= */
-                            false);
+                    .putIfAbsent(alertEntry.getKey(), /* muteState= */ false);
         }
     }
 
@@ -90,12 +90,12 @@ public class NotificationDataManager {
                 mUnseenNotificationMap.keySet().toArray(new String[0]));
 
         for (NotificationGroup group : notificationGroups) {
-            for (StatusBarNotification sbn : group.getChildNotifications()) {
+            for (AlertEntry alertEntry : group.getChildNotifications()) {
                 // add new notifications
-                mUnseenNotificationMap.putIfAbsent(sbn.getKey(), true);
+                mUnseenNotificationMap.putIfAbsent(alertEntry.getKey(), true);
 
                 // sbn exists in both sets.
-                currentNotificationKeys.remove(sbn.getKey());
+                currentNotificationKeys.remove(alertEntry.getKey());
             }
         }
 
@@ -113,11 +113,11 @@ public class NotificationDataManager {
      * Returns the mute state of the notification, or false if notification does not have a mute
      * state. Only message notifications can be muted.
      **/
-    public boolean isMessageNotificationMuted(StatusBarNotification notification) {
-        if (!mMessageNotificationToMuteStateMap.containsKey(notification.getKey())) {
-            addNewMessageNotification(notification);
+    public boolean isMessageNotificationMuted(AlertEntry alertEntry) {
+        if (!mMessageNotificationToMuteStateMap.containsKey(alertEntry.getKey())) {
+            addNewMessageNotification(alertEntry);
         }
-        return mMessageNotificationToMuteStateMap.getOrDefault(notification.getKey(), false);
+        return mMessageNotificationToMuteStateMap.getOrDefault(alertEntry.getKey(), false);
     }
 
     /**
@@ -125,15 +125,16 @@ public class NotificationDataManager {
      * state determines whether or not a HUN will be shown on future updates to the notification.
      * It also determines the title of the notification's "Mute" button.
      **/
-    public void toggleMute(StatusBarNotification sbn) {
-        if (CarAssistUtils.isCarCompatibleMessagingNotification(sbn)) {
-            String sbnKey = sbn.getKey();
+    public void toggleMute(AlertEntry alertEntry) {
+        if (CarAssistUtils.isCarCompatibleMessagingNotification(
+                alertEntry.getStatusBarNotification())) {
+            String sbnKey = alertEntry.getKey();
             Boolean currentMute = mMessageNotificationToMuteStateMap.get(sbnKey);
             if (currentMute != null) {
                 mMessageNotificationToMuteStateMap.put(sbnKey, !currentMute);
             } else {
                 Log.e(TAG, "Msg notification was not initially added to the mute state map: "
-                        + sbn.getKey());
+                        + alertEntry.getKey());
             }
         }
     }
@@ -150,9 +151,9 @@ public class NotificationDataManager {
         }
     }
 
-    void setNotificationAsSeen(StatusBarNotification sbn) {
-        if (mUnseenNotificationMap.containsKey(sbn.getKey())) {
-            mUnseenNotificationMap.put(sbn.getKey(), false);
+    void setNotificationAsSeen(AlertEntry alertEntry) {
+        if (mUnseenNotificationMap.containsKey(alertEntry.getKey())) {
+            mUnseenNotificationMap.put(alertEntry.getKey(), false);
         }
 
         if (mOnUnseenCountUpdateListener != null) {

@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.NotificationStats;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -106,7 +105,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
 
         mDismissAnimationHelper = new DismissAnimationHelper(context, (viewHolder) -> {
             if (viewHolder.isDismissible()) {
-                StatusBarNotification notification = viewHolder.getStatusBarNotification();
+                AlertEntry notification = viewHolder.getAlertEntry();
                 try {
                     // rank and count is used for logging and is not need at this time thus -1
                     NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
@@ -116,22 +115,22 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                             /* visible= */ true);
 
                     // The grouped notification view holder returns a notification representing the
-                    // group (SummaryNotification) when viewHolder.getStatusBarNotification() is
+                    // group (SummaryNotification) when viewHolder.getAlertEntry() is
                     // called. The platform will clear all notifications sharing the group key
                     // attached to this notification. Since grouping is not strictly based on
                     // group key, it is preferred to dismiss notifications bound to the view holder
                     // individually.
                     if (viewHolder instanceof GroupNotificationViewHolder) {
                         NotificationGroup notificationGroup =
-                                ((GroupNotificationViewHolder)viewHolder).getNotificationGroup();
-                        for (StatusBarNotification sbn
+                                ((GroupNotificationViewHolder) viewHolder).getNotificationGroup();
+                        for (AlertEntry alertEntry
                                 : notificationGroup.getChildNotifications()) {
                             mBarService.onNotificationClear(
-                                    sbn.getPackageName(),
-                                    sbn.getTag(),
-                                    sbn.getId(),
-                                    sbn.getUser().getIdentifier(),
-                                    sbn.getKey(),
+                                    alertEntry.getStatusBarNotification().getPackageName(),
+                                    alertEntry.getStatusBarNotification().getTag(),
+                                    alertEntry.getStatusBarNotification().getId(),
+                                    alertEntry.getStatusBarNotification().getUser().getIdentifier(),
+                                    alertEntry.getStatusBarNotification().getKey(),
                                     NotificationStats.DISMISSAL_SHADE,
                                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
                                     notificationVisibility
@@ -139,10 +138,10 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                         }
                     } else {
                         mBarService.onNotificationClear(
-                                notification.getPackageName(),
-                                notification.getTag(),
-                                notification.getId(),
-                                notification.getUser().getIdentifier(),
+                                notification.getStatusBarNotification().getPackageName(),
+                                notification.getStatusBarNotification().getTag(),
+                                notification.getStatusBarNotification().getId(),
+                                notification.getStatusBarNotification().getUser().getIdentifier(),
                                 notification.getKey(),
                                 NotificationStats.DISMISSAL_SHADE,
                                 NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
@@ -254,7 +253,8 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                     // If a group notification is expanded, we desire a behavior that swiping on the
                     // header would swipe the entire group away; while swiping on the child
                     // notifications would swipe individual child notification away.
-                    if (mAdapter.isExpanded(mViewHolder.getStatusBarNotification().getGroupKey())) {
+                    if (mAdapter.isExpanded(
+                            mViewHolder.getAlertEntry().getStatusBarNotification().getGroupKey())) {
                         float itemTop = mViewHolder.itemView.getY();
                         boolean isTouchingGroupHeader =
                                 (currY > itemTop) && (currY < itemTop + mGroupHeaderHeight);

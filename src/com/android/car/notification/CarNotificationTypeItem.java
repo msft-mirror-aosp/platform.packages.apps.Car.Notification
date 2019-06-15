@@ -16,8 +16,6 @@
 
 package com.android.car.notification;
 
-import android.service.notification.StatusBarNotification;
-import android.util.Log;
 import android.view.View;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
@@ -159,11 +157,11 @@ public enum CarNotificationTypeItem {
     }
 
     /**
-     * Binds a {@link StatusBarNotification} to a notification template.
+     * Binds a {@link AlertEntry} to a notification template.
      */
-    public void bind(StatusBarNotification statusBarNotification, boolean isHeadsUp,
+    public void bind(AlertEntry alertEntry, boolean isHeadsUp,
             CarNotificationBaseViewHolder holder) {
-        holder.bind(statusBarNotification, mIsInGroup, isHeadsUp);
+        holder.bind(alertEntry, mIsInGroup, isHeadsUp);
     }
 
     /**

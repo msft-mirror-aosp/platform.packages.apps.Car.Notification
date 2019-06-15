@@ -60,8 +60,8 @@ public class NotificationGroupTest {
 
     private Notification.Builder mNotificationBuilder;
     private NotificationGroup mNotificationGroup;
-    private StatusBarNotification mNOTIFICATION1;
-    private StatusBarNotification mNotification2;
+    private AlertEntry mNOTIFICATION1;
+    private AlertEntry mNotification2;
 
     @Before
     public void setup() {
@@ -72,12 +72,12 @@ public class NotificationGroupTest {
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
                 .setSmallIcon(android.R.drawable.sym_def_app_icon);
-        mNOTIFICATION1 = new StatusBarNotification(PKG_1, OP_PKG,
+        mNOTIFICATION1 = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
-        mNotification2 = new StatusBarNotification(PKG_2, OP_PKG,
+                OVERRIDE_GROUP_KEY, POST_TIME));
+        mNotification2 = new AlertEntry(new StatusBarNotification(PKG_2, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME);
+                OVERRIDE_GROUP_KEY, POST_TIME));
     }
 
     /**
@@ -125,8 +125,9 @@ public class NotificationGroupTest {
 
     @Test
     public void setGroupKey_shouldSetGroupKey() {
-        mNotificationGroup.setGroupKey(mNOTIFICATION1.getGroupKey());
-        assertThat(mNotificationGroup.getGroupKey()).isEqualTo(mNOTIFICATION1.getGroupKey());
+        mNotificationGroup.setGroupKey(mNOTIFICATION1.getStatusBarNotification().getGroupKey());
+        assertThat(mNotificationGroup.getGroupKey()).isEqualTo(
+                mNOTIFICATION1.getStatusBarNotification().getGroupKey());
     }
 
     @Test
