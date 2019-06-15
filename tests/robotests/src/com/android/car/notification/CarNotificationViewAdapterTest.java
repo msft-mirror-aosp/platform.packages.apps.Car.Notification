@@ -739,7 +739,6 @@ public class CarNotificationViewAdapterTest {
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.setGroupSummaryNotification(mNotification1);
         mNotificationGroupList1.add(notificationGroup);
-
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
         mCarNotificationViewAdapter.setExpanded(notificationGroup.getGroupKey(), true);
