@@ -18,7 +18,6 @@ package com.android.car.notification;
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -442,7 +441,7 @@ public class PreprocessingManager {
             }
             mMaxStringLength =
                     manager.getCurrentCarUxRestrictions().getMaxRestrictedStringLength();
-        } catch (CarNotConnectedException e) {
+        } catch (RuntimeException e) {
             mMaxStringLength = Integer.MAX_VALUE;
             Log.e(TAG, "Failed to get UxRestrictions thus running unrestricted", e);
         }
