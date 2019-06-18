@@ -85,9 +85,10 @@ public class NotificationViewController {
      */
     public void setIsInForeground(boolean isInForeground) {
         mIsInForeground = isInForeground;
-        // Reset when we are not in foreground.
+        // Reset and collapse all groups when notification view disappears.
         if (!mIsInForeground) {
             resetNotifications(mShowLessImportantNotifications);
+            mCarNotificationView.collapseAllGroups();
         }
     }
 
