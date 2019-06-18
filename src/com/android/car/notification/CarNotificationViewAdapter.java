@@ -435,6 +435,15 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     /**
+     * Collapses all expanded groups.
+     */
+    public void collapseAllGroups() {
+        if (!mExpandedNotifications.isEmpty()) {
+            mExpandedNotifications.clear();
+        }
+    }
+
+    /**
      * Returns whether the notification is expanded given its group key.
      */
     boolean isExpanded(String groupKey) {
