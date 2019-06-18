@@ -1,6 +1,5 @@
 package com.android.car.notification;
 
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
 import android.os.Build;
 import android.os.Handler;
@@ -66,7 +65,7 @@ public class NotificationViewController {
             CarUxRestrictions currentRestrictions =
                     mUxResitrictionListener.getCurrentCarUxRestrictions();
             mCarNotificationView.onUxRestrictionsChanged(currentRestrictions);
-        } catch (CarNotConnectedException e) {
+        } catch (RuntimeException e) {
             Log.e(TAG, "Car not connected", e);
         }
     }
