@@ -50,6 +50,48 @@ android_app {
     },
 }
 
+// Duplicate of CarNotification which includes testing only resources for Robolectric
+android_app {
+    name: "CarNotificationForTesting",
+
+    srcs: ["src/**/*.java"],
+
+    // Testing only resources must be applied last so they take precedence.
+    resource_dirs: [
+        "res",
+        "tests/robotests/res",
+    ],
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+
+    optimize: {
+        enabled: false,
+    },
+
+    dex_preopt: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx.palette_palette",
+        "car-assist-client-lib",
+        "android.car.userlib",
+        "androidx-constraintlayout_constraintlayout"
+    ],
+
+    libs: ["android.car"],
+
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
 // As Lib
 android_library {
     name: "CarNotificationLib",
