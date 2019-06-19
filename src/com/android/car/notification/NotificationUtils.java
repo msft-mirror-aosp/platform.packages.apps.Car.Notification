@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 public class NotificationUtils {
@@ -66,6 +67,46 @@ public class NotificationUtils {
     public static boolean isSystemOrPlatformKey(Context context, AlertEntry alertEntry) {
         return isSystemPrivilegedOrPlatformKeyInner(context, alertEntry,
                 /* checkForPrivilegedApp= */ false);
+    }
+
+    /**
+     * Validates if the notification posted by the application is a system application.
+     */
+    public static boolean isSystemApp(Context context,
+            StatusBarNotification statusBarNotification) {
+        PackageManager packageManager = context.getPackageManager();
+        CarUserManagerHelper carUserManagerHelper = new CarUserManagerHelper(context);
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = packageManager.getPackageInfoAsUser(
+                    statusBarNotification.getPackageName(), /* flags= */ 0,
+                    carUserManagerHelper.getCurrentForegroundUserId());
+        } catch (PackageManager.NameNotFoundException ex) {
+            Log.e(TAG, "package not found: " + statusBarNotification.getPackageName());
+        }
+        if (packageInfo == null) return false;
+
+        return packageInfo.applicationInfo.isSystemApp();
+    }
+
+    /**
+     * Validates if the notification posted by the application is signed with platform key.
+     */
+    public static boolean isSignedWithPlatformKey(Context context,
+            StatusBarNotification statusBarNotification) {
+        PackageManager packageManager = context.getPackageManager();
+        CarUserManagerHelper carUserManagerHelper = new CarUserManagerHelper(context);
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = packageManager.getPackageInfoAsUser(
+                    statusBarNotification.getPackageName(), /* flags= */ 0,
+                    carUserManagerHelper.getCurrentForegroundUserId());
+        } catch (PackageManager.NameNotFoundException ex) {
+            Log.e(TAG, "package not found: " + statusBarNotification.getPackageName());
+        }
+        if (packageInfo == null) return false;
+
+        return packageInfo.applicationInfo.isSignedWithPlatformKey();
     }
 
     private static boolean isSystemPrivilegedOrPlatformKeyInner(Context context,
