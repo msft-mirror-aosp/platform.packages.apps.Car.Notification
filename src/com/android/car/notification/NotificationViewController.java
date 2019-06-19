@@ -24,7 +24,7 @@ public class NotificationViewController {
     private NotificationDataManager mNotificationDataManager;
     private NotificationUpdateHandler mNotificationUpdateHandler = new NotificationUpdateHandler();
     private boolean mShowLessImportantNotifications;
-    private boolean mIsInForeground;
+    private boolean mIsVisible;
 
     public NotificationViewController(CarNotificationView carNotificationView,
             PreprocessingManager preprocessingManager,
@@ -79,12 +79,12 @@ public class NotificationViewController {
     }
 
     /**
-     * Reset the list view. Called when the notification list is not in the foreground.
+     * Called when the notification view's visibility is changed.
      */
-    public void setIsInForeground(boolean isInForeground) {
-        mIsInForeground = isInForeground;
+    public void onVisibilityChanged(boolean isVisible) {
+        mIsVisible = isVisible;
         // Reset and collapse all groups when notification view disappears.
-        if (!mIsInForeground) {
+        if (!mIsVisible) {
             resetNotifications(mShowLessImportantNotifications);
             mCarNotificationView.collapseAllGroups();
         }
@@ -131,7 +131,7 @@ public class NotificationViewController {
     private class NotificationUpdateHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            if (mIsInForeground) {
+            if (mIsVisible) {
                 updateNotifications(
                         mShowLessImportantNotifications,
                         message.what,
