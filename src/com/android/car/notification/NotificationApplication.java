@@ -18,7 +18,6 @@ package com.android.car.notification;
 
 import android.app.Application;
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -55,7 +54,7 @@ public class NotificationApplication extends Application {
                         getApplicationContext());
                 preprocessingManager
                         .setCarUxRestrictionManagerWrapper(mCarUxRestrictionManagerWrapper);
-            } catch (CarNotConnectedException e) {
+            } catch (RuntimeException e) {
                 Log.e(TAG, "Car not connected in CarConnectionListener", e);
             }
         }

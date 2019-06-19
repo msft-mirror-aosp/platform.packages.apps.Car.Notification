@@ -86,6 +86,13 @@ public class CarNotificationView extends ConstraintLayout
         mAdapter.setNotifications(notifications, /* setRecyclerViewListHeaderAndFooter= */ true);
     }
 
+    /**
+     * Collapses all expanded groups.
+     */
+    public void collapseAllGroups() {
+        mAdapter.collapseAllGroups();
+    }
+
     @Override
     public void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
         mAdapter.setCarUxRestrictions(restrictionInfo);
