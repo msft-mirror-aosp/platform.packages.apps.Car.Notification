@@ -36,25 +36,43 @@ import com.android.car.assist.client.CarAssistUtils;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Factory that builds a {@link View.OnClickListener} to handle the logic of what to do when a
  * notification is clicked. It also handles the interaction with the StatusBarService.
  */
 public class NotificationClickHandlerFactory {
+
+    /**
+     * Callback that will be issued after a notification is clicked.
+     */
+    public interface OnNotificationClickListener {
+
+        /**
+         * A notification was clicked and handleNotificationClicked was invoked.
+         *
+         * @param launchResult For non-Assistant actions, returned from
+         *        {@link PendingIntent#sendAndReturnResult}; for Assistant actions,
+         *        returns {@link ActivityManager#START_SUCCESS} on success;
+         *        {@link ActivityManager#START_ABORTED} otherwise.
+         *
+         * @param alertEntry {@link AlertEntry} whose Notification was clicked.
+         */
+        void onNotificationClicked(int launchResult, AlertEntry alertEntry);
+    }
+
     private static final String TAG = "NotificationClickHandlerFactory";
 
     private final IStatusBarService mBarService;
-    private final Callback mCallback;
+    private final List<OnNotificationClickListener> mClickListeners = new ArrayList<>();
     private CarAssistUtils mCarAssistUtils;
-    @Nullable
-    private CarHeadsUpNotificationManager.Callback mHeadsUpManagerCallback;
     @Nullable
     private NotificationDataManager mNotificationDataManager;
 
-    public NotificationClickHandlerFactory(IStatusBarService barService,
-            @Nullable Callback callback) {
+    public NotificationClickHandlerFactory(IStatusBarService barService) {
         mBarService = barService;
-        mCallback = callback != null ? callback : launchResult -> { };
         mCarAssistUtils = null;
     }
 
@@ -90,9 +108,7 @@ public class NotificationClickHandlerFactory {
             if (intent == null) {
                 return;
             }
-            if (mHeadsUpManagerCallback != null) {
-                mHeadsUpManagerCallback.clearHeadsUpNotification();
-            }
+
             int result = ActivityManager.START_ABORTED;
             try {
                 result = intent.sendAndReturnResult(/* context= */ null, /* code= */ 0,
@@ -123,14 +139,9 @@ public class NotificationClickHandlerFactory {
             } catch (RemoteException ex) {
                 Log.e(TAG, "Remote exception in getClickHandler", ex);
             }
-            mCallback.onNotificationClicked(result);
+            handleNotificationClicked(result, alertEntry);
         };
 
-    }
-
-    public void setHeadsUpNotificationCallBack(
-            @Nullable CarHeadsUpNotificationManager.Callback callback) {
-        mHeadsUpManagerCallback = callback;
     }
 
     /**
@@ -138,7 +149,7 @@ public class NotificationClickHandlerFactory {
      * {@link android.app.Notification.Action} contained in the {@link AlertEntry}
      *
      * @param alertEntry that contains the clicked action.
-     * @param index the index of the action clicked
+     * @param index the index of the action clicked.
      */
     public View.OnClickListener getActionClickHandler(AlertEntry alertEntry, int index) {
         return v -> {
@@ -167,7 +178,7 @@ public class NotificationClickHandlerFactory {
                 if (result == ActivityManager.START_ABORTED) {
                     canceledExceptionThrown = true;
                 }
-                mCallback.onNotificationClicked(result);
+                handleNotificationClicked(result, alertEntry);
             }
             if (!canceledExceptionThrown) {
                 try {
@@ -234,6 +245,42 @@ public class NotificationClickHandlerFactory {
         };
     }
 
+    /**
+     * Registers a new {@link OnNotificationClickListener} to the list of click event listeners.
+     */
+    public void registerClickListener(OnNotificationClickListener clickListener) {
+        if (clickListener != null && !mClickListeners.contains(clickListener)) {
+            mClickListeners.add(clickListener);
+        }
+    }
+
+    /**
+     * Unregisters a {@link OnNotificationClickListener} from the list of click event listeners.
+     */
+    public void unregisterClickListener(OnNotificationClickListener clickListener) {
+        mClickListeners.remove(clickListener);
+    }
+
+    /**
+     * Clears all {@link Notification}s on {@link IStatusBarService}.
+     */
+    public void clearAllNotifications() {
+        try {
+            mBarService.onClearAllNotifications(ActivityManager.getCurrentUser());
+        } catch (RemoteException e) {
+            Log.e(TAG, "clearAllNotifications: ", e);
+        }
+    }
+
+    /**
+     * Invokes all onNotificationClicked handlers registered in {@link OnNotificationClickListener}s
+     * array.
+     */
+    private void handleNotificationClicked(int launceResult, AlertEntry alertEntry) {
+        mClickListeners.forEach(
+                listener -> listener.onNotificationClicked(launceResult, alertEntry));
+    }
+
     private int sendPendingIntent(PendingIntent pendingIntent, Context context,
             Intent resultIntent) {
         try {
@@ -280,27 +327,4 @@ public class NotificationClickHandlerFactory {
         return true;
     }
 
-    public void clearAllNotifications() {
-        try {
-            mBarService.onClearAllNotifications(ActivityManager.getCurrentUser());
-        } catch (RemoteException e) {
-            Log.e(TAG, "clearAllNotifications: ", e);
-        }
-    }
-
-    /**
-     * Callback that will be issued after a notification is clicked
-     */
-    public interface Callback {
-
-        /**
-         * A notification was clicked and an onClickListener was fired.
-         *
-         * @param launchResult For non-Assistant actions, returned from
-         *        {@link PendingIntent#sendAndReturnResult}; for Assistant actions,
-         *        returns {@link ActivityManager#START_SUCCESS} on success;
-         *        {@link ActivityManager#START_ABORTED} otherwise.
-         */
-        void onNotificationClicked(int launchResult);
-    }
 }

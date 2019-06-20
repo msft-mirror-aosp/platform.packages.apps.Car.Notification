@@ -65,7 +65,8 @@ public class NotificationApplication extends Application {
     };
 
     /**
-     * Returns the CarUxRestrictionManagerWrapper used to determine visual treatment of notifications.
+     * Returns the CarUxRestrictionManagerWrapper used to determine visual treatment of
+     * notifications.
      */
     public CarUxRestrictionManagerWrapper getCarUxRestrictionWrapper() {
         return mCarUxRestrictionManagerWrapper;
@@ -78,8 +79,7 @@ public class NotificationApplication extends Application {
         mCar.connect();
         mClickHandlerFactory = new NotificationClickHandlerFactory(
                 IStatusBarService.Stub.asInterface(
-                        ServiceManager.getService(Context.STATUS_BAR_SERVICE)),
-                /* callback= */null);
+                        ServiceManager.getService(Context.STATUS_BAR_SERVICE)));
     }
 
     /**
