@@ -78,7 +78,7 @@ class Beeper {
     private BeepRecord currentBeep;
 
     public Beeper(Context context) {
-        this.mContext = context;
+        mContext = context;
         mAudioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
         mInCallSoundToPlayUri = Uri.parse("file://" + context.getResources().getString(
                 com.android.internal.R.string.config_inCallNotificationSound));
@@ -170,7 +170,7 @@ class Beeper {
                 Log.d(TAG, "playing sound: ");
             }
             try {
-                mPlayer.setDataSource(getContextForForegroundUser(), mBeepUri);
+                mPlayer.setDataSource(getContextForForegroundUser(), mBeepUri, /* headers= */null);
                 mPlaybackAttributes = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
