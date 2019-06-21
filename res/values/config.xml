@@ -17,4 +17,10 @@
 <resources>
     <!-- Whether navigation heads-up notifications should be shown. May be set to false if there is a dedicated screen for navigation. -->
     <bool name="config_showNavigationHeadsup">true</bool>
+    <!-- Whether card background color can be set or not for category Notification.CATEGORY_NAVIGATION. -->
+    <bool name="config_enableCardBackgroundColorForCategoryNavigation">false</bool>
+    <!-- Whether card background color can be set or not for notifications from system apps. -->
+    <bool name="config_enableCardBackgroundColorForSystemApp">false</bool>
+    <!-- Whether small icon accent color can be set or not. -->
+    <bool name="config_enableSmallIconAccentColor">true</bool>
 </resources>
