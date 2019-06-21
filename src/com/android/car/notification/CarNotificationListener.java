@@ -30,8 +30,6 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import com.android.car.assist.client.CarAssistUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +39,8 @@ import java.util.stream.Stream;
 /**
  * NotificationListenerService that fetches all notifications from system.
  */
-public class CarNotificationListener extends NotificationListenerService {
+public class CarNotificationListener extends NotificationListenerService implements
+        CarHeadsUpNotificationManager.OnHeadsUpNotificationStateChange {
     private static final String TAG = "CarNotificationListener";
     static final String ACTION_LOCAL_BINDING = "local_binding";
     static final int NOTIFY_NOTIFICATION_POSTED = 1;
@@ -66,6 +65,7 @@ public class CarNotificationListener extends NotificationListenerService {
      * Call this if to register this service as a system service and connect to HUN. This is useful
      * if the notification service is being used as a lib instead of a standalone app. The
      * standalone app version has a manifest entry that will have the same effect.
+     *
      * @param context Context required for registering the service.
      * @param carUxRestrictionManagerWrapper will have the heads up manager registered with it.
      * @param carHeadsUpNotificationManager HUN controller.
@@ -76,12 +76,14 @@ public class CarNotificationListener extends NotificationListenerService {
             CarHeadsUpNotificationManager carHeadsUpNotificationManager,
             NotificationDataManager notificationDataManager) {
         try {
-        mNotificationDataManager = notificationDataManager;
+            mNotificationDataManager = notificationDataManager;
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
                     ActivityManager.getCurrentUser());
             mHeadsUpManager = carHeadsUpNotificationManager;
-            carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(carHeadsUpNotificationManager);
+            mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
+            carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
+                    carHeadsUpNotificationManager);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to register notification listener", e);
         }
@@ -95,8 +97,8 @@ public class CarNotificationListener extends NotificationListenerService {
         app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
 
         mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */this,
-                app.getClickHandlerFactory(),
-                mNotificationDataManager);
+                app.getClickHandlerFactory(), mNotificationDataManager);
+        mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
 
@@ -124,9 +126,9 @@ public class CarNotificationListener extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.d(TAG, "onNotificationRemoved: " + sbn);
         AlertEntry alertEntry = mActiveNotifications.get(sbn.getKey());
-        if(alertEntry != null){
-            mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
+        if (alertEntry != null) {
             mActiveNotifications.remove(alertEntry.getKey());
+            mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
         }
         sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
     }
@@ -138,7 +140,8 @@ public class CarNotificationListener extends NotificationListenerService {
             if (!mRankingMap.getRanking(alertEntry.getKey(), mTemporaryRanking)) {
                 continue;
             }
-            String oldOverrideGroupKey = alertEntry.getStatusBarNotification().getOverrideGroupKey();
+            String oldOverrideGroupKey =
+                    alertEntry.getStatusBarNotification().getOverrideGroupKey();
             String newOverrideGroupKey = getOverrideGroupKey(alertEntry.getKey());
             if (!Objects.equals(oldOverrideGroupKey, newOverrideGroupKey)) {
                 alertEntry.getStatusBarNotification().setOverrideGroupKey(newOverrideGroupKey);
@@ -189,8 +192,25 @@ public class CarNotificationListener extends NotificationListenerService {
 
     private void notifyNotificationPosted(AlertEntry alertEntry) {
         mNotificationDataManager.addNewMessageNotification(alertEntry);
-        mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(), mActiveNotifications);
-        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+
+        // check for notification in mActiveNotifications before posting to NC. As app could have
+        // canceled it.
+        boolean isOngoing = mActiveNotifications.containsKey(alertEntry.getKey());
+
+        boolean isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
+                mActiveNotifications);
+
+        if (isOngoing && (!isShowingHeadsUp)) {
+            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+        }
+    }
+
+    @Override
+    public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
+        // No more a HUN
+        if (!isHeadsUp) {
+            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+        }
     }
 
     class LocalBinder extends Binder {
