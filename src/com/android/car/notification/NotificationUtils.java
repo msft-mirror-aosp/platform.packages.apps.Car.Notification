@@ -49,8 +49,7 @@ public class NotificationUtils {
      * <li>application is a system and privileged app.
      * </ul>
      */
-    public static boolean isSystemPrivilegedOrPlatformKey(Context context,
-            AlertEntry alertEntry) {
+    public static boolean isSystemPrivilegedOrPlatformKey(Context context, AlertEntry alertEntry) {
         return isSystemPrivilegedOrPlatformKeyInner(context, alertEntry,
                 /* checkForPrivilegedApp= */ true);
     }

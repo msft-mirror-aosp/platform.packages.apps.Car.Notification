@@ -154,19 +154,14 @@ public class PreprocessingManager {
     /**
      * Filter a list of {@link AlertEntry}s according to OEM's configurations.
      */
-    private List<AlertEntry> filter(
+    @VisibleForTesting
+    protected List<AlertEntry> filter(
             boolean showLessImportantNotifications,
             List<AlertEntry> notifications,
             RankingMap rankingMap) {
-        // remove less important foreground service notifications for car
+        // remove notifications that should be filtered.
         if (!showLessImportantNotifications) {
-            notifications.removeIf(statusBarNotification
-                    -> isLessImportantForegroundNotification(statusBarNotification,
-                    rankingMap));
-
-            // remove media and navigation notifications in the notification center for car
-            notifications.removeIf(statusBarNotification
-                    -> isMediaOrNavigationNotification(statusBarNotification));
+            notifications.removeIf(alertEntry -> shouldFilter(alertEntry, rankingMap));
         }
         return notifications;
     }
@@ -187,6 +182,7 @@ public class PreprocessingManager {
         if (rankingMap.getRanking(alertEntry.getKey(), ranking)) {
             importance = ranking.getImportance();
         }
+
         return importance < NotificationManager.IMPORTANCE_DEFAULT
                 && NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext, alertEntry);
     }
@@ -203,8 +199,7 @@ public class PreprocessingManager {
      * <p> Note that the string length limit is always respected regardless of whether distraction
      * optimization is required.
      */
-    private List<AlertEntry> optimizeForDriving(
-            List<AlertEntry> notifications) {
+    private List<AlertEntry> optimizeForDriving(List<AlertEntry> notifications) {
         notifications.forEach(notification -> notification = optimizeForDriving(notification));
         return notifications;
     }
@@ -220,8 +215,7 @@ public class PreprocessingManager {
      * for the presentation-level text truncation.
      */
     AlertEntry optimizeForDriving(AlertEntry alertEntry) {
-        if (Notification.CATEGORY_MESSAGE.equals(
-                alertEntry.getNotification().category)) {
+        if (Notification.CATEGORY_MESSAGE.equals(alertEntry.getNotification().category)){
             return alertEntry;
         }
 
@@ -360,7 +354,8 @@ public class PreprocessingManager {
      * @param newNotification the {@link AlertEntry} that should be added to the list.
      * @return list of grouped notifications as {@link NotificationGroup}s.
      */
-    private List<NotificationGroup> additionalGroup(AlertEntry newNotification) {
+    @VisibleForTesting
+    protected List<NotificationGroup> additionalGroup(AlertEntry newNotification) {
         Notification notification = newNotification.getNotification();
 
         if (notification.isGroupSummary()) {
@@ -406,7 +401,8 @@ public class PreprocessingManager {
     /**
      * Rank notifications according to the ranking key supplied by the notification.
      */
-    private List<NotificationGroup> rank(List<NotificationGroup> notifications,
+    @VisibleForTesting
+    protected List<NotificationGroup> rank(List<NotificationGroup> notifications,
             RankingMap rankingMap) {
 
         Collections.sort(notifications, new NotificationComparator(rankingMap));
