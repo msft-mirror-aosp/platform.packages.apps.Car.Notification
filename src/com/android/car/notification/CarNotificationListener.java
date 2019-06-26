@@ -129,8 +129,8 @@ public class CarNotificationListener extends NotificationListenerService impleme
         if (alertEntry != null) {
             mActiveNotifications.remove(alertEntry.getKey());
             mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
+            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
         }
-        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
     }
 
     @Override
