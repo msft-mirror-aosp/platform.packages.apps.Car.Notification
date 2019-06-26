@@ -16,11 +16,13 @@
 
 package com.android.car.notification;
 
+import android.app.Notification;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -130,5 +132,39 @@ public class NotificationUtils {
         return (packageInfo.applicationInfo.isSignedWithPlatformKey() ||
                 (packageInfo.applicationInfo.isSystemApp()
                         && isPrivilegedApp));
+    }
+
+    /**
+     * Choose a correct notification layout for this heads-up notification.
+     * Note that the layout chosen can be different for the same notification
+     * in the notification center.
+     */
+    public static CarNotificationTypeItem getNotificationViewType(AlertEntry alertEntry) {
+        String category = alertEntry.getNotification().category;
+        if (category != null) {
+            switch (category) {
+                case Notification.CATEGORY_CAR_EMERGENCY:
+                    return CarNotificationTypeItem.EMERGENCY;
+                case Notification.CATEGORY_NAVIGATION:
+                    return CarNotificationTypeItem.NAVIGATION;
+                case Notification.CATEGORY_CALL:
+                    return CarNotificationTypeItem.CALL;
+                case Notification.CATEGORY_CAR_WARNING:
+                    return CarNotificationTypeItem.WARNING;
+                case Notification.CATEGORY_CAR_INFORMATION:
+                    return CarNotificationTypeItem.INFORMATION;
+                case Notification.CATEGORY_MESSAGE:
+                    return CarNotificationTypeItem.MESSAGE;
+                default:
+                    break;
+            }
+        }
+        Bundle extras = alertEntry.getNotification().extras;
+        if (extras.containsKey(Notification.EXTRA_BIG_TEXT)
+                && extras.containsKey(Notification.EXTRA_SUMMARY_TEXT)) {
+            return CarNotificationTypeItem.INBOX;
+        }
+        // progress, media, big text, big picture, and basic templates
+        return CarNotificationTypeItem.BASIC;
     }
 }

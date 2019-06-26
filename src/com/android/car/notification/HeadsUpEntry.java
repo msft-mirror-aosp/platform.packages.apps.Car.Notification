@@ -16,6 +16,8 @@
 
 package com.android.car.notification;
 
+import android.app.Notification;
+import android.os.Bundle;
 import android.os.Handler;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
@@ -29,75 +31,43 @@ import com.android.car.notification.template.CarNotificationBaseViewHolder;
  */
 public class HeadsUpEntry extends AlertEntry {
 
-    private long mPostTime;
     private final Handler mHandler;
-    protected boolean isAlertAgain;
-    protected boolean isNewHeadsUp;
     private View mNotificationView;
-    private NotificationClickHandlerFactory mClickHandlerFactory;
     private CarNotificationBaseViewHolder mCarNotificationBaseViewHolder;
+
+    boolean mIsAlertAgain;
+    boolean mIsNewHeadsUp;
 
     HeadsUpEntry(StatusBarNotification statusBarNotification) {
         super(statusBarNotification);
-        mPostTime = calculatePostTime();
         mHandler = new Handler();
     }
 
     /**
-     * Calculate what the post time of a notification is at some current time.
-     *
-     * @return the post time
+     * Handler will use the method {@link Handler#postDelayed(Runnable, long)} which will control
+     * the dismiss time for the Heads Up notification. All the notifications should have their own
+     * handler to control this time individually.
      */
-    private long calculatePostTime() {
-        return System.currentTimeMillis();
-    }
-
-    /**
-     * Updates the current post time for the Heads up notification.
-     */
-    protected void updatePostTime() {
-        mPostTime = calculatePostTime();
-    }
-
-    /**
-     * Handler will used the method {@link Handler#postDelayed(Runnable, long)} which will control
-     * he dismiss time for the Heads Up notification. All the notifications should have their own
-     * handler o control this time.
-     */
-    protected Handler getHandler() {
+    Handler getHandler() {
         return mHandler;
-    }
-
-
-    protected long getPostTime() {
-        return mPostTime;
     }
 
     /**
      * View that holds the actual card for heads up notification.
      */
-    protected void setNotificationView(View notificationView) {
+    void setNotificationView(View notificationView) {
         mNotificationView = notificationView;
     }
 
-    protected View getNotificationView() {
+    View getNotificationView() {
         return mNotificationView;
     }
 
-    protected NotificationClickHandlerFactory getClickHandlerFactory() {
-        return mClickHandlerFactory;
-    }
-
-    protected void setClickHandlerFactory(
-            NotificationClickHandlerFactory clickHandlerFactory) {
-        mClickHandlerFactory = clickHandlerFactory;
-    }
-
-    protected void setViewHolder(CarNotificationBaseViewHolder viewHolder) {
+    void setViewHolder(CarNotificationBaseViewHolder viewHolder) {
         mCarNotificationBaseViewHolder = viewHolder;
     }
 
-    protected CarNotificationBaseViewHolder getViewHolder() {
+    CarNotificationBaseViewHolder getViewHolder() {
         return mCarNotificationBaseViewHolder;
     }
 }
