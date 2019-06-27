@@ -272,7 +272,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                         mInitialX = event.getX();
                         mInitialY = event.getY();
 
-                        onSwipeGestureStart(recyclerView, mViewHolder);
+                        onSwipeGestureStart(recyclerView);
                         return true;
                     }
                 }
@@ -349,21 +349,17 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                 boolean farEnough = isTargetSwipedFarEnough();
                 boolean shouldDismiss = (fastEnough || farEnough) && mViewHolder.isDismissible();
                 if (shouldDismiss) {
-                    if (fastEnough) {
-                        mDismissAnimationHelper.animateDismiss(mViewHolder, swipeDirection);
-                    } else {
-                        mDismissAnimationHelper.animateDismiss(mViewHolder, swipeDirection);
-                    }
+                    mDismissAnimationHelper.animateDismiss(mViewHolder, swipeDirection);
                 } else {
                     mDismissAnimationHelper.animateRestore(mViewHolder, velocityX);
                 }
 
-                onSwipeGestureEnd(recyclerView, mViewHolder);
+                onSwipeGestureEnd(recyclerView);
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (hasValidGestureSwipeTarget()) {
                     mDismissAnimationHelper.animateRestore(mViewHolder, 0f);
-                    onSwipeGestureEnd(recyclerView, mViewHolder);
+                    onSwipeGestureEnd(recyclerView);
                 } else {
                     onGestureEnd();
                 }
@@ -391,17 +387,13 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
      * <p>Now that the gesture is a swipe, we will begin translating the view of the given
      * mViewHolder.
      */
-    private void onSwipeGestureStart(
-            RecyclerView recyclerView, CarNotificationBaseViewHolder viewHolder) {
+    private void onSwipeGestureStart(RecyclerView recyclerView) {
         recyclerView.getParent().requestDisallowInterceptTouchEvent(true);
-        viewHolder.setIsAnimating(true);
     }
 
     /** The current swipe gesture is complete. */
-    private void onSwipeGestureEnd(RecyclerView recyclerView,
-            CarNotificationBaseViewHolder viewHolder) {
+    private void onSwipeGestureEnd(RecyclerView recyclerView) {
         recyclerView.getParent().requestDisallowInterceptTouchEvent(false);
-        viewHolder.setIsAnimating(false);
         onGestureEnd();
     }
 
