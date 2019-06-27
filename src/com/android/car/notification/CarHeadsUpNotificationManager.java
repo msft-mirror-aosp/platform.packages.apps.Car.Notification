@@ -29,7 +29,6 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.util.Log;
 import android.view.Gravity;
@@ -253,7 +252,6 @@ public class CarHeadsUpNotificationManager
                 listener -> listener.onStateChange(alertEntry, isHeadsUp));
     }
 
-
     /**
      * Returns true if the notification's flag is not set to
      * {@link Notification#FLAG_ONLY_ALERT_ONCE}
@@ -300,15 +298,15 @@ public class CarHeadsUpNotificationManager
             handleHeadsUpNotificationStateChanged(alertEntry, /* isHeadsUp= */ true);
             mActiveHeadsUpNotifications.put(alertEntry.getKey(),
                     currentActiveHeadsUpNotification);
-            currentActiveHeadsUpNotification.isAlertAgain = alertAgain(
+            currentActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
                     alertEntry.getNotification());
-            currentActiveHeadsUpNotification.isNewHeadsUp = true;
+            currentActiveHeadsUpNotification.mIsNewHeadsUp = true;
             return currentActiveHeadsUpNotification;
         }
-        currentActiveHeadsUpNotification.isNewHeadsUp = false;
-        currentActiveHeadsUpNotification.isAlertAgain = alertAgain(
+        currentActiveHeadsUpNotification.mIsNewHeadsUp = false;
+        currentActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
                 alertEntry.getNotification());
-        if (currentActiveHeadsUpNotification.isAlertAgain) {
+        if (currentActiveHeadsUpNotification.mIsAlertAgain) {
             // This is a ongoing notification which needs to be alerted again to the user. This
             // requires for the post time to be updated.
             currentActiveHeadsUpNotification.updatePostTime();
@@ -336,14 +334,15 @@ public class CarHeadsUpNotificationManager
         // holding ongoing notifications.
         boolean shouldShowAnimation = !isUpdate(alertEntry);
         HeadsUpEntry currentNotification = addNewHeadsUpEntry(alertEntry);
-        if (currentNotification.isNewHeadsUp) {
+        if (currentNotification.mIsNewHeadsUp) {
             playSound(alertEntry, rankingMap);
             setHeadsUpVisible();
             setAutoDismissViews(currentNotification, alertEntry);
-        } else if (currentNotification.isAlertAgain) {
+        } else if (currentNotification.mIsAlertAgain) {
             setAutoDismissViews(currentNotification, alertEntry);
         }
-        CarNotificationTypeItem notificationTypeItem = getNotificationViewType(alertEntry);
+        CarNotificationTypeItem notificationTypeItem = NotificationUtils.getNotificationViewType(
+                alertEntry);
         currentNotification.setClickHandlerFactory(mClickHandlerFactory);
 
         if (currentNotification.getNotificationView() == null) {
@@ -370,8 +369,8 @@ public class CarHeadsUpNotificationManager
                 .addOnComputeInternalInsetsListener(
                         info -> setInternalInsetsInfo(info,
                                 currentNotification, /* panelExpanded= */false));
-        // Get the height of the notification view after onLayout()
-        // in order animate the notification in
+        // Get the height of the notification view after onLayout() in order to animate the
+        // notification into the screen.
         currentNotification.getNotificationView().getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -403,14 +402,13 @@ public class CarHeadsUpNotificationManager
                             AnimatorSet animatorSet = new AnimatorSet();
                             animatorSet.playTogether(moveY, alpha);
                             animatorSet.start();
-
                         }
                         currentNotification.getNotificationView().getViewTreeObserver()
                                 .removeOnGlobalLayoutListener(this);
                     }
                 });
 
-        if (currentNotification.isNewHeadsUp) {
+        if (currentNotification.mIsNewHeadsUp) {
             boolean shouldDismissOnSwipe = true;
             if (shouldDismissOnSwipe(alertEntry)) {
                 shouldDismissOnSwipe = false;
@@ -565,41 +563,6 @@ public class CarHeadsUpNotificationManager
         removeNotificationFromPanel(currentHeadsUpNotification);
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
         handleHeadsUpNotificationStateChanged(alertEntry, /* isHeadsUp= */ false);
-    }
-
-    /**
-     * Choose a correct notification layout for this heads-up notification.
-     * Note that the layout chosen can be different for the same notification
-     * in the notification center.
-     */
-    private static CarNotificationTypeItem getNotificationViewType(
-            AlertEntry alertEntry) {
-        String category = alertEntry.getNotification().category;
-        if (category != null) {
-            switch (category) {
-                case Notification.CATEGORY_CAR_EMERGENCY:
-                    return CarNotificationTypeItem.EMERGENCY;
-                case Notification.CATEGORY_NAVIGATION:
-                    return CarNotificationTypeItem.NAVIGATION;
-                case Notification.CATEGORY_CALL:
-                    return CarNotificationTypeItem.CALL;
-                case Notification.CATEGORY_CAR_WARNING:
-                    return CarNotificationTypeItem.WARNING;
-                case Notification.CATEGORY_CAR_INFORMATION:
-                    return CarNotificationTypeItem.INFORMATION;
-                case Notification.CATEGORY_MESSAGE:
-                    return CarNotificationTypeItem.MESSAGE;
-                default:
-                    break;
-            }
-        }
-        Bundle extras = alertEntry.getNotification().extras;
-        if (extras.containsKey(Notification.EXTRA_BIG_TEXT)
-                && extras.containsKey(Notification.EXTRA_SUMMARY_TEXT)) {
-            return CarNotificationTypeItem.INBOX;
-        }
-        // progress, media, big text, big picture, and basic templates
-        return CarNotificationTypeItem.BASIC;
     }
 
     /**

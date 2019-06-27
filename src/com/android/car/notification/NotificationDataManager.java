@@ -31,6 +31,18 @@ import java.util.Set;
  * only be called from the main thread.
  */
 public class NotificationDataManager {
+
+    /**
+     * Interface for listeners that want to register for receiving updates to the notification
+     * unseen count.
+     */
+    public interface OnUnseenCountUpdateListener {
+        /**
+         * Called when unseen notification count is changed.
+         */
+        void onUnseenCountUpdate();
+    }
+
     private static String TAG = "NotificationDataManager";
 
     /**
@@ -50,17 +62,6 @@ public class NotificationDataManager {
     private final Map<String, Boolean> mUnseenNotificationMap = new HashMap<>();
 
     private OnUnseenCountUpdateListener mOnUnseenCountUpdateListener;
-
-    /**
-     * Interface for listeners that want to register for receiving updates to the notification
-     * unseen count.
-     */
-    public interface OnUnseenCountUpdateListener {
-        /**
-         * Called when unseen notification count is changed.
-         */
-        void onUnseenCountUpdate();
-    }
 
     public NotificationDataManager() {
         clearAll();
