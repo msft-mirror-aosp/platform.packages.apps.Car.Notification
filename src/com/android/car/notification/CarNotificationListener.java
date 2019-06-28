@@ -16,7 +16,7 @@
 package com.android.car.notification;
 
 import android.annotation.Nullable;
-import android.app.ActivityManager;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +52,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private RankingMap mRankingMap;
     private CarHeadsUpNotificationManager mHeadsUpManager;
     private NotificationDataManager mNotificationDataManager;
+    private CarUserManagerHelper mCarUserManagerHelper;
 
     /**
      * Map that contains all the active notifications. These notifications may or may not be
@@ -77,9 +78,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
             NotificationDataManager notificationDataManager) {
         try {
             mNotificationDataManager = notificationDataManager;
+            mCarUserManagerHelper = new CarUserManagerHelper(context);
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
-                    ActivityManager.getCurrentUser());
+                    mCarUserManagerHelper.getCurrentForegroundUserId());
             mHeadsUpManager = carHeadsUpNotificationManager;
             mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
@@ -94,10 +96,11 @@ public class CarNotificationListener extends NotificationListenerService impleme
         super.onCreate();
         mNotificationDataManager = new NotificationDataManager();
         NotificationApplication app = (NotificationApplication) getApplication();
-        app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
 
-        mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */this,
+        app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
+        mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */ this,
                 app.getClickHandlerFactory(), mNotificationDataManager);
+        mCarUserManagerHelper = new CarUserManagerHelper(/* context= */ this);
         mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
@@ -113,7 +116,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         Log.d(TAG, "onNotificationPosted: " + sbn);
         // Notifications should only be shown for the current user and the the notifications from
         // the system when CarNotification is running as SystemUI component.
-        if (sbn.getUser().getIdentifier() != ActivityManager.getCurrentUser()
+        if (sbn.getUser().getIdentifier() !=  mCarUserManagerHelper.getCurrentForegroundUserId()
                 && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
             return;
         }

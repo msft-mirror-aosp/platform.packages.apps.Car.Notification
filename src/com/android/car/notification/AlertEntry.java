@@ -26,12 +26,15 @@ import androidx.annotation.VisibleForTesting;
  */
 public class AlertEntry {
 
-    private StatusBarNotification mStatusBarNotification;
     private String mKey;
+    private long mPostTime;
+    private StatusBarNotification mStatusBarNotification;
+    private NotificationClickHandlerFactory mClickHandlerFactory;
 
     protected AlertEntry(StatusBarNotification statusBarNotification) {
         mStatusBarNotification = statusBarNotification;
         mKey = statusBarNotification.getKey();
+        mPostTime = calculatePostTime();
     }
 
     // Empty constructor for Spy compatibility.
@@ -39,10 +42,38 @@ public class AlertEntry {
     protected AlertEntry() {}
 
     /**
+     * Updates the current post time for the Heads up notification.
+     */
+    void updatePostTime() {
+        mPostTime = calculatePostTime();
+    }
+
+    long getPostTime() {
+        return mPostTime;
+    }
+
+    /**
+     * Calculate what the post time of a notification is at some current time.
+     *
+     * @return the post time
+     */
+    private long calculatePostTime() {
+        return System.currentTimeMillis();
+    }
+
+    /**
      * Returns the {@link StatusBarNotification} that this instance of AlertEntry is wrapping.
      */
     public StatusBarNotification getStatusBarNotification() {
         return mStatusBarNotification;
+    }
+
+    NotificationClickHandlerFactory getClickHandlerFactory() {
+        return mClickHandlerFactory;
+    }
+
+    void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
+        mClickHandlerFactory = clickHandlerFactory;
     }
 
     /**
