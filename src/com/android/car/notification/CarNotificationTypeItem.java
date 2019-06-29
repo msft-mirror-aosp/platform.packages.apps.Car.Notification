@@ -78,8 +78,8 @@ public enum CarNotificationTypeItem {
     private final boolean mIsInGroup;
 
     private static final Map<Integer, CarNotificationTypeItem>
-            VIEW_TYPE_CAR_NOTIFICATION_TYPE_ITEM_MAP = new HashMap<>(values().length,
-            1);
+            VIEW_TYPE_CAR_NOTIFICATION_TYPE_ITEM_MAP = new HashMap<>(
+            values().length, /* loadFactor= */ 1);
 
     static {
         for (CarNotificationTypeItem carNotificationTypeItem : values()) {
