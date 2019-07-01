@@ -31,7 +31,7 @@ public class AlertEntry {
     private StatusBarNotification mStatusBarNotification;
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
-    protected AlertEntry(StatusBarNotification statusBarNotification) {
+    public AlertEntry(StatusBarNotification statusBarNotification) {
         mStatusBarNotification = statusBarNotification;
         mKey = statusBarNotification.getKey();
         mPostTime = calculatePostTime();
