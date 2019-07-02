@@ -189,9 +189,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mCalculatedSecondaryForegroundColor = mDefaultSecondaryForegroundColor;
         if (canChangeCardBackgroundColor() && mHasColor && mIsColorized && !isInGroup) {
             mBackgroundColor = notification.color;
-            mCalculatedPrimaryForegroundColor = NotificationColorUtil.resolveContrastColor(
+            mCalculatedPrimaryForegroundColor = NotificationUtils.resolveContrastColor(
                     mDefaultPrimaryForegroundColor, mBackgroundColor);
-            mCalculatedSecondaryForegroundColor = NotificationColorUtil.resolveContrastColor(
+            mCalculatedSecondaryForegroundColor = NotificationUtils.resolveContrastColor(
                     mDefaultSecondaryForegroundColor, mBackgroundColor);
         }
         mSmallIconColor =

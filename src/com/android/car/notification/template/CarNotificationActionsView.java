@@ -26,6 +26,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+
 import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
@@ -43,9 +46,12 @@ public class CarNotificationActionsView extends RelativeLayout {
     private static final String TAG = "CarNotificationAction";
     // Maximum 3 actions
     // https://developer.android.com/reference/android/app/Notification.Builder.html#addAction
-    private static final int MAX_NUM_ACTIONS = 3;
-    private static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
-    private static final int MUTE_MESSAGE_ACTION_BUTTON_INDEX = 1;
+    @VisibleForTesting
+    static final int MAX_NUM_ACTIONS = 3;
+    @VisibleForTesting
+    static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
+    @VisibleForTesting
+    static final int MUTE_MESSAGE_ACTION_BUTTON_INDEX = 1;
 
     private final List<Button> mActionButtons = new ArrayList<>();
 
@@ -54,6 +60,7 @@ public class CarNotificationActionsView extends RelativeLayout {
 
     public CarNotificationActionsView(Context context) {
         super(context);
+        init(/* attrs= */ null);
     }
 
     public CarNotificationActionsView(Context context, AttributeSet attrs) {
@@ -75,24 +82,16 @@ public class CarNotificationActionsView extends RelativeLayout {
         init(attrs);
     }
 
-    {
+    private void init(@Nullable AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray attributes =
+                    getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationActionsView);
+            mIsCategoryCall =
+                    attributes.getBoolean(R.styleable.CarNotificationActionsView_categoryCall,
+                            /* default value= */false);
+            attributes.recycle();
+        }
         inflate(getContext(), R.layout.car_notification_actions_view, /* root= */ this);
-    }
-
-    private void init(AttributeSet attrs) {
-        TypedArray attributes =
-                getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationActionsView);
-        mIsCategoryCall =
-                attributes.getBoolean(R.styleable.CarNotificationActionsView_categoryCall, false);
-        attributes.recycle();
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        mActionButtons.add(findViewById(R.id.action_1));
-        mActionButtons.add(findViewById(R.id.action_2));
-        mActionButtons.add(findViewById(R.id.action_3));
     }
 
     /**
@@ -147,6 +146,35 @@ public class CarNotificationActionsView extends RelativeLayout {
     }
 
     /**
+     * Resets the notification actions empty for recycling.
+     */
+    public void reset() {
+        for (Button button : mActionButtons) {
+            button.setVisibility(View.GONE);
+            button.setText(null);
+            button.setOnClickListener(null);
+        }
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        mActionButtons.add(findViewById(R.id.action_1));
+        mActionButtons.add(findViewById(R.id.action_2));
+        mActionButtons.add(findViewById(R.id.action_3));
+    }
+
+    @VisibleForTesting
+    List<Button> getActionButtons() {
+        return mActionButtons;
+    }
+
+    @VisibleForTesting
+    void setCategoryIsCall(boolean isCall) {
+        mIsCategoryCall = isCall;
+    }
+
+    /**
      * The Play button triggers the assistant to read the message aloud, optionally prompting the
      * user to reply to the message afterwards.
      */
@@ -172,16 +200,5 @@ public class CarNotificationActionsView extends RelativeLayout {
                 : mContext.getString(R.string.action_mute_long));
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(button, alertEntry));
-    }
-
-    /**
-     * Resets the notification actions empty for recycling.
-     */
-    public void reset() {
-        for (Button button : mActionButtons) {
-            button.setVisibility(View.GONE);
-            button.setText(null);
-            button.setOnClickListener(null);
-        }
     }
 }

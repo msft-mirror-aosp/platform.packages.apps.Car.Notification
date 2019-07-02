@@ -87,7 +87,7 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
 
         // optional color
         if (notification.color != Notification.COLOR_DEFAULT) {
-            int calculatedColor = NotificationColorUtil.resolveContrastColor(
+            int calculatedColor = NotificationUtils.resolveContrastColor(
                     notification.color, mCardBackgroundColor);
             ColorStateList colorStateList = ColorStateList.valueOf(calculatedColor);
             mProgressBarView.setProgressTintList(colorStateList);
