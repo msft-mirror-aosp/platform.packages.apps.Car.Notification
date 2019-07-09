@@ -34,6 +34,8 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
+import android.os.UserHandle;
+import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.widget.Button;
@@ -143,6 +145,32 @@ public class NotificationClickHandlerFactoryTest {
         mNotificationClickHandlerFactory.getClickHandler(mAlertEntry1).onClick(mView);
 
         verify(mListener1).onNotificationClicked(anyInt(), any(AlertEntry.class));
+    }
+
+    @Test
+    public void onClickClickHandler_shouldAutoCancel_callsBarServiceOnNotificationClear() {
+        mAlertEntry1.getStatusBarNotification().getNotification().flags =
+                mStatusBarNotification1.getNotification().flags | Notification.FLAG_AUTO_CANCEL;
+        UserHandle user = new UserHandle( /* handle= */ 0);
+        when(mStatusBarNotification1.getUser()).thenReturn(user);
+        mNotificationClickHandlerFactory.getClickHandler(mAlertEntry1).onClick(mView);
+        NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                mAlertEntry1.getKey(), /* rank= */ -1, /* count= */ -1, /* visible= */ true);
+
+        try {
+            verify(mBarService).onNotificationClear(
+                    mAlertEntry1.getStatusBarNotification().getPackageName(),
+                    mAlertEntry1.getStatusBarNotification().getTag(),
+                    mAlertEntry1.getStatusBarNotification().getId(),
+                    mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
+                    mAlertEntry1.getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException ex) {
+            // ignore
+        }
+
     }
 
     @Test

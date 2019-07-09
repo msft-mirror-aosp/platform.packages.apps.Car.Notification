@@ -430,6 +430,11 @@ public class PreprocessingManager {
         return notifications;
     }
 
+    @VisibleForTesting
+    protected Map getOldNotifications() {
+        return mOldNotifications;
+    }
+
     public void setCarUxRestrictionManagerWrapper(CarUxRestrictionManagerWrapper manager) {
         try {
             if (manager == null || manager.getCurrentCarUxRestrictions() == null) {
