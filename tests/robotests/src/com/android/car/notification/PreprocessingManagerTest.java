@@ -423,6 +423,75 @@ public class PreprocessingManagerTest {
         }
     }
 
+    @Test
+    public void onUpdateNotifications_notificationRemoved_removesNotification() {
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+
+        List<NotificationGroup> newList =
+                mPreprocessingManager.updateNotifications(
+                        /* showLessImportantNotifications= */ false,
+                        mImportantForeground,
+                        CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED,
+                        mRankingMap);
+
+        assertThat(mPreprocessingManager.getOldNotifications().containsKey(
+                mImportantForeground.getKey())).isFalse();
+    }
+
+    @Test
+    public void onUpdateNotification_notificationPosted_isUpdate_putsNotification() {
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        int beforeSize = mPreprocessingManager.getOldNotifications().size();
+        Notification newNotification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setContentTitle("NEW_TITLE")
+                .setGroup(OVERRIDE_GROUP_KEY)
+                .setGroupSummary(false)
+                .build();
+        newNotification.category = Notification.CATEGORY_NAVIGATION;
+        when(mImportantForeground.getStatusBarNotification().getNotification())
+                .thenReturn(newNotification);
+        List<NotificationGroup> newList =
+                mPreprocessingManager.updateNotifications(
+                        /* showLessImportantNotifications= */ false,
+                        mImportantForeground,
+                        CarNotificationListener.NOTIFY_NOTIFICATION_POSTED,
+                        mRankingMap);
+
+        int afterSize = mPreprocessingManager.getOldNotifications().size();
+        AlertEntry updated = (AlertEntry) mPreprocessingManager.getOldNotifications().get(
+                mImportantForeground.getKey());
+        assertThat(updated).isNotNull();
+        assertThat(updated.getNotification().category).isEqualTo(Notification.CATEGORY_NAVIGATION);
+        assertThat(afterSize).isEqualTo(beforeSize);
+    }
+
+    @Test
+    public void onUpdateNotification_notificationPosted_isNotUpdate_addsNotification() {
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        int beforeSize = mPreprocessingManager.getOldNotifications().size();
+        Notification additionalNotification =
+                generateNotification( /* isForegrond= */ true, /* isNavigation= */ false);
+        additionalNotification.category = Notification.CATEGORY_MESSAGE;
+        when(mAdditionalStatusBarNotification.getKey()).thenReturn("ADDITIONAL");
+        when(mAdditionalStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mAdditionalStatusBarNotification.getNotification()).thenReturn(additionalNotification);
+        AlertEntry additionalAlertEntry = new AlertEntry(mAdditionalStatusBarNotification);
+
+        List<NotificationGroup> newList =
+                mPreprocessingManager.updateNotifications(
+                        /* showLessImportantNotifications= */ false,
+                        additionalAlertEntry,
+                        CarNotificationListener.NOTIFY_NOTIFICATION_POSTED,
+                        mRankingMap);
+
+        int afterSize = mPreprocessingManager.getOldNotifications().size();
+        AlertEntry posted = (AlertEntry) mPreprocessingManager.getOldNotifications().get(
+                additionalAlertEntry.getKey());
+        assertThat(posted).isNotNull();
+        assertThat(posted.getKey()).isEqualTo("ADDITIONAL");
+        assertThat(afterSize).isEqualTo(beforeSize + 1);
+    }
+
     /**
      * Wraps StatusBarNotifications with AlertEntries and generates AlertEntriesMap and
      * RankingsMap.
