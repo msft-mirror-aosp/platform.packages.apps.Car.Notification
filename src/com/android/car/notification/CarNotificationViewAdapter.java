@@ -89,11 +89,13 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         switch (viewType) {
             case NotificationViewType.HEADER:
                 view = mInflater.inflate(R.layout.notification_header_template, parent, false);
-                viewHolder = new CarNotificationHeaderViewHolder(view, mClickHandlerFactory);
+                viewHolder = new CarNotificationHeaderViewHolder(mContext, view,
+                        mClickHandlerFactory);
                 break;
             case NotificationViewType.FOOTER:
                 view = mInflater.inflate(R.layout.notification_footer_template, parent, false);
-                viewHolder = new CarNotificationFooterViewHolder(view, mClickHandlerFactory);
+                viewHolder = new CarNotificationFooterViewHolder(mContext, view,
+                        mClickHandlerFactory);
                 break;
             default:
                 CarNotificationTypeItem carNotificationTypeItem = CarNotificationTypeItem.of(

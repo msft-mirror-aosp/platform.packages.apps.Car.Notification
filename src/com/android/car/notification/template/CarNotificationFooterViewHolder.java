@@ -16,6 +16,7 @@
 package com.android.car.notification.template;
 
 import android.annotation.CallSuper;
+import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 
@@ -32,18 +33,20 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
 
     private final Button mClearAllButton;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
+    private final boolean mShowFooter;
 
-    public CarNotificationFooterViewHolder(View view,
+    public CarNotificationFooterViewHolder(Context context, View view,
             NotificationClickHandlerFactory clickHandlerFactory) {
         super(view);
 
+        mShowFooter = context.getResources().getBoolean(R.bool.config_showFooterForNotifications);
         mClearAllButton = view.findViewById(R.id.clear_all_button);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
     @CallSuper
     public void bind(boolean containsNotification) {
-        if (mClearAllButton == null) {
+        if (mClearAllButton == null || !mShowFooter) {
             return;
         }
 

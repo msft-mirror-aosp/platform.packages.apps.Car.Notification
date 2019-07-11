@@ -23,4 +23,8 @@
     <bool name="config_enableCardBackgroundColorForSystemApp">false</bool>
     <!-- Whether small icon accent color can be set or not. -->
     <bool name="config_enableSmallIconAccentColor">true</bool>
+    <!-- Whether to show header for the notifications list -->
+    <bool name="config_showHeaderForNotifications">false</bool>
+    <!-- Whether to show for the notifications list -->
+    <bool name="config_showFooterForNotifications">true</bool>
 </resources>
