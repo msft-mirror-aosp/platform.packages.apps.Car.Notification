@@ -81,7 +81,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
         ((SimpleItemAnimator) mNotificationListView.getItemAnimator())
                 .setSupportsChangeAnimations(false);
         mNotificationListView.setNestedScrollingEnabled(false);
-        mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */ true);
+        mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
+                true, /* notificationItemController= */ null);
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
         mNotificationListView.addOnItemTouchListener(
                 new CarNotificationItemTouchListener(view.getContext(), mAdapter));

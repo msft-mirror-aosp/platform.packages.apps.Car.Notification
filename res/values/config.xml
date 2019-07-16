@@ -27,4 +27,8 @@
     <bool name="config_showHeaderForNotifications">false</bool>
     <!-- Whether to show for the notifications list -->
     <bool name="config_showFooterForNotifications">true</bool>
+    <!-- Whether to apply notification dismiss animation in the bottom up order on clear all notifications event -->
+    <bool name="config_clearAllNotificationsAnimationFromBottomUp">true</bool>
+    <!-- Whether to collapse notification shade panel on clear all notification animation end -->
+    <bool name="config_collapseShadePanelAfterClearAllNotifications">true</bool>
 </resources>

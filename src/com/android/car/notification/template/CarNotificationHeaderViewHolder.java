@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.CarNotificationItemController;
 import com.android.car.notification.R;
 
 /**
@@ -37,18 +37,24 @@ public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
     private final TextView mNotificationHeaderText;
     private final Button mClearAllButton;
     private final TextView mEmptyNotificationHeaderText;
-    private final NotificationClickHandlerFactory mClickHandlerFactory;
+    private final CarNotificationItemController mNotificationItemController;
     private final boolean mShowHeader;
 
     public CarNotificationHeaderViewHolder(Context context, View view,
-            NotificationClickHandlerFactory clickHandlerFactory) {
+            CarNotificationItemController notificationItemController) {
         super(view);
+
+        if (notificationItemController == null) {
+            throw new IllegalArgumentException(
+                    "com.android.car.notification.template.CarNotificationHeaderViewHolder did not "
+                            + "receive NotificationItemController from the Adapter.");
+        }
 
         mNotificationHeaderText = view.findViewById(R.id.notification_header_text);
         mClearAllButton = view.findViewById(R.id.clear_all_button);
         mEmptyNotificationHeaderText = view.findViewById(R.id.empty_notification_header_text);
         mShowHeader = context.getResources().getBoolean(R.bool.config_showHeaderForNotifications);
-        mClickHandlerFactory = clickHandlerFactory;
+        mNotificationItemController = notificationItemController;
     }
 
     @CallSuper
@@ -63,8 +69,9 @@ public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
 
             mClearAllButton.setVisibility(View.VISIBLE);
             if (!mClearAllButton.hasOnClickListeners()) {
-                mClearAllButton.setOnClickListener(
-                        view -> mClickHandlerFactory.clearAllNotifications());
+                mClearAllButton.setOnClickListener(view -> {
+                    mNotificationItemController.clearAllNotifications();
+                });
             }
             return;
         }

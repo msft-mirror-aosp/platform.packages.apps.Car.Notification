@@ -119,9 +119,15 @@ public class NotificationGroup {
     }
 
     /**
-     * Returns true if all of the notifications this group holds is dismissible by user action.
+     * Returns true if this group is not a header or footer and all of the notifications it holds
+     * are dismissible by user action.
      */
     public boolean isDismissible() {
+
+        if (mIsHeader || mIsFooter) {
+            return false;
+        }
+
         for (AlertEntry notification : mNotifications) {
             boolean isForeground =
                     (notification.getNotification().flags & Notification.FLAG_FOREGROUND_SERVICE)
