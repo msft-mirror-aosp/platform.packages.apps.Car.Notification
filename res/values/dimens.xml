@@ -19,7 +19,7 @@
     <dimen name="notification_scroll_margin">@*android:dimen/car_margin</dimen>
     <dimen name="notification_list_divider_height">@*android:dimen/car_list_divider_height</dimen>
     <dimen name="notification_headsup_card_margin_horizontal">165dp</dimen>
-    <dimen name="notification_card_margin_horizontal">270dp</dimen>
+    <dimen name="notification_card_margin_horizontal">140dp</dimen>
     <dimen name="car_notification_card_inner_top_margin">0dp</dimen>
 
     <!-- Header View -->
