@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -54,6 +55,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
     // book keeping expanded notification groups
     private final List<String> mExpandedNotifications = new ArrayList<>();
+    private final CarNotificationItemController mNotificationItemController;
 
     private List<NotificationGroup> mNotifications = new ArrayList<>();
     private RecyclerView.RecycledViewPool mViewPool;
@@ -69,13 +71,16 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
      *
      * @param context the context for resources and inflating views
      * @param isGroupNotificationAdapter true if this adapter is used by a grouped notification view
+     * @param notificationItemController shared logic to control notification items.
      */
-    public CarNotificationViewAdapter(Context context, boolean isGroupNotificationAdapter) {
+    public CarNotificationViewAdapter(Context context, boolean isGroupNotificationAdapter,
+            @Nullable CarNotificationItemController notificationItemController) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mMaxNumberGroupChildrenShown =
                 mContext.getResources().getInteger(R.integer.max_group_children_number);
         mIsGroupNotificationAdapter = isGroupNotificationAdapter;
+        mNotificationItemController = notificationItemController;
         setHasStableIds(true);
         if (!mIsGroupNotificationAdapter) {
             mViewPool = new RecyclerView.RecycledViewPool();
@@ -90,12 +95,12 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             case NotificationViewType.HEADER:
                 view = mInflater.inflate(R.layout.notification_header_template, parent, false);
                 viewHolder = new CarNotificationHeaderViewHolder(mContext, view,
-                        mClickHandlerFactory);
+                        mNotificationItemController);
                 break;
             case NotificationViewType.FOOTER:
                 view = mInflater.inflate(R.layout.notification_footer_template, parent, false);
                 viewHolder = new CarNotificationFooterViewHolder(mContext, view,
-                        mClickHandlerFactory);
+                        mNotificationItemController);
                 break;
             default:
                 CarNotificationTypeItem carNotificationTypeItem = CarNotificationTypeItem.of(
@@ -301,6 +306,13 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     /**
+     * Returns whether the notification in the given position is dismissible.
+     */
+    public boolean isDismissible(int position) {
+        return mNotifications.get(position).isDismissible();
+    }
+
+    /**
      * Returns whether the notification is expanded given its group key.
      */
     boolean isExpanded(String groupKey) {
@@ -315,17 +327,10 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     /**
-     * Clear all notifications.
-     */
-    public void clearAllNotifications() {
-        mClickHandlerFactory.clearAllNotifications();
-    }
-
-    /**
      * Updates notifications and update views.
      *
      * @param setRecyclerViewListHeaderAndFooter sets the header and footer on the entire list of
-     * items within the recycler view. This is NOT the header/footer for the grouped notifications.
+     *  items within the recycler view. This is NOT the header/footer for the grouped notifications.
      */
     public void setNotifications(List<NotificationGroup> notifications,
             boolean setRecyclerViewListHeaderAndFooter) {

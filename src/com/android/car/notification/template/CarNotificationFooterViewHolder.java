@@ -22,7 +22,7 @@ import android.widget.Button;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.CarNotificationItemController;
 import com.android.car.notification.R;
 
 /**
@@ -32,16 +32,22 @@ import com.android.car.notification.R;
 public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
 
     private final Button mClearAllButton;
-    private final NotificationClickHandlerFactory mClickHandlerFactory;
+    private final CarNotificationItemController mNotificationItemController;
     private final boolean mShowFooter;
 
     public CarNotificationFooterViewHolder(Context context, View view,
-            NotificationClickHandlerFactory clickHandlerFactory) {
+            CarNotificationItemController notificationItemController) {
         super(view);
+
+        if (notificationItemController == null) {
+            throw new IllegalArgumentException(
+                    "com.android.car.notification.template.CarNotificationFooterViewHolder did not "
+                            + "receive NotificationItemController from the Adapter.");
+        }
 
         mShowFooter = context.getResources().getBoolean(R.bool.config_showFooterForNotifications);
         mClearAllButton = view.findViewById(R.id.clear_all_button);
-        mClickHandlerFactory = clickHandlerFactory;
+        mNotificationItemController = notificationItemController;
     }
 
     @CallSuper
@@ -53,8 +59,9 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
         if (containsNotification) {
             mClearAllButton.setVisibility(View.VISIBLE);
             if (!mClearAllButton.hasOnClickListeners()) {
-                mClearAllButton.setOnClickListener(
-                        view -> mClickHandlerFactory.clearAllNotifications());
+                mClearAllButton.setOnClickListener(view -> {
+                    mNotificationItemController.clearAllNotifications();
+                });
             }
             return;
         }

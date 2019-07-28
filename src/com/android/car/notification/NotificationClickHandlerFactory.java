@@ -262,13 +262,24 @@ public class NotificationClickHandlerFactory {
     }
 
     /**
-     * Clears all {@link Notification}s on {@link IStatusBarService}.
+     * Clears all notifications.
      */
     public void clearAllNotifications() {
         try {
             mBarService.onClearAllNotifications(ActivityManager.getCurrentUser());
         } catch (RemoteException e) {
             Log.e(TAG, "clearAllNotifications: ", e);
+        }
+    }
+
+    /**
+     * Collapses the notification shade panel.
+     */
+    public void collapsePanel() {
+        try {
+            mBarService.collapsePanels();
+        } catch (RemoteException e) {
+            Log.e(TAG, "collapsePanel: ", e);
         }
     }
 
