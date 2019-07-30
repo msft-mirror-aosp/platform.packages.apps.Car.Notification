@@ -20,8 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
+import com.android.internal.statusbar.IStatusBarService;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 
@@ -40,6 +44,7 @@ public class CarNotificationView extends ConstraintLayout
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
     private boolean mIsClearAllActive = false;
+    private List<NotificationGroup> mNotifications;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -89,6 +94,7 @@ public class CarNotificationView extends ConstraintLayout
      * Updates notifications and update views.
      */
     public void setNotifications(List<NotificationGroup> notifications) {
+        mNotifications = notifications;
         mAdapter.setNotifications(notifications, /* setRecyclerViewListHeaderAndFooter= */ true);
     }
 
@@ -162,10 +168,11 @@ public class CarNotificationView extends ConstraintLayout
         }
         mIsClearAllActive = true;
 
-        List<View> dismissibleNotificationViews = getDismissibleNotificationViews();
+        List<NotificationGroup> dismissibleNotifications = getAllDismissibleNotifications();
+        List<View> dismissibleNotificationViews = getNotificationViews(dismissibleNotifications);
 
         if (dismissibleNotificationViews.isEmpty()) {
-            finishClearAllNotifications();
+            finishClearAllNotifications(dismissibleNotifications);
             return;
         }
 
@@ -173,31 +180,52 @@ public class CarNotificationView extends ConstraintLayout
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animator) {
-                finishClearAllNotifications();
+                finishClearAllNotifications(dismissibleNotifications);
             }
         });
         animatorSet.start();
     }
 
     /**
-     * Returns the views of dismissible notifications sorted so that their positions are in the
-     * ascending order.
+     * Returns a List of all Notification Groups that are dismissible.
      */
-    private List<View> getDismissibleNotificationViews() {
+    private List<NotificationGroup> getAllDismissibleNotifications() {
+        List<NotificationGroup> notifications = new ArrayList<>();
+        mNotifications.forEach(notificationGroup -> {
+            if (notificationGroup.isDismissible()) {
+                notifications.add(notificationGroup);
+            }
+        });
+        return notifications;
+    }
+
+    /**
+     * Returns the Views that are bound to the provided notifications, sorted so that their
+     * positions are in the ascending order.
+     *
+     * <p>Note: Provided notifications might not have Views bound to them.</p>
+     */
+    private List<View> getNotificationViews(List<NotificationGroup> notifications) {
+        Set notificationIds = new HashSet();
+        notifications.forEach(notificationGroup -> {
+            long id = notificationGroup.isGroup() ? notificationGroup.getGroupKey().hashCode() :
+                    notificationGroup.getSingleNotification().getKey().hashCode();
+            notificationIds.add(id);
+        });
+
         RecyclerView listView = findViewById(R.id.notifications);
-        TreeMap<Integer, View> dismissibleNotificationViews = new TreeMap<>();
+        TreeMap<Integer, View> notificationViews = new TreeMap<>();
         for (int i = 0; i < listView.getChildCount(); i++) {
             View currentChildView = listView.getChildAt(i);
             RecyclerView.ViewHolder holder = listView.getChildViewHolder(currentChildView);
             int position = holder.getLayoutPosition();
-            if (mAdapter.isDismissible(position)) {
-                dismissibleNotificationViews.put(position, currentChildView);
+            if (notificationIds.contains(mAdapter.getItemId(position))) {
+                notificationViews.put(position, currentChildView);
             }
         }
-        List<View> dismissibleNotificationViewsSorted =
-                new ArrayList<>(dismissibleNotificationViews.values());
+        List<View> notificationViewsSorted = new ArrayList<>(notificationViews.values());
 
-        return dismissibleNotificationViewsSorted;
+        return notificationViewsSorted;
     }
 
     /**
@@ -236,15 +264,16 @@ public class CarNotificationView extends ConstraintLayout
     }
 
     /**
-     * Clears all notifications with {@link com.android.internal.statusbar.IStatusBarService} and
-     * optionally collapses the shade panel.
+     * Clears the provided notifications with {@link IStatusBarService} and optionally collapses the
+     * shade panel.
      */
-    private void finishClearAllNotifications() {
+    private void finishClearAllNotifications(List<NotificationGroup> dismissibleNotifications) {
         boolean collapsePanel = getContext().getResources().getBoolean(
                 R.bool.config_collapseShadePanelAfterClearAllNotifications);
         int collapsePanelDelay = getContext().getResources().getInteger(
                 R.integer.delay_between_clear_all_notifications_end_and_collapse_shade_panel_ms);
-        mClickHandlerFactory.clearAllNotifications();
+
+        mClickHandlerFactory.clearNotifications(dismissibleNotifications);
 
         if (collapsePanel) {
             Handler handler = getHandler();

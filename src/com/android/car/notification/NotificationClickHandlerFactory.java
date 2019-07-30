@@ -273,6 +273,36 @@ public class NotificationClickHandlerFactory {
     }
 
     /**
+     * Clears the notifications provided.
+     */
+    public void clearNotifications(List<NotificationGroup> notificationsToClear) {
+        notificationsToClear.forEach(notificationGroup -> {
+            notificationGroup.getChildNotifications().forEach(alertEntry -> {
+                try {
+                    // rank and count is used for logging and is not need at this time thus -1
+                    NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                            alertEntry.getKey(),
+                            /* rank= */ -1,
+                            /* count= */ -1,
+                            /* visible= */ true);
+
+                    mBarService.onNotificationClear(
+                            alertEntry.getStatusBarNotification().getPackageName(),
+                            alertEntry.getStatusBarNotification().getTag(),
+                            alertEntry.getStatusBarNotification().getId(),
+                            alertEntry.getStatusBarNotification().getUser().getIdentifier(),
+                            alertEntry.getStatusBarNotification().getKey(),
+                            NotificationStats.DISMISSAL_SHADE,
+                            NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                            notificationVisibility);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "clearNotifications: ", e);
+                }
+            });
+        });
+    }
+
+    /**
      * Collapses the notification shade panel.
      */
     public void collapsePanel() {

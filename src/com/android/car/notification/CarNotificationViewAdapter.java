@@ -306,13 +306,6 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     /**
-     * Returns whether the notification in the given position is dismissible.
-     */
-    public boolean isDismissible(int position) {
-        return mNotifications.get(position).isDismissible();
-    }
-
-    /**
      * Returns whether the notification is expanded given its group key.
      */
     boolean isExpanded(String groupKey) {
