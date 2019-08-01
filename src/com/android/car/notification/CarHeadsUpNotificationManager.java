@@ -173,12 +173,11 @@ public class CarHeadsUpNotificationManager
             NotificationListenerService.RankingMap rankingMap,
             Map<String, AlertEntry> activeNotifications) {
         if (!shouldShowHeadsUp(alertEntry, rankingMap)) {
-            // check if this is a update to the existing notification and if it should still show
+            // check if this is an update to the existing notification and if it should still show
             // as a heads up or not.
             HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
                     alertEntry.getKey());
             if (currentActiveHeadsUpNotification == null) {
-                activeNotifications.put(alertEntry.getKey(), alertEntry);
                 return false;
             }
             if (CarNotificationDiff.sameNotificationKey(currentActiveHeadsUpNotification,
@@ -186,17 +185,14 @@ public class CarHeadsUpNotificationManager
                     && currentActiveHeadsUpNotification.getHandler().hasMessagesOrCallbacks()) {
                 animateOutHUN(alertEntry);
             }
-            activeNotifications.put(alertEntry.getKey(), alertEntry);
             return false;
         }
         if (!activeNotifications.containsKey(alertEntry.getKey()) || canUpdate(alertEntry)
                 || alertAgain(alertEntry.getNotification())) {
             showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
                     rankingMap);
-            activeNotifications.put(alertEntry.getKey(), alertEntry);
             return true;
         }
-        activeNotifications.put(alertEntry.getKey(), alertEntry);
         return false;
     }
 
@@ -467,7 +463,6 @@ public class CarHeadsUpNotificationManager
                 && alertEntry.getNotification().category.equals(
                 Notification.CATEGORY_CALL) && alertEntry.getStatusBarNotification().isOngoing();
     }
-
 
     @VisibleForTesting
     protected Map<String, HeadsUpEntry> getActiveHeadsUpNotifications() {

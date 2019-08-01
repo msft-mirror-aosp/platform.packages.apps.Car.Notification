@@ -54,6 +54,7 @@ public class CarNotificationListenerTest {
     private Context mContext;
     private CarNotificationListener mCarNotificationListener;
     private NotificationListenerService.RankingMap mRankingMap;
+    @Mock
     private CarHeadsUpNotificationManager mCarHeadsUpNotificationManager;
     @Mock
     private IStatusBarService mBarService;
@@ -75,8 +76,6 @@ public class CarNotificationListenerTest {
         MockitoAnnotations.initMocks(this);
         mContext = ApplicationProvider.getApplicationContext();
         NotificationClickHandlerFactory factory = new NotificationClickHandlerFactory(mBarService);
-        mCarHeadsUpNotificationManager = new CarHeadsUpNotificationManager(mContext, factory,
-                mNotificationDataManager);
         mCarNotificationListener = new CarNotificationListener();
         mCarNotificationListener.setHandler(mHandler);
 
@@ -126,7 +125,7 @@ public class CarNotificationListenerTest {
     }
 
     @Test
-    public void onNotificationPosted_isHun_isForCurrentUser_addsItToActiveNotifications() {
+    public void onNotificationPosted_isHun_isForCurrentUser_doesNotAddItToActiveNotifications() {
         UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
         testingHeadsUpNotification(true);
@@ -134,7 +133,7 @@ public class CarNotificationListenerTest {
         mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
 
         assertThat(mCarNotificationListener.getNotifications().containsKey(
-                mStatusBarNotification.getKey())).isTrue();
+                mStatusBarNotification.getKey())).isFalse();
     }
 
     @Test
@@ -149,7 +148,7 @@ public class CarNotificationListenerTest {
     }
 
     @Test
-    public void onNotificationPosted_isHun_isForAllUsers_addsItToActiveNotifications() {
+    public void onNotificationPosted_isHun_isForAllUsers_doesNotAddItToActiveNotifications() {
         UserHandle userHandle = new UserHandle(UserHandle.USER_ALL);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
         testingHeadsUpNotification(true);
@@ -157,7 +156,7 @@ public class CarNotificationListenerTest {
         mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
 
         assertThat(mCarNotificationListener.getNotifications().containsKey(
-                mStatusBarNotification.getKey())).isTrue();
+                mStatusBarNotification.getKey())).isFalse();
     }
 
 
@@ -228,7 +227,6 @@ public class CarNotificationListenerTest {
 
     @Test
     public void onNotificationPosted_isNotHun_isOngoing_notifiesHandler() {
-        testingOngoing(true);
         testingHeadsUpNotification(false);
         UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
@@ -278,18 +276,10 @@ public class CarNotificationListenerTest {
         if (isHeadsUpNotification) {
             // Messages are always heads-up notifications.
             notification.category = Notification.CATEGORY_MESSAGE;
-
+            when(mCarHeadsUpNotificationManager.maybeShowHeadsUp(any(), any(), any()))
+                    .thenReturn(true);
         }
 
         when(mStatusBarNotification.getNotification()).thenReturn(notification);
-    }
-
-    private void testingOngoing(boolean isOngoing) {
-        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
-        if (isOngoing) {
-            mCarNotificationListener.getNotifications().put(alertEntry.getKey(), alertEntry);
-        } else {
-            mCarNotificationListener.getNotifications().remove(alertEntry.getKey());
-        }
     }
 }

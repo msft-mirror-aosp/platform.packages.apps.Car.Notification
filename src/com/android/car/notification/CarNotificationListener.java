@@ -55,10 +55,11 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private CarUserManagerHelper mCarUserManagerHelper;
 
     /**
-     * Map that contains all the active notifications. These notifications may or may not be
-     * visible to the user if they get filtered out. The only time these will be removed from the
-     * map is when the {@llink NotificationListenerService} calls the onNotificationRemoved method.
-     * New notifications will be added to the map from {@link CarHeadsUpNotificationManager}.
+     * Map that contains all the active notifications that are not currently HUN. These
+     * notifications may or may not be visible to the user if they get filtered out. The only time
+     * these will be removed from the map is when the {@llink NotificationListenerService} calls the
+     * onNotificationRemoved method. New notifications will be added to this map if the notification
+     * is posted as a non-HUN or when a HUN's state is changed to non-HUN.
      */
     private Map<String, AlertEntry> mActiveNotifications = new HashMap<>();
 
@@ -116,7 +117,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         Log.d(TAG, "onNotificationPosted: " + sbn);
         // Notifications should only be shown for the current user and the the notifications from
         // the system when CarNotification is running as SystemUI component.
-        if (sbn.getUser().getIdentifier() !=  mCarUserManagerHelper.getCurrentForegroundUserId()
+        if (sbn.getUser().getIdentifier() != mCarUserManagerHelper.getCurrentForegroundUserId()
                 && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
             return;
         }
@@ -130,9 +131,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         Log.d(TAG, "onNotificationRemoved: " + sbn);
         AlertEntry alertEntry = mActiveNotifications.get(sbn.getKey());
         if (alertEntry != null) {
-            mActiveNotifications.remove(alertEntry.getKey());
-            mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
-            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
+            removeNotification(alertEntry);
         }
     }
 
@@ -165,7 +164,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     /**
-     * Get all active notifications.
+     * Get all active notifications that are not heads-up notifications.
      *
      * @return a map of all active notifications with key being the notification key.
      */
@@ -196,15 +195,11 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private void notifyNotificationPosted(AlertEntry alertEntry) {
         mNotificationDataManager.addNewMessageNotification(alertEntry);
 
-        // check for notification in mActiveNotifications before posting to NC. As app could have
-        // canceled it.
-        boolean isOngoing = mActiveNotifications.containsKey(alertEntry.getKey());
-
         boolean isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
                 mActiveNotifications);
 
-        if (isOngoing && (!isShowingHeadsUp)) {
-            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+        if (!isShowingHeadsUp) {
+            postNewNotification(alertEntry);
         }
     }
 
@@ -212,7 +207,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
         // No more a HUN
         if (!isHeadsUp) {
-            sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+            postNewNotification(alertEntry);
         }
     }
 
@@ -220,6 +215,17 @@ public class CarNotificationListener extends NotificationListenerService impleme
         public CarNotificationListener getService() {
             return CarNotificationListener.this;
         }
+    }
+
+    private void postNewNotification(AlertEntry alertEntry) {
+        mActiveNotifications.put(alertEntry.getKey(), alertEntry);
+        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+    }
+
+    private void removeNotification(AlertEntry alertEntry) {
+        mActiveNotifications.remove(alertEntry.getKey());
+        mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
+        sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
     }
 
     private void sendNotificationEventToHandler(AlertEntry alertEntry, int eventType) {
