@@ -19,9 +19,7 @@ package com.android.car.notification;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.testng.Assert.assertThrows;
 
 import android.app.Notification;
@@ -54,6 +52,7 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowPackageManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
@@ -698,6 +697,25 @@ public class CarNotificationViewAdapterTest {
         int itemCount = mCarNotificationViewAdapter.getItemCount();
 
         assertThat(itemCount).isEqualTo(2);
+    }
+
+    @Test
+    public void setNotifications_shouldNotIncludeChildNotificationsBeingCleared() {
+        initializeWithFactory(true);
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        notificationGroups.add(notificationGroup);
+
+        HashSet<AlertEntry> childNotificationsBeingCleared = new HashSet<>();
+        childNotificationsBeingCleared.add(mNotification1);
+        mCarNotificationViewAdapter
+                .setChildNotificationsBeingCleared(childNotificationsBeingCleared);
+
+        mCarNotificationViewAdapter.setNotifications(notificationGroups,
+                /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(0);
     }
 
     @Test

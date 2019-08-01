@@ -39,6 +39,7 @@ import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -121,10 +122,14 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                         clearNotification(summaryNotification);
                     }
 
+                    mAdapter.setChildNotificationsBeingCleared(
+                            new HashSet<>(notificationGroup.getChildNotifications()));
+
                     for (AlertEntry alertEntry
                             : notificationGroup.getChildNotifications()) {
                         clearNotification(alertEntry);
                     }
+
                 } else {
                     clearNotification(notification);
                 }

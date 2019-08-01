@@ -86,7 +86,7 @@ public class NotificationViewController {
         // Reset and collapse all groups when notification view disappears.
         if (!mIsVisible) {
             resetNotifications(mShowLessImportantNotifications);
-            mCarNotificationView.collapseAllGroups();
+            mCarNotificationView.resetState();
         }
     }
 
