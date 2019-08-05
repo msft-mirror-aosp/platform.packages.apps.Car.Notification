@@ -106,50 +106,27 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
         mDismissAnimationHelper = new DismissAnimationHelper(context, (viewHolder) -> {
             if (viewHolder.isDismissible()) {
                 AlertEntry notification = viewHolder.getAlertEntry();
-                try {
-                    // rank and count is used for logging and is not need at this time thus -1
-                    NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
-                            notification.getKey(),
-                            /* rank= */ -1,
-                            /* count= */ -1,
-                            /* visible= */ true);
-
-                    // The grouped notification view holder returns a notification representing the
-                    // group (SummaryNotification) when viewHolder.getAlertEntry() is
-                    // called. The platform will clear all notifications sharing the group key
-                    // attached to this notification. Since grouping is not strictly based on
-                    // group key, it is preferred to dismiss notifications bound to the view holder
-                    // individually.
-                    if (viewHolder instanceof GroupNotificationViewHolder) {
-                        NotificationGroup notificationGroup =
-                                ((GroupNotificationViewHolder) viewHolder).getNotificationGroup();
-                        for (AlertEntry alertEntry
-                                : notificationGroup.getChildNotifications()) {
-                            mBarService.onNotificationClear(
-                                    alertEntry.getStatusBarNotification().getPackageName(),
-                                    alertEntry.getStatusBarNotification().getTag(),
-                                    alertEntry.getStatusBarNotification().getId(),
-                                    alertEntry.getStatusBarNotification().getUser().getIdentifier(),
-                                    alertEntry.getStatusBarNotification().getKey(),
-                                    NotificationStats.DISMISSAL_SHADE,
-                                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                                    notificationVisibility
-                            );
-                        }
-                    } else {
-                        mBarService.onNotificationClear(
-                                notification.getStatusBarNotification().getPackageName(),
-                                notification.getStatusBarNotification().getTag(),
-                                notification.getStatusBarNotification().getId(),
-                                notification.getStatusBarNotification().getUser().getIdentifier(),
-                                notification.getKey(),
-                                NotificationStats.DISMISSAL_SHADE,
-                                NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                                notificationVisibility
-                        );
+                // The grouped notification view holder returns a notification representing the
+                // group (SummaryNotification) when viewHolder.getAlertEntry() is
+                // called. The platform will clear all notifications sharing the group key
+                // attached to this notification. Since grouping is not strictly based on
+                // group key, it is preferred to dismiss notifications bound to the view holder
+                // individually.
+                if (viewHolder instanceof GroupNotificationViewHolder) {
+                    NotificationGroup notificationGroup =
+                            ((GroupNotificationViewHolder) viewHolder).getNotificationGroup();
+                    AlertEntry summaryNotification =
+                            notificationGroup.getGroupSummaryNotification();
+                    if (summaryNotification != null) {
+                        clearNotification(summaryNotification);
                     }
-                } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+
+                    for (AlertEntry alertEntry
+                            : notificationGroup.getChildNotifications()) {
+                        clearNotification(alertEntry);
+                    }
+                } else {
+                    clearNotification(notification);
                 }
             }
         });
@@ -460,6 +437,29 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
         }
 
         return isSameDirection && hasEnoughMovement;
+    }
+
+    private void clearNotification(AlertEntry alertEntry) {
+        try {
+            // rank and count is used for logging and is not need at this time thus -1
+            NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                    alertEntry.getKey(),
+                    /* rank= */ -1,
+                    /* count= */ -1,
+                    /* visible= */ true);
+
+            mBarService.onNotificationClear(
+                    alertEntry.getStatusBarNotification().getPackageName(),
+                    alertEntry.getStatusBarNotification().getTag(),
+                    alertEntry.getStatusBarNotification().getId(),
+                    alertEntry.getStatusBarNotification().getUser().getIdentifier(),
+                    alertEntry.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            Log.e(TAG, "clearNotifications: ", e);
+        }
     }
 
     private boolean hasValidGestureSwipeTarget() {

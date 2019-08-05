@@ -126,15 +126,7 @@ public class NotificationClickHandlerFactory {
                 mBarService.onNotificationClick(alertEntry.getKey(),
                         notificationVisibility);
                 if (shouldAutoCancel(alertEntry)) {
-                    mBarService.onNotificationClear(
-                            alertEntry.getStatusBarNotification().getPackageName(),
-                            alertEntry.getStatusBarNotification().getTag(),
-                            alertEntry.getStatusBarNotification().getId(),
-                            alertEntry.getStatusBarNotification().getUser().getIdentifier(),
-                            alertEntry.getKey(),
-                            NotificationStats.DISMISSAL_SHADE,
-                            NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                            notificationVisibility);
+                    clearNotification(alertEntry);
                 }
             } catch (RemoteException ex) {
                 Log.e(TAG, "Remote exception in getClickHandler", ex);
@@ -277,28 +269,12 @@ public class NotificationClickHandlerFactory {
      */
     public void clearNotifications(List<NotificationGroup> notificationsToClear) {
         notificationsToClear.forEach(notificationGroup -> {
-            notificationGroup.getChildNotifications().forEach(alertEntry -> {
-                try {
-                    // rank and count is used for logging and is not need at this time thus -1
-                    NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
-                            alertEntry.getKey(),
-                            /* rank= */ -1,
-                            /* count= */ -1,
-                            /* visible= */ true);
-
-                    mBarService.onNotificationClear(
-                            alertEntry.getStatusBarNotification().getPackageName(),
-                            alertEntry.getStatusBarNotification().getTag(),
-                            alertEntry.getStatusBarNotification().getId(),
-                            alertEntry.getStatusBarNotification().getUser().getIdentifier(),
-                            alertEntry.getStatusBarNotification().getKey(),
-                            NotificationStats.DISMISSAL_SHADE,
-                            NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                            notificationVisibility);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "clearNotifications: ", e);
-                }
-            });
+            if (notificationGroup.isGroup()) {
+                AlertEntry summaryNotification = notificationGroup.getGroupSummaryNotification();
+                clearNotification(summaryNotification);
+            }
+            notificationGroup.getChildNotifications()
+                    .forEach(alertEntry -> clearNotification(alertEntry));
         });
     }
 
@@ -320,6 +296,29 @@ public class NotificationClickHandlerFactory {
     private void handleNotificationClicked(int launceResult, AlertEntry alertEntry) {
         mClickListeners.forEach(
                 listener -> listener.onNotificationClicked(launceResult, alertEntry));
+    }
+
+    private void clearNotification(AlertEntry alertEntry) {
+        try {
+            // rank and count is used for logging and is not need at this time thus -1
+            NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                    alertEntry.getKey(),
+                    /* rank= */ -1,
+                    /* count= */ -1,
+                    /* visible= */ true);
+
+            mBarService.onNotificationClear(
+                    alertEntry.getStatusBarNotification().getPackageName(),
+                    alertEntry.getStatusBarNotification().getTag(),
+                    alertEntry.getStatusBarNotification().getId(),
+                    alertEntry.getStatusBarNotification().getUser().getIdentifier(),
+                    alertEntry.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            Log.e(TAG, "clearNotifications: ", e);
+        }
     }
 
     private int sendPendingIntent(PendingIntent pendingIntent, Context context,

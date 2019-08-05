@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +56,9 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(RobolectricTestRunner.class)
 @Config(shadows = {ShadowCarAssistUtils.class})
 public class NotificationClickHandlerFactoryTest {
@@ -77,6 +81,10 @@ public class NotificationClickHandlerFactoryTest {
     @Mock
     private StatusBarNotification mStatusBarNotification2;
     @Mock
+    private UserHandle mUser1;
+    @Mock
+    private UserHandle mUser2;
+    @Mock
     private PendingIntent mActionIntent;
     @Mock
     private RemoteInput mRemoteInput;
@@ -96,6 +104,8 @@ public class NotificationClickHandlerFactoryTest {
         when(mStatusBarNotification2.getNotification()).thenReturn(notification2);
         when(mStatusBarNotification1.getKey()).thenReturn("TEST_KEY_1");
         when(mStatusBarNotification2.getKey()).thenReturn("TEST_KEY_2");
+        when(mStatusBarNotification1.getUser()).thenReturn(mUser1);
+        when(mStatusBarNotification2.getUser()).thenReturn(mUser2);
         mAlertEntry1 = new AlertEntry(mStatusBarNotification1);
         mAlertEntry2 = new AlertEntry(mStatusBarNotification2);
         when(mView.getContext()).thenReturn(mContext);
@@ -399,5 +409,100 @@ public class NotificationClickHandlerFactoryTest {
         verify(mListener2, never())
                 .onNotificationClicked(ActivityManager.START_SUCCESS, mAlertEntry1);
         verify(mListener2).onNotificationClicked(ActivityManager.START_SUCCESS, mAlertEntry2);
+    }
+
+    @Test
+    public void onClearNotifications_groupNotificationWithSummary_clearsSummary() {
+        List<NotificationGroup> notificationsToClear = new ArrayList<>();
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mAlertEntry1);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationsToClear.add(notificationGroup);
+        NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                mAlertEntry1.getKey(),
+                /* rank= */ -1,
+                /* count= */ -1,
+                /* visible= */ true);
+
+        mNotificationClickHandlerFactory.clearNotifications(notificationsToClear);
+
+        try {
+            verify(mBarService).onNotificationClear(
+                    mAlertEntry1.getStatusBarNotification().getPackageName(),
+                    mAlertEntry1.getStatusBarNotification().getTag(),
+                    mAlertEntry1.getStatusBarNotification().getId(),
+                    mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
+                    mAlertEntry1.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            // ignore.
+        }
+    }
+
+    @Test
+    public void onClearNotifications_groupNotificationWithSummary_clearsAllChildren() {
+        List<NotificationGroup> notificationsToClear = new ArrayList<>();
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mAlertEntry1);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationsToClear.add(notificationGroup);
+        NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                mAlertEntry2.getKey(),
+                /* rank= */ -1,
+                /* count= */ -1,
+                /* visible= */ true);
+
+        mNotificationClickHandlerFactory.clearNotifications(notificationsToClear);
+
+        try {
+            verify(mBarService, times(3)).onNotificationClear(
+                    mAlertEntry2.getStatusBarNotification().getPackageName(),
+                    mAlertEntry2.getStatusBarNotification().getTag(),
+                    mAlertEntry2.getStatusBarNotification().getId(),
+                    mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
+                    mAlertEntry2.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            // ignore.
+        }
+    }
+
+    @Test
+    public void onClearNotifications_groupNotificationWithoutSummary_clearsAllChildren() {
+        List<NotificationGroup> notificationsToClear = new ArrayList<>();
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationGroup.addNotification(mAlertEntry2);
+        notificationsToClear.add(notificationGroup);
+        NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                mAlertEntry2.getKey(),
+                /* rank= */ -1,
+                /* count= */ -1,
+                /* visible= */ true);
+
+        mNotificationClickHandlerFactory.clearNotifications(notificationsToClear);
+
+        try {
+            verify(mBarService, times(3)).onNotificationClear(
+                    mAlertEntry2.getStatusBarNotification().getPackageName(),
+                    mAlertEntry2.getStatusBarNotification().getTag(),
+                    mAlertEntry2.getStatusBarNotification().getId(),
+                    mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
+                    mAlertEntry2.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            // ignore.
+        }
     }
 }
