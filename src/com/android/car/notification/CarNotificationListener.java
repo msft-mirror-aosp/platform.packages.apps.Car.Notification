@@ -122,7 +122,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             return;
         }
         AlertEntry alertEntry = new AlertEntry(sbn);
-        mRankingMap = rankingMap;
+        onNotificationRankingUpdate(rankingMap);
         notifyNotificationPosted(alertEntry);
     }
 
