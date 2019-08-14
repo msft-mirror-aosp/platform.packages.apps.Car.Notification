@@ -320,7 +320,11 @@ public class PreprocessingManager {
                     }
                 });
 
-        // Fourth pass: if a notification is a group notification, update the timestamp if one of
+        // Fourth Pass: group notifications with no child notifications should be removed.
+        validGroupList.removeIf(notificationGroup ->
+                notificationGroup.getChildNotifications().isEmpty());
+
+        // Fifth pass: if a notification is a group notification, update the timestamp if one of
         // the children notifications shows a timestamp.
         validGroupList.forEach(group -> {
             if (!group.isGroup()) {
@@ -370,7 +374,6 @@ public class PreprocessingManager {
             newGroup.setGroupSummaryNotification(newNotification);
             mOldProcessedNotifications.add(newGroup);
             return mOldProcessedNotifications;
-
         } else {
             for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
                 NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
