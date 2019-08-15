@@ -97,11 +97,15 @@ public class PreprocessingManagerTest {
     @Mock
     private StatusBarNotification mAdditionalStatusBarNotification;
     @Mock
+    private StatusBarNotification mSummaryStatusBarNotification;
+    @Mock
     private CarUxRestrictions mCarUxRestrictions;
     @Mock
     private CarUxRestrictionManagerWrapper mCarUxRestrictionManagerWrapper;
     @Mock
     private Notification mMediaNotification;
+    @Mock
+    private Notification mSummaryNotification;
     private Notification mForegroundNotification;
     private Notification mBackgroundNotification;
     private Notification mNavigationNotification;
@@ -141,6 +145,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getKey()).thenReturn("KEY_NAVIGATION");
         when(mStatusBarNotification5.getKey()).thenReturn("KEY_IMPORTANT_BACKGROUND");
         when(mStatusBarNotification6.getKey()).thenReturn("KEY_IMPORTANT_FOREGROUND");
+        when(mSummaryStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY");
 
         when(mStatusBarNotification1.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification2.getGroupKey()).thenReturn(GROUP_KEY_B);
@@ -148,6 +153,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification5.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification6.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mSummaryStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
 
         when(mStatusBarNotification1.getNotification()).thenReturn(mBackgroundNotification);
         when(mStatusBarNotification2.getNotification()).thenReturn(mForegroundNotification);
@@ -155,6 +161,9 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getNotification()).thenReturn(mNavigationNotification);
         when(mStatusBarNotification5.getNotification()).thenReturn(mBackgroundNotification);
         when(mStatusBarNotification6.getNotification()).thenReturn(mForegroundNotification);
+        when(mSummaryStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
+
+        when(mSummaryNotification.isGroupSummary()).thenReturn(true);
 
         // prevents less important foreground notifications from not being filtered due to the
         // application and package setup.
@@ -310,6 +319,15 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onGroup_removesNotificationGroupWithOnlySummaryNotification() {
+        List<AlertEntry> list = new ArrayList<>();
+        list.add(new AlertEntry(mSummaryStatusBarNotification));
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(list);
+
+        assertThat(groupResult.isEmpty()).isTrue();
+    }
+
+    @Test
     public void onGroup_childNotificationHasTimeStamp_groupHasMostRecentTimeStamp() {
         mBackgroundNotification.when = 0;
         mForegroundNotification.when = 1;
@@ -384,7 +402,9 @@ public class PreprocessingManagerTest {
         when(mAdditionalStatusBarNotification.getNotification()).thenReturn(additionalNotification);
         AlertEntry additionalAlertEntry = new AlertEntry(mAdditionalStatusBarNotification);
 
-        List<AlertEntry> copy = new ArrayList<>(mAlertEntries);
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        List<AlertEntry> copy = mPreprocessingManager.filter(/* showLessImportantNotifications= */
+                false, new ArrayList<>(mAlertEntries), mRankingMap);
         copy.add(additionalAlertEntry);
         List<NotificationGroup> expected = mPreprocessingManager.group(copy);
         String[] expectedKeys = new String[expected.size()];
@@ -392,12 +412,10 @@ public class PreprocessingManagerTest {
             expectedKeys[i] = expected.get(i).getGroupKey();
         }
 
-        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         List<NotificationGroup> actual =
                 mPreprocessingManager.additionalGroup(additionalAlertEntry);
-
         String[] actualKeys = new String[actual.size()];
-        for (int i = 0; i < expectedKeys.length; i++) {
+        for (int i = 0; i < actualKeys.length; i++) {
             actualKeys[i] = actual.get(i).getGroupKey();
         }
         // We do not care about the order since they are not ranked yet.

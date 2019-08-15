@@ -19,6 +19,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
 import java.util.List;
@@ -44,7 +45,9 @@ class CarNotificationDiff extends DiffUtil.Callback {
 
     CarNotificationDiff(
             Context context,
+            @NonNull
             List<NotificationGroup> oldList,
+            @NonNull
             List<NotificationGroup> newList) {
         mContext = context;
         mOldList = oldList;
@@ -65,6 +68,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         NotificationGroup oldItem = mOldList.get(oldItemPosition);
         NotificationGroup newItem = mNewList.get(newItemPosition);
+
         return sameGroupUniqueIdentifiers(oldItem, newItem);
     }
 
@@ -77,8 +81,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
      * <li> GroupSummaryKey
      * </ol>
      * <p>
-     * Checks for individual AlertEntry contained is not done because child will itself take care of
-     * it.
+     * This method does not check for child AlertEntries because child itself will take care of it.
      */
     static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
             NotificationGroup newItem) {
@@ -133,6 +136,11 @@ class CarNotificationDiff extends DiffUtil.Callback {
         NotificationGroup oldItem = mOldList.get(oldItemPosition);
         NotificationGroup newItem = mNewList.get(newItemPosition);
 
+        // Header and Footer should always refresh if some notification items have changed.
+        if (newItem.isHeader() || newItem.isFooter()) {
+            return false;
+        }
+
         if (!sameNotificationContent(
                 oldItem.getGroupSummaryNotification(), newItem.getGroupSummaryNotification())) {
             return false;
@@ -161,7 +169,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
      *
      * <p> We are only comparing a subset of the fields that have visible effects on our product.
      * Most of the deprecated fields are not compared.
-     * Fields that do not have visible effects, e.g. privacy-related things are ignored for now.
+     * Fields that do not have visible effects (e.g. privacy-related) are ignored for now.
      */
     private boolean sameNotificationContent(AlertEntry oldItem, AlertEntry newItem) {
 

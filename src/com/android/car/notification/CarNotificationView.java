@@ -16,6 +16,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
@@ -37,6 +38,8 @@ import java.util.TreeMap;
  */
 public class CarNotificationView extends ConstraintLayout
         implements CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
+
+    public static final String TAG = "CarNotificationView";
 
     private CarNotificationViewAdapter mAdapter;
     private Context mContext;
@@ -82,6 +85,16 @@ public class CarNotificationView extends ConstraintLayout
                 }
             }
         });
+        listView.setItemAnimator(new DefaultItemAnimator(){
+            @Override
+            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder
+                    newHolder, int fromX, int fromY, int toX, int toY) {
+                // return without animation to prevent flashing on notification update.
+                dispatchChangeFinished(oldHolder, /* oldItem= */ true);
+                dispatchChangeFinished(newHolder, /* oldItem= */ false);
+                return true;
+            }
+        });
 
         Button clearAllButton = findViewById(R.id.clear_all_button);
 
@@ -99,10 +112,11 @@ public class CarNotificationView extends ConstraintLayout
     }
 
     /**
-     * Collapses all expanded groups.
+     * Collapses all expanded groups and empties notifications being cleared set.
      */
-    public void collapseAllGroups() {
+    public void resetState() {
         mAdapter.collapseAllGroups();
+        mAdapter.setChildNotificationsBeingCleared(new HashSet());
     }
 
     @Override
@@ -176,6 +190,7 @@ public class CarNotificationView extends ConstraintLayout
             return;
         }
 
+        registerChildNotificationsBeingCleared(dismissibleNotifications);
         AnimatorSet animatorSet = createDismissAnimation(dismissibleNotificationViews);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -226,6 +241,21 @@ public class CarNotificationView extends ConstraintLayout
         List<View> notificationViewsSorted = new ArrayList<>(notificationViews.values());
 
         return notificationViewsSorted;
+    }
+
+    /**
+     *  Register child notifications being cleared to prevent them from appearing briefly while
+     *  clear all flow is still processing.
+     */
+    private void registerChildNotificationsBeingCleared(
+            List<NotificationGroup> groupNotificationsBeingCleared) {
+        HashSet<AlertEntry> childNotificationsBeingCleared = new HashSet<>();
+        groupNotificationsBeingCleared.forEach(notificationGroup -> {
+            notificationGroup.getChildNotifications().forEach(notification -> {
+                childNotificationsBeingCleared.add(notification);
+            });
+        });
+        mAdapter.setChildNotificationsBeingCleared(childNotificationsBeingCleared);
     }
 
     /**

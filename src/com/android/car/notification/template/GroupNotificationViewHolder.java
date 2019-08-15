@@ -15,6 +15,8 @@
  */
 package com.android.car.notification.template;
 
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -40,7 +42,8 @@ import java.util.List;
 /**
  * ViewHolder that binds a list of notifications as a grouped notification.
  */
-public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
+public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
+        implements CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
     private final Context mContext;
     private final View mHeaderDividerView;
     private final ImageView mToggleIcon;
@@ -125,8 +128,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
         // Set the header's UI attributes (i.e. smallIconColor, etc.) based on the BaseViewHolder.
         bindHeader(mGroupHeaderView, /* isInGroup= */ false);
 
-        mAdapter.setCarUxRestrictions(parentAdapter.getCarUxRestrictions());
-
         // use the same view pool with all the grouped notifications
         // to increase the number of the shared views and reduce memory cost
         // the view pool is created and stored in the root adapter
@@ -158,7 +159,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
             newGroup.setChildTitles(group.generateChildTitles());
             list.add(newGroup);
         }
-        mAdapter.setNotifications(list, /* setRecyclerViewListHeaderAndFooter= */ false);
+        mAdapter.setNotifications(list,
+                /* setRecyclerViewListHeaderAndFooter= */ false);
 
         updateExpansionIcon(group.getChildCount(), isExpanded);
         updateOnClickListener(parentAdapter, group, isExpanded);
@@ -210,6 +212,11 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder {
     void reset() {
         super.reset();
         mGroupHeaderView.reset();
+    }
+
+    @Override
+    public void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
+        mAdapter.setCarUxRestrictions(mAdapter.getCarUxRestrictions());
     }
 
     private class GroupedNotificationItemDecoration extends RecyclerView.ItemDecoration {

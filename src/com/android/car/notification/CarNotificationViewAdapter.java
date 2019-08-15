@@ -15,17 +15,18 @@
  */
 package com.android.car.notification;
 
+import android.annotation.NonNull;
 import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -36,7 +37,9 @@ import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Notification data adapter that binds a notification to the corresponding view.
@@ -44,14 +47,10 @@ import java.util.List;
 public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "CarNotificationAdapter";
 
-    // Delay in posting notifyDataSetChanged for the adapter in milliseconds.
-    private static final int NOTIFY_DATASET_CHANGED_DELAY = 100;
-
     private final Context mContext;
     private final LayoutInflater mInflater;
     private final int mMaxNumberGroupChildrenShown;
     private final boolean mIsGroupNotificationAdapter;
-    private final Handler mHandler = new Handler();
 
     // book keeping expanded notification groups
     private final List<String> mExpandedNotifications = new ArrayList<>();
@@ -62,8 +61,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private CarUxRestrictions mCarUxRestrictions;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
-
-    private Runnable mNotifyDataSetChangedRunnable = this::notifyDataSetChanged;
+    // Suppress binding views to child notifications in the process of being removed.
+    private Set<AlertEntry> mChildNotificationsBeingCleared = new HashSet<>();
 
     /**
      * Constructor for a notification adapter.
@@ -323,10 +322,14 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
      * Updates notifications and update views.
      *
      * @param setRecyclerViewListHeaderAndFooter sets the header and footer on the entire list of
-     *  items within the recycler view. This is NOT the header/footer for the grouped notifications.
+     * items within the recycler view. This is NOT the header/footer for the grouped notifications.
      */
     public void setNotifications(List<NotificationGroup> notifications,
             boolean setRecyclerViewListHeaderAndFooter) {
+
+        notifications.removeIf(notificationGroup ->
+                mChildNotificationsBeingCleared.contains(notificationGroup.getSingleNotification())
+        );
 
         List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
 
@@ -336,11 +339,25 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             // add footer as the last item of the list.
             notificationGroupList.add(createNotificationFooter());
         }
-
+        DiffUtil.DiffResult diffResult =
+                DiffUtil.calculateDiff(
+                        new CarNotificationDiff(mContext, mNotifications, notificationGroupList),
+                        /* detectMoves= */ false);
         mNotifications = notificationGroupList;
+        diffResult.dispatchUpdatesTo(this);
+    }
 
-        mHandler.removeCallbacks(mNotifyDataSetChangedRunnable);
-        mHandler.postDelayed(mNotifyDataSetChangedRunnable, NOTIFY_DATASET_CHANGED_DELAY);
+    /**
+     * Sets child notifications of the group notification that is in the process of being cleared.
+     * This prevents these child notifications from appearing briefly while the clearing process is
+     * running.
+     *
+     * <p>NOTE: To reset mChildNotificationsBeingCleared, pass an empty Set instead of null.</p>
+     *
+     * @param notificationsBeingCleared
+     */
+    protected void setChildNotificationsBeingCleared(@NonNull Set notificationsBeingCleared) {
+        mChildNotificationsBeingCleared = notificationsBeingCleared;
     }
 
     /**
