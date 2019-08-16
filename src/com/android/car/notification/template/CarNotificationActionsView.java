@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationDataManager;
+import com.android.car.notification.PreprocessingManager;
 import com.android.car.notification.R;
 
 import java.util.ArrayList;
@@ -38,22 +39,25 @@ import java.util.List;
 /**
  * Notification actions view that contains the buttons that fire actions.
  */
-public class CarNotificationActionsView extends RelativeLayout {
+public class CarNotificationActionsView extends RelativeLayout implements
+        PreprocessingManager.CallStateListener {
 
     private static final String TAG = "CarNotificationAction";
     // Maximum 3 actions
     // https://developer.android.com/reference/android/app/Notification.Builder.html#addAction
     private static final int MAX_NUM_ACTIONS = 3;
-    private static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
-    private static final int MUTE_MESSAGE_ACTION_BUTTON_INDEX = 1;
+    private static final int FIRST_MESSAGE_ACTION_BUTTON_INDEX = 0;
+    private static final int SECOND_MESSAGE_ACTION_BUTTON_INDEX = 1;
 
     private final List<Button> mActionButtons = new ArrayList<>();
 
     private boolean mIsCategoryCall;
+    private boolean mIsInCall;
     private Context mContext;
 
     public CarNotificationActionsView(Context context) {
         super(context);
+        PreprocessingManager.getInstance(context).addCallStateListener(this::onCallStateChanged);
     }
 
     public CarNotificationActionsView(Context context, AttributeSet attrs) {
@@ -85,6 +89,8 @@ public class CarNotificationActionsView extends RelativeLayout {
         mIsCategoryCall =
                 attributes.getBoolean(R.styleable.CarNotificationActionsView_categoryCall, false);
         attributes.recycle();
+        PreprocessingManager.getInstance(getContext()).addCallStateListener(
+                this::onCallStateChanged);
     }
 
     @Override
@@ -154,7 +160,9 @@ public class CarNotificationActionsView extends RelativeLayout {
      */
     private void createPlayButton(NotificationClickHandlerFactory clickHandlerFactory,
             StatusBarNotification statusBarNotification) {
-        Button button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
+        if (mIsInCall) return;
+
+        Button button = mActionButtons.get(FIRST_MESSAGE_ACTION_BUTTON_INDEX);
         button.setText(mContext.getString(R.string.assist_action_play_label));
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(clickHandlerFactory.getPlayClickHandler(statusBarNotification));
@@ -166,7 +174,10 @@ public class CarNotificationActionsView extends RelativeLayout {
      */
     private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
             StatusBarNotification statusBarNotification) {
-        Button button = mActionButtons.get(MUTE_MESSAGE_ACTION_BUTTON_INDEX);
+        int index = SECOND_MESSAGE_ACTION_BUTTON_INDEX;
+        if (mIsInCall) index = FIRST_MESSAGE_ACTION_BUTTON_INDEX;
+
+        Button button = mActionButtons.get(index);
         NotificationDataManager manager = clickHandlerFactory.getNotificationDataManager();
         button.setText((manager != null && manager.isMessageNotificationMuted(
                 statusBarNotification))
@@ -175,6 +186,12 @@ public class CarNotificationActionsView extends RelativeLayout {
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(
                 button, statusBarNotification));
+    }
+
+    /** Implementation of {@link PreprocessingManager.CallStateListener} **/
+    @Override
+    public void onCallStateChanged(boolean isInCall) {
+        mIsInCall = isInCall;
     }
 
     /**
@@ -186,5 +203,7 @@ public class CarNotificationActionsView extends RelativeLayout {
             button.setText(null);
             button.setOnClickListener(null);
         }
+        PreprocessingManager.getInstance(getContext()).removeCallStateListener(
+                this::onCallStateChanged);
     }
 }
