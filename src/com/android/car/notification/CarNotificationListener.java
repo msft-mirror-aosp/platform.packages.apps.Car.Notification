@@ -108,7 +108,7 @@ public class CarNotificationListener extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn, RankingMap rankingMap) {
-        if (isNotificationFromCurrentUser(sbn)) {
+        if (!isNotificationForCurrentUser(sbn)) {
             return;
         }
         mRankingMap = rankingMap;
@@ -156,7 +156,7 @@ public class CarNotificationListener extends NotificationListenerService {
      */
     Map<String, StatusBarNotification> getNotifications() {
         return mActiveNotifications.entrySet().stream()
-                .filter(x -> (!isNotificationFromCurrentUser(x.getValue())))
+                .filter(x -> (isNotificationForCurrentUser(x.getValue())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -180,14 +180,11 @@ public class CarNotificationListener extends NotificationListenerService {
         mHandler = handler;
     }
 
-    private boolean isNotificationFromCurrentUser(StatusBarNotification sbn) {
+    private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {
         // Notifications should only be shown for the current user and the the notifications from
         // the system when CarNotification is running as SystemUI component.
-        if (sbn.getUser().getIdentifier() != ActivityManager.getCurrentUser()
-                && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
-            return true;
-        }
-        return false;
+        return (sbn.getUser().getIdentifier() == ActivityManager.getCurrentUser()
+                || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
     }
 
     private void notifyNotificationRemoved(StatusBarNotification sbn) {
