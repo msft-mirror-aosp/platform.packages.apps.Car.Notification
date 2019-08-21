@@ -30,8 +30,6 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import com.android.car.assist.client.CarAssistUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -109,10 +107,7 @@ public class CarNotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn, RankingMap rankingMap) {
         Log.d(TAG, "onNotificationPosted: " + sbn);
-        // Notifications should only be shown for the current user and the the notifications from
-        // the system when CarNotification is running as SystemUI component.
-        if (sbn.getUser().getIdentifier() != ActivityManager.getCurrentUser()
-                && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
+        if (!isNotificationForCurrentUser(sbn)) {
             return;
         }
         mRankingMap = rankingMap;
@@ -160,7 +155,9 @@ public class CarNotificationListener extends NotificationListenerService {
      * @return a map of all active notifications with key being the notification key.
      */
     Map<String, StatusBarNotification> getNotifications() {
-        return mActiveNotifications;
+        return mActiveNotifications.entrySet().stream()
+                .filter(x -> (isNotificationForCurrentUser(x.getValue())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
@@ -181,6 +178,13 @@ public class CarNotificationListener extends NotificationListenerService {
 
     public void setHandler(Handler handler) {
         mHandler = handler;
+    }
+
+    private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {
+        // Notifications should only be shown for the current user and the the notifications from
+        // the system when CarNotification is running as SystemUI component.
+        return (sbn.getUser().getIdentifier() == ActivityManager.getCurrentUser()
+                || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
     }
 
     private void notifyNotificationRemoved(StatusBarNotification sbn) {
