@@ -247,30 +247,6 @@ public class CarNotificationListenerTest {
                 .isFalse();
     }
 
-
-    @Test
-    public void onNotificationRemoved_notificationPreviouslyAdded_notifiesHandler() {
-        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
-        mCarNotificationListener.getNotifications().put(alertEntry.getKey(), alertEntry);
-
-        mCarNotificationListener.onNotificationRemoved(mStatusBarNotification);
-
-        verify(mHandler).sendMessage(any(Message.class));
-    }
-
-    @Test
-    public void onNotificationRankingUpdated_reassignsOverrideGroupKey() {
-        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
-        mCarNotificationListener.getNotifications().put(alertEntry.getKey(), alertEntry);
-        when(mNewRankingMap.getRanking(eq(TEST_KEY),
-                any(NotificationListenerService.Ranking.class)))
-                .thenReturn(true);
-
-        mCarNotificationListener.onNotificationRankingUpdate(mNewRankingMap);
-
-        verify(mStatusBarNotification).setOverrideGroupKey(any());
-    }
-
     private void testingHeadsUpNotification(boolean isHeadsUpNotification) {
         Notification notification = new Notification();
         if (isHeadsUpNotification) {

@@ -16,6 +16,7 @@
 package com.android.car.notification;
 
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -115,10 +116,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     @Override
     public void onNotificationPosted(StatusBarNotification sbn, RankingMap rankingMap) {
         Log.d(TAG, "onNotificationPosted: " + sbn);
-        // Notifications should only be shown for the current user and the the notifications from
-        // the system when CarNotification is running as SystemUI component.
-        if (sbn.getUser().getIdentifier() != mCarUserManagerHelper.getCurrentForegroundUserId()
-                && sbn.getUser().getIdentifier() != UserHandle.USER_ALL) {
+        if (!isNotificationForCurrentUser(sbn)) {
             return;
         }
         AlertEntry alertEntry = new AlertEntry(sbn);
@@ -169,7 +167,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
      * @return a map of all active notifications with key being the notification key.
      */
     Map<String, AlertEntry> getNotifications() {
-        return mActiveNotifications;
+        return mActiveNotifications.entrySet().stream()
+                .filter(x -> (isNotificationForCurrentUser(
+                        x.getValue().getStatusBarNotification())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
@@ -202,6 +203,14 @@ public class CarNotificationListener extends NotificationListenerService impleme
             postNewNotification(alertEntry);
         }
     }
+
+    private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {
+        // Notifications should only be shown for the current user and the the notifications from
+        // the system when CarNotification is running as SystemUI component.
+        return (sbn.getUser().getIdentifier() == ActivityManager.getCurrentUser()
+                || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
+    }
+
 
     @Override
     public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
