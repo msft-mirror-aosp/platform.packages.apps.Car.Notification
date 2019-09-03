@@ -44,7 +44,8 @@ import java.util.Set;
 /**
  * Notification data adapter that binds a notification to the corresponding view.
  */
-public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements PreprocessingManager.CallStateListener {
     private static final String TAG = "CarNotificationAdapter";
 
     private final Context mContext;
@@ -61,6 +62,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private CarUxRestrictions mCarUxRestrictions;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
+    private boolean mIsInCall;
     // Suppress binding views to child notifications in the process of being removed.
     private Set<AlertEntry> mChildNotificationsBeingCleared = new HashSet<>();
 
@@ -84,6 +86,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         if (!mIsGroupNotificationAdapter) {
             mViewPool = new RecyclerView.RecycledViewPool();
         }
+
+        PreprocessingManager.getInstance(context).addCallStateListener(this::onCallStateChanged);
     }
 
     @Override
@@ -381,6 +385,15 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
         notificationGroupWithFooter.setFooter(true);
         notificationGroupWithFooter.setGroupKey("notification_footer");
         return notificationGroupWithFooter;
+    }
+
+    /** Implementation of {@link PreprocessingManager.CallStateListener} **/
+    @Override
+    public void onCallStateChanged(boolean isInCall) {
+        if (isInCall != mIsInCall) {
+            mIsInCall = isInCall;
+            notifyDataSetChanged();
+        }
     }
 
     /**

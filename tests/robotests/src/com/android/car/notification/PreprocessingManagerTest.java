@@ -22,6 +22,9 @@ import static android.service.notification.NotificationListenerService.Ranking.U
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
@@ -37,6 +40,7 @@ import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.SnoozeCriterion;
 import android.service.notification.StatusBarNotification;
+import android.telephony.TelephonyManager;
 
 import com.android.car.notification.testutils.ShadowApplicationPackageManager;
 
@@ -44,7 +48,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -102,6 +108,10 @@ public class PreprocessingManagerTest {
     private CarUxRestrictions mCarUxRestrictions;
     @Mock
     private CarUxRestrictionManagerWrapper mCarUxRestrictionManagerWrapper;
+    @Mock
+    private PreprocessingManager.CallStateListener mCallStateListener1;
+    @Mock
+    private PreprocessingManager.CallStateListener mCallStateListener2;
     @Mock
     private Notification mMediaNotification;
     @Mock
@@ -173,6 +183,11 @@ public class PreprocessingManagerTest {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.applicationInfo = mApplicationInfo;
         ShadowApplicationPackageManager.setPackageInfo(packageInfo);
+
+        // Always start system with no phone calls in progress.
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_IDLE);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
 
         initTestData();
     }
@@ -316,6 +331,98 @@ public class PreprocessingManagerTest {
         List<NotificationGroup> groupResult = mPreprocessingManager.group(list);
 
         assertThat(groupResult.size() == 0).isTrue();
+    }
+
+    @Test
+    public void addCallStateListener_preCall_triggerChanges() {
+        InOrder listenerInOrder = Mockito.inOrder(mCallStateListener1);
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+        listenerInOrder.verify(mCallStateListener1).onCallStateChanged(false);
+
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_OFFHOOK);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        listenerInOrder.verify(mCallStateListener1).onCallStateChanged(true);
+    }
+
+    @Test
+    public void addCallStateListener_midCall_triggerChanges() {
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_OFFHOOK);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+
+        verify(mCallStateListener1).onCallStateChanged(true);
+    }
+
+    @Test
+    public void addCallStateListener_postCall_triggerChanges() {
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_OFFHOOK);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_IDLE);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+
+        verify(mCallStateListener1).onCallStateChanged(false);
+    }
+
+    @Test
+    public void addSameCallListenerTwice_dedupedCorrectly() {
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+
+        verify(mCallStateListener1).onCallStateChanged(false);
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+
+        verify(mCallStateListener1, times(1)).onCallStateChanged(false);
+    }
+
+    @Test
+    public void removeCallStateListener_midCall_triggerChanges() {
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_OFFHOOK);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+        // Should get triggered with true before calling removeCallStateListener
+        mPreprocessingManager.removeCallStateListener(mCallStateListener1);
+
+        intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_IDLE);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        verify(mCallStateListener1, never()).onCallStateChanged(false);
+    }
+
+    @Test
+    public void multipleCallStateListeners_triggeredAppropriately() {
+        InOrder listenerInOrder1 = Mockito.inOrder(mCallStateListener1);
+        InOrder listenerInOrder2 = Mockito.inOrder(mCallStateListener2);
+        mPreprocessingManager.addCallStateListener(mCallStateListener1);
+        listenerInOrder1.verify(mCallStateListener1).onCallStateChanged(false);
+
+        Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_OFFHOOK);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        mPreprocessingManager.addCallStateListener(mCallStateListener2);
+        mPreprocessingManager.removeCallStateListener(mCallStateListener1);
+
+        listenerInOrder1.verify(mCallStateListener1).onCallStateChanged(true);
+        listenerInOrder2.verify(mCallStateListener2).onCallStateChanged(true);
+
+        intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intent.putExtra(TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_IDLE);
+        mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
+
+        // only listener 2 should be triggered w/ false
+        listenerInOrder1.verifyNoMoreInteractions();
+        listenerInOrder2.verify(mCallStateListener2).onCallStateChanged(false);
     }
 
     @Test
