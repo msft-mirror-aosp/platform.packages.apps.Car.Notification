@@ -19,10 +19,14 @@ import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictionsManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.NotificationListenerService.RankingMap;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -46,6 +50,15 @@ import java.util.UUID;
  * {@link CarHeadsUpNotificationManager}.
  */
 public class PreprocessingManager {
+
+    /** Listener that will be notified when a call state changes. **/
+    public interface CallStateListener {
+        /**
+         * @param isInCall is true when user is currently in a call.
+         */
+        void onCallStateChanged(boolean isInCall);
+    }
+
     private static final String TAG = "PreprocessingManager";
 
     private final String mEllipsizedString;
@@ -59,9 +72,31 @@ public class PreprocessingManager {
     private NotificationListenerService.RankingMap mOldRankingMap;
     private Map<String, Integer> mRanking = new HashMap<>();
 
+    private boolean mIsInCall;
+    private List<CallStateListener> mCallStateListeners = new ArrayList<>();
+
+    @VisibleForTesting
+    final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
+                mIsInCall = TelephonyManager.EXTRA_STATE_OFFHOOK
+                        .equals(intent.getStringExtra(TelephonyManager.EXTRA_STATE));
+                for (CallStateListener listener : mCallStateListeners) {
+                    listener.onCallStateChanged(mIsInCall);
+                }
+            }
+        }
+    };
+
     private PreprocessingManager(Context context) {
         mEllipsizedString = context.getString(R.string.ellipsized_string);
         mContext = context;
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        context.registerReceiver(mIntentReceiver, filter);
     }
 
     public static PreprocessingManager getInstance(Context context) {
@@ -140,6 +175,18 @@ public class PreprocessingManager {
         }
 
         return mOldProcessedNotifications;
+    }
+
+    /** Add {@link CallStateListener} in order to be notified when call state is changed. **/
+    public void addCallStateListener(CallStateListener listener) {
+        if (mCallStateListeners.contains(listener)) return;
+        mCallStateListeners.add(listener);
+        listener.onCallStateChanged(mIsInCall);
+    }
+
+    /** Remove {@link CallStateListener} to stop getting notified when call state is changed. **/
+    public void removeCallStateListener(CallStateListener listener) {
+        mCallStateListeners.remove(listener);
     }
 
     /**

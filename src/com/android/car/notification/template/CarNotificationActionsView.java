@@ -33,6 +33,7 @@ import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationDataManager;
+import com.android.car.notification.PreprocessingManager;
 import com.android.car.notification.R;
 
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ import java.util.List;
 /**
  * Notification actions view that contains the buttons that fire actions.
  */
-public class CarNotificationActionsView extends RelativeLayout {
+public class CarNotificationActionsView extends RelativeLayout implements
+        PreprocessingManager.CallStateListener {
 
     private static final String TAG = "CarNotificationAction";
     // Maximum 3 actions
@@ -49,17 +51,19 @@ public class CarNotificationActionsView extends RelativeLayout {
     @VisibleForTesting
     static final int MAX_NUM_ACTIONS = 3;
     @VisibleForTesting
-    static final int PLAY_MESSAGE_ACTION_BUTTON_INDEX = 0;
+    static final int FIRST_MESSAGE_ACTION_BUTTON_INDEX = 0;
     @VisibleForTesting
-    static final int MUTE_MESSAGE_ACTION_BUTTON_INDEX = 1;
+    static final int SECOND_MESSAGE_ACTION_BUTTON_INDEX = 1;
 
     private final List<Button> mActionButtons = new ArrayList<>();
 
     private boolean mIsCategoryCall;
+    private boolean mIsInCall;
     private Context mContext;
 
     public CarNotificationActionsView(Context context) {
         super(context);
+        PreprocessingManager.getInstance(context).addCallStateListener(this::onCallStateChanged);
         init(/* attrs= */ null);
     }
 
@@ -91,6 +95,8 @@ public class CarNotificationActionsView extends RelativeLayout {
                             /* default value= */false);
             attributes.recycle();
         }
+        PreprocessingManager.getInstance(getContext()).addCallStateListener(
+                this::onCallStateChanged);
         inflate(getContext(), R.layout.car_notification_actions_view, /* root= */ this);
     }
 
@@ -154,6 +160,8 @@ public class CarNotificationActionsView extends RelativeLayout {
             button.setText(null);
             button.setOnClickListener(null);
         }
+        PreprocessingManager.getInstance(getContext()).removeCallStateListener(
+                this::onCallStateChanged);
     }
 
     @Override
@@ -180,7 +188,9 @@ public class CarNotificationActionsView extends RelativeLayout {
      */
     private void createPlayButton(NotificationClickHandlerFactory clickHandlerFactory,
             AlertEntry alertEntry) {
-        Button button = mActionButtons.get(PLAY_MESSAGE_ACTION_BUTTON_INDEX);
+        if (mIsInCall) return;
+
+        Button button = mActionButtons.get(FIRST_MESSAGE_ACTION_BUTTON_INDEX);
         button.setText(mContext.getString(R.string.assist_action_play_label));
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(
@@ -193,12 +203,21 @@ public class CarNotificationActionsView extends RelativeLayout {
      */
     private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
             AlertEntry alertEntry) {
-        Button button = mActionButtons.get(MUTE_MESSAGE_ACTION_BUTTON_INDEX);
+        int index = SECOND_MESSAGE_ACTION_BUTTON_INDEX;
+        if (mIsInCall) index = FIRST_MESSAGE_ACTION_BUTTON_INDEX;
+
+        Button button = mActionButtons.get(index);
         NotificationDataManager manager = clickHandlerFactory.getNotificationDataManager();
         button.setText((manager != null && manager.isMessageNotificationMuted(alertEntry))
                 ? mContext.getString(R.string.action_unmute_long)
                 : mContext.getString(R.string.action_mute_long));
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(button, alertEntry));
+    }
+
+    /** Implementation of {@link PreprocessingManager.CallStateListener} **/
+    @Override
+    public void onCallStateChanged(boolean isInCall) {
+        mIsInCall = isInCall;
     }
 }
