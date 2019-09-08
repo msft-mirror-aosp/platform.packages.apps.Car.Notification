@@ -29,6 +29,7 @@ import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -263,7 +264,13 @@ public class NotificationClickHandlerFactory {
     }
 
     private void showToast(Context context, int resourceId) {
-        Toast.makeText(context, context.getString(resourceId), Toast.LENGTH_LONG).show();
+        Toast toast = Toast.makeText(context, context.getString(resourceId), Toast.LENGTH_LONG);
+        // This flag is needed for the Toast to show up on the active user's screen since
+        // Notifications is part of SystemUI. SystemUI is owned by a system process, which runs in
+        // the background, so without this, the toast will never appear in the foreground.
+        toast.getWindowParams().privateFlags |=
+                WindowManager.LayoutParams.PRIVATE_FLAG_SHOW_FOR_ALL_USERS;
+        toast.show();
     }
 
     private boolean shouldAutoCancel(StatusBarNotification sbn) {
