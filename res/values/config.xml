@@ -30,5 +30,5 @@
     <!-- Whether to apply notification dismiss animation in the bottom up order on clear all notifications event -->
     <bool name="config_clearAllNotificationsAnimationFromBottomUp">true</bool>
     <!-- Whether to collapse notification shade panel on clear all notification animation end -->
-    <bool name="config_collapseShadePanelAfterClearAllNotifications">true</bool>
+    <bool name="config_collapseShadePanelAfterClearAllNotifications">false</bool>
 </resources>
