@@ -720,7 +720,8 @@ public class PreprocessingManagerTest {
                     getNoisy(i),
                     getSmartActions(key, i),
                     getSmartReplies(key, i),
-                    canBubble(i)
+                    canBubble(i),
+                    isVisuallyInterruptive(i)
             );
             rankings[i] = ranking;
         }
@@ -825,6 +826,10 @@ public class PreprocessingManagerTest {
     }
 
     private boolean canBubble(int index) {
+        return index % 4 == 0;
+    }
+
+    private boolean isVisuallyInterruptive(int index) {
         return index % 4 == 0;
     }
 }
