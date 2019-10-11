@@ -359,7 +359,7 @@ public class NotificationClickHandlerFactory {
         // Notifications is part of SystemUI. SystemUI is owned by a system process, which runs in
         // the background, so without this, the toast will never appear in the foreground.
         toast.getWindowParams().privateFlags |=
-                WindowManager.LayoutParams.PRIVATE_FLAG_SHOW_FOR_ALL_USERS;
+                WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS;
         toast.show();
     }
 
