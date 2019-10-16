@@ -17,7 +17,6 @@ package com.android.car.notification;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -53,7 +52,6 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private RankingMap mRankingMap;
     private CarHeadsUpNotificationManager mHeadsUpManager;
     private NotificationDataManager mNotificationDataManager;
-    private CarUserManagerHelper mCarUserManagerHelper;
 
     /**
      * Map that contains all the active notifications that are not currently HUN. These
@@ -80,10 +78,9 @@ public class CarNotificationListener extends NotificationListenerService impleme
             NotificationDataManager notificationDataManager) {
         try {
             mNotificationDataManager = notificationDataManager;
-            mCarUserManagerHelper = new CarUserManagerHelper(context);
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
-                    mCarUserManagerHelper.getCurrentForegroundUserId());
+                    ActivityManager.getCurrentUser());
             mHeadsUpManager = carHeadsUpNotificationManager;
             mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
@@ -102,7 +99,6 @@ public class CarNotificationListener extends NotificationListenerService impleme
         app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
         mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */ this,
                 app.getClickHandlerFactory(), mNotificationDataManager);
-        mCarUserManagerHelper = new CarUserManagerHelper(/* context= */ this);
         mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
