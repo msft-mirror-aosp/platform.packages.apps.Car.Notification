@@ -19,13 +19,11 @@ package com.android.car.notification;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +33,7 @@ import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.notification.testutils.ShadowActivityManager;
 import com.android.internal.statusbar.IStatusBarService;
 
 import org.junit.Before;
@@ -59,8 +58,6 @@ public class CarNotificationListenerTest {
     @Mock
     private IStatusBarService mBarService;
     @Mock
-    private NotificationListenerService.RankingMap mNewRankingMap;
-    @Mock
     private Handler mHandler;
     @Mock
     private StatusBarNotification mStatusBarNotification;
@@ -68,14 +65,11 @@ public class CarNotificationListenerTest {
     private NotificationDataManager mNotificationDataManager;
     @Mock
     private CarUxRestrictionManagerWrapper mCarUxRestrictionManagerWrapper;
-    @Mock
-    private CarUserManagerHelper mCarUserManagerHelper;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         mContext = ApplicationProvider.getApplicationContext();
-        NotificationClickHandlerFactory factory = new NotificationClickHandlerFactory(mBarService);
         mCarNotificationListener = new CarNotificationListener();
         mCarNotificationListener.setHandler(mHandler);
 
@@ -86,7 +80,7 @@ public class CarNotificationListenerTest {
 
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OVERRIDE_GROUP_KEY);
-        when(mCarUserManagerHelper.getCurrentForegroundUserId()).thenReturn(CURRENT_USER_ID);
+        ShadowActivityManager.setCurrentUser(CURRENT_USER_ID);
     }
 
     @Test

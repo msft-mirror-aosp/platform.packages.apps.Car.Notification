@@ -16,8 +16,8 @@
 package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
+import android.app.ActivityManager;
 import android.app.Notification;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -46,7 +46,6 @@ public class CarNotificationHeaderView extends LinearLayout {
     private static final String TAG = "car_notification_header";
 
     private final PackageManager mPackageManager;
-    private final CarUserManagerHelper mCarUserManagerHelper;
     private final int mDefaultTextColor;
     private final String mSeparatorText;
 
@@ -77,7 +76,6 @@ public class CarNotificationHeaderView extends LinearLayout {
 
     {
         mPackageManager = getContext().getPackageManager();
-        mCarUserManagerHelper = new CarUserManagerHelper(getContext());
         mDefaultTextColor = getContext().getColor(R.color.primary_text_color);
         mSeparatorText = getContext().getString(R.string.header_text_separator);
         inflate(getContext(), R.layout.car_notification_header_view, this);
@@ -211,7 +209,7 @@ public class CarNotificationHeaderView extends LinearLayout {
         ApplicationInfo info;
         try {
             info = mPackageManager.getApplicationInfoAsUser(packageName.trim(), /* flags= */ 0,
-                    mCarUserManagerHelper.getCurrentForegroundUserId());
+                    ActivityManager.getCurrentUser());
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Error fetching app name in car notification header" + e);
             return null;

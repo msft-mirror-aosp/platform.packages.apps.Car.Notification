@@ -17,8 +17,8 @@
 package com.android.car.notification;
 
 import android.annotation.ColorInt;
+import android.app.ActivityManager;
 import android.app.Notification;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -173,12 +173,11 @@ public class NotificationUtils {
     private static PackageInfo getPackageInfo(Context context,
             StatusBarNotification statusBarNotification) {
         PackageManager packageManager = context.getPackageManager();
-        CarUserManagerHelper carUserManagerHelper = new CarUserManagerHelper(context);
         PackageInfo packageInfo = null;
         try {
             packageInfo = packageManager.getPackageInfoAsUser(
                     statusBarNotification.getPackageName(), /* flags= */ 0,
-                    carUserManagerHelper.getCurrentForegroundUserId());
+                    ActivityManager.getCurrentUser());
         } catch (PackageManager.NameNotFoundException ex) {
             Log.e(TAG, "package not found: " + statusBarNotification.getPackageName());
         }

@@ -16,6 +16,7 @@
 
 package com.android.car.notification;
 
+import android.app.ActivityManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,7 +53,6 @@ class Beeper {
     private final Context mContext;
     private final AudioManager mAudioManager;
     private final Uri mInCallSoundToPlayUri;
-    private final CarUserManagerHelper mCarUserManagerHelper;
     private AudioAttributes mPlaybackAttributes;
 
     private boolean mInCall;
@@ -82,7 +82,6 @@ class Beeper {
         mAudioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
         mInCallSoundToPlayUri = Uri.parse("file://" + context.getResources().getString(
                 com.android.internal.R.string.config_inCallNotificationSound));
-        mCarUserManagerHelper = new CarUserManagerHelper(context);
         packageLastPostedTime = new HashMap<>();
         IntentFilter filter = new IntentFilter();
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
@@ -247,7 +246,7 @@ class Beeper {
         private Context getContextForForegroundUser() {
             try {
                 return mContext.createPackageContextAsUser(mContext.getPackageName(), /* flags= */
-                        0, UserHandle.of(mCarUserManagerHelper.getCurrentForegroundUserId()));
+                        0, UserHandle.of(ActivityManager.getCurrentUser()));
             } catch (PackageManager.NameNotFoundException e) {
                 throw new RuntimeException(e);
             }
