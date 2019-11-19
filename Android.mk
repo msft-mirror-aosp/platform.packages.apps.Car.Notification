@@ -46,6 +46,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.recyclerview_recyclerview \
     car-assist-client-lib \
     car-apps-common \
+    car-ui-lib
 
 # Including the resources for the static android libraries allows to pick up their static overlays.
 LOCAL_RESOURCE_DIR += \
@@ -88,6 +89,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.recyclerview_recyclerview \
     car-assist-client-lib \
     car-apps-common \
+    car-ui-lib
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.car.userlib \
@@ -131,6 +133,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.recyclerview_recyclerview \
     car-assist-client-lib \
     car-apps-common \
+    car-ui-lib
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.car.userlib \
@@ -168,6 +171,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.recyclerview_recyclerview \
     car-assist-client-lib \
     car-apps-common \
+    car-ui-lib
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.car.userlib \
