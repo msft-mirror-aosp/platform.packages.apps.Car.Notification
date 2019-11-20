@@ -81,6 +81,14 @@ public class NotificationDataManager {
                 alertEntry.getStatusBarNotification())) {
             mMessageNotificationToMuteStateMap
                     .putIfAbsent(alertEntry.getKey(), /* muteState= */ false);
+
+            if (mUnseenNotificationMap.containsKey(alertEntry.getKey())) {
+                mUnseenNotificationMap.put(alertEntry.getKey(), true);
+
+                if (mOnUnseenCountUpdateListener != null) {
+                    mOnUnseenCountUpdateListener.onUnseenCountUpdate();
+                }
+            }
         }
     }
 
