@@ -36,6 +36,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.assist.client.CarAssistUtils;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
@@ -129,12 +131,12 @@ public class CarNotificationHeaderView extends LinearLayout {
         mHeaderTextView.setVisibility(View.VISIBLE);
 
         if (mIsHeadsUp) {
-            mHeaderTextView.setText(loadHeaderAppName(statusBarNotification.getPackageName()));
+            mHeaderTextView.setText(loadHeaderAppName(statusBarNotification));
             mTimeView.setVisibility(View.GONE);
             return;
         }
 
-        stringBuilder.append(loadHeaderAppName(statusBarNotification.getPackageName()));
+        stringBuilder.append(loadHeaderAppName(statusBarNotification));
         Bundle extras = notification.extras;
 
         // optional field: sub text
@@ -198,7 +200,30 @@ public class CarNotificationHeaderView extends LinearLayout {
     }
 
     /**
-     * Fetches the application label given the package name.
+     * Fetches the application label given the notification. If the notification is a system
+     * generated message notification that is posting on behalf of another application, that
+     * application's name is used.
+     *
+     * @return application label. Returns {@code null} when application name is not found.
+     */
+    @Nullable
+    private String loadHeaderAppName(StatusBarNotification statusBarNotification) {
+        Notification notification = statusBarNotification.getNotification();
+        if (NotificationUtils.isSystemOrPlatformKey(mContext, statusBarNotification)
+                && CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)
+                && notification.extras.containsKey(Notification.EXTRA_INFO_TEXT)) {
+            String appName = notification.extras.getCharSequence(
+                    Notification.EXTRA_INFO_TEXT).toString();
+            Log.d(TAG, "Setting app name for a System Message notification: " + appName);
+            return appName;
+        }
+
+        return loadHeaderAppName(statusBarNotification.getPackageName());
+    }
+
+    /**
+     * Fetches the application label given the package name. Do not use directly, use
+     * {@link CarNotificationHeaderView#loadHeaderAppName(StatusBarNotification)} instead.
      *
      * @param packageName The package name of the application.
      * @return application label. Returns {@code null} when application name is not found.
