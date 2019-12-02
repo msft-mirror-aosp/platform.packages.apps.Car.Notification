@@ -209,13 +209,13 @@ public class CarNotificationHeaderView extends LinearLayout {
     @Nullable
     private String loadHeaderAppName(StatusBarNotification statusBarNotification) {
         Notification notification = statusBarNotification.getNotification();
+        CharSequence appName = notification.extras.getCharSequence(
+                Notification.EXTRA_SUBSTITUTE_APP_NAME);
         if (NotificationUtils.isSystemOrPlatformKey(mContext, statusBarNotification)
                 && CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)
-                && notification.extras.containsKey(Notification.EXTRA_INFO_TEXT)) {
-            String appName = notification.extras.getCharSequence(
-                    Notification.EXTRA_INFO_TEXT).toString();
+                && appName != null) {
             Log.d(TAG, "Setting app name for a System Message notification: " + appName);
-            return appName;
+            return appName.toString();
         }
 
         return loadHeaderAppName(statusBarNotification.getPackageName());
