@@ -28,6 +28,8 @@ import android.widget.DateTimeView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.core.app.NotificationCompat.MessagingStyle;
+
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.PreprocessingManager;
@@ -45,7 +47,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationHeaderView mHeaderView;
     private final CarNotificationActionsView mActionsView;
-    private final TextView mSenderNameView;
+    private final TextView mTitleView;
     private final DateTimeView mTimeView;
     private final TextView mMessageView;
     private final TextView mUnshownCountView;
@@ -59,7 +61,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);
         mHeaderView = view.findViewById(R.id.notification_header);
         mActionsView = view.findViewById(R.id.notification_actions);
-        mSenderNameView = view.findViewById(R.id.notification_body_title);
+        mTitleView = view.findViewById(R.id.notification_body_title);
         mTimeView = view.findViewById(R.id.in_group_time_stamp);
         if (mTimeView != null) {
             // HUN template does not include the time stamp.
@@ -104,9 +106,13 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
 
         Notification notification = alertEntry.getNotification();
         CharSequence messageText = null;
-        CharSequence senderName = null;
+        CharSequence conversationTitle = null;
         Icon avatar = null;
         Integer messageCount = null;
+
+        final MessagingStyle messagingStyle =
+                MessagingStyle.extractMessagingStyleFromNotification(notification);
+        if (messagingStyle != null) conversationTitle = messagingStyle.getConversationTitle();
 
         Bundle extras = notification.extras;
         Parcelable[] messagesData = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
@@ -120,10 +126,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                 messageText = message.getText();
                 Person sender = message.getSenderPerson();
                 if (sender != null) {
-                    senderName = sender.getName();
                     avatar = sender.getIcon();
-                } else {
-                    senderName = message.getSender();
+                }
+                if (conversationTitle == null) {
+                    conversationTitle = sender != null ? sender.getName() : message.getSender();
                 }
             }
         }
@@ -136,8 +142,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             }
         }
 
-        if (TextUtils.isEmpty(senderName)) {
-            senderName = extras.getCharSequence(Notification.EXTRA_TITLE);
+        if (TextUtils.isEmpty(conversationTitle)) {
+            conversationTitle = extras.getCharSequence(Notification.EXTRA_TITLE);
         }
         if (isRestricted) {
             messageText = mContext.getResources().getQuantityString(
@@ -150,9 +156,9 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             avatar = notification.getLargeIcon();
         }
 
-        if (!TextUtils.isEmpty(senderName)) {
-            mSenderNameView.setVisibility(View.VISIBLE);
-            mSenderNameView.setText(senderName);
+        if (!TextUtils.isEmpty(conversationTitle)) {
+            mTitleView.setVisibility(View.VISIBLE);
+            mTitleView.setText(conversationTitle);
         }
 
         if (isInGroup && notification.showsTime()) {
@@ -181,15 +187,15 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         }
 
         if (isHeadsUp) {
-            mBodyView.bindTitleAndMessage(senderName, messageText);
+            mBodyView.bindTitleAndMessage(conversationTitle, messageText);
         }
     }
 
     @Override
     void reset() {
         super.reset();
-        mSenderNameView.setVisibility(View.GONE);
-        mSenderNameView.setText(null);
+        mTitleView.setVisibility(View.GONE);
+        mTitleView.setText(null);
         if (mTimeView != null) {
             mTimeView.setVisibility(View.GONE);
         }
