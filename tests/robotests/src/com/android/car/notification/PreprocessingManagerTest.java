@@ -722,7 +722,9 @@ public class PreprocessingManagerTest {
                     getSmartReplies(key, i),
                     canBubble(i),
                     isVisuallyInterruptive(i),
-                    isConversation(i)
+                    isConversation(i),
+                    null
+
             );
             rankings[i] = ranking;
         }
