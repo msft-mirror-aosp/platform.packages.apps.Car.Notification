@@ -30,6 +30,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -98,7 +100,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
         app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
         mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */ this,
-                app.getClickHandlerFactory(), mNotificationDataManager);
+                app.getClickHandlerFactory(), mNotificationDataManager, new CarHeadsUpNotificationAppContainer(this));
         mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
