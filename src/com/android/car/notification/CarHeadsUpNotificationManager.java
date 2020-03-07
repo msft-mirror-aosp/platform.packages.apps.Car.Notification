@@ -28,20 +28,17 @@ import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.service.notification.NotificationListenerService;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.FrameLayout;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.android.car.notification.headsup.CarHeadsUpNotificationContainer;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 
 import java.util.ArrayList;
@@ -80,27 +77,22 @@ public class CarHeadsUpNotificationManager
 
     private final KeyguardManager mKeyguardManager;
     private final PreprocessingManager mPreprocessingManager;
-    private final WindowManager mWindowManager;
     private final LayoutInflater mInflater;
-    private final NotificationClickHandlerFactory.OnNotificationClickListener mClickListener =
-            (launchResult, alertEntry) -> animateOutHUN(alertEntry);
+    private final CarHeadsUpNotificationContainer mHunContainer;
 
+    // key for the map is the statusbarnotification key
+    private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications = new HashMap<>();
     private final List<OnHeadsUpNotificationStateChange> mListeners = new ArrayList<>();
 
     private boolean mShouldRestrictMessagePreview;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
 
-    // key for the map is the statusbarnotification key
-    private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications;
-    // view that contains scrim and notification content
-    protected final View mHeadsUpPanel;
-    // framelayout that notification content should be added to.
-    protected final FrameLayout mHeadsUpContentFrame;
 
     public CarHeadsUpNotificationManager(Context context,
             NotificationClickHandlerFactory clickHandlerFactory,
-            NotificationDataManager notificationDataManager) {
+            NotificationDataManager notificationDataManager,
+            CarHeadsUpNotificationContainer hunContainer) {
         mContext = context.getApplicationContext();
         mEnableNavigationHeadsup =
                 context.getResources().getBoolean(R.bool.config_showNavigationHeadsup);
@@ -120,47 +112,10 @@ public class CarHeadsUpNotificationManager
                 mContext.getResources().getInteger(R.integer.headsup_exit_duration_ms);
         mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         mPreprocessingManager = PreprocessingManager.getInstance(context);
-        mWindowManager =
-                (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mInflater = LayoutInflater.from(mContext);
-        mActiveHeadsUpNotifications = new HashMap<>();
-        mHeadsUpPanel = createHeadsUpPanel();
-        mHeadsUpContentFrame = mHeadsUpPanel.findViewById(R.id.headsup_content);
-        addHeadsUpPanelToDisplay();
-        mClickHandlerFactory.registerClickListener(mClickListener);
-    }
-
-    /**
-     * Construct and return the heads up panel.
-     *
-     * @return view that contains R.id.headsup_content
-     */
-    protected View createHeadsUpPanel() {
-        return mInflater.inflate(R.layout.headsup_container, null);
-    }
-
-    /**
-     * Attach the heads up panel to the display
-     */
-    protected void addHeadsUpPanelToDisplay() {
-        WindowManager.LayoutParams wrapperParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                // This type allows covering status bar and receiving touch input
-                WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-        wrapperParams.gravity = Gravity.TOP;
-        mHeadsUpPanel.setVisibility(View.INVISIBLE);
-        mWindowManager.addView(mHeadsUpPanel, wrapperParams);
-    }
-
-    /**
-     * Set the Heads Up view to visible
-     */
-    protected void setHeadsUpVisible() {
-        mHeadsUpPanel.setVisibility(View.VISIBLE);
+        mClickHandlerFactory.registerClickListener(
+                (launchResult, alertEntry) -> animateOutHUN(alertEntry));
+        mHunContainer = hunContainer;
     }
 
     /**
@@ -332,7 +287,6 @@ public class CarHeadsUpNotificationManager
         HeadsUpEntry currentNotification = addNewHeadsUpEntry(alertEntry);
         if (currentNotification.mIsNewHeadsUp) {
             playSound(alertEntry, rankingMap);
-            setHeadsUpVisible();
             setAutoDismissViews(currentNotification, alertEntry);
         } else if (currentNotification.mIsAlertAgain) {
             setAutoDismissViews(currentNotification, alertEntry);
@@ -345,7 +299,7 @@ public class CarHeadsUpNotificationManager
             currentNotification.setNotificationView(mInflater.inflate(
                     notificationTypeItem.getHeadsUpTemplate(),
                     null));
-            mHeadsUpContentFrame.addView(currentNotification.getNotificationView());
+            mHunContainer.displayNotification(currentNotification.getNotificationView());
             currentNotification.setViewHolder(
                     notificationTypeItem.getViewHolder(currentNotification.getNotificationView(),
                             mClickHandlerFactory));
@@ -420,7 +374,7 @@ public class CarHeadsUpNotificationManager
     protected void setInternalInsetsInfo(ViewTreeObserver.InternalInsetsInfo info,
             HeadsUpEntry currentNotification, boolean panelExpanded) {
         // If the panel is not on screen don't modify the touch region
-        if (mHeadsUpPanel.getVisibility() != View.VISIBLE) return;
+        if (!mHunContainer.isVisible()) return;
         int[] mTmpTwoArray = new int[2];
         View cardView = currentNotification.getNotificationView().findViewById(
                 R.id.card_view);
@@ -521,7 +475,7 @@ public class CarHeadsUpNotificationManager
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                removeNotificationFromPanel(currentHeadsUpNotification);
+                mHunContainer.removeNotification(currentHeadsUpNotification.getNotificationView());
 
                 // Remove HUN after the animation ends to prevent accidental touch on the card
                 // triggering another remove call.
@@ -533,19 +487,6 @@ public class CarHeadsUpNotificationManager
     }
 
     /**
-     * Remove notification from the screen. If it was the last notification hide the heads up panel.
-     *
-     * @param currentHeadsUpNotification The notification to remove
-     */
-    protected void removeNotificationFromPanel(HeadsUpEntry currentHeadsUpNotification) {
-        mHeadsUpContentFrame.removeView(currentHeadsUpNotification.getNotificationView());
-        if (mHeadsUpContentFrame.getChildCount() == 0) {
-            mHeadsUpPanel.setVisibility(View.INVISIBLE);
-        }
-    }
-
-
-    /**
      * Removes the view for the active heads up notification and also removes the HUN from the map
      * of active Notifications.
      */
@@ -555,7 +496,7 @@ public class CarHeadsUpNotificationManager
         if (currentHeadsUpNotification == null) return;
 
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
-        removeNotificationFromPanel(currentHeadsUpNotification);
+        mHunContainer.removeNotification(currentHeadsUpNotification.getNotificationView());
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
         handleHeadsUpNotificationStateChanged(alertEntry, /* isHeadsUp= */ false);
     }

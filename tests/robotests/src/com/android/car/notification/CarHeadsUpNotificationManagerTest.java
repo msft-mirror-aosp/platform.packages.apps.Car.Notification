@@ -40,6 +40,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
 
+import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
 import com.android.car.notification.testutils.ShadowApplicationPackageManager;
 import com.android.car.notification.testutils.ShadowCarAssistUtils;
 
@@ -463,7 +464,7 @@ public class CarHeadsUpNotificationManagerTest {
 
     private void initializeWithFactory() {
         mManager = new CarHeadsUpNotificationManager(mContext, mClickHandlerFactory,
-                mNotificationDataManager) {
+                mNotificationDataManager, new CarHeadsUpNotificationAppContainer(mContext)) {
             @Override
             protected NotificationListenerService.Ranking getRanking() {
                 return mRankingMock;
