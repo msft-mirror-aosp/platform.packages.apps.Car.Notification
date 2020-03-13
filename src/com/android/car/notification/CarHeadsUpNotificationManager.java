@@ -20,7 +20,6 @@ import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessag
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -33,12 +32,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Interpolator;
 
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationContainer;
+import com.android.car.notification.headsup.animationhelper.HeadsUpNotificationAnimationHelper;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 
 import java.util.ArrayList;
@@ -70,9 +68,7 @@ public class CarHeadsUpNotificationManager
     private final boolean mEnableNavigationHeadsup;
     private final long mDuration;
     private final long mMinDisplayDuration;
-    private final long mEnterAnimationDuration;
-    private final long mAlphaEnterAnimationDuration;
-    private final long mExitAnimationDuration;
+    private HeadsUpNotificationAnimationHelper mAnimationHelper;
     private final int mNotificationHeadsUpCardMarginTop;
 
     private final KeyguardManager mKeyguardManager;
@@ -104,18 +100,26 @@ public class CarHeadsUpNotificationManager
                 R.dimen.headsup_notification_top_margin);
         mMinDisplayDuration = mContext.getResources().getInteger(
                 R.integer.heads_up_notification_minimum_time);
-        mEnterAnimationDuration =
-                mContext.getResources().getInteger(R.integer.headsup_total_enter_duration_ms);
-        mAlphaEnterAnimationDuration =
-                mContext.getResources().getInteger(R.integer.headsup_alpha_enter_duration_ms);
-        mExitAnimationDuration =
-                mContext.getResources().getInteger(R.integer.headsup_exit_duration_ms);
+        mAnimationHelper = getAnimationHelper();
+
         mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         mPreprocessingManager = PreprocessingManager.getInstance(context);
         mInflater = LayoutInflater.from(mContext);
         mClickHandlerFactory.registerClickListener(
                 (launchResult, alertEntry) -> animateOutHUN(alertEntry));
         mHunContainer = hunContainer;
+    }
+
+    private HeadsUpNotificationAnimationHelper getAnimationHelper() {
+        String helperName = mContext.getResources().getString(
+                R.string.config_headsUpNotificationAnimationHelper);
+        try {
+            Class<?> clazz = Class.forName(helperName);
+            return (HeadsUpNotificationAnimationHelper) clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid animation helper: ", helperName), e);
+        }
     }
 
     /**
@@ -325,36 +329,15 @@ public class CarHeadsUpNotificationManager
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        int notificationHeight =
-                                currentNotification.getNotificationView().getHeight();
-
+                        View view = currentNotification.getNotificationView();
                         if (shouldShowAnimation) {
-                            currentNotification.getNotificationView().setY(0 - notificationHeight);
-                            currentNotification.getNotificationView().setAlpha(0f);
+                            mAnimationHelper.resetHUNPosition(view);
 
-                            Interpolator yPositionInterpolator = AnimationUtils.loadInterpolator(
-                                    mContext,
-                                    R.interpolator.heads_up_entry_direction_interpolator);
-                            Interpolator alphaInterpolator = AnimationUtils.loadInterpolator(
-                                    mContext,
-                                    R.interpolator.heads_up_entry_alpha_interpolator);
-
-                            ObjectAnimator moveY = ObjectAnimator.ofFloat(
-                                    currentNotification.getNotificationView(), "y", 0f);
-                            moveY.setDuration(mEnterAnimationDuration);
-                            moveY.setInterpolator(yPositionInterpolator);
-
-                            ObjectAnimator alpha = ObjectAnimator.ofFloat(
-                                    currentNotification.getNotificationView(), "alpha", 1f);
-                            alpha.setDuration(mAlphaEnterAnimationDuration);
-                            alpha.setInterpolator(alphaInterpolator);
-
-                            AnimatorSet animatorSet = new AnimatorSet();
-                            animatorSet.playTogether(moveY, alpha);
-                            animatorSet.start();
+                           AnimatorSet animatorSet = mAnimationHelper.getAnimateInAnimator(mContext, view);
+                           animatorSet.setTarget(view);
+                           animatorSet.start();
                         }
-                        currentNotification.getNotificationView().getViewTreeObserver()
-                                .removeOnGlobalLayoutListener(this);
+                        view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     }
                 });
 
@@ -453,29 +436,14 @@ public class CarHeadsUpNotificationManager
             return;
         }
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
+        View view = currentHeadsUpNotification.getNotificationView();
 
-        Interpolator exitInterpolator = AnimationUtils.loadInterpolator(mContext,
-                R.interpolator.heads_up_exit_direction_interpolator);
-        Interpolator alphaInterpolator = AnimationUtils.loadInterpolator(mContext,
-                R.interpolator.heads_up_exit_alpha_interpolator);
-
-        ObjectAnimator moveY = ObjectAnimator.ofFloat(
-                currentHeadsUpNotification.getNotificationView(), "y",
-                -1 * currentHeadsUpNotification.getNotificationView().getHeight());
-        moveY.setDuration(mExitAnimationDuration);
-        moveY.setInterpolator(exitInterpolator);
-
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(
-                currentHeadsUpNotification.getNotificationView(), "alpha", 1f);
-        alpha.setDuration(mExitAnimationDuration);
-        alpha.setInterpolator(alphaInterpolator);
-
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(moveY, alpha);
+        AnimatorSet animatorSet = mAnimationHelper.getAnimateOutAnimator(mContext, view);
+        animatorSet.setTarget(view);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                mHunContainer.removeNotification(currentHeadsUpNotification.getNotificationView());
+                mHunContainer.removeNotification(view);
 
                 // Remove HUN after the animation ends to prevent accidental touch on the card
                 // triggering another remove call.
