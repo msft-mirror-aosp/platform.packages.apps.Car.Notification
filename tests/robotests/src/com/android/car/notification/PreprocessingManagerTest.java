@@ -723,7 +723,8 @@ public class PreprocessingManagerTest {
                     canBubble(i),
                     isVisuallyInterruptive(i),
                     isConversation(i),
-                    null
+                    null,
+                    isBubble(i)
 
             );
             rankings[i] = ranking;
@@ -837,6 +838,10 @@ public class PreprocessingManagerTest {
     }
 
     private boolean isConversation(int index) {
+        return index % 4 == 0;
+    }
+
+    private boolean isBubble(int index) {
         return index % 4 == 0;
     }
 }
