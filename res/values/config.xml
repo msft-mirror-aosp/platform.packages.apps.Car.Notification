@@ -31,4 +31,6 @@
     <bool name="config_clearAllNotificationsAnimationFromBottomUp">true</bool>
     <!-- Whether to collapse notification shade panel on clear all notification animation end -->
     <bool name="config_collapseShadePanelAfterClearAllNotifications">false</bool>
+    <!-- Animation helper for animating heads up notification showing on screen and leaving the screen. -->
+    <string name="config_headsUpNotificationAnimationHelper">com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationTopAnimationHelper</string>
 </resources>
