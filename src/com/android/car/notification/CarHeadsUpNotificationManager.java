@@ -370,7 +370,7 @@ public class CarHeadsUpNotificationManager
             return;
         }
 
-        cardView.getLocationOnScreen(mTmpTwoArray);
+        cardView.getLocationInWindow(mTmpTwoArray);
         int minX = mTmpTwoArray[0];
         int maxX = mTmpTwoArray[0] + cardView.getWidth();
         int height = cardView.getHeight();
