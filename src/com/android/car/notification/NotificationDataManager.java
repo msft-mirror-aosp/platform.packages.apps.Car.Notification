@@ -80,6 +80,23 @@ public class NotificationDataManager {
             mMessageNotificationToMuteStateMap
                     .putIfAbsent(notification.getKey(), /* muteState= */
                             false);
+
+            if (mUnseenNotificationMap.containsKey(notification.getKey())) {
+                mUnseenNotificationMap.put(notification.getKey(), true);
+
+                if (mOnUnseenCountUpdateListener != null) {
+                    mOnUnseenCountUpdateListener.onUnseenCountUpdate();
+                }
+            }
+        }
+    }
+
+    void untrackUnseenNotification(StatusBarNotification notification) {
+        if (mUnseenNotificationMap.containsKey(notification.getKey())) {
+            mUnseenNotificationMap.remove(notification.getKey());
+            if (mOnUnseenCountUpdateListener != null) {
+                mOnUnseenCountUpdateListener.onUnseenCountUpdate();
+            }
         }
     }
 
