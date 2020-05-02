@@ -53,6 +53,8 @@ public class NotificationViewController {
                 return true;
             });
         }
+
+        resetNotifications(mShowLessImportantNotifications);
     }
 
     /**
