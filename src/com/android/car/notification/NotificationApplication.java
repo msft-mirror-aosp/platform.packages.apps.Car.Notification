@@ -82,6 +82,14 @@ public class NotificationApplication extends Application {
                         ServiceManager.getService(Context.STATUS_BAR_SERVICE)));
     }
 
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        if (mCar != null) {
+            mCar.disconnect();
+        }
+    }
+
     /**
      * Returns the NotificationClickHandlerFactory used to generate click OnClickListeners
      * for the notifications
