@@ -25,6 +25,8 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.text.BidiFormatter;
+import android.text.TextDirectionHeuristics;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -158,7 +160,8 @@ public class CarNotificationHeaderView extends LinearLayout {
             mTimeView.setTime(notification.when);
         }
 
-        mHeaderTextView.setText(stringBuilder);
+        mHeaderTextView.setText(BidiFormatter.getInstance().unicodeWrap(stringBuilder,
+                TextDirectionHeuristics.LOCALE));
     }
 
     /**
