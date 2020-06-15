@@ -15,11 +15,11 @@
  */
 package com.android.car.notification.template;
 
+import static android.app.Notification.EXTRA_SUBSTITUTE_APP_NAME;
+
 import android.annotation.ColorInt;
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -38,9 +38,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.AlertEntry;
-import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
@@ -118,11 +116,9 @@ public class CarNotificationHeaderView extends LinearLayout {
         }
 
         Notification notification = alertEntry.getNotification();
+        StatusBarNotification sbn = alertEntry.getStatusBarNotification();
 
-        Context packageContext = alertEntry.getStatusBarNotification().getPackageContext(
-                getContext());
-
-        String packageName = alertEntry.getStatusBarNotification().getPackageName();
+        Context packageContext = sbn.getPackageContext(getContext());
 
         // app icon
         mIconView.setVisibility(View.VISIBLE);
@@ -133,14 +129,15 @@ public class CarNotificationHeaderView extends LinearLayout {
 
         // app name
         mHeaderTextView.setVisibility(View.VISIBLE);
+        String appName = loadHeaderAppName(sbn);
 
         if (mIsHeadsUp) {
-            mHeaderTextView.setText(loadHeaderAppName(alertEntry));
+            mHeaderTextView.setText(appName);
             mTimeView.setVisibility(View.GONE);
             return;
         }
 
-        stringBuilder.append(loadHeaderAppName(alertEntry));
+        stringBuilder.append(appName);
         Bundle extras = notification.extras;
 
         // optional field: sub text
@@ -209,41 +206,39 @@ public class CarNotificationHeaderView extends LinearLayout {
      * generated message notification that is posting on behalf of another application, that
      * application's name is used.
      *
-     * @return application label. Returns {@code null} when application name is not found.
-     */
-    @Nullable
-    private String loadHeaderAppName(AlertEntry alertEntry) {
-        StatusBarNotification statusBarNotification = alertEntry.getStatusBarNotification();
-        Notification notification = alertEntry.getNotification();
-        CharSequence appName = notification.extras.getCharSequence(
-                Notification.EXTRA_SUBSTITUTE_APP_NAME);
-        if (NotificationUtils.isSystemOrPlatformKey(mContext, alertEntry)
-                && CarAssistUtils.isCarCompatibleMessagingNotification(statusBarNotification)
-                && appName != null) {
-            Log.d(TAG, "Setting app name for a System Message notification: " + appName);
-            return appName.toString();
-        }
-
-        return loadHeaderAppName(statusBarNotification.getPackageName());
-    }
-
-    /**
-     * Fetches the application label given the package name. Do not use directly, use
-     * {@link CarNotificationHeaderView#loadHeaderAppName(AlertEntry)} instead.
+     * The system permission {@link android.Manifest.permission#SUBSTITUTE_NOTIFICATION_APP_NAME}
+     * is required to post on behalf of another application. The notification extra should also
+     * contain a key {@link Notification#EXTRA_SUBSTITUTE_APP_NAME} with the value of
+     * the appropriate application name.
      *
-     * @param packageName The package name of the application.
      * @return application label. Returns {@code null} when application name is not found.
      */
     @Nullable
-    private String loadHeaderAppName(String packageName) {
-        ApplicationInfo info;
-        try {
-            info = mPackageManager.getApplicationInfoAsUser(packageName.trim(), /* flags= */ 0,
-                    ActivityManager.getCurrentUser());
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Error fetching app name in car notification header" + e);
+    private String loadHeaderAppName(StatusBarNotification sbn) {
+        final Context packageContext = sbn.getPackageContext(mContext);
+        final PackageManager pm = packageContext.getPackageManager();
+        final Notification notification = sbn.getNotification();
+        CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
+        if (notification.extras.containsKey(EXTRA_SUBSTITUTE_APP_NAME)) {
+            // only system packages which lump together a bunch of unrelated stuff
+            // may substitute a different name to make the purpose of the
+            // notification more clear. the correct package label should always
+            // be accessible via SystemUI.
+            final String subName = notification.extras.getString(EXTRA_SUBSTITUTE_APP_NAME);
+            final String pkg = sbn.getPackageName();
+            if (PackageManager.PERMISSION_GRANTED == pm.checkPermission(
+                    android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME, pkg)) {
+                name = subName;
+            } else {
+                Log.w(TAG, "warning: pkg "
+                        + pkg + " attempting to substitute app name '" + subName
+                        + "' without holding perm "
+                        + android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME);
+            }
+        }
+        if (TextUtils.isEmpty(name)) {
             return null;
         }
-        return String.valueOf(mPackageManager.getApplicationLabel(info));
+        return String.valueOf(name);
     }
 }
