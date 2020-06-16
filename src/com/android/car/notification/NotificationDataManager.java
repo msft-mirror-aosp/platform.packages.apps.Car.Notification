@@ -92,6 +92,15 @@ public class NotificationDataManager {
         }
     }
 
+    void untrackUnseenNotification(AlertEntry alertEntry) {
+        if (mUnseenNotificationMap.containsKey(alertEntry.getKey())) {
+            mUnseenNotificationMap.remove(alertEntry.getKey());
+            if (mOnUnseenCountUpdateListener != null) {
+                mOnUnseenCountUpdateListener.onUnseenCountUpdate();
+            }
+        }
+    }
+
     void updateUnseenNotification(List<NotificationGroup> notificationGroups) {
         Set<String> currentNotificationKeys = new HashSet<>();
 

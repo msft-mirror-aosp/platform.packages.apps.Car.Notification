@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class is a bridge to collect signals from the notification and ux restriction services and
@@ -105,7 +106,12 @@ public class NotificationViewController {
                 mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
 
-        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        List<NotificationGroup> unseenNotifications = notificationGroups.stream()
+                .filter(g -> g.getChildNotifications().stream()
+                        .anyMatch(mCarNotificationListener::shouldTrackUnseen))
+                .collect(Collectors.toList());
+
+        mNotificationDataManager.updateUnseenNotification(unseenNotifications);
         mCarNotificationView.setNotifications(notificationGroups);
     }
 
