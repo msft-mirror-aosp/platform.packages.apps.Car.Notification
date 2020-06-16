@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -42,6 +43,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
 public class CarNotificationListenerTest {
@@ -75,8 +78,8 @@ public class CarNotificationListenerTest {
 
         mCarNotificationListener.registerAsSystemService(mContext, mCarUxRestrictionManagerWrapper,
                 mCarHeadsUpNotificationManager, mNotificationDataManager);
-        NotificationListenerService.Ranking[] rankings = {};
-        mRankingMap = new NotificationListenerService.RankingMap(rankings);
+
+        createMockRankingMap(NotificationManager.IMPORTANCE_DEFAULT);
 
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OVERRIDE_GROUP_KEY);
@@ -178,6 +181,20 @@ public class CarNotificationListenerTest {
     }
 
     @Test
+    public void onNotificationPosted_lowPriority_isForCurrentUser_untracksUnseenNotification() {
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        testingHeadsUpNotification(false);
+
+        createMockRankingMap(NotificationManager.IMPORTANCE_LOW);
+
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+
+        verify(mNotificationDataManager, never()).addNewMessageNotification(any(AlertEntry.class));
+        verify(mNotificationDataManager).untrackUnseenNotification(any(AlertEntry.class));
+    }
+
+    @Test
     public void onNotificationPosted_isNotHun_isForAllUsers_addsAlertEntryToDataManager() {
         UserHandle userHandle = new UserHandle(UserHandle.USER_ALL);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
@@ -198,6 +215,20 @@ public class CarNotificationListenerTest {
 
         assertThat(mCarNotificationListener.getNotifications().containsKey(
                 mStatusBarNotification.getKey())).isTrue();
+    }
+
+    @Test
+    public void onNotificationPosted_lowPriority_isForAllUsers_untracksUnseenNotification() {
+        UserHandle userHandle = new UserHandle(UserHandle.USER_ALL);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        testingHeadsUpNotification(false);
+
+        createMockRankingMap(NotificationManager.IMPORTANCE_LOW);
+
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+
+        verify(mNotificationDataManager, never()).addNewMessageNotification(any(AlertEntry.class));
+        verify(mNotificationDataManager).untrackUnseenNotification(any(AlertEntry.class));
     }
 
     @Test
@@ -251,5 +282,36 @@ public class CarNotificationListenerTest {
         }
 
         when(mStatusBarNotification.getNotification()).thenReturn(notification);
+    }
+
+    private void createMockRankingMap(int importance) {
+        NotificationListenerService.Ranking ranking = new NotificationListenerService.Ranking();
+        ranking.populate(
+                /* key= */ TEST_KEY,
+                /* rank= */ 0,
+                /* matchesInterruptionFilter= */ false,
+                /* visibilityOverride= */ 0,
+                /* suppressedVisualEffects= */ 0,
+                /* importance= */ importance,
+                /* explanation= */ null,
+                /* overrideGroupKey= */ null,
+                /* channel= */ null,
+                /* overridePeople= */ new ArrayList<>(),
+                /* snoozeCriteria= */ new ArrayList<>(),
+                /* showBadge= */ false,
+                /* userSentiment= */ 0,
+                /* hidden= */ false,
+                /* lastAudiblyAlertedMs= */ 0L,
+                /* noisy= */ false,
+                /* smartActions= */ new ArrayList<>(),
+                /* smartReplies= */ new ArrayList<>(),
+                /* canBubble= */ false,
+                /* visuallyInterruptive= */ false,
+                /* isConversation= */ false,
+                /* shortcutInfo= */ null,
+                /* rankingAdjustment= */ 0,
+                /* isBubble= */ false);
+        mRankingMap = new NotificationListenerService.RankingMap(
+                new NotificationListenerService.Ranking[]{ranking});
     }
 }
