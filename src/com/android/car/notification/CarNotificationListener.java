@@ -17,6 +17,7 @@ package com.android.car.notification;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -192,7 +193,11 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     private void notifyNotificationPosted(AlertEntry alertEntry) {
-        mNotificationDataManager.addNewMessageNotification(alertEntry);
+        if (shouldTrackUnseen(alertEntry)) {
+            mNotificationDataManager.addNewMessageNotification(alertEntry);
+        } else {
+            mNotificationDataManager.untrackUnseenNotification(alertEntry);
+        }
 
         boolean isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
                 mActiveNotifications);
@@ -243,5 +248,13 @@ public class CarNotificationListener extends NotificationListenerService impleme
         msg.what = eventType;
         msg.obj = alertEntry;
         mHandler.sendMessage(msg);
+    }
+
+    // Don't show unseen markers for <= LOW importance notifications to be consistent
+    // with how these notifications are handled on phones
+    boolean shouldTrackUnseen(AlertEntry alertEntry) {
+        Ranking ranking = new NotificationListenerService.Ranking();
+        mRankingMap.getRanking(alertEntry.getKey(), ranking);
+        return ranking.getImportance() > NotificationManager.IMPORTANCE_LOW;
     }
 }
