@@ -126,10 +126,18 @@ public class CarNotificationListener extends NotificationListenerService impleme
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.d(TAG, "onNotificationRemoved: " + sbn);
+
         AlertEntry alertEntry = mActiveNotifications.get(sbn.getKey());
+
         if (alertEntry != null) {
-            removeNotification(alertEntry);
+            mActiveNotifications.remove(alertEntry.getKey());
+        } else {
+            // HUN notifications are not tracked in mActiveNotifications but still need to be
+            // removed
+            alertEntry = new AlertEntry(sbn);
         }
+
+        removeNotification(alertEntry);
     }
 
     @Override
@@ -235,7 +243,6 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     private void removeNotification(AlertEntry alertEntry) {
-        mActiveNotifications.remove(alertEntry.getKey());
         mHeadsUpManager.maybeRemoveHeadsUp(alertEntry);
         sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_REMOVED);
     }
