@@ -447,24 +447,21 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     /**
-     * Set the notification group as seen.
+     * Set notification groups as seen.
      *
-     * @param position Adapter position of the notification group.
+     * @param start Initial adapter position of the notification groups.
+     * @param end Final adapter position of the notification groups.
      */
-    public void setNotificationAsSeen(int position) {
-        NotificationGroup notificationGroup = null;
-
-        try {
-            notificationGroup = mNotifications.get(position);
-        } catch (IndexOutOfBoundsException e) {
-            Log.e(TAG, "trying to mark none existent notification as seen.");
-            return;
-        }
+    /* package */ void setNotificationsAsSeen(int start, int end) {
+        start = Math.max(start, 0);
+        end = Math.min(end, mNotifications.size() - 1);
 
         if (mNotificationDataManager != null) {
-            for (AlertEntry notification : notificationGroup.getChildNotifications()) {
-                mNotificationDataManager.setNotificationAsSeen(notification);
+            List<AlertEntry> notifications = new ArrayList();
+            for (int i = start; i <= end; i++) {
+                notifications.addAll(mNotifications.get(i).getChildNotifications());
             }
+            mNotificationDataManager.setNotificationsAsSeen(notifications);
         }
     }
 }
