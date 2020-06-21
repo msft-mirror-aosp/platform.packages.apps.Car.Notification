@@ -25,6 +25,7 @@ import android.service.notification.StatusBarNotification;
 import com.android.car.notification.testutils.ShadowCarAssistUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -146,7 +147,7 @@ public class NotificationDataManagerTest {
     }
 
     @Test
-    public void setNotificationAsSeen_notificationIsSeen_decrementsUnseenCount() {
+    public void setNotificationsAsSeen_notificationIsSeen() {
         List<NotificationGroup> notificationGroups = new ArrayList<>();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -154,9 +155,42 @@ public class NotificationDataManagerTest {
         notificationGroups.add(notificationGroup);
 
         mNotificationDataManager.updateUnseenNotification(notificationGroups);
-        mNotificationDataManager.setNotificationAsSeen(mMessageNotification);
+        mNotificationDataManager.setNotificationsAsSeen(
+                Collections.singletonList(mMessageNotification));
+
+        assertThat(mNotificationDataManager.getSeenNotifications()).asList().containsExactly(
+                mMessageNotification.getKey());
+    }
+
+    @Test
+    public void setNotificationsAsSeen_notificationIsSeen_decrementsUnseenCount() {
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mMessageNotification);
+        notificationGroups.add(notificationGroup);
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        mNotificationDataManager.setNotificationsAsSeen(
+                Collections.singletonList(mMessageNotification));
 
         assertThat(mNotificationDataManager.getUnseenNotificationCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void setNotificationsAsSeen_notificationIsSeen_notificationIsVisibleToUser() {
+        List<NotificationGroup> notificationGroups = new ArrayList<>();
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mMessageNotification);
+        notificationGroups.add(notificationGroup);
+
+        mNotificationDataManager.updateUnseenNotification(notificationGroups);
+        mNotificationDataManager.setNotificationsAsSeen(
+                Collections.singletonList(mMessageNotification));
+
+        assertThat(mNotificationDataManager.getVisibleNotifications()).containsExactly(
+                mMessageNotification);
     }
 
     @Test
