@@ -118,7 +118,7 @@ public class CarHeadsUpNotificationManager
             return (HeadsUpNotificationAnimationHelper) clazz.getConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    String.format("Invalid animation helper: ", helperName), e);
+                    String.format("Invalid animation helper: %s", helperName), e);
         }
     }
 
