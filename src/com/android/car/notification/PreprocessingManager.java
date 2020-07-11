@@ -210,6 +210,14 @@ public class PreprocessingManager {
         if (!showLessImportantNotifications) {
             notifications.removeIf(alertEntry -> shouldFilter(alertEntry, rankingMap));
         }
+
+        // Call notifications should not be shown in the panel.
+        // Since they're shown as persistent HUNs, and notifications are not added to the panel
+        // until after they're dismissed as HUNs, it does not make sense to have them in the panel,
+        // and sequencing could cause them to be removed before being added here.
+        notifications.removeIf(alertEntry -> Notification.CATEGORY_CALL.equals(
+                alertEntry.getNotification().category));
+
         return notifications;
     }
 
