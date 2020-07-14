@@ -22,6 +22,7 @@ import static android.service.notification.NotificationListenerService.Ranking.U
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -231,6 +232,41 @@ public class PreprocessingManagerTest {
 
         assertThat(mAlertEntries.contains(mMedia)).isFalse();
         assertThat(mAlertEntries.contains(mNavigation)).isFalse();
+    }
+
+    @Test
+    public void onFilter_doShowLessImportantNotifications_doesNotFilterMediaOrNavigation() {
+        mPreprocessingManager
+                .filter(/* showLessImportantNotifications= */true, mAlertEntries, mRankingMap);
+
+        assertThat(mAlertEntries.contains(mMedia)).isTrue();
+        assertThat(mAlertEntries.contains(mNavigation)).isTrue();
+    }
+
+    @Test
+    public void onFilter_doShowLessImportantNotifications_filtersCalls() {
+        StatusBarNotification callSBN = mock(StatusBarNotification.class);
+        Notification callNotification = new Notification();
+        callNotification.category = Notification.CATEGORY_CALL;
+        when(callSBN.getNotification()).thenReturn(callNotification);
+        List<AlertEntry> entries = new ArrayList<>();
+        entries.add(new AlertEntry(callSBN));
+
+        mPreprocessingManager.filter(true, entries, mRankingMap);
+        assertThat(entries).isEmpty();
+    }
+
+    @Test
+    public void onFilter_dontShowLessImportantNotifications_filtersCalls() {
+        StatusBarNotification callSBN = mock(StatusBarNotification.class);
+        Notification callNotification = new Notification();
+        callNotification.category = Notification.CATEGORY_CALL;
+        when(callSBN.getNotification()).thenReturn(callNotification);
+        List<AlertEntry> entries = new ArrayList<>();
+        entries.add(new AlertEntry(callSBN));
+
+        mPreprocessingManager.filter(false, entries, mRankingMap);
+        assertThat(entries).isEmpty();
     }
 
     @Test
