@@ -37,6 +37,7 @@ import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
+import com.android.car.ui.recyclerview.ContentLimitingAdapter.ScrollingLimitedViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
@@ -203,7 +204,8 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                 RecyclerView.ViewHolder viewHolderAtPoint =
                         recyclerView.findContainingViewHolder(viewAtPoint);
                 if (viewHolderAtPoint instanceof CarNotificationHeaderViewHolder
-                        || viewHolderAtPoint instanceof CarNotificationFooterViewHolder) {
+                        || viewHolderAtPoint instanceof CarNotificationFooterViewHolder
+                        || viewHolderAtPoint instanceof ScrollingLimitedViewHolder) {
                     return false;
                 }
                 checkArgument(viewHolderAtPoint instanceof CarNotificationBaseViewHolder);

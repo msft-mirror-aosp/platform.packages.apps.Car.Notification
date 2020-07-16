@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import com.android.car.uxr.UxrContentLimiterImpl;
+
 import java.util.List;
 
 
@@ -31,6 +33,7 @@ public class CarNotificationView extends ConstraintLayout
     private Context mContext;
     private LinearLayoutManager mLayoutManager;
     private NotificationDataManager mNotificationDataManager;
+    private UxrContentLimiterImpl mUxrContentLimiter;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,6 +60,10 @@ public class CarNotificationView extends ConstraintLayout
         mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
                 false);
         listView.setAdapter(mAdapter);
+
+        mUxrContentLimiter = new UxrContentLimiterImpl(mContext, R.xml.uxr_config);
+        mUxrContentLimiter.setAdapter(mAdapter);
+        mUxrContentLimiter.start();
 
         ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
         listView.addOnItemTouchListener(new CarNotificationItemTouchListener(mContext, mAdapter));

@@ -38,7 +38,9 @@ android_app {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout"
+        "androidx-constraintlayout_constraintlayout",
+        "car-ui-lib-bp",
+        "car-uxr-client-lib"
     ],
 
     libs: ["android.car"],
@@ -77,7 +79,9 @@ android_library {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "android.car.userlib",
-        "androidx-constraintlayout_constraintlayout"
+        "androidx-constraintlayout_constraintlayout",
+        "car-ui-lib-bp",
+        "car-uxr-client-lib"
     ],
 
     libs: ["android.car"],
