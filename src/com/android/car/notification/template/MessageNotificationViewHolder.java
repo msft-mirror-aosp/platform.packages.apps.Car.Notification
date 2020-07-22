@@ -15,6 +15,8 @@
  */
 package com.android.car.notification.template;
 
+import static com.android.car.notification.NotificationUtils.getMaxNotificationBodyLines;
+
 import android.annotation.ColorInt;
 import android.app.Notification;
 import android.app.Person;
@@ -169,6 +171,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         if (!TextUtils.isEmpty(messageText)) {
             messageText = PreprocessingManager.getInstance(mContext).trimText(messageText);
             mMessageView.setVisibility(View.VISIBLE);
+            mMessageView.setMaxLines(getMaxNotificationBodyLines(mContext, isHeadsUp));
             mMessageView.setText(messageText);
         }
 
@@ -187,7 +190,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         }
 
         if (isHeadsUp) {
-            mBodyView.bindTitleAndMessage(conversationTitle, messageText);
+            mBodyView.bindHUNTitleAndMessage(conversationTitle, messageText);
         }
     }
 
