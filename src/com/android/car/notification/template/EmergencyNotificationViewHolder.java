@@ -73,6 +73,6 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
         Icon icon = notification.getLargeIcon();
-        mBodyView.bind(title, text, icon);
+        mBodyView.bind(title, text, icon, isHeadsUp);
     }
 }
