@@ -37,7 +37,7 @@ import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
-import com.android.car.ui.recyclerview.ContentLimitingAdapter.ScrollingLimitedViewHolder;
+import com.android.car.ui.recyclerview.ScrollingLimitedViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
