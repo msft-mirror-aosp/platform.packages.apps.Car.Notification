@@ -60,7 +60,7 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
     public void bind(AlertEntry alertEntry, boolean isInGroup,
             boolean isHeadsUp) {
         super.bind(alertEntry, isInGroup, isHeadsUp);
-        bindBody(alertEntry);
+        bindBody(alertEntry, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
         mActionsView.bind(mClickHandlerFactory, alertEntry);
     }
@@ -68,14 +68,14 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
     /**
      * Private method that binds the data to the view.
      */
-    private void bindBody(AlertEntry alertEntry) {
+    private void bindBody(AlertEntry alertEntry, boolean isHeadsUp) {
         Notification notification = alertEntry.getNotification();
 
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
         Icon icon = notification.getLargeIcon();
-        mBodyView.bind(title, text, icon);
+        mBodyView.bind(title, text, icon, isHeadsUp);
 
         mProgressBarView.setVisibility(View.VISIBLE);
         boolean isIndeterminate = extraData.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE);
