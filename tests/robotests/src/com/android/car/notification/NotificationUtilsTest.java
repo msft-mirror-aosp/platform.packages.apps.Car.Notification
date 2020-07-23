@@ -213,6 +213,22 @@ public class NotificationUtilsTest {
                 CarNotificationTypeItem.BASIC);
     }
 
+    @Test
+    public void getMaxNotificationBodyLines_HUN_returnsCorrectValue() {
+        int maxLines = mContext.getResources().getInteger(
+                R.integer.config_headsUpNotificationMaxBodyLines);
+        assertThat(NotificationUtils.getMaxNotificationBodyLines(mContext, /* isHeadsUp= */ true))
+                .isEqualTo(maxLines);
+    }
+
+    @Test
+    public void getMaxNotificationBodyLines_panel_returnsCorrectValue() {
+        int maxLines = mContext.getResources().getInteger(
+                R.integer.config_notificationPanelMaxBodyLines);
+        assertThat(NotificationUtils.getMaxNotificationBodyLines(mContext, /* isHeadsUp= */ false))
+                .isEqualTo(maxLines);
+    }
+
     private void setApplicationInfo(boolean signedWithPlatformKey, boolean isSystemApp,
             boolean isPrivilegedApp) {
         ApplicationInfo applicationInfo = new ApplicationInfo();
