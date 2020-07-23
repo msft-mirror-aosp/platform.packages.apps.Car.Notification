@@ -16,6 +16,8 @@
 
 package com.android.car.notification.template;
 
+import static com.android.car.notification.NotificationUtils.getMaxNotificationBodyLines;
+
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
@@ -27,6 +29,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
@@ -99,8 +103,10 @@ public class CarNotificationBodyView extends RelativeLayout {
      * @param title the primary text.
      * @param content the secondary text.
      * @param icon the large icon, usually used for avatars.
+     * @param isHeadsUp true if the notification is a HUN
      */
-    public void bind(CharSequence title, @Nullable CharSequence content, @Nullable Icon icon) {
+    public void bind(CharSequence title, @Nullable CharSequence content, @Nullable Icon icon,
+            boolean isHeadsUp) {
         setVisibility(View.VISIBLE);
 
         mTitleView.setVisibility(View.VISIBLE);
@@ -108,6 +114,7 @@ public class CarNotificationBodyView extends RelativeLayout {
 
         if (!TextUtils.isEmpty(content)) {
             mContentView.setVisibility(View.VISIBLE);
+            mContentView.setMaxLines(getMaxNotificationBodyLines(getContext(), isHeadsUp));
             mContentView.setText(content);
         }
 
@@ -117,13 +124,15 @@ public class CarNotificationBodyView extends RelativeLayout {
         }
     }
 
-    public void bindTitleAndMessage(CharSequence title, CharSequence content) {
+    public void bindHUNTitleAndMessage(CharSequence title, CharSequence content) {
         setVisibility(View.VISIBLE);
 
         mTitleView.setVisibility(View.VISIBLE);
         mTitleView.setText(title);
         if (!TextUtils.isEmpty(content)) {
             mContentView.setVisibility(View.VISIBLE);
+            mContentView.setMaxLines(
+                    getMaxNotificationBodyLines(getContext(), /* isHeadsUp= */ true));
             mContentView.setText(content);
             mIconView.setVisibility(View.GONE);
         }
@@ -153,5 +162,15 @@ public class CarNotificationBodyView extends RelativeLayout {
         mIconView.setVisibility(View.GONE);
         setPrimaryTextColor(mDefaultPrimaryTextColor);
         setSecondaryTextColor(mDefaultSecondaryTextColor);
+    }
+
+    @VisibleForTesting
+    TextView getTitleView() {
+        return mTitleView;
+    }
+
+    @VisibleForTesting
+    TextView getContentView() {
+        return mContentView;
     }
 }
