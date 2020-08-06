@@ -264,6 +264,30 @@ public class CarNotificationDiffTest {
     }
 
     @Test
+    public void maxItemsSet_getOldListSize_shouldReturnTwo() {
+        mNotificationGroupList4 = new ArrayList<>();
+        mNotificationGroupList4.add(mNotificationGroup1);
+        mNotificationGroupList4.add(mNotificationGroup2);
+        mNotificationGroupList4.add(mNotificationGroup3);
+        CarNotificationDiff carNotificationDiff = new CarNotificationDiff(mContext,
+                mNotificationGroupList4, mNotificationGroupList3, /* maxItems= */ 1);
+        // Should return two - one for the notification and one for the limited message
+        assertThat(carNotificationDiff.getOldListSize()).isEqualTo(2);
+    }
+
+    @Test
+    public void maxItemsSet_getNewListSize_shouldReturnTwo() {
+        mNotificationGroupList4 = new ArrayList<>();
+        mNotificationGroupList4.add(mNotificationGroup1);
+        mNotificationGroupList4.add(mNotificationGroup2);
+        mNotificationGroupList4.add(mNotificationGroup3);
+        CarNotificationDiff carNotificationDiff = new CarNotificationDiff(mContext,
+                mNotificationGroupList1, mNotificationGroupList4, /* maxItems= */ 1);
+        // Should return two - one for the notification and one for the limited message
+        assertThat(carNotificationDiff.getNewListSize()).isEqualTo(2);
+    }
+
+    @Test
     public void areBundleEqual_sameSize_shouldReturnTrue() {
         Notification.Builder oldNotification = new Notification.Builder(mContext,
                 CHANNEL_ID)

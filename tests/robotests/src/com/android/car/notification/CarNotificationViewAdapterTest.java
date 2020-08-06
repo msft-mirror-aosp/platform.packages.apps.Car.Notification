@@ -728,6 +728,73 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
+    public void setMaxItems_headerShouldBeFirstVisibleElement() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        assertThat(mCarNotificationViewAdapter.getItemViewType(0)).isEqualTo(
+                NotificationViewType.HEADER);
+    }
+
+    @Test
+    public void setMaxItems_footerShouldBeLastVisibleElement() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        assertThat(mCarNotificationViewAdapter.getItemViewType(
+                mCarNotificationViewAdapter.getItemCount() - 1)).isEqualTo(
+                NotificationViewType.FOOTER);
+    }
+
+    @Test
+    public void setMaxItems_noHeaderAndFooter_getItemCount_shouldReturnTwo() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        // Count should be two - one for the allotted notification and one for the limited message
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void setMaxItems_hasHeaderAndFooter_getItemCount_shouldReturnFour() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        // Count should be four - one for the allotted notification, one for the limited message,
+        // and two for the header and footer
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(4);
+    }
+
+
+    @Test
     public void getViewPool_shouldReturnNotNull() {
         initializeWithFactory(false);
 
