@@ -32,6 +32,7 @@ import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
+import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.InboxNotificationViewHolder;
@@ -519,6 +520,54 @@ public class CarNotificationViewAdapterTest {
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
                 NotificationViewType.BASIC_IN_GROUP);
         mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+    }
+
+    @Test
+    public void onBindViewHolder_groupExpanded_shouldNotHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_EXPANDED);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
+    }
+
+    @Test
+    public void onBindViewHolder_groupCollapsed_shouldNotHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_COLLAPSED);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
+    }
+
+    @Test
+    public void onBindViewHolder_groupSummary_shouldHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_SUMMARY);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isTrue();
     }
 
     @Test
