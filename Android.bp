@@ -120,6 +120,7 @@ android_library {
         "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
+        "car-ui-lib",
         "android.car.userlib",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib",

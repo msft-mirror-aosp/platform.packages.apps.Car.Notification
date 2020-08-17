@@ -147,6 +147,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                         .bind(notificationGroup, this, /* isExpanded= */ false);
                 return;
             case NotificationViewType.GROUP_SUMMARY:
+                ((CarNotificationBaseViewHolder) holder).setHideDismissButton(true);
                 ((GroupSummaryNotificationViewHolder) holder).bind(notificationGroup);
                 return;
         }
