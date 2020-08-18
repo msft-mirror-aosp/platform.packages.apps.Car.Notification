@@ -16,10 +16,9 @@
   -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <FrameLayout
+        style="@style/DismissButtonLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content">
         <ImageButton
             android:id="@+id/dismiss_button"
             android:layout_width="@dimen/dismiss_button_diameter"
