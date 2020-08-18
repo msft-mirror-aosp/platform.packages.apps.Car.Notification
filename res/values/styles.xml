@@ -49,7 +49,12 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="NotificationActionButton" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
+    <style name="NotificationActionViewLayout">
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:minHeight">@dimen/card_min_bottom_padding</item>
+    </style>
+
+    <style name="NotificationActionButtonBase" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
         <item name="android:minWidth">@dimen/action_button_min_width</item>
         <item name="android:gravity">center</item>
         <item name="android:paddingStart">@dimen/action_button_padding</item>
@@ -60,6 +65,17 @@
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:background">@drawable/action_button_background</item>
+    </style>
+
+    <style name="NotificationActionButton1" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButton2" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButton3" parent="NotificationActionButtonBase"/>
+
+    <style name="DismissButtonLayout">
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
     </style>
 
     <style name="ClearAllButtonHeader" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
