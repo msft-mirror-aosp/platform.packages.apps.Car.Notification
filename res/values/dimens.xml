@@ -76,6 +76,10 @@
     <item name="max_percentage_of_width_with_resistance" format="float" type="dimen">0.4</item>
     <dimen name="touch_slop">20dp</dimen>
 
+    <!-- Dismiss button -->
+    <dimen name="dismiss_button_diameter">@*android:dimen/car_button_height</dimen>
+    <dimen name="dismiss_button_end_margin">27dp</dimen>
+
     <!-- Clear all button -->
     <dimen name="clear_all_button_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="clear_all_button_padding">@*android:dimen/car_padding_2</dimen>

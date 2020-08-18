@@ -26,7 +26,7 @@ import android.graphics.drawable.Icon;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -50,7 +50,7 @@ public class CarNotificationBodyView extends RelativeLayout {
     private boolean mShowBigIcon;
     private TextView mTitleView;
     private TextView mContentView;
-    private ImageButton mIconView;
+    private ImageView mIconView;
 
     public CarNotificationBodyView(Context context) {
         super(context);
