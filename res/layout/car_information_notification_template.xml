@@ -68,12 +68,10 @@
 
                 <com.android.car.notification.template.CarNotificationActionsView
                     android:id="@+id/notification_actions"
+                    style="@style/NotificationActionViewLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/notification_body"
-                    android:layout_alignParentStart="true"
-                    android:gravity="left"
-                    android:minHeight="@dimen/card_min_bottom_padding"/>
+                    android:layout_below="@id/notification_body"/>
 
                 <include
                     layout="@layout/dismiss_button"
