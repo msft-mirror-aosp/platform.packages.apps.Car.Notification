@@ -35,6 +35,7 @@ import com.android.car.notification.template.CarNotificationHeaderViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
+import com.android.car.ui.recyclerview.ContentLimitingAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ import java.util.Set;
 /**
  * Notification data adapter that binds a notification to the corresponding view.
  */
-public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerView.ViewHolder>
         implements PreprocessingManager.CallStateListener {
     private static final String TAG = "CarNotificationAdapter";
 
@@ -65,6 +66,8 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private boolean mIsInCall;
     // Suppress binding views to child notifications in the process of being removed.
     private Set<AlertEntry> mChildNotificationsBeingCleared = new HashSet<>();
+    private boolean mHasHeaderAndFooter;
+    private int mMaxItems = ContentLimitingAdapter.UNLIMITED;
 
     /**
      * Constructor for a notification adapter.
@@ -91,7 +94,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolderImpl(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
         View view;
         switch (viewType) {
@@ -117,16 +120,24 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolderImpl(RecyclerView.ViewHolder holder, int position) {
+        if (position == 0 && mHasHeaderAndFooter) {
+            // The first element of the main recyclerview should always be the header
+            ((CarNotificationHeaderViewHolder) holder).bind(hasNotifications());
+            return;
+        }
+
+        if (position == getItemCount() - 1 && mHasHeaderAndFooter) {
+            // The last element shown in the main recyclerview should always be the footer, even
+            // if the element at this position in mNotifications is not the footer due to Uxr
+            // limiting the item count
+            ((CarNotificationFooterViewHolder) holder).bind(hasNotifications());
+            return;
+        }
+
         NotificationGroup notificationGroup = mNotifications.get(position);
         int viewType = holder.getItemViewType();
         switch (viewType) {
-            case NotificationViewType.HEADER:
-                ((CarNotificationHeaderViewHolder) holder).bind(hasNotifications());
-                return;
-            case NotificationViewType.FOOTER:
-                ((CarNotificationFooterViewHolder) holder).bind(hasNotifications());
-                return;
             case NotificationViewType.GROUP_EXPANDED:
                 ((GroupNotificationViewHolder) holder)
                         .bind(notificationGroup, this, /* isExpanded= */ true);
@@ -136,6 +147,7 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
                         .bind(notificationGroup, this, /* isExpanded= */ false);
                 return;
             case NotificationViewType.GROUP_SUMMARY:
+                ((CarNotificationBaseViewHolder) holder).setHideDismissButton(true);
                 ((GroupSummaryNotificationViewHolder) holder).bind(notificationGroup);
                 return;
         }
@@ -153,16 +165,20 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     @Override
-    public int getItemViewType(int position) {
-        NotificationGroup notificationGroup = mNotifications.get(position);
-
-        if (notificationGroup.isHeader()) {
+    public int getItemViewTypeImpl(int position) {
+        if (position == 0 && mHasHeaderAndFooter) {
+            // The first element of the main recyclerview should always be the header
             return NotificationViewType.HEADER;
         }
 
-        if (notificationGroup.isFooter()) {
+        if (position == getItemCount() - 1 && mHasHeaderAndFooter) {
+            // The last element shown in the main recyclerview should always be the footer, even
+            // if the element at this position in mNotifications is not the footer due to Uxr
+            // limiting the item count
             return NotificationViewType.FOOTER;
         }
+
+        NotificationGroup notificationGroup = mNotifications.get(position);
 
         if (notificationGroup.isGroup()) {
             if (mExpandedNotifications.contains(notificationGroup.getGroupKey())) {
@@ -247,22 +263,28 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     @Override
-    public int getItemCount() {
-        int itemCount = mNotifications.size();
+    public int getUnrestrictedItemCount() {
+        return mNotifications.size();
+    }
 
-        if (mIsGroupNotificationAdapter && itemCount > mMaxNumberGroupChildrenShown) {
-            return mMaxNumberGroupChildrenShown;
+    @Override
+    public void setMaxItems(int maxItems) {
+        if (maxItems == ContentLimitingAdapter.UNLIMITED || !mHasHeaderAndFooter) {
+            mMaxItems = maxItems;
+        } else {
+            // Adding two so the notification header and footer don't count toward the limit.
+            mMaxItems = maxItems + 2;
         }
+        super.setMaxItems(mMaxItems);
+    }
 
-        if (!mIsGroupNotificationAdapter && mCarUxRestrictions != null
-                && (mCarUxRestrictions.getActiveRestrictions()
-                & CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT) != 0) {
-
-            int maxItemCount = mCarUxRestrictions.getMaxCumulativeContentItems();
-
-            return Math.min(itemCount, maxItemCount);
+    @Override
+    protected int getScrollingLimitedMessagePosition() {
+        if (mHasHeaderAndFooter) {
+            // Place the message as the second to last element so it is above the footer
+            return getItemCount() - 2;
         }
-        return itemCount;
+        return getItemCount() - 1;
     }
 
     @Override
@@ -342,15 +364,18 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             notificationGroupList.add(0, createNotificationHeader());
             // add footer as the last item of the list.
             notificationGroupList.add(createNotificationFooter());
+            mHasHeaderAndFooter = true;
+        } else {
+            mHasHeaderAndFooter = false;
         }
+
         DiffUtil.DiffResult diffResult =
                 DiffUtil.calculateDiff(
-                        new CarNotificationDiff(mContext, mNotifications, notificationGroupList),
+                        new CarNotificationDiff(mContext, mNotifications, notificationGroupList, mMaxItems),
                         /* detectMoves= */ false);
         mNotifications = notificationGroupList;
         diffResult.dispatchUpdatesTo(this);
     }
-
     /**
      * Sets child notifications of the group notification that is in the process of being cleared.
      * This prevents these child notifications from appearing briefly while the clearing process is
@@ -463,5 +488,10 @@ public class CarNotificationViewAdapter extends RecyclerView.Adapter<RecyclerVie
             }
             mNotificationDataManager.setNotificationsAsSeen(notifications);
         }
+    }
+
+    @Override
+    public int getConfigurationId() {
+        return R.id.notification_list_uxr_config;
     }
 }
