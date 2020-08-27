@@ -1,11 +1,9 @@
 package com.android.car.notification;
 
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,7 +25,7 @@ public class NotificationViewController {
     private NotificationDataManager mNotificationDataManager;
     private NotificationUpdateHandler mNotificationUpdateHandler = new NotificationUpdateHandler();
     private boolean mShowLessImportantNotifications;
-    private boolean mIsInForeground;
+    private boolean mIsVisible;
 
     public NotificationViewController(CarNotificationView carNotificationView,
             PreprocessingManager preprocessingManager,
@@ -56,6 +54,8 @@ public class NotificationViewController {
                 return true;
             });
         }
+
+        resetNotifications(mShowLessImportantNotifications);
     }
 
     /**
@@ -68,7 +68,7 @@ public class NotificationViewController {
             CarUxRestrictions currentRestrictions =
                     mUxResitrictionListener.getCurrentCarUxRestrictions();
             mCarNotificationView.onUxRestrictionsChanged(currentRestrictions);
-        } catch (CarNotConnectedException e) {
+        } catch (RuntimeException e) {
             Log.e(TAG, "Car not connected", e);
         }
     }
@@ -82,14 +82,14 @@ public class NotificationViewController {
     }
 
     /**
-     * Reset the list view. Called when the notification list is not in the foreground.
+     * Called when the notification view's visibility is changed.
      */
-    public void setIsInForeground(boolean isInForeground) {
-        mIsInForeground = isInForeground;
+    public void onVisibilityChanged(boolean isVisible) {
+        mIsVisible = isVisible;
         // Reset and collapse all groups when notification view disappears.
-        if (!mIsInForeground) {
+        if (!mIsVisible) {
             resetNotifications(mShowLessImportantNotifications);
-            mCarNotificationView.collapseAllGroups();
+            mCarNotificationView.resetState();
         }
     }
 
@@ -120,9 +120,10 @@ public class NotificationViewController {
      * Insertion, deletion and content update will apply immediately.
      */
     private void updateNotifications(
-            boolean showLessImportantNotifications, int what, StatusBarNotification sbn) {
+            boolean showLessImportantNotifications, int what, AlertEntry alertEntry) {
 
-        if (mPreprocessingManager.shouldFilter(sbn, mCarNotificationListener.getCurrentRanking())) {
+        if (mPreprocessingManager.shouldFilter(alertEntry,
+                mCarNotificationListener.getCurrentRanking())) {
             // if the new notification should be filtered out, return early
             return;
         }
@@ -130,7 +131,7 @@ public class NotificationViewController {
         mCarNotificationView.setNotifications(
                 mPreprocessingManager.updateNotifications(
                         showLessImportantNotifications,
-                        sbn,
+                        alertEntry,
                         what,
                         mCarNotificationListener.getCurrentRanking()));
     }
@@ -138,11 +139,11 @@ public class NotificationViewController {
     private class NotificationUpdateHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            if (mIsInForeground) {
+            if (mIsVisible) {
                 updateNotifications(
                         mShowLessImportantNotifications,
                         message.what,
-                        (StatusBarNotification) message.obj);
+                        (AlertEntry) message.obj);
             } else {
                 resetNotifications(mShowLessImportantNotifications);
             }
