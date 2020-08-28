@@ -50,7 +50,7 @@ public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
     public void bind(AlertEntry alertEntry, boolean isInGroup,
             boolean isHeadsUp) {
         super.bind(alertEntry, isInGroup, isHeadsUp);
-        bindBody(alertEntry, isHeadsUp);
+        bindBody(alertEntry);
         mHeaderView.bind(alertEntry, isInGroup);
         mActionsView.bind(mClickHandlerFactory, alertEntry);
     }
@@ -58,12 +58,12 @@ public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
     /**
      * Private method that binds the data to the view.
      */
-    private void bindBody(AlertEntry alertEntry, boolean isHeadsUp) {
+    private void bindBody(AlertEntry alertEntry) {
         Notification notification = alertEntry.getNotification();
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
         Icon icon = notification.getSmallIcon();
-        mBodyView.bind(title, text, icon, isHeadsUp);
+        mBodyView.bind(title, text, icon);
     }
 }
