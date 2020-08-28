@@ -52,53 +52,25 @@ public class CarNotificationBodyViewTest {
 
     @Test
     public void onBind_titleTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null,
-                /* isHeadsUp= */ false);
+        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null);
         assertThat(mCarNotificationBodyView.getTitleView().getText()).isEqualTo(TEST_TITLE);
     }
 
     @Test
     public void onBind_contentTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null,
-                /* isHeadsUp= */ false);
+        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null);
         assertThat(mCarNotificationBodyView.getContentView().getText()).isEqualTo(TEST_BODY);
     }
 
     @Test
-    public void onBind_isHUN_showsCorrectNumberOfLines() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null,
-                /* isHeadsUp= */ true);
-        assertThat(mCarNotificationBodyView.getContentView().getMaxLines()).isEqualTo(
-                mContext.getResources().getInteger(
-                        R.integer.config_headsUpNotificationMaxBodyLines));
-    }
-
-    @Test
-    public void onBind_isPanel_showsCorrectNumberOfLines() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null,
-                /* isHeadsUp= */ false);
-        assertThat(mCarNotificationBodyView.getContentView().getMaxLines()).isEqualTo(
-                mContext.getResources().getInteger(
-                        R.integer.config_notificationPanelMaxBodyLines));
-    }
-
-    @Test
     public void onBindTitleAndMessage_titleTextSet() {
-        mCarNotificationBodyView.bindHUNTitleAndMessage(TEST_TITLE, TEST_BODY);
+        mCarNotificationBodyView.bindTitleAndMessage(TEST_TITLE, TEST_BODY);
         assertThat(mCarNotificationBodyView.getTitleView().getText()).isEqualTo(TEST_TITLE);
     }
 
     @Test
     public void onBindTitleAndMessage_contentTextSet() {
-        mCarNotificationBodyView.bindHUNTitleAndMessage(TEST_TITLE, TEST_BODY);
+        mCarNotificationBodyView.bindTitleAndMessage(TEST_TITLE, TEST_BODY);
         assertThat(mCarNotificationBodyView.getContentView().getText()).isEqualTo(TEST_BODY);
-    }
-
-    @Test
-    public void onBindTitleAndMessage_showsCorrectNumberOfLines() {
-        mCarNotificationBodyView.bindHUNTitleAndMessage(TEST_TITLE, TEST_BODY);
-        assertThat(mCarNotificationBodyView.getContentView().getMaxLines()).isEqualTo(
-                mContext.getResources().getInteger(
-                        R.integer.config_headsUpNotificationMaxBodyLines));
     }
 }

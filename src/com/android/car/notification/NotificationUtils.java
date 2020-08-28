@@ -156,14 +156,6 @@ public class NotificationUtils {
         return Color.luminance(backgroundColor) > LIGHT_COLOR_LUMINANCE_THRESHOLD;
     }
 
-    public static int getMaxNotificationBodyLines(Context context, boolean isHeadsUp) {
-        if (isHeadsUp) {
-            return context.getResources().getInteger(
-                    R.integer.config_headsUpNotificationMaxBodyLines);
-        }
-        return context.getResources().getInteger(R.integer.config_notificationPanelMaxBodyLines);
-    }
-
     private static boolean isSystemPrivilegedOrPlatformKeyInner(Context context,
             AlertEntry alertEntry, boolean checkForPrivilegedApp) {
         PackageInfo packageInfo = getPackageInfo(context, alertEntry.getStatusBarNotification());
