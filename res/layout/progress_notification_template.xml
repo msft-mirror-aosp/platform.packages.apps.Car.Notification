@@ -55,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/notification_header"
                 android:layout_marginBottom="@dimen/item_spacing"
+                app:maxLines="@integer/config_notificationPanelMaxBodyLines"
                 app:showBigIcon="true"/>
 
             <ProgressBar
