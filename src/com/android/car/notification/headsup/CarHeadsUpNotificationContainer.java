@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.car.notification;
+package com.android.car.notification.headsup;
 
-import android.content.Context;
-import android.content.res.TypedArray;
+import android.view.View;
 
-/** Utility to help theme certain components via code. */
-public class ThemesUtil {
-
-    private ThemesUtil() {
-    }
+/**
+ * Container for displaying Heads Up Notifications.
+ */
+public interface CarHeadsUpNotificationContainer {
+    /**
+     * Displays a given notification View to the user.
+     */
+    void displayNotification(View notificationView);
 
     /**
-     * Returns the color assigned to the given attribute.
+     * Removes a given notification View from the container.
      */
-    public static int getAttrColor(Context context, int attr) {
-        TypedArray ta = context.obtainStyledAttributes(new int[]{attr});
-        int colorAccent = ta.getColor(0, 0);
-        ta.recycle();
-        return colorAccent;
-    }
+    void removeNotification(View notificationView);
+
+    /**
+     * @return Whether or not the container is currently visible.
+     */
+    boolean isVisible();
 }

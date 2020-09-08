@@ -22,6 +22,8 @@ android_robolectric_test {
     libs: [
         "Robolectric_all-target",
         "robolectric_android-all-stub",
+        "androidx.test.rules",
+        "androidx.test.core",
         "mockito-robolectric-prebuilt",
         "truth-prebuilt",
         "testng",
@@ -30,13 +32,9 @@ android_robolectric_test {
 
     java_resource_dirs: ["config"],
 
-    instrumentation_for: "CarNotification",
+    instrumentation_for: "CarNotificationForTesting",
 
     test_options: {
         timeout: 36000,
     },
-
-    coverage_libs: [
-        "CarNotification",
-    ],
 }
