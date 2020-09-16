@@ -793,7 +793,7 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void setMaxItems_footerShouldBeLastVisibleElement() {
+    public void setMaxItems_limitedMessageShouldBeLastVisibleElement() {
         initializeWithFactory(true);
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(mNotification1);
@@ -806,7 +806,7 @@ public class CarNotificationViewAdapterTest {
 
         assertThat(mCarNotificationViewAdapter.getItemViewType(
                 mCarNotificationViewAdapter.getItemCount() - 1)).isEqualTo(
-                NotificationViewType.FOOTER);
+                mCarNotificationViewAdapter.getScrollingLimitedMessageViewType());
     }
 
     @Test
@@ -826,7 +826,7 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void setMaxItems_hasHeaderAndFooter_getItemCount_shouldReturnFour() {
+    public void setMaxItems_hasHeaderAndFooter_getItemCount_shouldReturnThree() {
         initializeWithFactory(true);
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(mNotification1);
@@ -837,9 +837,9 @@ public class CarNotificationViewAdapterTest {
 
         mCarNotificationViewAdapter.setMaxItems(1);
 
-        // Count should be four - one for the allotted notification, one for the limited message,
-        // and two for the header and footer
-        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(4);
+        // Count should be three - one for the allotted notification, one for the limited message,
+        // and one for the header
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(3);
     }
 
 
