@@ -310,6 +310,8 @@ public class CarHeadsUpNotificationManager
                             mClickHandlerFactory));
         }
 
+        currentNotification.getViewHolder().setHideDismissButton(!shouldDismissOnSwipe(alertEntry));
+
         if (mShouldRestrictMessagePreview && notificationTypeItem.getNotificationType()
                 == NotificationViewType.MESSAGE) {
             ((MessageNotificationViewHolder) currentNotification.getViewHolder())
@@ -347,6 +349,13 @@ public class CarHeadsUpNotificationManager
             View cardView = currentNotification.getNotificationView().findViewById(R.id.card_view);
             cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
                     shouldDismissOnSwipe(alertEntry), () -> resetView(alertEntry)));
+
+            // Add dismiss button listener
+            View dismissButton = currentNotification.getNotificationView().findViewById(
+                    R.id.dismiss_button);
+            if (dismissButton != null) {
+                dismissButton.setOnClickListener(v -> dismissHUN(alertEntry));
+            }
         }
     }
 
