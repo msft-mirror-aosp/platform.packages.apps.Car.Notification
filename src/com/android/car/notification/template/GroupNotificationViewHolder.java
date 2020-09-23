@@ -198,7 +198,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
                 unshownCount <= 0
                         ? mContext.getString(R.string.show_more)
                         : mContext.getString(R.string.show_count_more, unshownCount));
-        updateDismissButton(getAlertEntry());
+        updateDismissButton(getAlertEntry(), /* isHeadsUp= */ false);
     }
 
     private void updateOnClickListener(
