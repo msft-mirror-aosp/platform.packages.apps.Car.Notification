@@ -23,7 +23,7 @@
             android:id="@+id/dismiss_button"
             android:layout_width="@dimen/dismiss_button_diameter"
             android:layout_height="@dimen/dismiss_button_diameter"
-            android:layout_marginEnd="@dimen/dismiss_button_end_margin"
+            android:layout_marginRight="@dimen/dismiss_button_right_margin"
             android:layout_marginBottom="@dimen/card_min_bottom_padding"
             android:background="@drawable/dismiss_button_background"
             android:scaleType="center"
