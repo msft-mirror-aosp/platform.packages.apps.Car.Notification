@@ -66,12 +66,23 @@
                     app:maxLines="@integer/config_headsUpNotificationMaxBodyLines"
                     app:showBigIcon="false"/>
 
-                <com.android.car.notification.template.CarNotificationActionsView
-                    android:id="@+id/notification_actions"
-                    style="@style/NotificationActionViewLayout"
-                    android:layout_width="wrap_content"
+                <FrameLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/notification_body"/>
+                    android:layout_below="@id/notification_body">
+
+                    <com.android.car.notification.template.CarNotificationActionsView
+                        android:id="@+id/notification_actions"
+                        style="@style/NotificationActionViewLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <include
+                        layout="@layout/dismiss_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </FrameLayout>
             </RelativeLayout>
         </FrameLayout>
     </androidx.cardview.widget.CardView>
