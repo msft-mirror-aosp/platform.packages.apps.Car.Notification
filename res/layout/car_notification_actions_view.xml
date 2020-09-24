@@ -23,7 +23,6 @@
         android:layout_height="@dimen/action_button_height"
         android:layout_centerVertical="true"
         android:layout_marginBottom="@dimen/action_button_spacing_bottom"
-        android:layout_marginStart="@dimen/card_start_margin"
         android:layout_marginTop="@dimen/action_button_spacing_top"
         android:minWidth="@dimen/action_button_min_width"
         android:paddingBottom="@dimen/action_button_padding_bottom"
