@@ -152,7 +152,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         } else if (mCardView != null) {
             mCardView.setOnClickListener(mClickHandlerFactory.getClickHandler(alertEntry));
         }
-        updateDismissButton(alertEntry);
+        updateDismissButton(alertEntry, isHeadsUp);
 
         bindCardView(mCardView, isInGroup);
         bindHeader(mHeaderView, isInGroup);
@@ -310,7 +310,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     }
 
     /**
-     * Returns true if the notification contained in this view holder can be swiped away.
+     * Returns true if the panel notification contained in this view holder can be swiped away.
      */
     public boolean isDismissible() {
         if (mAlertEntry == null) {
@@ -321,17 +321,22 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
                 & (Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_ONGOING_EVENT)) == 0;
     }
 
-    void updateDismissButton(AlertEntry alertEntry) {
+    void updateDismissButton(AlertEntry alertEntry, boolean isHeadsUp) {
         if (mDismissButton == null) {
             return;
         }
-        if (!isDismissible() || mHideDismissButton) {
+        // isDismissible only applies to panel notifications, not HUNs
+        if ((!isHeadsUp && !isDismissible()) || mHideDismissButton) {
             hideDismissButton();
             return;
         }
         mDismissButton.setImageAlpha(0);
         mDismissButton.setVisibility(View.VISIBLE);
-        mDismissButton.setOnClickListener(getDismissHandler(alertEntry));
+        if (!isHeadsUp) {
+            // Only set the click listener here for panel notifications - HUNs already have one
+            // provided from the CarHeadsUpNotificationManager
+            mDismissButton.setOnClickListener(getDismissHandler(alertEntry));
+        }
         itemView.getViewTreeObserver().addOnGlobalFocusChangeListener(mFocusChangeListener);
     }
 
