@@ -22,7 +22,6 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.DateTimeView;
@@ -31,6 +30,7 @@ import android.widget.TextView;
 
 import androidx.core.app.NotificationCompat.MessagingStyle;
 
+import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.PreprocessingManager;
 import com.android.car.notification.R;
@@ -75,38 +75,36 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     }
 
     /**
-     * Binds a {@link StatusBarNotification} to a messaging car notification template without
+     * Binds a {@link AlertEntry} to a messaging car notification template without
      * UX restriction.
      */
     @Override
-    public void bind(StatusBarNotification statusBarNotification, boolean isInGroup,
+    public void bind(AlertEntry alertEntry, boolean isInGroup,
             boolean isHeadsUp) {
-        super.bind(statusBarNotification, isInGroup, isHeadsUp);
-        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ false, isHeadsUp);
-        mHeaderView.bind(statusBarNotification, isInGroup);
-        mActionsView.bind(mClickHandlerFactory, statusBarNotification);
+        super.bind(alertEntry, isInGroup, isHeadsUp);
+        bindBody(alertEntry, isInGroup, /* isRestricted= */ false, isHeadsUp);
+        mHeaderView.bind(alertEntry, isInGroup);
+        mActionsView.bind(mClickHandlerFactory, alertEntry);
     }
 
     /**
-     * Binds a {@link StatusBarNotification} to a messaging car notification template with
+     * Binds a {@link AlertEntry} to a messaging car notification template with
      * UX restriction.
      */
-    public void bindRestricted(StatusBarNotification statusBarNotification, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(statusBarNotification, isInGroup, isHeadsUp);
-        bindBody(statusBarNotification, isInGroup, /* isRestricted= */ true, isHeadsUp);
-        mHeaderView.bind(statusBarNotification, isInGroup);
-        mActionsView.bind(mClickHandlerFactory, statusBarNotification);
+    public void bindRestricted(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp) {
+        super.bind(alertEntry, isInGroup, isHeadsUp);
+        bindBody(alertEntry, isInGroup, /* isRestricted= */ true, isHeadsUp);
+        mHeaderView.bind(alertEntry, isInGroup);
+        mActionsView.bind(mClickHandlerFactory, alertEntry);
     }
 
     /**
      * Private method that binds the data to the view.
      */
-    private void bindBody(
-            StatusBarNotification statusBarNotification, boolean isInGroup, boolean isRestricted,
+    private void bindBody(AlertEntry alertEntry, boolean isInGroup, boolean isRestricted,
             boolean isHeadsUp) {
 
-        Notification notification = statusBarNotification.getNotification();
+        Notification notification = alertEntry.getNotification();
         CharSequence messageText = null;
         CharSequence conversationTitle = null;
         Icon avatar = null;
