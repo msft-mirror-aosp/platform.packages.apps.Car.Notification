@@ -54,7 +54,7 @@ android_app {
 
 // Duplicate of CarNotification which includes testing only resources for Robolectric
 android_app {
-    name: "CarNotificationForTesting",
+    name: "CarNotificationForRoboTesting",
 
     srcs: ["src/**/*.java"],
 
