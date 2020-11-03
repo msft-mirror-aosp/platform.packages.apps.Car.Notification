@@ -49,6 +49,7 @@
     <dimen name="time_stamp_text_size_in_group">@*android:dimen/car_body3_size</dimen>
 
     <!-- Action View -->
+    <dimen name="action_view_left_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="action_button_radius">28dp</dimen>
     <dimen name="action_button_min_width">@*android:dimen/car_button_min_width</dimen>
     <dimen name="action_button_height">@*android:dimen/car_button_height</dimen>
@@ -75,6 +76,10 @@
     <item name="percentage_of_width_to_dismiss" format="float" type="dimen">0.40</item>
     <item name="max_percentage_of_width_with_resistance" format="float" type="dimen">0.4</item>
     <dimen name="touch_slop">20dp</dimen>
+
+    <!-- Dismiss button -->
+    <dimen name="dismiss_button_diameter">@*android:dimen/car_button_height</dimen>
+    <dimen name="dismiss_button_right_margin">32dp</dimen>
 
     <!-- Clear all button -->
     <dimen name="clear_all_button_margin">@*android:dimen/car_padding_3</dimen>

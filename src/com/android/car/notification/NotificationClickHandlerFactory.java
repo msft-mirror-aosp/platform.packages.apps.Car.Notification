@@ -239,6 +239,14 @@ public class NotificationClickHandlerFactory {
     }
 
     /**
+     * Returns a {@link View.OnClickListener} that should be used for the {@code alertEntry}'s
+     * dismiss button.
+     */
+    public View.OnClickListener getDismissHandler(AlertEntry alertEntry) {
+        return v -> clearNotification(alertEntry);
+    }
+
+    /**
      * Registers a new {@link OnNotificationClickListener} to the list of click event listeners.
      */
     public void registerClickListener(OnNotificationClickListener clickListener) {
