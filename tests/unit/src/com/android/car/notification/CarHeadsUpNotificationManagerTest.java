@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -97,6 +98,8 @@ public class CarHeadsUpNotificationManagerTest {
     PackageManager mPackageManager;
     @Mock
     CarHeadsUpNotificationContainer mCarHeadsUpNotificationContainer;
+    @Mock
+    KeyguardManager mKeyguardManager;
     private CarHeadsUpNotificationManager mManager;
     private AlertEntry mAlertEntryMessageHeadsUp;
     private AlertEntry mAlertEntryNavigationHeadsUp;
@@ -122,6 +125,9 @@ public class CarHeadsUpNotificationManagerTest {
         when(mPackageManager.getResourcesForApplication(applicationInfo)).thenReturn(
                 mContext.getResources());
         mContext.setMockPackageManager(mPackageManager);
+
+        when(mKeyguardManager.isKeyguardLocked()).thenReturn(false);
+        mContext.addMockSystemService(Context.KEYGUARD_SERVICE, mKeyguardManager);
 
         when(mClickHandlerFactory.getClickHandler(any())).thenReturn(v -> {
         });
@@ -420,7 +426,6 @@ public class CarHeadsUpNotificationManagerTest {
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mAlertEntryInboxHeadsUp.getKey()));
         assertThat(notificationView).isNotNull();
-        assertThat(mManager.getActiveHeadsUpNotifications().size()).isEqualTo(1);
     }
 
     @Test
