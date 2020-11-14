@@ -40,13 +40,13 @@ import java.util.Objects;
  * <li> The content of each individual AlertEntry contained
  * </ol>
  */
-class CarNotificationDiff extends DiffUtil.Callback {
+public class CarNotificationDiff extends DiffUtil.Callback {
     private final Context mContext;
     private final List<NotificationGroup> mOldList;
     private final List<NotificationGroup> mNewList;
     private final int mMaxItems;
 
-    CarNotificationDiff(
+    public CarNotificationDiff(
             Context context,
             @NonNull
             List<NotificationGroup> oldList,
@@ -55,7 +55,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
         this(context, oldList, newList, ContentLimitingAdapter.UNLIMITED);
     }
 
-    CarNotificationDiff(
+    public CarNotificationDiff(
             Context context,
             @NonNull
             List<NotificationGroup> oldList,
@@ -97,7 +97,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
      * <p>
      * This method does not check for child AlertEntries because child itself will take care of it.
      */
-    static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
+    public static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
             NotificationGroup newItem) {
 
         if (oldItem == newItem) {
@@ -117,7 +117,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
      *
      * <p> Returns true if two notifications have the same key.
      */
-    static boolean sameNotificationKey(AlertEntry oldItem, AlertEntry newItem) {
+    public static boolean sameNotificationKey(AlertEntry oldItem, AlertEntry newItem) {
         if (oldItem == newItem) {
             return true;
         }
@@ -133,7 +133,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
      *
      * <p> Returns true if two notifications have the same key and notification flags.
      */
-    static boolean sameNotificationKeyAndFlags(AlertEntry oldItem, AlertEntry newItem) {
+    public static boolean sameNotificationKeyAndFlags(AlertEntry oldItem, AlertEntry newItem) {
         return sameNotificationKey(oldItem, newItem)
                 && oldItem.getNotification().flags == newItem.getNotification().flags;
     }

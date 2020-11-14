@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
@@ -24,6 +24,9 @@ import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,18 +34,12 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationDiffTest {
-
-    private Context mContext;
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
 
     private static final String PKG_1 = "package_1";
     private static final String PKG_2 = "package_2";
@@ -57,7 +54,9 @@ public class CarNotificationDiffTest {
     private static final String OVERRIDE_GROUP_KEY_123 = "OVERRIDE_GROUP_KEY_123";
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
-
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    private Context mContext;
     private Notification.Builder mNotificationBuilder1;
     private Notification.Builder mNotificationBuilder2;
 
@@ -77,7 +76,7 @@ public class CarNotificationDiffTest {
     @Before
     public void setupBaseActivityAndLayout() {
         MockitoAnnotations.initMocks(this);
-        mContext = RuntimeEnvironment.application;
+        mContext = ApplicationProvider.getApplicationContext();
         mNotificationBuilder1 = new Notification.Builder(mContext,
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
