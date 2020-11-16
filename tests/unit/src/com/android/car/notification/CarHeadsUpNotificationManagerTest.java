@@ -93,8 +93,6 @@ public class CarHeadsUpNotificationManagerTest {
     @Mock
     NotificationDataManager mNotificationDataManager;
     @Mock
-    StatusBarNotification mStatusBarNotification;
-    @Mock
     PackageManager mPackageManager;
     @Mock
     CarHeadsUpNotificationContainer mCarHeadsUpNotificationContainer;
