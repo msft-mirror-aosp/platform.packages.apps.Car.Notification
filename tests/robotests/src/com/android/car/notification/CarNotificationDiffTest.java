@@ -25,7 +25,6 @@ import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,12 +33,17 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class CarNotificationDiffTest {
+
+    private Context mContext;
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
 
     private static final String PKG_1 = "package_1";
     private static final String PKG_2 = "package_2";
@@ -54,9 +58,7 @@ public class CarNotificationDiffTest {
     private static final String OVERRIDE_GROUP_KEY_123 = "OVERRIDE_GROUP_KEY_123";
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    private Context mContext;
+
     private Notification.Builder mNotificationBuilder1;
     private Notification.Builder mNotificationBuilder2;
 
