@@ -40,28 +40,19 @@ import java.util.Objects;
  * <li> The content of each individual AlertEntry contained
  * </ol>
  */
-public class CarNotificationDiff extends DiffUtil.Callback {
+class CarNotificationDiff extends DiffUtil.Callback {
     private final Context mContext;
     private final List<NotificationGroup> mOldList;
     private final List<NotificationGroup> mNewList;
     private final int mMaxItems;
 
-    public CarNotificationDiff(
-            Context context,
-            @NonNull
-            List<NotificationGroup> oldList,
-            @NonNull
-            List<NotificationGroup> newList) {
+    CarNotificationDiff(Context context, @NonNull List<NotificationGroup> oldList,
+            @NonNull List<NotificationGroup> newList) {
         this(context, oldList, newList, ContentLimitingAdapter.UNLIMITED);
     }
 
-    public CarNotificationDiff(
-            Context context,
-            @NonNull
-            List<NotificationGroup> oldList,
-            @NonNull
-            List<NotificationGroup> newList,
-            int maxItems) {
+    CarNotificationDiff(Context context, @NonNull List<NotificationGroup> oldList,
+            @NonNull List<NotificationGroup> newList, int maxItems) {
         mContext = context;
         mOldList = oldList;
         mNewList = newList;
@@ -97,7 +88,7 @@ public class CarNotificationDiff extends DiffUtil.Callback {
      * <p>
      * This method does not check for child AlertEntries because child itself will take care of it.
      */
-    public static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
+    static boolean sameGroupUniqueIdentifiers(NotificationGroup oldItem,
             NotificationGroup newItem) {
 
         if (oldItem == newItem) {
@@ -117,7 +108,7 @@ public class CarNotificationDiff extends DiffUtil.Callback {
      *
      * <p> Returns true if two notifications have the same key.
      */
-    public static boolean sameNotificationKey(AlertEntry oldItem, AlertEntry newItem) {
+    static boolean sameNotificationKey(AlertEntry oldItem, AlertEntry newItem) {
         if (oldItem == newItem) {
             return true;
         }
@@ -133,7 +124,7 @@ public class CarNotificationDiff extends DiffUtil.Callback {
      *
      * <p> Returns true if two notifications have the same key and notification flags.
      */
-    public static boolean sameNotificationKeyAndFlags(AlertEntry oldItem, AlertEntry newItem) {
+    static boolean sameNotificationKeyAndFlags(AlertEntry oldItem, AlertEntry newItem) {
         return sameNotificationKey(oldItem, newItem)
                 && oldItem.getNotification().flags == newItem.getNotification().flags;
     }
@@ -214,7 +205,7 @@ public class CarNotificationDiff extends DiffUtil.Callback {
                 || !Objects.equals(oldNotification.contentIntent, newNotification.contentIntent)
                 || !Objects.equals(oldNotification.deleteIntent, newNotification.deleteIntent)
                 || !Objects.equals(
-                        oldNotification.fullScreenIntent, newNotification.fullScreenIntent)
+                oldNotification.fullScreenIntent, newNotification.fullScreenIntent)
                 || !Objects.deepEquals(oldNotification.actions, newNotification.actions)) {
             return false;
         }
