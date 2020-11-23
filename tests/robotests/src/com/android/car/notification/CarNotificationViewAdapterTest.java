@@ -32,6 +32,7 @@ import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
+import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.InboxNotificationViewHolder;
@@ -522,6 +523,54 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
+    public void onBindViewHolder_groupExpanded_shouldNotHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_EXPANDED);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
+    }
+
+    @Test
+    public void onBindViewHolder_groupCollapsed_shouldNotHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_COLLAPSED);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
+    }
+
+    @Test
+    public void onBindViewHolder_groupSummary_shouldHideDismissButton() {
+        initializeWithFactory(false);
+
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.setGroupSummaryNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.GROUP_SUMMARY);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isTrue();
+    }
+
+    @Test
     public void getItemViewType_shouldReturnGroupCollapsed() {
         initializeWithFactory(false);
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -726,6 +775,73 @@ public class CarNotificationViewAdapterTest {
 
         assertThat(mCarNotificationViewAdapter.getCarUxRestrictions()).isNotNull();
     }
+
+    @Test
+    public void setMaxItems_headerShouldBeFirstVisibleElement() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        assertThat(mCarNotificationViewAdapter.getItemViewType(0)).isEqualTo(
+                NotificationViewType.HEADER);
+    }
+
+    @Test
+    public void setMaxItems_limitedMessageShouldBeLastVisibleElement() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        assertThat(mCarNotificationViewAdapter.getItemViewType(
+                mCarNotificationViewAdapter.getItemCount() - 1)).isEqualTo(
+                mCarNotificationViewAdapter.getScrollingLimitedMessageViewType());
+    }
+
+    @Test
+    public void setMaxItems_noHeaderAndFooter_getItemCount_shouldReturnTwo() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        // Count should be two - one for the allotted notification and one for the limited message
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void setMaxItems_hasHeaderAndFooter_getItemCount_shouldReturnThree() {
+        initializeWithFactory(true);
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        mNotificationGroupList1.add(notificationGroup);
+
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ true);
+
+        mCarNotificationViewAdapter.setMaxItems(1);
+
+        // Count should be three - one for the allotted notification, one for the limited message,
+        // and one for the header
+        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(3);
+    }
+
 
     @Test
     public void getViewPool_shouldReturnNotNull() {
