@@ -44,4 +44,6 @@ android_test {
     instrumentation_for: "CarSystemUI",
     // Use this if notifications is installed as a separate apk
     // instrumentation_for: "CarNotification",
+
+    test_suites: ["device-tests"]
 }
