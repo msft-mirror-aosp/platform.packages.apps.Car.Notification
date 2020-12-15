@@ -17,17 +17,21 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     package="com.android.car.notification.tests.unit">
+
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
 
     <application android:debuggable="true">
         <uses-library android:name="android.test.runner" />
+
+        <activity
+            android:name="com.android.car.notification.headsup.HeadsUpContainerViewTestActivity"/>
     </application>
 
-
-    <!-- Use this if notifications is installed as a separate apk
-    android:targetPackage="com.android.car.notification" -->
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.systemui"
-                     android:label="Car System UI Notification Unit Tests" />
+                     android:targetPackage="com.android.car.notification.tests.unit"
+                     android:label="Car Notification Unit Tests" />
 </manifest>
