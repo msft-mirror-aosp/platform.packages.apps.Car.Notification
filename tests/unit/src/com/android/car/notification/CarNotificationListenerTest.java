@@ -33,8 +33,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.notification.testutils.ShadowActivityManager;
 import com.android.internal.statusbar.IStatusBarService;
 
 import org.junit.Before;
@@ -42,16 +42,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationListenerTest {
 
-    private static int CURRENT_USER_ID = 0;
-    private static String TEST_KEY = "TEST_KEY";
-    private static String TEST_OVERRIDE_GROUP_KEY = "TEST_OVERRIDE_GROUP_KEY";
+    private static final int CURRENT_USER_ID = 10;
+    private static final String TEST_KEY = "TEST_KEY";
+    private static final String TEST_OVERRIDE_GROUP_KEY = "TEST_OVERRIDE_GROUP_KEY";
 
     private Context mContext;
     private CarNotificationListener mCarNotificationListener;
@@ -83,7 +82,6 @@ public class CarNotificationListenerTest {
 
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OVERRIDE_GROUP_KEY);
-        ShadowActivityManager.setCurrentUser(CURRENT_USER_ID);
     }
 
     @Test
