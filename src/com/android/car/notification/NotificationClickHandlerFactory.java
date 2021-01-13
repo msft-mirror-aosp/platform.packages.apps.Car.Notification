@@ -24,6 +24,8 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.service.notification.NotificationStats;
 import android.util.Log;
@@ -71,10 +73,12 @@ public class NotificationClickHandlerFactory {
     private CarAssistUtils mCarAssistUtils;
     @Nullable
     private NotificationDataManager mNotificationDataManager;
+    private Handler mMainHandler;
 
     public NotificationClickHandlerFactory(IStatusBarService barService) {
         mBarService = barService;
         mCarAssistUtils = null;
+        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     /**
@@ -362,13 +366,8 @@ public class NotificationClickHandlerFactory {
     }
 
     private void showToast(Context context, int resourceId) {
-        Toast toast = Toast.makeText(context, context.getString(resourceId), Toast.LENGTH_LONG);
-        // This flag is needed for the Toast to show up on the active user's screen since
-        // Notifications is part of SystemUI. SystemUI is owned by a system process, which runs in
-        // the background, so without this, the toast will never appear in the foreground.
-        toast.getWindowParams().privateFlags |=
-                WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS;
-        toast.show();
+        mMainHandler.post(
+                Toast.makeText(context, context.getString(resourceId), Toast.LENGTH_LONG)::show);
     }
 
     private boolean shouldAutoCancel(AlertEntry alertEntry) {
