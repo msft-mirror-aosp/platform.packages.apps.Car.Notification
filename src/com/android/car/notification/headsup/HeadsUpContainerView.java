@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -106,6 +107,12 @@ public class HeadsUpContainerView extends FrameLayout {
         View topMostChild = getChildAt(childCount - 1);
         if (!(topMostChild instanceof FocusArea)) {
             return false;
+        }
+
+        FocusArea focusArea = (FocusArea) topMostChild;
+        View view = focusArea.findViewById(R.id.action_1);
+        if (view != null) {
+            focusArea.setDefaultFocus(view);
         }
 
         return topMostChild.performAccessibilityAction(ACTION_FOCUS, /* arguments= */ null);
