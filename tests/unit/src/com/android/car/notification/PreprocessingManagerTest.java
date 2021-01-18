@@ -546,7 +546,7 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onAdditionalGroup_returnsTheSameGroupsAsStandardGroup() {
+    public void onAdditionalGroupAndRank_returnsTheSameGroupsAsStandardGroup() {
         Notification additionalNotification =
                 generateNotification( /* isForegrond= */ true, /* isNavigation= */ false);
         additionalNotification.category = Notification.CATEGORY_MESSAGE;
@@ -566,7 +566,7 @@ public class PreprocessingManagerTest {
         }
 
         List<NotificationGroup> actual =
-                mPreprocessingManager.additionalGroup(additionalAlertEntry);
+                mPreprocessingManager.additionalGroupAndRank(additionalAlertEntry, mRankingMap);
         String[] actualKeys = new String[actual.size()];
         for (int i = 0; i < actualKeys.length; i++) {
             actualKeys[i] = actual.get(i).getGroupKey();
@@ -578,13 +578,36 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onAdditionalRank_returnsTheSameOrderAsStandardRank() {
-        List<AlertEntry> testCopy = new ArrayList<>(mAlertEntries);
+    public void onAdditionalGroupAndRank_maintainsPreviousRanking() {
+        Map<String, AlertEntry> testCopy = new HashMap<>(mAlertEntriesMap);
+        // Seed the list with the notifications
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
 
-        List<NotificationGroup> additionalRanked = mPreprocessingManager.additionalRank(
-                mPreprocessingManager.group(mAlertEntries), mRankingMap);
+        String key = "NEW_KEY";
+        String groupKey = "NEW_GROUP_KEY";
+        Notification newNotification = generateNotification(false, false);
+        StatusBarNotification newSBN = mock(StatusBarNotification.class);
+        when(newSBN.getNotification()).thenReturn(newNotification);
+        when(newSBN.getKey()).thenReturn(key);
+        when(newSBN.getGroupKey()).thenReturn(groupKey);
+
+        AlertEntry newEntry = new AlertEntry(newSBN);
+
+        // Change the ordering, add a new notification and validate that the existing
+        // notifications don't reorder
+        AlertEntry first = mAlertEntries.get(0);
+        mAlertEntries.remove(0);
+        mAlertEntries.add(first);
+
+        List<NotificationGroup> additionalRanked = mPreprocessingManager
+                .additionalGroupAndRank(newEntry, generateRankingMap(mAlertEntries))
+                .stream()
+                .filter(g -> !g.getGroupKey().equals(groupKey))
+                .collect(Collectors.toList());
+
         List<NotificationGroup> standardRanked = mPreprocessingManager.rank(
-                mPreprocessingManager.group(testCopy), mRankingMap);
+                mPreprocessingManager.process(/* showLessImportantNotifications = */ false,
+                        testCopy, mRankingMap), mRankingMap);
 
         assertThat(additionalRanked.size()).isEqualTo(standardRanked.size());
 
@@ -592,6 +615,27 @@ public class PreprocessingManagerTest {
             assertThat(additionalRanked.get(i).getGroupKey()).isEqualTo(
                     standardRanked.get(i).getGroupKey());
         }
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_prependsHighRankNotification() {
+        // Seed the list
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+
+        String key = "NEW_KEY";
+        String groupKey = "NEW_GROUP_KEY";
+        Notification newNotification = generateNotification(false, false);
+        StatusBarNotification newSBN = mock(StatusBarNotification.class);
+        when(newSBN.getNotification()).thenReturn(newNotification);
+        when(newSBN.getKey()).thenReturn(key);
+        when(newSBN.getGroupKey()).thenReturn(groupKey);
+
+        AlertEntry newEntry = new AlertEntry(newSBN);
+        mAlertEntries.add(newEntry);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries));
+        assertThat(result.get(0).getSingleNotification()).isEqualTo(newEntry);
     }
 
     @Test
