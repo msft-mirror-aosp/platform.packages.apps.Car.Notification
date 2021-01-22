@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,21 @@ import android.content.Context;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 
-import com.android.car.notification.testutils.ShadowCarAssistUtils;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.android.car.notification.utils.MockMessageNotificationBuilder;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowCarAssistUtils.class})
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@RunWith(AndroidJUnit4.class)
 public class NotificationDataManagerTest {
 
     private static final String PKG_1 = "package_1";
@@ -59,28 +59,34 @@ public class NotificationDataManagerTest {
 
     @Before
     public void setup() {
-        Context mContext = RuntimeEnvironment.application;
-        Notification.Builder mNotificationBuilder1 = new Notification.Builder(mContext, CHANNEL_ID)
-                .setContentTitle(CONTENT_TITLE);
-        Notification.Builder mNotificationBuilder2 = new Notification.Builder(mContext, CHANNEL_ID)
+        Context mContext = ApplicationProvider.getApplicationContext();
+        Notification notificationMessageHeadsUp = new MockMessageNotificationBuilder(mContext,
+                CHANNEL_ID, android.R.drawable.sym_def_app_icon)
                 .setContentTitle(CONTENT_TITLE)
-                .setCategory(Notification.CATEGORY_MESSAGE);
+                .setCategory(Notification.CATEGORY_MESSAGE)
+                .setHasMessagingStyle(true)
+                .setHasReplyAction(true)
+                .setHasMarkAsRead(true)
+                .build();
+        Notification notificationNavigationHeadsUp = new MockMessageNotificationBuilder(mContext,
+                CHANNEL_ID, android.R.drawable.sym_def_app_icon)
+                .setContentTitle(CONTENT_TITLE)
+                .setCategory(Notification.CATEGORY_NAVIGATION)
+                .build();
 
         mMessageNotification = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
-                ID, TAG, UID, INITIAL_PID, mNotificationBuilder1.build(), USER_HANDLE,
+                ID, TAG, UID, INITIAL_PID, notificationMessageHeadsUp, USER_HANDLE,
                 OVERRIDE_GROUP_KEY, POST_TIME));
-        mNonMessageNotification = new AlertEntry (new StatusBarNotification(PKG_2, OP_PKG,
-                ID, TAG, UID, INITIAL_PID, mNotificationBuilder2.build(), USER_HANDLE,
+        mNonMessageNotification = new AlertEntry(new StatusBarNotification(PKG_2, OP_PKG,
+                ID, TAG, UID, INITIAL_PID, notificationNavigationHeadsUp, USER_HANDLE,
                 OVERRIDE_GROUP_KEY, POST_TIME));
 
-        ShadowCarAssistUtils.addMessageNotification(mMessageNotification.getKey());
         mNotificationDataManager = new NotificationDataManager();
     }
 
     @After
     public void tearDown() {
         mNotificationDataManager = null;
-        ShadowCarAssistUtils.reset();
     }
 
     @Test
