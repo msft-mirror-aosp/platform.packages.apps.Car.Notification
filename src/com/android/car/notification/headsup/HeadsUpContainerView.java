@@ -102,12 +102,18 @@ public class HeadsUpContainerView extends FrameLayout {
             return false;
         }
 
-        View topMostChild = getChildAt(childCount - 1);
-        if (!(topMostChild instanceof FocusArea)) {
+        View topmostChild = getChildAt(childCount - 1);
+        if (!(topmostChild instanceof FocusArea)) {
             return false;
         }
 
-        return topMostChild.performAccessibilityAction(ACTION_FOCUS, /* arguments= */ null);
+        FocusArea focusArea = (FocusArea) topmostChild;
+        View view = focusArea.findViewById(R.id.action_1);
+        if (view != null) {
+            focusArea.setDefaultFocus(view);
+        }
+
+        return topmostChild.performAccessibilityAction(ACTION_FOCUS, /* arguments= */ null);
     }
 
     @VisibleForTesting

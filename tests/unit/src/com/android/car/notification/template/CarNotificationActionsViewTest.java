@@ -28,13 +28,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.assist.client.CarAssistUtils;
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationDataManager;
@@ -67,7 +67,6 @@ public class CarNotificationActionsViewTest {
 
     private CarNotificationActionsView mCarNotificationActionsView;
     private Notification.Action mAction;
-    private PendingIntent mPendingIntent;
     private Context mContext;
     private AlertEntry mAlertEntryMessageHeadsUp;
     @Mock
@@ -76,15 +75,18 @@ public class CarNotificationActionsViewTest {
     private NotificationClickHandlerFactory mNotificationClickHandlerFactory;
     @Mock
     private NotificationDataManager mNotificationDataManager;
+    @Mock
+    private CarAssistUtils mCarAssistUtils;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+
         mContext = ApplicationProvider.getApplicationContext();
-        mPendingIntent = PendingIntent.getForegroundService(mContext, /* requestCode= */0,
-                new Intent(), /* flags= */ 0);
+        PendingIntent pendingIntent = PendingIntent.getForegroundService(
+                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
         mAction = new Notification.Action
-                .Builder(/* icon= */ null, ACTION_TITLE, mPendingIntent).build();
+                .Builder(/* icon= */ null, ACTION_TITLE, pendingIntent).build();
         Notification mNotificationMessageHeadsUp = new MockMessageNotificationBuilder(mContext,
                 CHANNEL_ID, android.R.drawable.sym_def_app_icon)
                 .setContentTitle(CONTENT_TITLE)
@@ -106,6 +108,9 @@ public class CarNotificationActionsViewTest {
         when(mNotificationClickHandlerFactory
                 .getActionClickHandler(any(AlertEntry.class), anyInt()))
                 .thenReturn(CLICK_LISTENER);
+
+        when(mCarAssistUtils.hasActiveAssistant()).thenReturn(true);
+        when(mCarAssistUtils.isFallbackAssistantEnabled()).thenReturn(false);
     }
 
     @Test
@@ -166,6 +171,39 @@ public class CarNotificationActionsViewTest {
 
         assertThat(playButton.getText())
                 .isEqualTo(mContext.getString(R.string.assist_action_play_label));
+    }
+
+    @Test
+    public void onBind_carCompatibleMessage_noAssistantNoFallback_playButtonIsHidden() {
+        when(mCarAssistUtils.hasActiveAssistant()).thenReturn(false);
+        when(mCarAssistUtils.isFallbackAssistantEnabled()).thenReturn(false);
+
+        finishInflateWithIsCall(/* isCall= */ false);
+
+        mCarNotificationActionsView.bind(
+                mNotificationClickHandlerFactory, mAlertEntryMessageHeadsUp);
+        Button playButton = mCarNotificationActionsView.getActionButtons().get(
+                CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
+
+        assertThat(playButton.getVisibility()).isNotEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void onBind_carCompatibleMessage_noAssistantWithFallback_playButtonIsVisible() {
+        when(mCarAssistUtils.hasActiveAssistant()).thenReturn(false);
+        when(mCarAssistUtils.isFallbackAssistantEnabled()).thenReturn(true);
+
+        finishInflateWithIsCall(/* isCall= */ false);
+
+        mCarNotificationActionsView.bind(
+                mNotificationClickHandlerFactory, mAlertEntryMessageHeadsUp);
+        Button playButton = mCarNotificationActionsView.getActionButtons().get(
+                CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
+
+        assertThat(playButton.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(playButton.getText())
+                .isEqualTo(mContext.getString(R.string.assist_action_play_label));
+        assertThat(playButton.hasOnClickListeners()).isTrue();
     }
 
     @Test
@@ -315,8 +353,12 @@ public class CarNotificationActionsViewTest {
     }
 
     private void finishInflateWithIsCall(boolean isCall) {
-        AttributeSet attributeSet = null;
-        mCarNotificationActionsView = new CarNotificationActionsView(mContext, attributeSet);
+        mCarNotificationActionsView = new CarNotificationActionsView(
+                mContext,
+                /* attributeSet= */ null,
+                /* defStyleAttr= */ 0,
+                /* defStyleRes= */ 0,
+                mCarAssistUtils);
         mCarNotificationActionsView.setCategoryIsCall(isCall);
         mCarNotificationActionsView.onFinishInflate();
     }

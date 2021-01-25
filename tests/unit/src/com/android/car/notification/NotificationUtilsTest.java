@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,56 +11,63 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
-import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.testing.TestableContext;
 
-import androidx.test.core.app.ApplicationProvider;
-
-import com.android.car.notification.testutils.ShadowApplicationPackageManager;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowApplicationPackageManager.class})
+@RunWith(AndroidJUnit4.class)
 public class NotificationUtilsTest {
+    @Rule
+    public final TestableContext mContext = new TestableContext(
+            InstrumentationRegistry.getInstrumentation().getTargetContext());
 
-    private Context mContext;
     private AlertEntry mAlertEntry;
+
     @Mock
     private StatusBarNotification mStatusBarNotification;
+    @Mock
+    private PackageManager mPackageManager;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mContext = ApplicationProvider.getApplicationContext();
         when(mStatusBarNotification.getKey()).thenReturn("TEST_KEY");
+        when(mStatusBarNotification.getPackageName()).thenReturn("TEST_PACKAGE_NAME");
         mAlertEntry = new AlertEntry(mStatusBarNotification);
+        mContext.setMockPackageManager(mPackageManager);
     }
 
     @Test
-    public void onIsSystemPrivilegedOrPlatformKey_isPlatformKey_returnsTrue() {
+    public void onIsSystemPrivilegedOrPlatformKey_isPlatformKey_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ true, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -69,7 +76,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemPrivilegedOrPlatformKey_isSystemPrivileged_returnsTrue() {
+    public void onIsSystemPrivilegedOrPlatformKey_isSystemPrivileged_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 true, /* isPrivilegedApp= */ true);
 
@@ -78,7 +86,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemPrivilegedOrPlatformKey_isSystemNotPrivileged_returnsFalse() {
+    public void onIsSystemPrivilegedOrPlatformKey_isSystemNotPrivileged_returnsFalse()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 true, /* isPrivilegedApp= */ false);
 
@@ -87,7 +96,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemPrivilegedOrPlatformKey_isNeither_returnsFalse() {
+    public void onIsSystemPrivilegedOrPlatformKey_isNeither_returnsFalse()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -96,7 +106,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemOrPlatformKey_isPlatformKey_returnsTrue() {
+    public void onIsSystemOrPlatformKey_isPlatformKey_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ true, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -105,7 +116,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemOrPlatformKey_isSystemPrivileged_returnsTrue() {
+    public void onIsSystemOrPlatformKey_isSystemPrivileged_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 true, /* isPrivilegedApp= */ true);
 
@@ -114,7 +126,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemOrPlatformKey_isSystemNotPrivileged_returnsTrue() {
+    public void onIsSystemOrPlatformKey_isSystemNotPrivileged_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 true, /* isPrivilegedApp= */ false);
 
@@ -123,7 +136,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemOrPlatformKey_isNeither_returnsFalse() {
+    public void onIsSystemOrPlatformKey_isNeither_returnsFalse()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -132,7 +146,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemApp_isPlatformKey_returnsTrue() {
+    public void onIsSystemApp_isPlatformKey_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 true, /* isPrivilegedApp= */ false);
 
@@ -141,7 +156,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSystemApp_isNotPlatformKey_returnsFalse() {
+    public void onIsSystemApp_isNotPlatformKey_returnsFalse()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -150,7 +166,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSignedWithPlatformKey_isSignedWithPlatformKey_returnsTrue() {
+    public void onIsSignedWithPlatformKey_isSignedWithPlatformKey_returnsTrue()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ true, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -160,7 +177,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void onIsSignedWithPlatformKey_isNotSignedWithPlatformKey_returnsFalse() {
+    public void onIsSignedWithPlatformKey_isNotSignedWithPlatformKey_returnsFalse()
+            throws PackageManager.NameNotFoundException {
         setApplicationInfo(/* signedWithPlatformKey= */ false, /* isSystemApp= */
                 false, /* isPrivilegedApp= */ false);
 
@@ -214,7 +232,7 @@ public class NotificationUtilsTest {
     }
 
     private void setApplicationInfo(boolean signedWithPlatformKey, boolean isSystemApp,
-            boolean isPrivilegedApp) {
+            boolean isPrivilegedApp) throws PackageManager.NameNotFoundException {
         ApplicationInfo applicationInfo = new ApplicationInfo();
 
         if (signedWithPlatformKey) {
@@ -234,6 +252,7 @@ public class NotificationUtilsTest {
 
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.applicationInfo = applicationInfo;
-        ShadowApplicationPackageManager.setPackageInfo(packageInfo);
+        when(mPackageManager.getPackageInfoAsUser(anyString(), anyInt(), anyInt())).thenReturn(
+                packageInfo);
     }
 }
