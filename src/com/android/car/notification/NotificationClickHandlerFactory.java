@@ -30,9 +30,10 @@ import android.os.RemoteException;
 import android.service.notification.NotificationStats;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.assist.CarVoiceInteractionSession;
 import com.android.car.assist.client.CarAssistUtils;
@@ -79,6 +80,11 @@ public class NotificationClickHandlerFactory {
         mBarService = barService;
         mCarAssistUtils = null;
         mMainHandler = new Handler(Looper.getMainLooper());
+    }
+
+    @VisibleForTesting
+    void setCarAssistUtils(CarAssistUtils carAssistUtils) {
+        mCarAssistUtils = carAssistUtils;
     }
 
     /**
