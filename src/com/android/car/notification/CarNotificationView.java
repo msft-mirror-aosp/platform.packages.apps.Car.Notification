@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -50,6 +51,7 @@ public class CarNotificationView extends ConstraintLayout
     private boolean mIsClearAllActive = false;
     private List<NotificationGroup> mNotifications;
     private UxrContentLimiterImpl mUxrContentLimiter;
+    private KeyEventHandler mKeyEventHandler;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -108,6 +110,24 @@ public class CarNotificationView extends ConstraintLayout
         if (clearAllButton != null) {
             clearAllButton.setOnClickListener(v -> startClearAllNotifications());
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (super.dispatchKeyEvent(event)) {
+            return true;
+        }
+
+        if (mKeyEventHandler != null) {
+            return mKeyEventHandler.dispatchKeyEvent(event);
+        }
+
+        return false;
+    }
+
+    /** Sets a {@link KeyEventHandler} to help interact with the notification panel. */
+    public void setKeyEventHandler(KeyEventHandler keyEventHandler) {
+        mKeyEventHandler = keyEventHandler;
     }
 
     /**
@@ -361,5 +381,11 @@ public class CarNotificationView extends ConstraintLayout
         if (firstVisible == RecyclerView.NO_POSITION) return;
 
         mAdapter.setNotificationsAsSeen(firstVisible, lastVisible);
+    }
+
+    /** An interface to help interact with the notification panel. */
+    public interface KeyEventHandler {
+        /** Allows handling of a {@link KeyEvent} if it isn't already handled by the superclass. */
+        boolean dispatchKeyEvent(KeyEvent event);
     }
 }
