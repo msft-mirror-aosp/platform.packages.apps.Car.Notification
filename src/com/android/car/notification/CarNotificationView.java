@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import com.android.internal.statusbar.IStatusBarService;
+import com.android.car.uxr.UxrContentLimiterImpl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ public class CarNotificationView extends ConstraintLayout
     private NotificationDataManager mNotificationDataManager;
     private boolean mIsClearAllActive = false;
     private List<NotificationGroup> mNotifications;
+    private UxrContentLimiterImpl mUxrContentLimiter;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -73,6 +75,11 @@ public class CarNotificationView extends ConstraintLayout
         mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
                 false, this::startClearAllNotifications);
         listView.setAdapter(mAdapter);
+
+        mUxrContentLimiter = new UxrContentLimiterImpl(mContext, R.xml.uxr_config);
+        mUxrContentLimiter.setAdapter(mAdapter);
+        mUxrContentLimiter.start();
+
         listView.addOnItemTouchListener(new CarNotificationItemTouchListener(mContext, mAdapter));
 
         listView.addOnScrollListener(new OnScrollListener() {
