@@ -173,8 +173,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService).onNotificationClear(
                     mAlertEntry1.getStatusBarNotification().getPackageName(),
-                    mAlertEntry1.getStatusBarNotification().getTag(),
-                    mAlertEntry1.getStatusBarNotification().getId(),
                     mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry1.getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -434,8 +432,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService).onNotificationClear(
                     mAlertEntry1.getStatusBarNotification().getPackageName(),
-                    mAlertEntry1.getStatusBarNotification().getTag(),
-                    mAlertEntry1.getStatusBarNotification().getId(),
                     mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry1.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -466,8 +462,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService, times(3)).onNotificationClear(
                     mAlertEntry2.getStatusBarNotification().getPackageName(),
-                    mAlertEntry2.getStatusBarNotification().getTag(),
-                    mAlertEntry2.getStatusBarNotification().getId(),
                     mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -497,8 +491,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService, times(3)).onNotificationClear(
                     mAlertEntry2.getStatusBarNotification().getPackageName(),
-                    mAlertEntry2.getStatusBarNotification().getTag(),
-                    mAlertEntry2.getStatusBarNotification().getId(),
                     mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
