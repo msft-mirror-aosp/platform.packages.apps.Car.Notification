@@ -322,8 +322,6 @@ public class NotificationClickHandlerFactory {
 
             mBarService.onNotificationClear(
                     alertEntry.getStatusBarNotification().getPackageName(),
-                    alertEntry.getStatusBarNotification().getTag(),
-                    alertEntry.getStatusBarNotification().getId(),
                     alertEntry.getStatusBarNotification().getUser().getIdentifier(),
                     alertEntry.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
