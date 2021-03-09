@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.assist.CarVoiceInteractionSession;
 import com.android.car.assist.client.CarAssistUtils;
@@ -80,6 +81,11 @@ public class NotificationClickHandlerFactory {
         mBarService = barService;
         mCarAssistUtils = null;
         mMainHandler = new Handler(Looper.getMainLooper());
+    }
+
+    @VisibleForTesting
+    void setCarAssistUtils(CarAssistUtils carAssistUtils) {
+        mCarAssistUtils = carAssistUtils;
     }
 
     /**
