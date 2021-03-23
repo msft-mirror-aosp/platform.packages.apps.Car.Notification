@@ -32,6 +32,9 @@ public class ShadowCarAssistUtils {
     private static List<String> sMessageNotificationSbnKeys = new ArrayList<>();
     private static int sRequestAssistantVoiceActionCount = 0;
 
+    private static boolean mHasActiveAssistant = true;
+    private static boolean mIsFallbackAssistantEnabled = false;
+
     @Implementation
     protected static boolean isCarCompatibleMessagingNotification(StatusBarNotification sbn) {
         return sMessageNotificationSbnKeys.contains(sbn.getKey());
@@ -43,12 +46,30 @@ public class ShadowCarAssistUtils {
         sRequestAssistantVoiceActionCount++;
     }
 
+    @Implementation
+    public boolean hasActiveAssistant() {
+        return mHasActiveAssistant;
+    }
+
+    @Implementation
+    public boolean isFallbackAssistantEnabled() {
+        return mIsFallbackAssistantEnabled;
+    }
+
     public static void addMessageNotification(String messageSbnKey) {
         sMessageNotificationSbnKeys.add(messageSbnKey);
     }
 
     public static int getRequestAssistantVoiceActionCount() {
         return sRequestAssistantVoiceActionCount;
+    }
+
+    public static void setHasActiveAssistant(boolean hasActiveAssistant) {
+        mHasActiveAssistant = hasActiveAssistant;
+    }
+
+    public static void setIsFallbackAssistantEnabled(boolean isFallbackAssistantEnabled) {
+        mIsFallbackAssistantEnabled = isFallbackAssistantEnabled;
     }
 
     /**
@@ -58,5 +79,8 @@ public class ShadowCarAssistUtils {
     public static void reset() {
         sMessageNotificationSbnKeys.clear();
         sRequestAssistantVoiceActionCount = 0;
+
+        mHasActiveAssistant = true;
+        mIsFallbackAssistantEnabled = false;
     }
 }
