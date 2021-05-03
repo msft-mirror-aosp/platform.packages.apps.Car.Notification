@@ -16,6 +16,8 @@
 
 package com.android.car.notification;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -113,9 +115,9 @@ public class NotificationClickHandlerFactoryTest {
         Notification notification1 = new Notification();
         Notification notification2 = new Notification();
         notification1.contentIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
         notification2.contentIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
         when(mStatusBarNotification1.getNotification()).thenReturn(notification1);
         when(mStatusBarNotification2.getNotification()).thenReturn(notification2);
         when(mStatusBarNotification1.getKey()).thenReturn("TEST_KEY_1");
@@ -249,7 +251,7 @@ public class NotificationClickHandlerFactoryTest {
     public void onClickActionClickHandler_notCarCompatibleMessage_sendsPendingIntent() {
         PendingIntent pendingIntent = PendingIntent.getForegroundService(
                 mContext, /* requestCode= */0,
-                new Intent(), /* flags= */ 0);
+                new Intent(), FLAG_IMMUTABLE);
         Notification.Action action = new Notification.Action
                 .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
                 .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
@@ -274,7 +276,7 @@ public class NotificationClickHandlerFactoryTest {
         mNotificationClickHandlerFactory.registerClickListener(mListener1);
         PendingIntent pendingIntent = PendingIntent.getForegroundService(
                 mContext, /* requestCode= */0,
-                new Intent(), /* flags= */ 0);
+                new Intent(), FLAG_IMMUTABLE);
         Notification.Action action = new Notification.Action
                 .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
                 .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
