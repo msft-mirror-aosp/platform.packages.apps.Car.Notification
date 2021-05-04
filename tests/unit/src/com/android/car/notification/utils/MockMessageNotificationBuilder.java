@@ -16,6 +16,7 @@
 
 package com.android.car.notification.utils;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 import static androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ;
@@ -130,7 +131,7 @@ public class MockMessageNotificationBuilder {
             when(mPendingIntent.describeContents()).thenReturn(0);
         } else {
             mPendingIntent = PendingIntent.getService(mContext, /* requestCode= */ 101,
-                    new Intent(mContext, MockService.class), FLAG_UPDATE_CURRENT);
+                    new Intent(mContext, MockService.class), FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE);
         }
 
         if (mHasReplyAction) {
