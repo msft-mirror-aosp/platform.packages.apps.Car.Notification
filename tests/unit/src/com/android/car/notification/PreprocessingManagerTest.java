@@ -16,6 +16,7 @@
 
 package com.android.car.notification;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_NEGATIVE;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_NEUTRAL;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_POSITIVE;
@@ -905,7 +906,7 @@ public class PreprocessingManagerTest {
                     mContext,
                     index /*requestCode*/,
                     new Intent("ACTION_" + key),
-                    0 /*flags*/);
+                    FLAG_IMMUTABLE);
             actions.add(new Notification.Action.Builder(null /*icon*/, key, intent).build());
         }
         return actions;

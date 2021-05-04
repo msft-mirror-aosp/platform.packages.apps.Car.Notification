@@ -16,6 +16,8 @@
 
 package com.android.car.notification.template;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -84,7 +86,7 @@ public class CarNotificationActionsViewTest {
 
         mContext = ApplicationProvider.getApplicationContext();
         PendingIntent pendingIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
         mAction = new Notification.Action
                 .Builder(/* icon= */ null, ACTION_TITLE, pendingIntent).build();
         Notification mNotificationMessageHeadsUp = new MockMessageNotificationBuilder(mContext,
