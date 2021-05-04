@@ -165,6 +165,42 @@ public class CarNotificationActionsViewTest {
     }
 
     @Test
+    public void onBind_carCompatibleMessage_noAssistantNoFallback_playButtonIsHidden() {
+        ShadowCarAssistUtils.setHasActiveAssistant(false);
+
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+        notificationIsCarCompatibleMessage(/* isCarCompatibleMessage= */ true);
+
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory, alertEntry);
+        Button playButton = mCarNotificationActionsView.getActionButtons().get(
+                CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
+
+        assertThat(playButton.getVisibility()).isNotEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void onBind_carCompatibleMessage_noAssistantWithFallback_playButtonIsVisible() {
+        ShadowCarAssistUtils.setHasActiveAssistant(false);
+        ShadowCarAssistUtils.setIsFallbackAssistantEnabled(true);
+
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+        notificationIsCarCompatibleMessage(/* isCarCompatibleMessage= */ true);
+
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory, alertEntry);
+        Button playButton = mCarNotificationActionsView.getActionButtons().get(
+                CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
+
+        assertThat(playButton.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(playButton.getText())
+                .isEqualTo(mContext.getString(R.string.assist_action_play_label));
+        assertThat(playButton.hasOnClickListeners()).isTrue();
+    }
+
+    @Test
     public void onBind_actionExists_isCarCompatibleMessage_muteButtonIsVisible() {
         finishInflateWithIsCall(/* isCall= */ false);
         statusBarNotificationHasActions(/* hasActions= */ true);
