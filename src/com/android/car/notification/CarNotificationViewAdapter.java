@@ -400,7 +400,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
      * adapter will always be two. If there are any notifications present the size will be more than
      * two.
      */
-    private boolean hasNotifications() {
+    public boolean hasNotifications() {
         return getItemCount() > 2;
     }
 
