@@ -63,7 +63,7 @@ public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-        Icon icon = notification.getSmallIcon();
+        Icon icon = notification.getLargeIcon();
         mBodyView.bind(title, text, icon);
     }
 }
