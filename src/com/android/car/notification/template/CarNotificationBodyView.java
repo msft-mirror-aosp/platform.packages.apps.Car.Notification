@@ -133,7 +133,9 @@ public class CarNotificationBodyView extends RelativeLayout {
             mContentView.setVisibility(View.VISIBLE);
             mContentView.setMaxLines(mMaxLines);
             mContentView.setText(content);
-            mIconView.setVisibility(View.GONE);
+            if (!mShowBigIcon)  {
+                mIconView.setVisibility(View.GONE);
+            }
         }
     }
 
