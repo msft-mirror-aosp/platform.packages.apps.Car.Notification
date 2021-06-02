@@ -25,6 +25,7 @@ android_app {
     resource_dirs: ["res"],
 
     platform_apis: true,
+    system_ext_specific: true,
     certificate: "platform",
     privileged: true,
 
@@ -49,11 +50,15 @@ android_app {
 
     libs: ["android.car"],
 
+    manifest: "AndroidManifest.xml",
+
     product_variables: {
         pdk: {
             enabled: false,
         },
     },
+
+    required: ["allowed_privapp_com.android.car.notification"],
 }
 
 // Duplicate of CarNotification which includes testing only resources for Robolectric
