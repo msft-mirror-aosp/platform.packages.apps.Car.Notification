@@ -56,7 +56,8 @@
                 android:layout_marginBottom="@dimen/card_body_margin_bottom"
                 android:layout_toStartOf="@id/message_count"
                 app:maxLines="@integer/config_headsUpNotificationMaxBodyLines"
-                app:showBigIcon="false"/>
+                app:showBigIcon="false"
+                app:isHeadsUp="true"/>
 
             <TextView
                 android:id="@+id/message_count"

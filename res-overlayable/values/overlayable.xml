@@ -186,6 +186,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="layout" name="car_emergency_headsup_notification_template"/>
       <item type="layout" name="car_emergency_notification_template"/>
       <item type="layout" name="car_emergency_notification_template_inner"/>
+      <item type="layout" name="car_headsup_notification_body_view"/>
+      <item type="layout" name="car_headsup_notification_header_view"/>
       <item type="layout" name="car_information_headsup_notification_template"/>
       <item type="layout" name="car_information_notification_template"/>
       <item type="layout" name="car_information_notification_template_inner"/>
