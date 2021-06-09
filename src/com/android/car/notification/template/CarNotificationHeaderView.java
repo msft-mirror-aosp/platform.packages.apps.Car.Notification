@@ -81,7 +81,6 @@ public class CarNotificationHeaderView extends LinearLayout {
         mPackageManager = getContext().getPackageManager();
         mDefaultTextColor = getContext().getColor(R.color.primary_text_color);
         mSeparatorText = getContext().getString(R.string.header_text_separator);
-        inflate(getContext(), R.layout.car_notification_header_view, this);
     }
 
     private void init(AttributeSet attrs) {
@@ -90,6 +89,8 @@ public class CarNotificationHeaderView extends LinearLayout {
         mIsHeadsUp =
                 attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
                         /* defValue= */ false);
+        inflate(getContext(), mIsHeadsUp ? R.layout.car_headsup_notification_header_view
+                : R.layout.car_notification_header_view, this);
         attributes.recycle();
     }
 

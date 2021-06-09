@@ -59,7 +59,8 @@
                     android:layout_below="@id/notification_header"
                     android:layout_marginBottom="@dimen/card_body_margin_bottom"
                     app:maxLines="@integer/config_notificationPanelMaxBodyLines"
-                    app:showBigIcon="true"/>
+                    app:showBigIcon="true"
+                    app:isHeadsUp="false"/>
 
                 <FrameLayout
                     android:layout_width="match_parent"
