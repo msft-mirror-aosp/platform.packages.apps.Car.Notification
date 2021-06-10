@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
@@ -19,17 +19,27 @@ package com.android.car.notification;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
+import android.testing.TestableContext;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -38,26 +48,19 @@ import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.InboxNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 import com.android.car.notification.template.ProgressNotificationViewHolder;
-import com.android.car.notification.testutils.ShadowApplicationPackageManager;
-import com.android.car.notification.testutils.ShadowStatusBarNotification;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadow.api.Shadow;
-import org.robolectric.shadows.ShadowPackageManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowApplicationPackageManager.class, ShadowStatusBarNotification.class})
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationViewAdapterTest {
 
     private static final String PKG_1 = "package_1";
@@ -72,11 +75,19 @@ public class CarNotificationViewAdapterTest {
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    private Context mContext;
+    @Rule
+    public final TestableContext mContext = new TestableContext(
+            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
+        @Override
+        public Context createApplicationContext(ApplicationInfo application, int flags) {
+            return this;
+        }
+    };
 
     @Mock
     NotificationClickHandlerFactory mClickHandlerFactoryMock;
-
+    @Mock
+    PackageManager mPackageManager;
     @Mock
     CarUxRestrictions mCarUxRestrictionsMock;
 
@@ -88,11 +99,8 @@ public class CarNotificationViewAdapterTest {
     private List<NotificationGroup> mNotificationGroupList1;
 
     @Before
-    public void setupBaseActivityAndLayout() {
+    public void setupBaseActivityAndLayout() throws PackageManager.NameNotFoundException {
         MockitoAnnotations.initMocks(this);
-
-        mContext = RuntimeEnvironment.application;
-        ShadowStatusBarNotification.setContext(mContext);
 
         when(mClickHandlerFactoryMock.getClickHandler(any())).thenReturn(
                 new View.OnClickListener() {
@@ -109,7 +117,17 @@ public class CarNotificationViewAdapterTest {
         mNotification1 = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder1.build(), USER_HANDLE,
                 OVERRIDE_GROUP_KEY, POST_TIME));
-        getShadowPackageManager().addPackage(PKG_1);
+
+        ApplicationInfo applicationInfo = mock(ApplicationInfo.class);
+        applicationInfo.packageName = PKG_1;
+        when(mPackageManager.getApplicationInfoAsUser(anyString(),
+                eq(PackageManager.MATCH_UNINSTALLED_PACKAGES), anyInt())).thenReturn(
+                applicationInfo);
+        when(mPackageManager.getApplicationInfo(anyString(),
+                eq(PackageManager.MATCH_UNINSTALLED_PACKAGES))).thenReturn(applicationInfo);
+        when(mPackageManager.getResourcesForApplication(applicationInfo)).thenReturn(
+                mContext.getResources());
+        mContext.setMockPackageManager(mPackageManager);
 
         mNotificationGroup1 = new NotificationGroup();
         mNotificationGroup1.addNotification(mNotification1);
@@ -121,10 +139,6 @@ public class CarNotificationViewAdapterTest {
         mNotificationGroupList1 = new ArrayList<>();
         mNotificationGroupList1.add(mNotificationGroup1);
         mNotificationGroupList1.add(mNotificationGroup2);
-    }
-
-    private ShadowPackageManager getShadowPackageManager() {
-        return Shadow.extract(mContext.getPackageManager());
     }
 
     @Test
