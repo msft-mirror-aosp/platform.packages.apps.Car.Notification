@@ -71,6 +71,33 @@
                 style="@style/ClearAllButtonHeader"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
+            <TextView
+                android:id="@+id/empty_notification_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/manage_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                android:text="@string/empty_notification_header"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/manage_button"
+                style="@style/ManageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/manage_button_height"
+                android:layout_marginTop="@dimen/manage_button_top_margin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/empty_notification_text"
+                app:layout_constraintVertical_chainStyle="packed"
+                android:text="@string/manage_text"
+                android:visibility="gone"/>
+
             <com.android.car.ui.recyclerview.CarUiRecyclerView
                 android:id="@+id/notifications"
                 android:layout_width="0dp"
