@@ -18,20 +18,28 @@ package com.android.car.notification;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
+import android.testing.TestableContext;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -57,17 +65,29 @@ public class CarNotificationViewTest {
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    private Context mContext;
     private CarNotificationView mCarNotificationView;
+
+    @Rule
+    public TestableContext mContext = new TestableContext(
+            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
+        @Override
+        public Context createApplicationContext(ApplicationInfo application, int flags) {
+            return this;
+        }
+    };
+
     @Mock
     private NotificationClickHandlerFactory mClickHandlerFactory;
+
     @Captor
     private ArgumentCaptor<List<NotificationGroup>> mDismissedNotificationsCaptor;
+    @Captor
+    private ArgumentCaptor<Intent> mIntentCaptor;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mContext = ApplicationProvider.getApplicationContext();
+        mContext = spy(mContext);
         FrameLayout frameLayout = new FrameLayout(mContext);
         LayoutInflater.from(mContext)
                 .inflate(R.layout.test_car_notification_view_layout, frameLayout);
@@ -91,6 +111,119 @@ public class CarNotificationViewTest {
 
         verify(mClickHandlerFactory).clearNotifications(mDismissedNotificationsCaptor.capture());
         assertThat(mDismissedNotificationsCaptor.getValue()).containsExactly(dismissible);
+    }
+
+
+    @Test
+    public void onClickManageButton_actionNotificationSettings() {
+        Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
+
+        manageButton.callOnClick();
+
+        verify(mContext).startActivityAsUser(mIntentCaptor.capture(), any());
+        assertThat(mIntentCaptor.getValue().getAction())
+                .isEqualTo(Settings.ACTION_NOTIFICATION_SETTINGS);
+    }
+
+    @Test
+    public void onClickManageButton_categoryDefault() {
+        Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
+
+        manageButton.callOnClick();
+
+        verify(mContext).startActivityAsUser(mIntentCaptor.capture(), any());
+        assertThat(mIntentCaptor.getValue().getCategories())
+                .containsExactly(Intent.CATEGORY_DEFAULT);
+    }
+
+    @Test
+    public void onClickManageButton_flagsNewTaskAndMultipleTask() {
+        Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
+
+        manageButton.callOnClick();
+
+        verify(mContext).startActivityAsUser(mIntentCaptor.capture(), any());
+        assertThat(mIntentCaptor.getValue().getFlags())
+                .isEqualTo(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+    }
+
+    @Test
+    public void setNotifications_notEmpty_listViewIsVisible() {
+        NotificationGroup dismissible =
+                getNotificationGroup(/* isDismissible= */ true);
+        NotificationGroup notDismissible =
+                getNotificationGroup(/* isDismissible= */ false);
+        List<NotificationGroup> notifications = new ArrayList<>();
+        notifications.add(dismissible);
+        notifications.add(notDismissible);
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.notifications).getVisibility())
+                .isEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void setNotifications_notEmpty_emptyNotificationTextViewIsGone() {
+        NotificationGroup dismissible =
+                getNotificationGroup(/* isDismissible= */ true);
+        NotificationGroup notDismissible =
+                getNotificationGroup(/* isDismissible= */ false);
+        List<NotificationGroup> notifications = new ArrayList<>();
+        notifications.add(dismissible);
+        notifications.add(notDismissible);
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.empty_notification_text).getVisibility())
+                .isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void setNotifications_notEmpty_manageButtonIsGone() {
+        NotificationGroup dismissible =
+                getNotificationGroup(/* isDismissible= */ true);
+        NotificationGroup notDismissible =
+                getNotificationGroup(/* isDismissible= */ false);
+        List<NotificationGroup> notifications = new ArrayList<>();
+        notifications.add(dismissible);
+        notifications.add(notDismissible);
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.manage_button).getVisibility())
+                .isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void setNotifications_empty_listViewIsGone() {
+        List<NotificationGroup> notifications = new ArrayList<>();
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.notifications).getVisibility())
+                .isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void setNotifications_empty_emptyNotificationTextViewIsVisible() {
+        List<NotificationGroup> notifications = new ArrayList<>();
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.empty_notification_text).getVisibility())
+                .isEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void setNotifications_empty_manageButtonIsVisible() {
+        List<NotificationGroup> notifications = new ArrayList<>();
+
+        mCarNotificationView.setNotifications(notifications);
+
+        assertThat(mCarNotificationView.findViewById(R.id.manage_button).getVisibility())
+                .isEqualTo(View.VISIBLE);
     }
 
     private NotificationGroup getNotificationGroup(boolean isDismissible) {
