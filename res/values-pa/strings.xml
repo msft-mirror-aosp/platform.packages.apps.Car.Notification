@@ -39,4 +39,6 @@
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> ਨਵਾਂ ਸੁਨੇਹਾ</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ਨਵੇਂ ਸੁਨੇਹੇ</item>
     </plurals>
+    <!-- no translation found for manage_text (4225197445283791757) -->
+    <skip />
 </resources>
