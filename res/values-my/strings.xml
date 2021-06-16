@@ -39,4 +39,5 @@
       <item quantity="other">မက်ဆေ့ဂျ်သစ် <xliff:g id="COUNT">%d</xliff:g> စောင်</item>
       <item quantity="one">မက်ဆေ့ဂျ်သစ် ၁ စောင်</item>
     </plurals>
+    <string name="manage_text" msgid="4225197445283791757">"စီမံရန်"</string>
 </resources>
