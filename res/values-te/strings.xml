@@ -39,6 +39,5 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> కొత్త సందేశాలు</item>
       <item quantity="one">1 కొత్త సందేశం</item>
     </plurals>
-    <!-- no translation found for manage_text (4225197445283791757) -->
-    <skip />
+    <string name="manage_text" msgid="4225197445283791757">"మేనేజ్ చేయి"</string>
 </resources>
