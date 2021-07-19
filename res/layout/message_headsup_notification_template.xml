@@ -48,6 +48,13 @@
                 android:layout_marginStart="@dimen/card_start_margin"
                 app:isHeadsUp="true"/>
 
+            <include
+                layout="@layout/dismiss_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"/>
+
             <com.android.car.notification.template.CarNotificationBodyView
                 android:id="@+id/notification_body"
                 android:layout_width="match_parent"
@@ -62,30 +69,18 @@
                 android:id="@+id/message_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/notification_actions_wrapper"
+                android:layout_below="@id/dismiss_button_container"
                 android:layout_alignParentEnd="true"
                 android:layout_marginBottom="@dimen/card_body_margin_bottom"
                 android:layout_marginEnd="@dimen/card_end_margin"
                 style="@style/NotificationBodyContentText"/>
 
-            <FrameLayout
-                android:id="@+id/notification_actions_wrapper"
+            <com.android.car.notification.template.CarNotificationActionsView
+                android:id="@+id/notification_actions"
+                style="@style/NotificationActionViewLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/notification_body">
-
-                <com.android.car.notification.template.CarNotificationActionsView
-                    android:id="@+id/notification_actions"
-                    style="@style/NotificationActionViewLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <include
-                    layout="@layout/dismiss_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            </FrameLayout>
+                android:layout_below="@id/notification_body"/>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </com.android.car.ui.FocusArea>
