@@ -77,7 +77,6 @@ public class CarNotificationBodyView extends RelativeLayout {
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorPrimary);
         mDefaultSecondaryTextColor =
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
-        inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
     }
 
     private void init(AttributeSet attrs) {
@@ -88,6 +87,11 @@ public class CarNotificationBodyView extends RelativeLayout {
                         /* defValue= */ false);
         mMaxLines = attributes.getInteger(R.styleable.CarNotificationBodyView_maxLines,
                 /* defValue= */ DEFAULT_MAX_LINES);
+        boolean isHeadsUp =
+                attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
+                        /* defValue= */ false);
+        inflate(getContext(), isHeadsUp ? R.layout.car_headsup_notification_body_view
+                : R.layout.car_notification_body_view, /* root= */ this);
         attributes.recycle();
     }
 
