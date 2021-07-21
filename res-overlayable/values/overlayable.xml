@@ -71,7 +71,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
       <item type="dimen" name="dismiss_button_diameter"/>
-      <item type="dimen" name="dismiss_button_horizontal_margin"/>
+      <item type="dimen" name="dismiss_button_margin"/>
       <item type="dimen" name="error_factor_multiplier"/>
       <item type="dimen" name="fling_percentage_of_width_to_dismiss"/>
       <item type="dimen" name="header_small_icon_padding"/>
@@ -129,6 +129,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="child_notification_title_2"/>
       <item type="id" name="clear_all_button"/>
       <item type="id" name="dismiss_button"/>
+      <item type="id" name="dismiss_button_container"/>
       <item type="id" name="empty_notification_text"/>
       <item type="id" name="exit_button_container"/>
       <item type="id" name="expansion_footer"/>
@@ -147,7 +148,6 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="message_count"/>
       <item type="id" name="message_title_view"/>
       <item type="id" name="notification_actions"/>
-      <item type="id" name="notification_actions_wrapper"/>
       <item type="id" name="notification_body"/>
       <item type="id" name="notification_body_content"/>
       <item type="id" name="notification_body_icon"/>
