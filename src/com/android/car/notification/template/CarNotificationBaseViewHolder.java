@@ -117,7 +117,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
             if (mDismissButton != null && !mAlwaysShowDismissButton) {
                 // The dismiss button should only be visible when the focus is on this notification
                 // or within it. Use alpha rather than visibility so that focus can move up to the
-                // previous notification's dismiss button.
+                // previous notification's dismiss button when action buttons are not present.
                 mDismissButton.setImageAlpha(itemView.hasFocus() ? 255 : 0);
             }
         };

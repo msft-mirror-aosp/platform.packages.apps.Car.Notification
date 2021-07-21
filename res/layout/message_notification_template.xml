@@ -49,6 +49,13 @@
                 android:minHeight="@dimen/card_min_top_padding"
                 app:isHeadsUp="false"/>
 
+            <include
+                layout="@layout/dismiss_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"/>
+
             <TextView
                 android:id="@+id/notification_body_title"
                 style="@style/NotificationBodyTitleText"
@@ -94,27 +101,16 @@
                 style="@style/NotificationBodyImageIcon"
                 android:layout_width="@dimen/notification_touch_target_size"
                 android:layout_height="@dimen/notification_touch_target_size"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/notification_header"
+                android:layout_toStartOf="@id/dismiss_button_container"
+                android:layout_centerVertical="true"
                 android:layout_marginRight="@dimen/card_end_margin"/>
 
-            <FrameLayout
+            <com.android.car.notification.template.CarNotificationActionsView
+                android:id="@+id/notification_actions"
+                style="@style/NotificationActionViewLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/message_content">
-
-                <com.android.car.notification.template.CarNotificationActionsView
-                    android:id="@+id/notification_actions"
-                    style="@style/NotificationActionViewLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <include
-                    layout="@layout/dismiss_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            </FrameLayout>
+                android:layout_below="@id/message_content"/>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </FrameLayout>
