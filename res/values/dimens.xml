@@ -49,7 +49,7 @@
     <dimen name="time_stamp_text_size_in_group">@*android:dimen/car_body3_size</dimen>
 
     <!-- Action View -->
-    <dimen name="action_view_left_margin">@*android:dimen/car_padding_3</dimen>
+    <dimen name="action_view_left_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="action_button_radius">28dp</dimen>
     <dimen name="action_button_min_width">@*android:dimen/car_button_min_width</dimen>
     <dimen name="action_button_height">@*android:dimen/car_button_height</dimen>
@@ -59,9 +59,7 @@
     <dimen name="action_button_spacing_start">@*android:dimen/car_padding_4</dimen>
     <dimen name="action_button_padding_top">10dp</dimen>
     <dimen name="action_button_padding_bottom">10dp</dimen>
-    <!-- This value is recommended to be greater than or equal to
-         @dimen/dismiss_button_diameter + 2 * @dimen/dismiss_button_horizontal_margin -->
-    <dimen name="action_view_right_margin">120dp</dimen>
+    <dimen name="action_view_right_margin">@*android:dimen/car_padding_4</dimen>
 
     <!-- Icons -->
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
@@ -82,7 +80,7 @@
 
     <!-- Dismiss button -->
     <dimen name="dismiss_button_diameter">@*android:dimen/car_button_height</dimen>
-    <dimen name="dismiss_button_horizontal_margin">@*android:dimen/car_padding_4</dimen>
+    <dimen name="dismiss_button_margin">@*android:dimen/car_padding_4</dimen>
 
     <!-- Clear all button -->
     <dimen name="clear_all_button_margin">@*android:dimen/car_padding_3</dimen>
