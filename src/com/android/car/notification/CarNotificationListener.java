@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -45,6 +46,7 @@ import java.util.stream.Stream;
 public class CarNotificationListener extends NotificationListenerService implements
         CarHeadsUpNotificationManager.OnHeadsUpNotificationStateChange {
     private static final String TAG = "CarNotificationListener";
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     static final String ACTION_LOCAL_BINDING = "local_binding";
     static final int NOTIFY_NOTIFICATION_POSTED = 1;
     static final int NOTIFY_NOTIFICATION_REMOVED = 2;
@@ -121,6 +123,11 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
         Log.d(TAG, "onNotificationPosted: " + sbn);
         if (!isNotificationForCurrentUser(sbn)) {
+            if (DEBUG) {
+                Log.d(TAG, "Notification is not for current user: " + sbn.toString());
+                Log.d(TAG, "Notification user: " + sbn.getUser().getIdentifier());
+                Log.d(TAG, "Current user: " + ActivityManager.getCurrentUser());
+            }
             return;
         }
         AlertEntry alertEntry = new AlertEntry(sbn);
@@ -218,7 +225,9 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
         boolean isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
                 mActiveNotifications);
-
+        if (DEBUG) {
+            Log.d(TAG, "Is " + alertEntry + " shown as HUN?: " + isShowingHeadsUp);
+        }
         if (!isShowingHeadsUp) {
             postNewNotification(alertEntry);
         }
