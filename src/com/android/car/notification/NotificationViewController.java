@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * trigger the correct UI updates.
  */
 public class NotificationViewController {
-
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final String TAG = "NotificationViewControl";
     private final CarNotificationView mCarNotificationView;
     private final PreprocessingManager mPreprocessingManager;
@@ -106,6 +106,10 @@ public class NotificationViewController {
                 mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
 
+        if (DEBUG) {
+            Log.d(TAG, "Processed notification groups: " + notificationGroups);
+        }
+
         List<NotificationGroup> unseenNotifications = notificationGroups.stream()
                 .filter(g -> g.getChildNotifications().stream()
                         .anyMatch(mCarNotificationListener::shouldTrackUnseen))
@@ -128,12 +132,15 @@ public class NotificationViewController {
             return;
         }
 
-        mCarNotificationView.setNotifications(
-                mPreprocessingManager.updateNotifications(
-                        showLessImportantNotifications,
-                        alertEntry,
-                        what,
-                        mCarNotificationListener.getCurrentRanking()));
+        List<NotificationGroup> notificationGroups = mPreprocessingManager.updateNotifications(
+                showLessImportantNotifications,
+                alertEntry,
+                what,
+                mCarNotificationListener.getCurrentRanking());
+        if (DEBUG) {
+            Log.d(TAG, "Updated notification groups: " + notificationGroups);
+        }
+        mCarNotificationView.setNotifications(notificationGroups);
     }
 
     private class NotificationUpdateHandler extends Handler {

@@ -21,6 +21,7 @@ import static com.android.internal.util.Preconditions.checkArgument;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.NotificationStats;
@@ -50,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemTouchListener {
 
     private static final String TAG = "CarNotificationItemTouchListener";
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
 
     private final CarNotificationViewAdapter mAdapter;
 
@@ -295,7 +297,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                 float translateX = mDismissAnimationHelper.calculateTranslateDistance(mViewHolder,
                         deltaX);
                 float alpha = mDismissAnimationHelper.calculateAlphaValue(mViewHolder, deltaX);
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (DEBUG) {
                     Log.d(TAG, "ACTION_MOVE translateX=" + translateX + " alpha=" + alpha);
                 }
                 mViewHolder.setSwipeTranslationX(translateX);
@@ -406,14 +408,12 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
         boolean isSameDirection = (velocityX > 0) == (translationX > 0);
         boolean hasEnoughMovement = Math.abs(translationX) > minWidthToTranslate;
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(
-                    TAG,
-                    "isTargetSwipedFastEnough"
-                            + " isFastEnough=" + isFastEnough
-                            + " isIntentional=" + isIntentional
-                            + " isSameDirection=" + isSameDirection
-                            + " hasEnoughMovement=" + hasEnoughMovement);
+        if (DEBUG) {
+            Log.d(TAG, "isTargetSwipedFastEnough"
+                    + " isFastEnough=" + isFastEnough
+                    + " isIntentional=" + isIntentional
+                    + " isSameDirection=" + isSameDirection
+                    + " hasEnoughMovement=" + hasEnoughMovement);
         }
 
         return isFastEnough && isIntentional && isSameDirection && hasEnoughMovement;
@@ -434,13 +434,11 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
         boolean isSameDirection = !isVelocityHighEnough || ((velocityX > 0) == (translationX > 0));
         boolean hasEnoughMovement = Math.abs(translationX) > minWidthToTranslate;
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(
-                    TAG,
-                    "isTargetSwipedFarEnough"
-                            + " isSameDirection=" + isSameDirection
-                            + " hasEnoughMovement=" + hasEnoughMovement
-                            + " velocityX=%f" + velocityX);
+        if (DEBUG) {
+            Log.d(TAG, "isTargetSwipedFarEnough"
+                    + " isSameDirection=" + isSameDirection
+                    + " hasEnoughMovement=" + hasEnoughMovement
+                    + " velocityX=%f" + velocityX);
         }
 
         return isSameDirection && hasEnoughMovement;
