@@ -235,4 +235,9 @@ public class NotificationGroup {
                             "mGroupKey: " + mGroupKey + "; groupKey:" + groupKey);
         }
     }
+
+    @Override
+    public String toString() {
+        return mGroupKey;
+    }
 }
