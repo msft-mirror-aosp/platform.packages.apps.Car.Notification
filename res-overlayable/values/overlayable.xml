@@ -71,7 +71,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
       <item type="dimen" name="dismiss_button_diameter"/>
-      <item type="dimen" name="dismiss_button_horizontal_margin"/>
+      <item type="dimen" name="dismiss_button_margin"/>
       <item type="dimen" name="error_factor_multiplier"/>
       <item type="dimen" name="fling_percentage_of_width_to_dismiss"/>
       <item type="dimen" name="header_small_icon_padding"/>
@@ -80,10 +80,10 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="headsup_scrim_height"/>
       <item type="dimen" name="in_group_timestamp_start_margin"/>
       <item type="dimen" name="item_spacing"/>
+      <item type="dimen" name="manage_button_height"/>
+      <item type="dimen" name="manage_button_top_margin"/>
       <item type="dimen" name="max_percentage_of_width_with_resistance"/>
       <item type="dimen" name="media_action_icon_size"/>
-      <item type="dimen" name="no_notification_header_text_padding_bottom"/>
-      <item type="dimen" name="no_notification_header_text_padding_top"/>
       <item type="dimen" name="notification_app_bar_height"/>
       <item type="dimen" name="notification_card_footer_height"/>
       <item type="dimen" name="notification_card_header_height"/>
@@ -129,7 +129,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="child_notification_title_2"/>
       <item type="id" name="clear_all_button"/>
       <item type="id" name="dismiss_button"/>
-      <item type="id" name="empty_notification_header_text"/>
+      <item type="id" name="dismiss_button_container"/>
+      <item type="id" name="empty_notification_text"/>
       <item type="id" name="exit_button_container"/>
       <item type="id" name="expansion_footer"/>
       <item type="id" name="footer_divider"/>
@@ -142,11 +143,11 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="headsup_content"/>
       <item type="id" name="in_group_time_stamp"/>
       <item type="id" name="inner_template_view"/>
+      <item type="id" name="manage_button"/>
       <item type="id" name="message_content"/>
       <item type="id" name="message_count"/>
       <item type="id" name="message_title_view"/>
       <item type="id" name="notification_actions"/>
-      <item type="id" name="notification_actions_wrapper"/>
       <item type="id" name="notification_body"/>
       <item type="id" name="notification_body_content"/>
       <item type="id" name="notification_body_icon"/>
@@ -229,6 +230,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="ellipsized_string"/>
       <item type="string" name="empty_notification_header"/>
       <item type="string" name="header_text_separator"/>
+      <item type="string" name="manage_text"/>
       <item type="string" name="message_unshown_count"/>
       <item type="string" name="notification_header"/>
       <item type="string" name="notification_service_label"/>
@@ -242,6 +244,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="style" name="ClearAllButtonHeader"/>
       <item type="style" name="DismissButtonLayout"/>
       <item type="style" name="InGroupTimeStampText"/>
+      <item type="style" name="ManageButton"/>
       <item type="style" name="NotificationActionButton1"/>
       <item type="style" name="NotificationActionButton2"/>
       <item type="style" name="NotificationActionButton3"/>
