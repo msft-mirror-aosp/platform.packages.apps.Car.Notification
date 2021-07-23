@@ -48,8 +48,11 @@ public class CarNotificationBodyView extends RelativeLayout {
     private final int mDefaultSecondaryTextColor;
     private boolean mShowBigIcon;
     private int mMaxLines;
+    @Nullable
     private TextView mTitleView;
+    @Nullable
     private TextView mContentView;
+    @Nullable
     private ImageView mIconView;
 
     public CarNotificationBodyView(Context context) {
@@ -77,7 +80,6 @@ public class CarNotificationBodyView extends RelativeLayout {
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorPrimary);
         mDefaultSecondaryTextColor =
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
-        inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
     }
 
     private void init(AttributeSet attrs) {
@@ -88,6 +90,11 @@ public class CarNotificationBodyView extends RelativeLayout {
                         /* defValue= */ false);
         mMaxLines = attributes.getInteger(R.styleable.CarNotificationBodyView_maxLines,
                 /* defValue= */ DEFAULT_MAX_LINES);
+        boolean isHeadsUp =
+                attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
+                        /* defValue= */ false);
+        inflate(getContext(), isHeadsUp ? R.layout.car_headsup_notification_body_view
+                : R.layout.car_notification_body_view, /* root= */ this);
         attributes.recycle();
     }
 
@@ -109,16 +116,18 @@ public class CarNotificationBodyView extends RelativeLayout {
     public void bind(CharSequence title, @Nullable CharSequence content, @Nullable Icon icon) {
         setVisibility(View.VISIBLE);
 
-        mTitleView.setVisibility(View.VISIBLE);
-        mTitleView.setText(title);
+        if (mTitleView != null) {
+            mTitleView.setVisibility(View.VISIBLE);
+            mTitleView.setText(title);
+        }
 
-        if (!TextUtils.isEmpty(content)) {
+        if (mContentView != null && !TextUtils.isEmpty(content)) {
             mContentView.setVisibility(View.VISIBLE);
             mContentView.setMaxLines(mMaxLines);
             mContentView.setText(content);
         }
 
-        if (icon != null && mShowBigIcon) {
+        if (mIconView != null && icon != null && mShowBigIcon) {
             mIconView.setVisibility(View.VISIBLE);
             mIconView.setImageIcon(icon);
         }
@@ -127,13 +136,19 @@ public class CarNotificationBodyView extends RelativeLayout {
     public void bindTitleAndMessage(CharSequence title, CharSequence content) {
         setVisibility(View.VISIBLE);
 
-        mTitleView.setVisibility(View.VISIBLE);
-        mTitleView.setText(title);
+        if (mTitleView != null) {
+            mTitleView.setVisibility(View.VISIBLE);
+            mTitleView.setText(title);
+        }
         if (!TextUtils.isEmpty(content)) {
-            mContentView.setVisibility(View.VISIBLE);
-            mContentView.setMaxLines(mMaxLines);
-            mContentView.setText(content);
-            mIconView.setVisibility(View.GONE);
+            if (mContentView != null) {
+                mContentView.setVisibility(View.VISIBLE);
+                mContentView.setMaxLines(mMaxLines);
+                mContentView.setText(content);
+            }
+            if (mIconView != null && !mShowBigIcon) {
+                mIconView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -141,14 +156,18 @@ public class CarNotificationBodyView extends RelativeLayout {
      * Sets the primary text color.
      */
     public void setSecondaryTextColor(@ColorInt int color) {
-        mContentView.setTextColor(color);
+        if (mContentView != null) {
+            mContentView.setTextColor(color);
+        }
     }
 
     /**
      * Sets the secondary text color.
      */
     public void setPrimaryTextColor(@ColorInt int color) {
-        mTitleView.setTextColor(color);
+        if (mTitleView != null) {
+            mTitleView.setTextColor(color);
+        }
     }
 
     /**
@@ -156,9 +175,15 @@ public class CarNotificationBodyView extends RelativeLayout {
      */
     public void reset() {
         setVisibility(View.GONE);
-        mTitleView.setVisibility(View.GONE);
-        mContentView.setVisibility(View.GONE);
-        mIconView.setVisibility(View.GONE);
+        if (mTitleView != null) {
+            mTitleView.setVisibility(View.GONE);
+        }
+        if (mContentView != null) {
+            mContentView.setVisibility(View.GONE);
+        }
+        if (mIconView != null) {
+            mIconView.setVisibility(View.GONE);
+        }
         setPrimaryTextColor(mDefaultPrimaryTextColor);
         setSecondaryTextColor(mDefaultSecondaryTextColor);
     }
