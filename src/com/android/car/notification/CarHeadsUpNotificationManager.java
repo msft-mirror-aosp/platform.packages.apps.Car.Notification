@@ -413,10 +413,10 @@ public class CarHeadsUpNotificationManager
         cardView.getLocationInWindow(mTmpTwoArray);
         int minX = mTmpTwoArray[0];
         int maxX = mTmpTwoArray[0] + cardView.getWidth();
-        int height = cardView.getHeight();
+        int minY = mTmpTwoArray[1] + mNotificationHeadsUpCardMarginTop;
+        int maxY = mTmpTwoArray[1] + mNotificationHeadsUpCardMarginTop + cardView.getHeight();
         info.setTouchableInsets(InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
-        info.touchableRegion.set(minX, mNotificationHeadsUpCardMarginTop, maxX,
-                height + mNotificationHeadsUpCardMarginTop);
+        info.touchableRegion.set(minX, minY, maxX, maxY);
     }
 
     private void playSound(AlertEntry alertEntry,
@@ -470,7 +470,7 @@ public class CarHeadsUpNotificationManager
         // active notification maps and cancel all other call backs if any.
         HeadsUpEntry currentHeadsUpNotification = mActiveHeadsUpNotifications.get(
                 alertEntry.getKey());
-        // view can also be removed when swipped away.
+        // view can also be removed when swiped away.
         if (currentHeadsUpNotification == null) {
             return;
         }

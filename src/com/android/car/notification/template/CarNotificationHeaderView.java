@@ -18,6 +18,7 @@ package com.android.car.notification.template;
 import static android.app.Notification.EXTRA_SUBSTITUTE_APP_NAME;
 
 import android.annotation.ColorInt;
+import android.annotation.Nullable;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -36,7 +37,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.R;
@@ -48,13 +48,15 @@ public class CarNotificationHeaderView extends LinearLayout {
 
     private static final String TAG = "car_notification_header";
 
-    private final PackageManager mPackageManager;
     private final int mDefaultTextColor;
     private final String mSeparatorText;
 
     private boolean mIsHeadsUp;
+    @Nullable
     private ImageView mIconView;
+    @Nullable
     private TextView mHeaderTextView;
+    @Nullable
     private DateTimeView mTimeView;
 
     public CarNotificationHeaderView(Context context) {
@@ -78,10 +80,8 @@ public class CarNotificationHeaderView extends LinearLayout {
     }
 
     {
-        mPackageManager = getContext().getPackageManager();
         mDefaultTextColor = getContext().getColor(R.color.primary_text_color);
         mSeparatorText = getContext().getString(R.string.header_text_separator);
-        inflate(getContext(), R.layout.car_notification_header_view, this);
     }
 
     private void init(AttributeSet attrs) {
@@ -90,6 +90,8 @@ public class CarNotificationHeaderView extends LinearLayout {
         mIsHeadsUp =
                 attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
                         /* defValue= */ false);
+        inflate(getContext(), mIsHeadsUp ? R.layout.car_headsup_notification_header_view
+                : R.layout.car_notification_header_view, this);
         attributes.recycle();
     }
 
@@ -99,7 +101,9 @@ public class CarNotificationHeaderView extends LinearLayout {
         mIconView = findViewById(R.id.app_icon);
         mHeaderTextView = findViewById(R.id.header_text);
         mTimeView = findViewById(R.id.time);
-        mTimeView.setShowRelativeTime(true);
+        if (mTimeView != null) {
+            mTimeView.setShowRelativeTime(true);
+        }
     }
 
     /**
@@ -121,19 +125,27 @@ public class CarNotificationHeaderView extends LinearLayout {
         Context packageContext = sbn.getPackageContext(getContext());
 
         // app icon
-        mIconView.setVisibility(View.VISIBLE);
-        Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
-        mIconView.setImageDrawable(drawable);
+        if (mIconView != null) {
+            mIconView.setVisibility(View.VISIBLE);
+            Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
+            mIconView.setImageDrawable(drawable);
+        }
 
         StringBuilder stringBuilder = new StringBuilder();
 
         // app name
-        mHeaderTextView.setVisibility(View.VISIBLE);
+        if (mHeaderTextView != null) {
+            mHeaderTextView.setVisibility(View.VISIBLE);
+        }
         String appName = loadHeaderAppName(sbn);
 
         if (mIsHeadsUp) {
-            mHeaderTextView.setText(appName);
-            mTimeView.setVisibility(View.GONE);
+            if (mHeaderTextView != null) {
+                mHeaderTextView.setText(appName);
+            }
+            if (mTimeView != null) {
+                mTimeView.setVisibility(View.GONE);
+            }
             return;
         }
 
@@ -155,8 +167,10 @@ public class CarNotificationHeaderView extends LinearLayout {
         // optional field: time
         if (notification.showsTime()) {
             stringBuilder.append(mSeparatorText);
-            mTimeView.setVisibility(View.VISIBLE);
-            mTimeView.setTime(notification.when);
+            if (mTimeView != null) {
+                mTimeView.setVisibility(View.VISIBLE);
+                mTimeView.setTime(notification.when);
+            }
         }
 
         mHeaderTextView.setText(BidiFormatter.getInstance().unicodeWrap(stringBuilder,
@@ -167,38 +181,50 @@ public class CarNotificationHeaderView extends LinearLayout {
      * Sets the color for the small icon.
      */
     public void setSmallIconColor(@ColorInt int color) {
-        mIconView.setColorFilter(color);
+        if (mIconView != null) {
+            mIconView.setColorFilter(color);
+        }
     }
 
     /**
      * Sets the header text color.
      */
     public void setHeaderTextColor(@ColorInt int color) {
-        mHeaderTextView.setTextColor(color);
+        if (mHeaderTextView != null) {
+            mHeaderTextView.setTextColor(color);
+        }
     }
 
     /**
      * Sets the text color for the time field.
      */
     public void setTimeTextColor(@ColorInt int color) {
-        mTimeView.setTextColor(color);
+        if (mTimeView != null) {
+            mTimeView.setTextColor(color);
+        }
     }
 
     /**
      * Resets the notification header empty.
      */
     public void reset() {
-        mIconView.setVisibility(View.GONE);
-        mIconView.setImageDrawable(null);
-        setSmallIconColor(mDefaultTextColor);
+        if (mIconView != null) {
+            mIconView.setVisibility(View.GONE);
+            mIconView.setImageDrawable(null);
+            setSmallIconColor(mDefaultTextColor);
+        }
 
-        mHeaderTextView.setVisibility(View.GONE);
-        mHeaderTextView.setText(null);
-        setHeaderTextColor(mDefaultTextColor);
+        if (mHeaderTextView != null) {
+            mHeaderTextView.setVisibility(View.GONE);
+            mHeaderTextView.setText(null);
+            setHeaderTextColor(mDefaultTextColor);
+        }
 
-        mTimeView.setVisibility(View.GONE);
-        mTimeView.setTime(0);
-        setTimeTextColor(mDefaultTextColor);
+        if (mTimeView != null) {
+            mTimeView.setVisibility(View.GONE);
+            mTimeView.setTime(0);
+            setTimeTextColor(mDefaultTextColor);
+        }
     }
 
     /**
