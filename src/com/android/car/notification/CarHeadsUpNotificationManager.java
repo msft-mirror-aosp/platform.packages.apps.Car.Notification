@@ -32,6 +32,7 @@ import android.app.NotificationManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
+import android.os.Build;
 import android.service.notification.NotificationListenerService;
 import android.util.Log;
 import android.util.Pair;
@@ -68,6 +69,7 @@ public class CarHeadsUpNotificationManager
         void onStateChange(AlertEntry alertEntry, boolean isHeadsUp);
     }
 
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final String TAG = CarHeadsUpNotificationManager.class.getSimpleName();
 
     private final Beeper mBeeper;
@@ -148,6 +150,9 @@ public class CarHeadsUpNotificationManager
             HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
                     alertEntry.getKey());
             if (currentActiveHeadsUpNotification == null) {
+                if (DEBUG) {
+                    Log.d(TAG, alertEntry + " is not an active heads up notification");
+                }
                 return false;
             }
             if (CarNotificationDiff.sameNotificationKey(currentActiveHeadsUpNotification,
@@ -157,8 +162,15 @@ public class CarHeadsUpNotificationManager
             }
             return false;
         }
-        if (!activeNotifications.containsKey(alertEntry.getKey()) || canUpdate(alertEntry)
-                || alertAgain(alertEntry.getNotification())) {
+        boolean containsKeyFlag = !activeNotifications.containsKey(alertEntry.getKey());
+        boolean canUpdateFlag = canUpdate(alertEntry);
+        boolean alertAgainFlag = alertAgain(alertEntry.getNotification());
+        if (DEBUG) {
+            Log.d(TAG, alertEntry + " is an active notification: " + containsKeyFlag);
+            Log.d(TAG, alertEntry + " is an updatable notification: " + canUpdateFlag);
+            Log.d(TAG, alertEntry + " is not an alert once notification: " + alertAgainFlag);
+        }
+        if (containsKeyFlag || canUpdateFlag || alertAgainFlag) {
             showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
                     rankingMap);
             return true;
@@ -550,6 +562,9 @@ public class CarHeadsUpNotificationManager
             AlertEntry alertEntry,
             NotificationListenerService.RankingMap rankingMap) {
         if (mKeyguardManager.isKeyguardLocked()) {
+            if (DEBUG) {
+                Log.d(TAG, "Unable to show as HUN: Keyguard is locked");
+            }
             return false;
         }
         Notification notification = alertEntry.getNotification();
@@ -557,14 +572,23 @@ public class CarHeadsUpNotificationManager
         // Navigation notification configured by OEM
         if (!mEnableNavigationHeadsup && Notification.CATEGORY_NAVIGATION.equals(
                 notification.category)) {
+            if (DEBUG) {
+                Log.d(TAG, "Unable to show as HUN: OEM has disabled navigation HUN");
+            }
             return false;
         }
         // Group alert behavior
         if (notification.suppressAlertingDueToGrouping()) {
+            if (DEBUG) {
+                Log.d(TAG, "Unable to show as HUN: Grouping notification");
+            }
             return false;
         }
         // Messaging notification muted by user.
         if (mNotificationDataManager.isMessageNotificationMuted(alertEntry)) {
+            if (DEBUG) {
+                Log.d(TAG, "Unable to show as HUN: Messaging notification is muted by user");
+            }
             return false;
         }
 
@@ -572,22 +596,36 @@ public class CarHeadsUpNotificationManager
         NotificationListenerService.Ranking ranking = getRanking();
         if (rankingMap.getRanking(alertEntry.getKey(), ranking)) {
             if (ranking.getImportance() < NotificationManager.IMPORTANCE_HIGH) {
+                if (DEBUG) {
+                    Log.d(TAG, "Unable to show as HUN: importance is not sufficient");
+                }
                 return false;
             }
         }
 
         if (NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext, alertEntry)) {
+            if (DEBUG) {
+                Log.d(TAG, "Show as HUN: application is system privileged or signed with "
+                        + "platform key");
+            }
             return true;
         }
 
         // Allow car messaging type.
         if (isCarCompatibleMessagingNotification(alertEntry.getStatusBarNotification())) {
+            if (DEBUG) {
+                Log.d(TAG, "Show as HUN: car messaging type notification");
+            }
             return true;
         }
 
         if (notification.category == null) {
             Log.d(TAG, "category not set for: "
                     + alertEntry.getStatusBarNotification().getPackageName());
+        }
+
+        if (DEBUG) {
+            Log.d(TAG, "Notification category: " + notification.category);
         }
 
         // Allow for Call, and nav TBT categories.
