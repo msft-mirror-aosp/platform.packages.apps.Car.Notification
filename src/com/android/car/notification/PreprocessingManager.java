@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.NotificationListenerService.RankingMap;
@@ -58,6 +59,7 @@ public class PreprocessingManager {
         void onCallStateChanged(boolean isInCall);
     }
 
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final String TAG = "PreprocessingManager";
 
     private final String mEllipsizedString;
@@ -216,6 +218,10 @@ public class PreprocessingManager {
         notifications.removeIf(alertEntry -> Notification.CATEGORY_CALL.equals(
                 alertEntry.getNotification().category));
 
+        if (DEBUG) {
+            Log.d(TAG, "Filtered notifications: " + notifications);
+        }
+
         return notifications;
     }
 
@@ -226,6 +232,7 @@ public class PreprocessingManager {
                         & Notification.FLAG_FOREGROUND_SERVICE) != 0;
 
         if (!isForeground) {
+            Log.d(TAG, alertEntry + " is not a foreground notification.");
             return false;
         }
 
@@ -236,14 +243,25 @@ public class PreprocessingManager {
             importance = ranking.getImportance();
         }
 
+        if (DEBUG) {
+            Log.d(TAG, alertEntry + " importance sufficient enough to show in notification "
+                    + "center: " + (importance < NotificationManager.IMPORTANCE_DEFAULT));
+            Log.d(TAG, alertEntry + " application is system privileged or signed with "
+                    + "platform key " + NotificationUtils
+                    .isSystemPrivilegedOrPlatformKey(mContext, alertEntry));
+        }
         return importance < NotificationManager.IMPORTANCE_DEFAULT
                 && NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext, alertEntry);
     }
 
     private boolean isMediaOrNavigationNotification(AlertEntry alertEntry) {
         Notification notification = alertEntry.getNotification();
-        return notification.isMediaNotification()
+        boolean mediaOrNav = notification.isMediaNotification()
                 || Notification.CATEGORY_NAVIGATION.equals(notification.category);
+        if (DEBUG) {
+            Log.d(TAG, alertEntry + " category: " + notification.category);
+        }
+        return mediaOrNav;
     }
 
     /**
@@ -341,6 +359,10 @@ public class PreprocessingManager {
                 groupedNotifications.get(groupKey).addNotification(alertEntry);
             }
         }
+        if (DEBUG) {
+            Log.d(TAG, "(First pass) Grouped notifications according to groupKey: "
+                    + groupedNotifications);
+        }
 
         // Second pass: remove automatically generated group summary if it contains no child
         // notifications. This can happen if a notification group only contains less important
@@ -355,6 +377,10 @@ public class PreprocessingManager {
                             && summaryNotification.getStatusBarNotification().getOverrideGroupKey()
                             != null;
                 });
+        if (DEBUG) {
+            Log.d(TAG, "(Second pass) Remove automatically generated group summaries: "
+                    + groupList);
+        }
 
         // Third pass: a notification group without a group summary should be restored back into
         // individual notifications.
@@ -372,10 +398,19 @@ public class PreprocessingManager {
                         validGroupList.add(group);
                     }
                 });
+        if (DEBUG) {
+            Log.d(TAG, "(Third pass) Restore notifications without group summaries: "
+                    + validGroupList);
+        }
 
         // Fourth Pass: group notifications with no child notifications should be removed.
-        validGroupList.removeIf(notificationGroup ->
-                notificationGroup.getChildNotifications().isEmpty());
+        validGroupList.removeIf(notificationGroup -> {
+            return notificationGroup.getChildNotifications().isEmpty();
+        });
+        if (DEBUG) {
+            Log.d(TAG, "(Fourth pass) Group notifications without child notifications "
+                    + "are removed: " + validGroupList);
+        }
 
         // Fifth pass: if a notification is a group notification, update the timestamp if one of
         // the children notifications shows a timestamp.
@@ -401,6 +436,9 @@ public class PreprocessingManager {
                 groupSummaryNotification.getNotification().when = greatestTimestamp;
             }
         });
+        if (DEBUG) {
+            Log.d(TAG, "Grouped notifications: " + validGroupList);
+        }
 
         return validGroupList;
     }
