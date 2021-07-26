@@ -20,10 +20,14 @@ import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.DateTimeView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,6 +50,9 @@ public class CarNotificationBodyView extends RelativeLayout {
     private final int mDefaultPrimaryTextColor;
     @ColorInt
     private final int mDefaultSecondaryTextColor;
+    private final boolean mUseLauncherIcon;
+
+    private boolean mIsHeadsUp;
     private boolean mShowBigIcon;
     private int mMaxLines;
     @Nullable
@@ -53,7 +60,11 @@ public class CarNotificationBodyView extends RelativeLayout {
     @Nullable
     private TextView mContentView;
     @Nullable
-    private ImageView mIconView;
+    private ImageView mLargeIconView;
+    @Nullable
+    private TextView mCountView;
+    @Nullable
+    private DateTimeView mTimeView;
 
     public CarNotificationBodyView(Context context) {
         super(context);
@@ -80,6 +91,8 @@ public class CarNotificationBodyView extends RelativeLayout {
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorPrimary);
         mDefaultSecondaryTextColor =
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
+        mUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
+        inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
     }
 
     private void init(AttributeSet attrs) {
@@ -90,11 +103,9 @@ public class CarNotificationBodyView extends RelativeLayout {
                         /* defValue= */ false);
         mMaxLines = attributes.getInteger(R.styleable.CarNotificationBodyView_maxLines,
                 /* defValue= */ DEFAULT_MAX_LINES);
-        boolean isHeadsUp =
+        mIsHeadsUp =
                 attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
                         /* defValue= */ false);
-        inflate(getContext(), isHeadsUp ? R.layout.car_headsup_notification_body_view
-                : R.layout.car_notification_body_view, /* root= */ this);
         attributes.recycle();
     }
 
@@ -103,18 +114,42 @@ public class CarNotificationBodyView extends RelativeLayout {
         super.onFinishInflate();
         mTitleView = findViewById(R.id.notification_body_title);
         mContentView = findViewById(R.id.notification_body_content);
-        mIconView = findViewById(R.id.notification_body_icon);
+        mLargeIconView = findViewById(R.id.notification_body_icon);
+        mCountView = findViewById(R.id.message_count);
+        mTimeView = findViewById(R.id.time);
+        if (mTimeView != null) {
+            mTimeView.setShowRelativeTime(true);
+        }
     }
 
     /**
      * Binds the notification body.
      *
-     * @param title the primary text.
-     * @param content the secondary text.
-     * @param icon the large icon, usually used for avatars.
+     * @param title     the primary text
+     * @param content   the secondary text, if this is null then content view will be hidden
+     * @param launcherIcon  the launcher icon drawable for notification's package.
+     *        If this and largeIcon are null then large icon view will be hidden.
+     * @param largeIcon the large icon, usually used for avatars.
+     *        If this and launcherIcon are null then large icon view will be hidden.
+     * @param countText text signifying the number of messages inside this notification.
+     * @param when      wall clock time in milliseconds for the notification
      */
-    public void bind(CharSequence title, @Nullable CharSequence content, @Nullable Icon icon) {
+    public void bind(CharSequence title, @Nullable CharSequence content,
+            @Nullable Drawable launcherIcon, @Nullable Icon largeIcon,
+            @Nullable CharSequence countText, @Nullable Long when) {
         setVisibility(View.VISIBLE);
+
+        if (mLargeIconView != null && largeIcon != null && !mUseLauncherIcon && mShowBigIcon) {
+            largeIcon.loadDrawableAsync(getContext(), drawable -> {
+                mLargeIconView.setVisibility(View.VISIBLE);
+                mLargeIconView.setImageDrawable(drawable);
+            }, Handler.createAsync(Looper.myLooper()));
+        } else if (mLargeIconView != null && launcherIcon != null && mUseLauncherIcon) {
+            mLargeIconView.setVisibility(View.VISIBLE);
+            mLargeIconView.setImageDrawable(launcherIcon);
+        } else {
+            mLargeIconView.setVisibility(View.GONE);
+        }
 
         if (mTitleView != null) {
             mTitleView.setVisibility(View.VISIBLE);
@@ -125,30 +160,23 @@ public class CarNotificationBodyView extends RelativeLayout {
             mContentView.setVisibility(View.VISIBLE);
             mContentView.setMaxLines(mMaxLines);
             mContentView.setText(content);
+        } else {
+            mContentView.setVisibility(View.GONE);
         }
 
-        if (mIconView != null && icon != null && mShowBigIcon) {
-            mIconView.setVisibility(View.VISIBLE);
-            mIconView.setImageIcon(icon);
+        // optional field: time
+        if (mTimeView != null && when != null && !mIsHeadsUp) {
+            mTimeView.setVisibility(View.VISIBLE);
+            mTimeView.setTime(when);
+        } else {
+            mTimeView.setVisibility(View.GONE);
         }
-    }
 
-    public void bindTitleAndMessage(CharSequence title, CharSequence content) {
-        setVisibility(View.VISIBLE);
-
-        if (mTitleView != null) {
-            mTitleView.setVisibility(View.VISIBLE);
-            mTitleView.setText(title);
-        }
-        if (!TextUtils.isEmpty(content)) {
-            if (mContentView != null) {
-                mContentView.setVisibility(View.VISIBLE);
-                mContentView.setMaxLines(mMaxLines);
-                mContentView.setText(content);
-            }
-            if (mIconView != null && !mShowBigIcon) {
-                mIconView.setVisibility(View.GONE);
-            }
+        if (mCountView != null && countText != null) {
+            mCountView.setVisibility(View.VISIBLE);
+            mCountView.setText(countText);
+        } else {
+            mCountView.setVisibility(View.GONE);
         }
     }
 
@@ -162,11 +190,48 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     /**
+     * Sets max lines for the content view.
+     */
+    public void setContentMaxLines(int maxLines) {
+        if (mContentView != null) {
+            mContentView.setMaxLines(maxLines);
+        }
+    }
+
+
+    /**
      * Sets the secondary text color.
      */
     public void setPrimaryTextColor(@ColorInt int color) {
         if (mTitleView != null) {
             mTitleView.setTextColor(color);
+        }
+    }
+
+    /**
+     * Sets the text color for the count field.
+     */
+    public void setCountTextColor(@ColorInt int color) {
+        if (mCountView != null) {
+            mCountView.setTextColor(color);
+        }
+    }
+
+    /**
+     * Sets the {@link OnClickListener} for the count field.
+     */
+    public void setCountOnClickListener(@Nullable OnClickListener listener) {
+        if (mCountView != null) {
+            mCountView.setOnClickListener(listener);
+        }
+    }
+
+    /**
+     * Sets the text color for the time field.
+     */
+    public void setTimeTextColor(@ColorInt int color) {
+        if (mTimeView != null) {
+            mTimeView.setTextColor(color);
         }
     }
 
@@ -179,13 +244,25 @@ public class CarNotificationBodyView extends RelativeLayout {
             mTitleView.setVisibility(View.GONE);
         }
         if (mContentView != null) {
+            setContentMaxLines(mMaxLines);
             mContentView.setVisibility(View.GONE);
         }
-        if (mIconView != null) {
-            mIconView.setVisibility(View.GONE);
+        if (mLargeIconView != null) {
+            mLargeIconView.setVisibility(View.GONE);
         }
         setPrimaryTextColor(mDefaultPrimaryTextColor);
         setSecondaryTextColor(mDefaultSecondaryTextColor);
+        if (mTimeView != null) {
+            mTimeView.setVisibility(View.GONE);
+            mTimeView.setTime(0);
+            setTimeTextColor(mDefaultPrimaryTextColor);
+        }
+
+        if (mCountView != null) {
+            mCountView.setVisibility(View.GONE);
+            mCountView.setText(null);
+            mCountView.setTextColor(mDefaultPrimaryTextColor);
+        }
     }
 
     @VisibleForTesting
@@ -196,5 +273,15 @@ public class CarNotificationBodyView extends RelativeLayout {
     @VisibleForTesting
     TextView getContentView() {
         return mContentView;
+    }
+
+    @VisibleForTesting
+    TextView getCountView() {
+        return mCountView;
+    }
+
+    @VisibleForTesting
+    DateTimeView getTimeView() {
+        return mTimeView;
     }
 }
