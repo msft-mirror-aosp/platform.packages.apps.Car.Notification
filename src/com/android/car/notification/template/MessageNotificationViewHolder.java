@@ -17,19 +17,17 @@ package com.android.car.notification.template;
 
 import static android.app.Notification.EXTRA_IS_GROUP_CONVERSATION;
 
-import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.Person;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.DateTimeView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.core.app.NotificationCompat.MessagingStyle;
 
@@ -48,17 +46,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private static final String SENDER_BODY_SEPARATOR = ": ";
     private static final String NEW_LINE = "\n";
 
-    @ColorInt
-    private final int mDefaultPrimaryForegroundColor;
     private final Context mContext;
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationHeaderView mHeaderView;
     private final CarNotificationActionsView mActionsView;
-    private final TextView mTitleView;
-    private final DateTimeView mTimeView;
-    private final TextView mMessageView;
-    private final TextView mUnshownCountView;
-    private final ImageView mAvatarView;
     private final String mNewMessageText;
     private final int mMaxMessageCount;
     private final int mMaxLineCount;
@@ -68,25 +59,17 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     public MessageNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
-        mContext = view.getContext();
-        mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);
         mHeaderView = view.findViewById(R.id.notification_header);
+        mContext = view.getContext();
         mActionsView = view.findViewById(R.id.notification_actions);
-        mTitleView = view.findViewById(R.id.notification_body_title);
-        mTimeView = view.findViewById(R.id.in_group_time_stamp);
-        if (mTimeView != null) {
-            // HUN template does not include the time stamp.
-            mTimeView.setShowRelativeTime(true);
-        }
-        mMessageView = view.findViewById(R.id.notification_body_content);
         mBodyView = view.findViewById(R.id.notification_body);
-        mUnshownCountView = view.findViewById(R.id.message_count);
-        mAvatarView = view.findViewById(R.id.notification_body_icon);
+
         mNewMessageText = mContext.getString(R.string.restricted_hun_message_content);
         mMaxMessageCount =
                 mContext.getResources().getInteger(R.integer.config_maxNumberOfMessagesInPanel);
         mMaxLineCount =
                 mContext.getResources().getInteger(R.integer.config_maxNumberOfMessageLinesInPanel);
+
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -111,6 +94,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         super.bind(alertEntry, isInGroup, isHeadsUp);
         bindBody(alertEntry, isInGroup, /* isRestricted= */ true, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
+
         mActionsView.bind(mClickHandlerFactory, alertEntry);
     }
 
@@ -119,7 +103,9 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     private void bindBody(AlertEntry alertEntry, boolean isInGroup, boolean isRestricted,
             boolean isHeadsUp) {
+        mBodyView.setCountTextColor(getAccentColor());
         Notification notification = alertEntry.getNotification();
+        StatusBarNotification sbn = alertEntry.getStatusBarNotification();
         Bundle extras = notification.extras;
         CharSequence messageText = null;
         CharSequence conversationTitle = null;
@@ -193,77 +179,51 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         } else if (TextUtils.isEmpty(messageText)) {
             messageText = extras.getCharSequence(Notification.EXTRA_TEXT);
         }
+        if (!TextUtils.isEmpty(messageText)) {
+            messageText = PreprocessingManager.getInstance(mContext).trimText(messageText);
+        }
 
         if (avatar == null) {
             avatar = notification.getLargeIcon();
         }
-
-        if (!TextUtils.isEmpty(conversationTitle)) {
-            mTitleView.setVisibility(View.VISIBLE);
-            mTitleView.setText(conversationTitle);
+        if (isHeadsUp) {
+            avatar = null;
         }
 
-        if (isInGroup && notification.showsTime()) {
-            mTimeView.setVisibility(View.VISIBLE);
-            mTimeView.setTime(notification.when);
-        }
-
-        if (!TextUtils.isEmpty(messageText)) {
-            messageText = PreprocessingManager.getInstance(mContext).trimText(messageText);
-            mMessageView.setVisibility(View.VISIBLE);
-            mMessageView.setText(messageText);
-        }
-
-        if (avatar != null) {
-            mAvatarView.setVisibility(View.VISIBLE);
-            mAvatarView.setImageIcon(avatar);
+        Long when;
+        if (notification.showsTime()) {
+            when = notification.when;
+        } else {
+            when = null;
         }
 
         int unshownCount = messageCount - 1;
-        String unshownCountText;
+        String unshownCountText = null;
         if (!isRestricted && unshownCount > 0 && !isHeadsUp && messageStyleFlag) {
-            // If car is in parked mode, notification is not HUN, more messages exist
-            // and notification used message style, then add an expandable message count section.
             unshownCountText = mContext.getString(R.string.message_unshown_count, unshownCount);
-            mUnshownCountView.setVisibility(View.VISIBLE);
-            mUnshownCountView.setText(unshownCountText);
-            mUnshownCountView.setTextColor(getAccentColor());
-            mUnshownCountView.setOnClickListener(
-                    getCountViewOnClickListener(unshownCount, messages, isGroupConversation));
+            mBodyView.setTimeTextColor(getAccentColor());
+            View.OnClickListener listener =
+                    getCountViewOnClickListener(unshownCount, messages, isGroupConversation,
+                            sbn, conversationTitle, avatar, when);
+            mBodyView.setCountOnClickListener(listener);
         }
 
-        if (isHeadsUp) {
-            mBodyView.bindTitleAndMessage(conversationTitle, messageText);
-        }
+        mBodyView.bind(conversationTitle, messageText, loadAppLauncherIcon(sbn), avatar,
+                unshownCountText, when);
     }
 
     @Override
     void reset() {
         super.reset();
-        mTitleView.setVisibility(View.GONE);
-        mTitleView.setText(null);
-        if (mTimeView != null) {
-            mTimeView.setVisibility(View.GONE);
-        }
-
-        mMessageView.setVisibility(View.GONE);
-        mMessageView.setText(null);
-
-        mAvatarView.setVisibility(View.GONE);
-        mAvatarView.setImageIcon(null);
-
-        if (mUnshownCountView != null) {
-            // unshown count doesn't exist in HUN.
-            mUnshownCountView.setVisibility(View.GONE);
-            mUnshownCountView.setText(null);
-            mUnshownCountView.setOnClickListener(null);
-            mUnshownCountView.setTextColor(mDefaultPrimaryForegroundColor);
-        }
+        mBodyView.reset();
+        mHeaderView.reset();
+        mActionsView.reset();
     }
 
     private View.OnClickListener getCountViewOnClickListener(int unshownCount,
             @Nullable List<Notification.MessagingStyle.Message> messages,
-            boolean isGroupConversation) {
+            boolean isGroupConversation, StatusBarNotification sbn, CharSequence title,
+            @Nullable Icon avatar, @Nullable Long when) {
         StringBuilder builder = new StringBuilder();
         for (int i = messages.size() - 1; i >= messages.size() - 1 - mMaxMessageCount && i >= 0;
                 i--) {
@@ -289,19 +249,18 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
 
         int finalUnshownCount = unshownCount;
         return view -> {
-            mMessageView.setMaxLines(mMaxLineCount);
-
+            String unshownCountText;
             if (finalUnshownCount <= 0) {
-                mUnshownCountView.setVisibility(View.GONE);
+                unshownCountText = null;
             } else {
-                String unshownCountText =
-                        mContext.getString(R.string.restricted_numbered_message_content,
-                                finalUnshownCount);
-                mUnshownCountView.setText(unshownCountText);
+                unshownCountText = mContext.getString(R.string.restricted_numbered_message_content,
+                        finalUnshownCount);
             }
 
-            mMessageView.setText(finalMessage);
-            mUnshownCountView.setOnClickListener(null);
+            Drawable launcherIcon = loadAppLauncherIcon(sbn);
+            mBodyView.bind(title, finalMessage, launcherIcon, avatar, unshownCountText, when);
+            mBodyView.setContentMaxLines(mMaxLineCount);
+            mBodyView.setCountOnClickListener(null);
         };
     }
 }
