@@ -33,6 +33,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showHeaderForNotifications"/>
       <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
       <item type="bool" name="config_showNavigationHeadsup"/>
+      <item type="bool" name="config_showRecentAndOldHeaders"/>
       <item type="color" name="action_button_background_color"/>
       <item type="color" name="call_accept_button"/>
       <item type="color" name="call_decline_button"/>
@@ -158,6 +159,10 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="notification_header_text"/>
       <item type="id" name="notification_headsup"/>
       <item type="id" name="notification_list"/>
+      <item type="id" name="notification_older"/>
+      <item type="id" name="notification_older_text"/>
+      <item type="id" name="notification_recents"/>
+      <item type="id" name="notification_recents_text"/>
       <item type="id" name="notification_view"/>
       <item type="id" name="notifications"/>
       <item type="id" name="progress_bar"/>
@@ -217,6 +222,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="layout" name="notification_center_activity"/>
       <item type="layout" name="notification_footer_template"/>
       <item type="layout" name="notification_header_template"/>
+      <item type="layout" name="notification_older_template"/>
+      <item type="layout" name="notification_recents_template"/>
       <item type="layout" name="progress_notification_template"/>
       <item type="layout" name="progress_notification_template_inner"/>
       <item type="plurals" name="restricted_message_text"/>
@@ -235,6 +242,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="manage_text"/>
       <item type="string" name="message_unshown_count"/>
       <item type="string" name="notification_header"/>
+      <item type="string" name="notification_older"/>
+      <item type="string" name="notification_recents"/>
       <item type="string" name="notification_service_label"/>
       <item type="string" name="notifications"/>
       <item type="string" name="restricted_hun_message_content"/>

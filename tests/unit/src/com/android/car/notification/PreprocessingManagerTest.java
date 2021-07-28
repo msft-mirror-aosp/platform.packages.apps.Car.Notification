@@ -46,6 +46,7 @@ import android.service.notification.SnoozeCriterion;
 import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.testing.TestableContext;
+import android.testing.TestableResources;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -102,7 +103,11 @@ public class PreprocessingManagerTest {
     @Mock
     private StatusBarNotification mAdditionalStatusBarNotification;
     @Mock
-    private StatusBarNotification mSummaryStatusBarNotification;
+    private StatusBarNotification mSummaryAStatusBarNotification;
+    @Mock
+    private StatusBarNotification mSummaryBStatusBarNotification;
+    @Mock
+    private StatusBarNotification mSummaryCStatusBarNotification;
     @Mock
     private CarUxRestrictions mCarUxRestrictions;
     @Mock
@@ -117,6 +122,8 @@ public class PreprocessingManagerTest {
     private Notification mSummaryNotification;
     @Mock
     private PackageManager mPackageManager;
+    @Mock
+    private NotificationDataManager mNotificationDataManager;
 
     private PreprocessingManager mPreprocessingManager;
 
@@ -172,7 +179,9 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getKey()).thenReturn("KEY_NAVIGATION");
         when(mStatusBarNotification5.getKey()).thenReturn("KEY_IMPORTANT_BACKGROUND");
         when(mStatusBarNotification6.getKey()).thenReturn("KEY_IMPORTANT_FOREGROUND");
-        when(mSummaryStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY");
+        when(mSummaryAStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_A");
+        when(mSummaryBStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_B");
+        when(mSummaryCStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_C");
 
         when(mStatusBarNotification1.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification2.getGroupKey()).thenReturn(GROUP_KEY_B);
@@ -180,7 +189,9 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification5.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification6.getGroupKey()).thenReturn(GROUP_KEY_C);
-        when(mSummaryStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mSummaryAStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_A);
+        when(mSummaryBStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_B);
+        when(mSummaryCStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
 
         when(mStatusBarNotification1.getNotification()).thenReturn(mBackgroundNotification);
         when(mStatusBarNotification2.getNotification()).thenReturn(mForegroundNotification);
@@ -188,7 +199,9 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getNotification()).thenReturn(mNavigationNotification);
         when(mStatusBarNotification5.getNotification()).thenReturn(mBackgroundNotification);
         when(mStatusBarNotification6.getNotification()).thenReturn(mForegroundNotification);
-        when(mSummaryStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
+        when(mSummaryAStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
+        when(mSummaryBStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
+        when(mSummaryCStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
 
         when(mStatusBarNotification1.getPackageName()).thenReturn(PKG);
         when(mStatusBarNotification2.getPackageName()).thenReturn(PKG);
@@ -196,7 +209,9 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getPackageName()).thenReturn(PKG);
         when(mStatusBarNotification5.getPackageName()).thenReturn(PKG);
         when(mStatusBarNotification6.getPackageName()).thenReturn(PKG);
-        when(mSummaryStatusBarNotification.getPackageName()).thenReturn(PKG);
+        when(mSummaryAStatusBarNotification.getPackageName()).thenReturn(PKG);
+        when(mSummaryBStatusBarNotification.getPackageName()).thenReturn(PKG);
+        when(mSummaryCStatusBarNotification.getPackageName()).thenReturn(PKG);
 
         when(mSummaryNotification.isGroupSummary()).thenReturn(true);
 
@@ -372,6 +387,48 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onGroup_groupsNotificationsBySeenUnseen() {
+        setShowRecentsAndOlderHeaders(true);
+        PreprocessingManager.refreshInstance();
+        mPreprocessingManager = PreprocessingManager.getInstance(mContext);
+        when(mNotificationDataManager.isNotificationSeen(mLessImportantForeground))
+                .thenReturn(true);
+        mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
+        String[] expectedResult = new String[]{
+                mLessImportantBackground.getKey() + mMedia.getKey(),
+                mImportantBackground.getKey() + mNavigation.getKey(),
+                mImportantBackground.getKey() + mLessImportantForeground.getKey(),
+                mImportantForeground.getKey(),
+        };
+
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
+        String[] actualResult = new String[groupResult.size()];
+        for (int j = 0; j < groupResult.size(); j++) {
+            NotificationGroup group = groupResult.get(j);
+            List<AlertEntry> childNotifications = group.getChildNotifications();
+            String[] keys;
+            if (group.getGroupSummaryNotification() == null) {
+                keys = new String[childNotifications.size()];
+            } else {
+                keys = new String[childNotifications.size() + 1];
+            }
+            for (int i = 0; i < childNotifications.size(); i++) {
+                keys[i] = childNotifications.get(i).getKey();
+            }
+            if (group.getGroupSummaryNotification() != null) {
+                keys[childNotifications.size()] = group.getGroupSummaryNotification().getKey();
+            }
+            Arrays.sort(keys);
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < keys.length; i++) {
+                builder.append(keys[i]);
+            }
+            actualResult[j] = builder.toString();
+        }
+        assertThat(actualResult).isEqualTo(expectedResult);
+    }
+
+    @Test
     public void onGroup_autoGeneratedGroupWithNoGroupChildren_doesNotShowGroupSummary() {
         List<AlertEntry> list = new ArrayList<>();
         list.add(getEmptyAutoGeneratedGroupSummary());
@@ -475,7 +532,17 @@ public class PreprocessingManagerTest {
     @Test
     public void onGroup_removesNotificationGroupWithOnlySummaryNotification() {
         List<AlertEntry> list = new ArrayList<>();
-        list.add(new AlertEntry(mSummaryStatusBarNotification));
+        list.add(new AlertEntry(mSummaryCStatusBarNotification));
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(list);
+
+        assertThat(groupResult.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void onGroup_splitsNotificationsBySeenAndUnseen() {
+        List<AlertEntry> list = new ArrayList<>();
+        list.add(new AlertEntry(mSummaryCStatusBarNotification));
+
         List<NotificationGroup> groupResult = mPreprocessingManager.group(list);
 
         assertThat(groupResult.isEmpty()).isTrue();
@@ -706,6 +773,12 @@ public class PreprocessingManagerTest {
         assertThat(posted).isNotNull();
         assertThat(posted.getKey()).isEqualTo("ADDITIONAL");
         assertThat(afterSize).isEqualTo(beforeSize + 1);
+    }
+
+    private void setShowRecentsAndOlderHeaders(boolean val) {
+        TestableResources testableResources = mContext.getOrCreateTestableResources();
+        testableResources.removeOverride(R.bool.config_showRecentAndOldHeaders);
+        testableResources.addOverride(R.bool.config_showRecentAndOldHeaders, val);
     }
 
     /**
