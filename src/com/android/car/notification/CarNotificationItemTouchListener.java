@@ -36,6 +36,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
+import com.android.car.notification.template.CarNotificationOlderViewHolder;
+import com.android.car.notification.template.CarNotificationRecentsViewHolder;
 import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.car.ui.recyclerview.ScrollingLimitedViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
@@ -54,6 +56,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
 
     private final CarNotificationViewAdapter mAdapter;
+    private final NotificationDataManager mNotificationDataManager;
 
 
     /** StatusBarService for dismissing a notification. */
@@ -104,6 +107,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
 
     public CarNotificationItemTouchListener(Context context, CarNotificationViewAdapter adapter) {
         mAdapter = adapter;
+        mNotificationDataManager = NotificationDataManager.getInstance();
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
@@ -188,7 +192,9 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                         recyclerView.findContainingViewHolder(viewAtPoint);
                 if (viewHolderAtPoint instanceof CarNotificationHeaderViewHolder
                         || viewHolderAtPoint instanceof CarNotificationFooterViewHolder
-                        || viewHolderAtPoint instanceof ScrollingLimitedViewHolder) {
+                        || viewHolderAtPoint instanceof ScrollingLimitedViewHolder
+                        || viewHolderAtPoint instanceof CarNotificationRecentsViewHolder
+                        || viewHolderAtPoint instanceof CarNotificationOlderViewHolder) {
                     return false;
                 }
                 checkArgument(viewHolderAtPoint instanceof CarNotificationBaseViewHolder);
@@ -239,8 +245,10 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                     // If a group notification is expanded, we desire a behavior that swiping on the
                     // header would swipe the entire group away; while swiping on the child
                     // notifications would swipe individual child notification away.
-                    if (mAdapter.isExpanded(
-                            mViewHolder.getAlertEntry().getStatusBarNotification().getGroupKey())) {
+                    AlertEntry alertEntry = mViewHolder.getAlertEntry();
+                    String groupKey = alertEntry.getStatusBarNotification().getGroupKey();
+                    boolean isSeen = mNotificationDataManager.isNotificationSeen(alertEntry);
+                    if (mAdapter.isExpanded(groupKey, isSeen)) {
                         float itemTop = mViewHolder.itemView.getY();
                         boolean isTouchingGroupHeader =
                                 (currY > itemTop) && (currY < itemTop + mGroupHeaderHeight);
