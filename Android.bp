@@ -48,7 +48,7 @@ android_app {
         "car-uxr-client-lib"
     ],
 
-    libs: ["android.car"],
+    libs: ["android.car-system-stubs"],
 
     manifest: "AndroidManifest.xml",
 
@@ -135,7 +135,7 @@ android_library {
         "car-uxr-client-lib",
     ],
 
-    libs: ["android.car"],
+    libs: ["android.car-system-stubs"],
 
     product_variables: {
         pdk: {
