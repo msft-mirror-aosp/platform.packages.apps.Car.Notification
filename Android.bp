@@ -96,7 +96,7 @@ android_app {
         "car-uxr-client-lib",
     ],
 
-    libs: ["android.car"],
+    libs: ["android.car-system-stubs"],
 
     product_variables: {
         pdk: {
@@ -181,7 +181,7 @@ android_library {
         "car-uxr-client-lib",
     ],
 
-    libs: ["android.car"],
+    libs: ["android.car-system-stubs"],
 
     product_variables: {
         pdk: {
