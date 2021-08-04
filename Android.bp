@@ -32,6 +32,8 @@ android_app {
         enabled: false,
     },
 
+    required: ["allowed_privapp_com.android.car.notification"],
+
     dex_preopt: {
         enabled: false,
     },
@@ -75,6 +77,8 @@ android_app {
     optimize: {
         enabled: false,
     },
+
+    required: ["allowed_privapp_com.android.car.notification"],
 
     dex_preopt: {
         enabled: false,
