@@ -15,7 +15,10 @@
  */
 package com.android.car.notification.template;
 
+import static android.app.Notification.EXTRA_IS_GROUP_CONVERSATION;
+
 import android.annotation.ColorInt;
+import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.Person;
 import android.content.Context;
@@ -41,6 +44,10 @@ import java.util.List;
  * Messaging notification template that displays a messaging notification and a voice reply button.
  */
 public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder {
+    private static final String SENDER_TITLE_SEPARATOR = " • ";
+    private static final String SENDER_BODY_SEPARATOR = ": ";
+    private static final String NEW_LINE = "\n";
+
     @ColorInt
     private final int mDefaultPrimaryForegroundColor;
     private final Context mContext;
@@ -52,6 +59,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private final TextView mMessageView;
     private final TextView mUnshownCountView;
     private final ImageView mAvatarView;
+    private final String mNewMessageText;
+    private final int mMaxMessageCount;
+    private final int mMaxLineCount;
+
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
     public MessageNotificationViewHolder(
@@ -71,6 +82,11 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         mBodyView = view.findViewById(R.id.notification_body);
         mUnshownCountView = view.findViewById(R.id.message_count);
         mAvatarView = view.findViewById(R.id.notification_body_icon);
+        mNewMessageText = mContext.getString(R.string.restricted_hun_message_content);
+        mMaxMessageCount =
+                mContext.getResources().getInteger(R.integer.config_maxNumberOfMessagesInPanel);
+        mMaxLineCount =
+                mContext.getResources().getInteger(R.integer.config_maxNumberOfMessageLinesInPanel);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -103,22 +119,27 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     private void bindBody(AlertEntry alertEntry, boolean isInGroup, boolean isRestricted,
             boolean isHeadsUp) {
-
         Notification notification = alertEntry.getNotification();
+        Bundle extras = notification.extras;
         CharSequence messageText = null;
         CharSequence conversationTitle = null;
         Icon avatar = null;
         Integer messageCount = null;
 
-        final MessagingStyle messagingStyle =
+        List<Notification.MessagingStyle.Message> messages = null;
+        MessagingStyle messagingStyle =
                 MessagingStyle.extractMessagingStyleFromNotification(notification);
-        if (messagingStyle != null) conversationTitle = messagingStyle.getConversationTitle();
+        if (messagingStyle != null) {
+            conversationTitle = messagingStyle.getConversationTitle();
+        }
+        boolean isGroupConversation =
+                ((messagingStyle != null && messagingStyle.isGroupConversation())
+                        || extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION));
 
-        Bundle extras = notification.extras;
         Parcelable[] messagesData = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
         if (messagesData != null) {
-            List<Notification.MessagingStyle.Message> messages =
-                    Notification.MessagingStyle.Message.getMessagesFromBundleArray(messagesData);
+            messages = Notification.MessagingStyle.Message
+                    .getMessagesFromBundleArray(messagesData);
             if (messages != null && !messages.isEmpty()) {
                 messageCount = messages.size();
                 // Use the latest message
@@ -128,17 +149,33 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                 if (sender != null) {
                     avatar = sender.getIcon();
                 }
-                if (conversationTitle == null) {
-                    conversationTitle = sender != null ? sender.getName() : message.getSender();
+                CharSequence senderName =
+                        (sender != null ? sender.getName() : message.getSender());
+                if (isGroupConversation && conversationTitle != null && isHeadsUp) {
+                    // If conversation title has been set, conversation is a group conversation
+                    // and notification is a HUN, then prepend sender's name to title.
+                    conversationTitle = senderName + SENDER_TITLE_SEPARATOR + conversationTitle;
+                } else if (conversationTitle == null) {
+                    // If conversation title has not been set, set it as sender's name.
+                    conversationTitle = senderName;
+                }
+
+                if (!isHeadsUp && isGroupConversation) {
+                    // If conversation is a group conversation and notification is not a HUN,
+                    // then prepend sender's name to title.
+                    messageText = senderName + SENDER_BODY_SEPARATOR + messageText;
                 }
             }
         }
 
-        // app did not use messaging style, fall back to standard fields
+        boolean messageStyleFlag = true;
+        // App did not use messaging style, fall back to standard fields
         if (messageCount == null) {
+            messageStyleFlag = false;
             messageCount = notification.number;
             if (messageCount == 0) {
-                messageCount = 1; // a notification should at least represent 1 message
+                // A notification should at least represent 1 message
+                messageCount = 1;
             }
         }
 
@@ -146,8 +183,13 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             conversationTitle = extras.getCharSequence(Notification.EXTRA_TITLE);
         }
         if (isRestricted) {
-            messageText = mContext.getResources().getQuantityString(
-                    R.plurals.restricted_message_text, messageCount, messageCount);
+            if (isHeadsUp || messageCount == 1) {
+                messageText = mNewMessageText;
+            } else {
+                messageText =
+                        mContext.getString(R.string.restricted_numbered_message_content,
+                                messageCount);
+            }
         } else if (TextUtils.isEmpty(messageText)) {
             messageText = extras.getCharSequence(Notification.EXTRA_TEXT);
         }
@@ -178,12 +220,16 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         }
 
         int unshownCount = messageCount - 1;
-        if (!isRestricted && unshownCount > 0) {
-            String unshownCountText =
-                    mContext.getString(R.string.message_unshown_count, unshownCount);
+        String unshownCountText;
+        if (!isRestricted && unshownCount > 0 && !isHeadsUp && messageStyleFlag) {
+            // If car is in parked mode, notification is not HUN, more messages exist
+            // and notification used message style, then add an expandable message count section.
+            unshownCountText = mContext.getString(R.string.message_unshown_count, unshownCount);
             mUnshownCountView.setVisibility(View.VISIBLE);
             mUnshownCountView.setText(unshownCountText);
             mUnshownCountView.setTextColor(getAccentColor());
+            mUnshownCountView.setOnClickListener(
+                    getCountViewOnClickListener(unshownCount, messages, isGroupConversation));
         }
 
         if (isHeadsUp) {
@@ -206,8 +252,56 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         mAvatarView.setVisibility(View.GONE);
         mAvatarView.setImageIcon(null);
 
-        mUnshownCountView.setVisibility(View.GONE);
-        mUnshownCountView.setText(null);
-        mUnshownCountView.setTextColor(mDefaultPrimaryForegroundColor);
+        if (mUnshownCountView != null) {
+            // unshown count doesn't exist in HUN.
+            mUnshownCountView.setVisibility(View.GONE);
+            mUnshownCountView.setText(null);
+            mUnshownCountView.setOnClickListener(null);
+            mUnshownCountView.setTextColor(mDefaultPrimaryForegroundColor);
+        }
+    }
+
+    private View.OnClickListener getCountViewOnClickListener(int unshownCount,
+            @Nullable List<Notification.MessagingStyle.Message> messages,
+            boolean isGroupConversation) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = messages.size() - 1; i >= messages.size() - 1 - mMaxMessageCount && i >= 0;
+                i--) {
+            if (i != messages.size() - 1) {
+                builder.append(NEW_LINE);
+                builder.append(NEW_LINE);
+            }
+            unshownCount--;
+            Notification.MessagingStyle.Message message = messages.get(i);
+            Person sender = message.getSenderPerson();
+            CharSequence senderName =
+                    (sender != null ? sender.getName() : message.getSender());
+            if (isGroupConversation) {
+                builder.append(senderName + SENDER_BODY_SEPARATOR + message.getText());
+            } else {
+                builder.append(message.getText());
+            }
+            if (builder.toString().split(NEW_LINE).length >= mMaxLineCount) {
+                break;
+            }
+        }
+        String finalMessage = builder.toString();
+
+        int finalUnshownCount = unshownCount;
+        return view -> {
+            mMessageView.setMaxLines(mMaxLineCount);
+
+            if (finalUnshownCount <= 0) {
+                mUnshownCountView.setVisibility(View.GONE);
+            } else {
+                String unshownCountText =
+                        mContext.getString(R.string.restricted_numbered_message_content,
+                                finalUnshownCount);
+                mUnshownCountView.setText(unshownCountText);
+            }
+
+            mMessageView.setText(finalMessage);
+            mUnshownCountView.setOnClickListener(null);
+        };
     }
 }
