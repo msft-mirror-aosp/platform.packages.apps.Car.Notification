@@ -24,7 +24,7 @@
     <string name="action_unmute_long" msgid="22482625837159466">"సంభాషణను అన్‌మ్యూట్ చేయండి"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\"డ్రైవ్‌ చేస్తున్నాను.\""</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"నేనిప్పుడు డ్రైవ్ చేస్తున్నాను."</string>
-    <string name="toast_message_sent_success" msgid="1159956191974273064">"సందేశం విజయవంతంగా పంపబడింది."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"మెసేజ్‌ విజయవంతంగా పంపబడింది."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"కార్ నోటిఫికేషన్ వినే కేంద్రం"</string>
     <string name="notifications" msgid="2865534625906329283">"నోటిఫికేషన్ కేంద్రం"</string>
     <string name="clear_all" msgid="1845314281571237722">"అన్నీ తీసివేయి"</string>
@@ -36,7 +36,7 @@
     <string name="show_count_more" msgid="480555295700318609">"మరిన్ని <xliff:g id="COUNT">%d</xliff:g> చూపు"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> మరిన్ని"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> కొత్త సందేశాలు</item>
-      <item quantity="one">1 కొత్త సందేశం</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> కొత్త మెసేజ్‌లు</item>
+      <item quantity="one">1 కొత్త మెసేజ్‌</item>
     </plurals>
 </resources>
