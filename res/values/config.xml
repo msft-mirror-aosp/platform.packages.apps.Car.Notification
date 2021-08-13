@@ -35,6 +35,12 @@
     <integer name="config_headsUpNotificationMaxBodyLines">1</integer>
     <!-- The number of lines of body text to show for notifications inside the notification panel -->
     <integer name="config_notificationPanelMaxBodyLines">3</integer>
+    <!-- The maximum number of messages to show in body text for message notifications inside the
+         notification panel. -->
+    <integer name="config_maxNumberOfMessagesInPanel">7</integer>
+    <!-- The maximum number of lines to show in body text for message notifications inside the
+         notification panel. Must be greater than config_maxNumberOfMessagesInPanel. -->
+    <integer name="config_maxNumberOfMessageLinesInPanel">9</integer>
     <!-- Animation helper for animating heads up notification showing on screen and leaving the screen. -->
     <string name="config_headsUpNotificationAnimationHelper" translatable="false">
         com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationTopAnimationHelper</string>
