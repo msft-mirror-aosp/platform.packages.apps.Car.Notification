@@ -166,6 +166,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="touch_interceptor_view"/>
       <item type="integer" name="clear_all_notifications_animation_delay_interval_ms"/>
       <item type="integer" name="config_headsUpNotificationMaxBodyLines"/>
+      <item type="integer" name="config_maxNumberOfMessageLinesInPanel"/>
+      <item type="integer" name="config_maxNumberOfMessagesInPanel"/>
       <item type="integer" name="config_notificationPanelMaxBodyLines"/>
       <item type="integer" name="delay_between_clear_all_notifications_end_and_collapse_shade_panel_ms"/>
       <item type="integer" name="heads_up_notification_minimum_time"/>
@@ -235,6 +237,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="notification_header"/>
       <item type="string" name="notification_service_label"/>
       <item type="string" name="notifications"/>
+      <item type="string" name="restricted_hun_message_content"/>
+      <item type="string" name="restricted_numbered_message_content"/>
       <item type="string" name="show_count_more"/>
       <item type="string" name="show_less"/>
       <item type="string" name="show_more"/>
