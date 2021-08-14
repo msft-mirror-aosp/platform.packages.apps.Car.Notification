@@ -41,7 +41,7 @@ import com.android.car.notification.R;
  * the content is the message, and the image icon is the sender's avatar.
  */
 public class CarNotificationBodyView extends RelativeLayout {
-    private static final int DEFAULT_MAX_LINES = 1;
+    private static final int DEFAULT_MAX_LINES = 3;
     @ColorInt
     private final int mDefaultPrimaryTextColor;
     @ColorInt
