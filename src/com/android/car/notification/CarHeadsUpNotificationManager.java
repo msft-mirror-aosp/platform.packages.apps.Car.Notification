@@ -314,7 +314,8 @@ public class CarHeadsUpNotificationManager
             currentNotification.setNotificationView(mInflater.inflate(
                     notificationTypeItem.getHeadsUpTemplate(),
                     null));
-            mHunContainer.displayNotification(currentNotification.getNotificationView());
+            mHunContainer.displayNotification(currentNotification.getNotificationView(),
+                    notificationTypeItem);
             currentNotification.setViewHolder(
                     notificationTypeItem.getViewHolder(currentNotification.getNotificationView(),
                             mClickHandlerFactory));

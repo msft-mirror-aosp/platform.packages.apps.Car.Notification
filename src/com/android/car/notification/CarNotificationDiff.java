@@ -46,22 +46,13 @@ class CarNotificationDiff extends DiffUtil.Callback {
     private final List<NotificationGroup> mNewList;
     private final int mMaxItems;
 
-    CarNotificationDiff(
-            Context context,
-            @NonNull
-            List<NotificationGroup> oldList,
-            @NonNull
-            List<NotificationGroup> newList) {
+    CarNotificationDiff(Context context, @NonNull List<NotificationGroup> oldList,
+            @NonNull List<NotificationGroup> newList) {
         this(context, oldList, newList, ContentLimitingAdapter.UNLIMITED);
     }
 
-    CarNotificationDiff(
-            Context context,
-            @NonNull
-            List<NotificationGroup> oldList,
-            @NonNull
-            List<NotificationGroup> newList,
-            int maxItems) {
+    CarNotificationDiff(Context context, @NonNull List<NotificationGroup> oldList,
+            @NonNull List<NotificationGroup> newList, int maxItems) {
         mContext = context;
         mOldList = oldList;
         mNewList = newList;
@@ -214,7 +205,7 @@ class CarNotificationDiff extends DiffUtil.Callback {
                 || !Objects.equals(oldNotification.contentIntent, newNotification.contentIntent)
                 || !Objects.equals(oldNotification.deleteIntent, newNotification.deleteIntent)
                 || !Objects.equals(
-                        oldNotification.fullScreenIntent, newNotification.fullScreenIntent)
+                oldNotification.fullScreenIntent, newNotification.fullScreenIntent)
                 || !Objects.deepEquals(oldNotification.actions, newNotification.actions)) {
             return false;
         }
