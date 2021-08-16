@@ -25,7 +25,6 @@ android_app {
     resource_dirs: ["res", "res-overlayable",],
 
     platform_apis: true,
-    system_ext_specific: true,
     certificate: "platform",
     privileged: true,
 
