@@ -76,7 +76,8 @@ public class CarNotificationListenerTest {
         mCarNotificationListener.setHandler(mHandler);
 
         mCarNotificationListener.registerAsSystemService(mContext, mCarUxRestrictionManagerWrapper,
-                mCarHeadsUpNotificationManager, mNotificationDataManager);
+                mCarHeadsUpNotificationManager);
+        mCarNotificationListener.setNotificationDataManager(mNotificationDataManager);
 
         createMockRankingMap(NotificationManager.IMPORTANCE_DEFAULT);
 

@@ -63,6 +63,7 @@ public class CarNotificationView extends ConstraintLayout
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
+        mNotificationDataManager = NotificationDataManager.getInstance();
     }
 
     /**
@@ -179,17 +180,6 @@ public class CarNotificationView extends ConstraintLayout
     public void setClickHandlerFactory(NotificationClickHandlerFactory clickHandlerFactory) {
         mClickHandlerFactory = clickHandlerFactory;
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
-    }
-
-    /**
-     * Sets NotificationDataManager that handles additional states for notifications such as "seen",
-     * and muting a messaging type notification.
-     *
-     * @param notificationDataManager An instance of NotificationDataManager.
-     */
-    public void setNotificationDataManager(NotificationDataManager notificationDataManager) {
-        mNotificationDataManager = notificationDataManager;
-        mAdapter.setNotificationDataManager(notificationDataManager);
     }
 
     /**

@@ -58,6 +58,7 @@ public class CarNotificationActionsView extends LinearLayout implements
     private final List<Button> mActionButtons = new ArrayList<>();
     private final Context mContext;
     private final CarAssistUtils mCarAssistUtils;
+    private NotificationDataManager mNotificationDataManager;
 
     private boolean mIsCategoryCall;
     private boolean mIsInCall;
@@ -86,7 +87,13 @@ public class CarNotificationActionsView extends LinearLayout implements
 
         mContext = context;
         mCarAssistUtils = carAssistUtils;
+        mNotificationDataManager = NotificationDataManager.getInstance();
         init(attrs);
+    }
+
+    @VisibleForTesting
+    void setNotificationDataManager(NotificationDataManager notificationDataManager) {
+        mNotificationDataManager = notificationDataManager;
     }
 
     private void init(@Nullable AttributeSet attrs) {
@@ -213,8 +220,8 @@ public class CarNotificationActionsView extends LinearLayout implements
         if (mIsInCall) index = FIRST_MESSAGE_ACTION_BUTTON_INDEX;
 
         Button button = mActionButtons.get(index);
-        NotificationDataManager manager = clickHandlerFactory.getNotificationDataManager();
-        button.setText((manager != null && manager.isMessageNotificationMuted(alertEntry))
+        button.setText(
+                (mNotificationDataManager.isMessageNotificationMuted(alertEntry))
                 ? mContext.getString(R.string.action_unmute_long)
                 : mContext.getString(R.string.action_mute_long));
         button.setVisibility(View.VISIBLE);

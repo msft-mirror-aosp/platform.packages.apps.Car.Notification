@@ -43,6 +43,9 @@ public class NotificationGroup {
 
     private boolean mIsHeader;
     private boolean mIsFooter;
+    private boolean mIsRecentsHeader;
+    private boolean mIsOlderHeader;
+    private boolean mIsSeen;
 
     public NotificationGroup() {
     }
@@ -91,6 +94,13 @@ public class NotificationGroup {
     }
 
     /**
+     * Return true if this group is a header, footer, recents header or older header.
+     */
+    public boolean isHeaderOrFooter() {
+        return isHeader() || isFooter() || isOlderHeader() || isRecentsHeader();
+    }
+
+    /**
      * Return true if the header is set to be displayed.
      */
     public boolean isHeader() {
@@ -116,6 +126,48 @@ public class NotificationGroup {
      */
     public void setFooter(boolean footer) {
         mIsFooter = footer;
+    }
+
+    /**
+     * Return true if the recents header is set to be displayed.
+     */
+    public boolean isRecentsHeader() {
+        return mIsRecentsHeader;
+    }
+
+    /**
+     * Set this to true if a header is a recents header.
+     */
+    public void setRecentsHeader(boolean isRecentsHeader) {
+        mIsRecentsHeader = isRecentsHeader;
+    }
+
+    /**
+     * Return true if the older notifications header is set to be displayed.
+     */
+    public boolean isOlderHeader() {
+        return mIsOlderHeader;
+    }
+
+    /**
+     * Set this to true if a header is a older notifications header.
+     */
+    public void setOlderHeader(boolean isOlderHeader) {
+        mIsOlderHeader = isOlderHeader;
+    }
+
+    /**
+     * Return true if the notification group has been seen.
+     */
+    public boolean isSeen() {
+        return mIsSeen;
+    }
+
+    /**
+     * Set this to true if the notification group has been seen.
+     */
+    public void setSeen(boolean isSeen) {
+        mIsSeen = isSeen;
     }
 
     /**
@@ -238,6 +290,9 @@ public class NotificationGroup {
 
     @Override
     public String toString() {
-        return mGroupKey;
+        if (mNotifications.isEmpty()) {
+            return "GroupKey: " + mGroupKey;
+        }
+        return mNotifications.toString();
     }
 }

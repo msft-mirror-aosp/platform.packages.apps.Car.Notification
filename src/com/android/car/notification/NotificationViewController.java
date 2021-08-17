@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class is a bridge to collect signals from the notification and ux restriction services and
@@ -21,6 +20,7 @@ public class NotificationViewController {
     private final CarNotificationView mCarNotificationView;
     private final PreprocessingManager mPreprocessingManager;
     private final CarNotificationListener mCarNotificationListener;
+    private final boolean mShowRecentsAndOlderHeaders;
     private CarUxRestrictionManagerWrapper mUxResitrictionListener;
     private NotificationDataManager mNotificationDataManager;
     private NotificationUpdateHandler mNotificationUpdateHandler = new NotificationUpdateHandler();
@@ -30,13 +30,14 @@ public class NotificationViewController {
     public NotificationViewController(CarNotificationView carNotificationView,
             PreprocessingManager preprocessingManager,
             CarNotificationListener carNotificationListener,
-            CarUxRestrictionManagerWrapper uxResitrictionListener,
-            NotificationDataManager notificationDataManager) {
+            CarUxRestrictionManagerWrapper uxResitrictionListener) {
         mCarNotificationView = carNotificationView;
         mPreprocessingManager = preprocessingManager;
         mCarNotificationListener = carNotificationListener;
         mUxResitrictionListener = uxResitrictionListener;
-        mNotificationDataManager = notificationDataManager;
+        mNotificationDataManager = NotificationDataManager.getInstance();
+        mShowRecentsAndOlderHeaders = mCarNotificationView.getContext()
+                        .getResources().getBoolean(R.bool.config_showRecentAndOldHeaders);
 
         // Long clicking on the notification center title toggles hiding media, navigation, and
         // less important (< IMPORTANCE_DEFAULT) ongoing foreground service notifications.
@@ -97,8 +98,7 @@ public class NotificationViewController {
      * Reset notifications to the latest state.
      */
     private void resetNotifications(boolean showLessImportantNotifications) {
-        mPreprocessingManager.init(
-                mCarNotificationListener.getNotifications(),
+        mPreprocessingManager.init(mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
 
         List<NotificationGroup> notificationGroups = mPreprocessingManager.process(
@@ -110,12 +110,10 @@ public class NotificationViewController {
             Log.d(TAG, "Processed notification groups: " + notificationGroups);
         }
 
-        List<NotificationGroup> unseenNotifications = notificationGroups.stream()
-                .filter(g -> g.getChildNotifications().stream()
-                        .anyMatch(mCarNotificationListener::shouldTrackUnseen))
-                .collect(Collectors.toList());
+        if (!mShowRecentsAndOlderHeaders) {
+            mNotificationDataManager.updateUnseenNotificationGroups(notificationGroups);
+        }
 
-        mNotificationDataManager.updateUnseenNotification(unseenNotifications);
         mCarNotificationView.setNotifications(notificationGroups);
     }
 
@@ -140,6 +138,7 @@ public class NotificationViewController {
         if (DEBUG) {
             Log.d(TAG, "Updated notification groups: " + notificationGroups);
         }
+
         mCarNotificationView.setNotifications(notificationGroups);
     }
 
