@@ -120,8 +120,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
      * directly and binding the onclick listener manually because the card's on click behavior is
      * different when collapsed/expanded.
      */
-    public void bind(
-            NotificationGroup group, CarNotificationViewAdapter parentAdapter, boolean isExpanded) {
+    public void bind(NotificationGroup group, CarNotificationViewAdapter parentAdapter,
+            boolean isExpanded) {
         reset();
 
         mNotificationGroup = group;
@@ -147,6 +147,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             group.getChildNotifications().forEach(notification -> {
                 NotificationGroup notificationGroup = new NotificationGroup();
                 notificationGroup.addNotification(notification);
+                notificationGroup.setSeen(group.isSeen());
                 list.add(notificationGroup);
             });
         } else {
@@ -156,6 +157,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             // only show group summary notification
             NotificationGroup newGroup = new NotificationGroup();
             newGroup.addNotification(group.getGroupSummaryNotification());
+            newGroup.setSeen(group.isSeen());
             // If the group summary notification is automatically generated,
             // it does not contain a summary of the titles of the child notifications.
             // Therefore, we generate a list of the child notification titles from
@@ -167,7 +169,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
                 /* setRecyclerViewListHeaderAndFooter= */ false);
 
         updateExpansionIcon(group.getChildCount(), isExpanded);
-        updateOnClickListener(parentAdapter, group, isExpanded);
+        updateOnClickListener(parentAdapter, isExpanded);
     }
 
     private void updateExpansionIcon(int childCount, boolean isExpanded) {
@@ -201,12 +203,13 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         updateDismissButton(getAlertEntry(), /* isHeadsUp= */ false);
     }
 
-    private void updateOnClickListener(
-            CarNotificationViewAdapter parentAdapter, NotificationGroup group, boolean isExpanded) {
+    private void updateOnClickListener(CarNotificationViewAdapter parentAdapter,
+            boolean isExpanded) {
 
         View.OnClickListener expansionClickListener = view -> {
             boolean isExpanding = !isExpanded;
-            parentAdapter.setExpanded(group.getGroupKey(), isExpanding);
+            parentAdapter.setExpanded(mNotificationGroup.getGroupKey(), mNotificationGroup.isSeen(),
+                    isExpanding);
             mAdapter.notifyDataSetChanged();
         };
 
