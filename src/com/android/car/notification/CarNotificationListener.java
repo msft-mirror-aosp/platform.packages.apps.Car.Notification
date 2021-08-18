@@ -32,6 +32,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
 
 import java.util.HashMap;
@@ -75,14 +77,12 @@ public class CarNotificationListener extends NotificationListenerService impleme
      * @param context Context required for registering the service.
      * @param carUxRestrictionManagerWrapper will have the heads up manager registered with it.
      * @param carHeadsUpNotificationManager HUN controller.
-     * @param notificationDataManager used for keeping track of additional notification states.
      */
     public void registerAsSystemService(Context context,
             CarUxRestrictionManagerWrapper carUxRestrictionManagerWrapper,
-            CarHeadsUpNotificationManager carHeadsUpNotificationManager,
-            NotificationDataManager notificationDataManager) {
+            CarHeadsUpNotificationManager carHeadsUpNotificationManager) {
         try {
-            mNotificationDataManager = notificationDataManager;
+            mNotificationDataManager = NotificationDataManager.getInstance();
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
                     ActivityManager.getCurrentUser());
@@ -95,15 +95,19 @@ public class CarNotificationListener extends NotificationListenerService impleme
         }
     }
 
+    @VisibleForTesting
+    void setNotificationDataManager(NotificationDataManager notificationDataManager) {
+        mNotificationDataManager = notificationDataManager;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        mNotificationDataManager = new NotificationDataManager();
+        mNotificationDataManager = NotificationDataManager.getInstance();
         NotificationApplication app = (NotificationApplication) getApplication();
 
-        app.getClickHandlerFactory().setNotificationDataManager(mNotificationDataManager);
         mHeadsUpManager = new CarHeadsUpNotificationManager(/* context= */ this,
-                app.getClickHandlerFactory(), mNotificationDataManager, new CarHeadsUpNotificationAppContainer(this));
+                app.getClickHandlerFactory(), new CarHeadsUpNotificationAppContainer(this));
         mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
         app.getCarUxRestrictionWrapper().setCarHeadsUpNotificationManager(mHeadsUpManager);
     }
@@ -122,6 +126,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
         }
 
         Log.d(TAG, "onNotificationPosted: " + sbn);
+        if (DEBUG) {
+            Log.d(TAG, "Is incoming notification a group summary?: "
+                    + sbn.getNotification().isGroupSummary());
+        }
         if (!isNotificationForCurrentUser(sbn)) {
             if (DEBUG) {
                 Log.d(TAG, "Notification is not for current user: " + sbn.toString());
@@ -217,7 +225,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     private void notifyNotificationPosted(AlertEntry alertEntry) {
-        if (shouldTrackUnseen(alertEntry)) {
+        if (isNotificationHigherThanLowImportance(alertEntry)) {
             mNotificationDataManager.addNewMessageNotification(alertEntry);
         } else {
             mNotificationDataManager.untrackUnseenNotification(alertEntry);
@@ -275,9 +283,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         mHandler.sendMessage(msg);
     }
 
-    // Don't show unseen markers for <= LOW importance notifications to be consistent
-    // with how these notifications are handled on phones
-    boolean shouldTrackUnseen(AlertEntry alertEntry) {
+    private boolean isNotificationHigherThanLowImportance(AlertEntry alertEntry) {
         Ranking ranking = new NotificationListenerService.Ranking();
         mRankingMap.getRanking(alertEntry.getKey(), ranking);
         return ranking.getImportance() > NotificationManager.IMPORTANCE_LOW;

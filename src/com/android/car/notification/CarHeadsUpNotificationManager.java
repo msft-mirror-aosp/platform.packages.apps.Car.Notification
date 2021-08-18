@@ -100,13 +100,12 @@ public class CarHeadsUpNotificationManager
 
     public CarHeadsUpNotificationManager(Context context,
             NotificationClickHandlerFactory clickHandlerFactory,
-            NotificationDataManager notificationDataManager,
             CarHeadsUpNotificationContainer hunContainer) {
         mContext = context.getApplicationContext();
         mEnableNavigationHeadsup =
                 context.getResources().getBoolean(R.bool.config_showNavigationHeadsup);
         mClickHandlerFactory = clickHandlerFactory;
-        mNotificationDataManager = notificationDataManager;
+        mNotificationDataManager = NotificationDataManager.getInstance();
         mBeeper = new Beeper(mContext);
         mDuration = mContext.getResources().getInteger(R.integer.headsup_notification_duration_ms);
         mNotificationHeadsUpCardMarginTop = (int) mContext.getResources().getDimension(
@@ -121,6 +120,11 @@ public class CarHeadsUpNotificationManager
         mClickHandlerFactory.registerClickListener(
                 (launchResult, alertEntry) -> dismissHun(alertEntry));
         mHunContainer = hunContainer;
+    }
+
+    @VisibleForTesting
+    void setNotificationDataManager(NotificationDataManager notificationDataManager) {
+        mNotificationDataManager = notificationDataManager;
     }
 
     private HeadsUpNotificationAnimationHelper getAnimationHelper() {
