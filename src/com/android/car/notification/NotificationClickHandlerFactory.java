@@ -33,8 +33,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.core.app.NotificationCompat;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.NotificationCompat;
 
 import com.android.car.assist.CarVoiceInteractionSession;
 import com.android.car.assist.client.CarAssistUtils;
@@ -81,28 +81,12 @@ public class NotificationClickHandlerFactory {
         mBarService = barService;
         mCarAssistUtils = null;
         mMainHandler = new Handler(Looper.getMainLooper());
+        mNotificationDataManager = NotificationDataManager.getInstance();
     }
 
     @VisibleForTesting
     void setCarAssistUtils(CarAssistUtils carAssistUtils) {
         mCarAssistUtils = carAssistUtils;
-    }
-
-    /**
-     * Sets the {@link NotificationDataManager} which contains additional state information of the
-     * {@link AlertEntry}s.
-     */
-    public void setNotificationDataManager(NotificationDataManager manager) {
-        mNotificationDataManager = manager;
-    }
-
-    /**
-     * Returns the {@link NotificationDataManager} which contains additional state information of
-     * the {@link AlertEntry}s.
-     */
-    @Nullable
-    public NotificationDataManager getNotificationDataManager() {
-        return mNotificationDataManager;
     }
 
     /**
@@ -331,9 +315,9 @@ public class NotificationClickHandlerFactory {
      * Invokes all onNotificationClicked handlers registered in {@link OnNotificationClickListener}s
      * array.
      */
-    private void handleNotificationClicked(int launceResult, AlertEntry alertEntry) {
+    private void handleNotificationClicked(int launchResult, AlertEntry alertEntry) {
         mClickListeners.forEach(
-                listener -> listener.onNotificationClicked(launceResult, alertEntry));
+                listener -> listener.onNotificationClicked(launchResult, alertEntry));
     }
 
     private void clearNotification(AlertEntry alertEntry) {

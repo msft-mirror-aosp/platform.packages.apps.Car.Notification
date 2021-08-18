@@ -363,6 +363,7 @@ public class CarNotificationActionsViewTest {
                 mCarAssistUtils);
         mCarNotificationActionsView.setCategoryIsCall(isCall);
         mCarNotificationActionsView.onFinishInflate();
+        mCarNotificationActionsView.setNotificationDataManager(mNotificationDataManager);
     }
 
     private void statusBarNotificationHasActions(boolean hasActions) {
@@ -375,7 +376,5 @@ public class CarNotificationActionsViewTest {
     private void messageIsMuted(boolean isMuted) {
         when(mNotificationDataManager.isMessageNotificationMuted(any(AlertEntry.class)))
                 .thenReturn(isMuted);
-        when(mNotificationClickHandlerFactory.getNotificationDataManager())
-                .thenReturn(mNotificationDataManager);
     }
 }
