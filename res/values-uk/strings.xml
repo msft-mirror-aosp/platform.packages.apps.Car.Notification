@@ -34,7 +34,9 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"Немає сповіщень"</string>
     <string name="show_less" msgid="7342677676229302829">"Показати менше"</string>
     <string name="show_count_more" msgid="480555295700318609">"Показати ще <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" +ще <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"Повідомлень: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Нових повідомлень: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"Нове повідомлення"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> нове повідомлення</item>
       <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> нові повідомлення</item>
