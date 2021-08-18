@@ -34,7 +34,9 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"Märguandeid pole"</string>
     <string name="show_less" msgid="7342677676229302829">"Kuva vähem"</string>
     <string name="show_count_more" msgid="480555295700318609">"Kuva veel <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" ja veel <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"Veel <xliff:g id="COUNT">%d</xliff:g> sõnumit"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> uut sõnumit"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"Uus sõnum"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> uut sõnumit</item>
       <item quantity="one">1 uus sõnum</item>

@@ -34,7 +34,12 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ"</string>
     <string name="show_less" msgid="7342677676229302829">"ಕಡಿಮೆ ತೋರಿಸಿ"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> ಇನ್ನಷ್ಟು ತೋರಿಸಿ"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> ಇನ್ನಷ್ಟು"</string>
+    <!-- no translation found for message_unshown_count (8511753143668166196) -->
+    <skip />
+    <!-- no translation found for restricted_numbered_message_content (1272426343864230998) -->
+    <skip />
+    <!-- no translation found for restricted_hun_message_content (631111937988857716) -->
+    <skip />
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> ಹೊಸ ಸಂದೇಶಗಳು</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ಹೊಸ ಸಂದೇಶಗಳು</item>
