@@ -21,6 +21,9 @@ import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
@@ -67,6 +70,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      * group.
      */
     private boolean mHideDismissButton;
+    private boolean mUseLauncherIcon;
 
     @ColorInt
     private final int mDefaultBackgroundColor;
@@ -113,6 +117,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mDismissButton = itemView.findViewById(R.id.dismiss_button);
         mAlwaysShowDismissButton = mContext.getResources().getBoolean(
                 R.bool.config_alwaysShowNotificationDismissButton);
+        mUseLauncherIcon = mContext.getResources().getBoolean(R.bool.config_useLauncherIcon);
         mFocusChangeListener = (oldFocus, newFocus) -> {
             if (mDismissButton != null && !mAlwaysShowDismissButton) {
                 // The dismiss button should only be visible when the focus is on this notification
@@ -192,7 +197,6 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
         headerView.setSmallIconColor(mSmallIconColor);
         headerView.setHeaderTextColor(mCalculatedPrimaryForegroundColor);
-        headerView.setTimeTextColor(mCalculatedPrimaryForegroundColor);
     }
 
     /**
@@ -208,6 +212,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
         bodyView.setPrimaryTextColor(mCalculatedPrimaryForegroundColor);
         bodyView.setSecondaryTextColor(mCalculatedSecondaryForegroundColor);
+        bodyView.setTimeTextColor(mCalculatedPrimaryForegroundColor);
     }
 
     private void initializeColors(boolean isInGroup) {
@@ -283,10 +288,6 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         if (mCardView != null) {
             mCardView.setOnClickListener(null);
             mCardView.setCardBackgroundColor(mDefaultBackgroundColor);
-        }
-
-        if (mHeaderView != null) {
-            mHeaderView.reset();
         }
 
         if (mBodyView != null) {
@@ -401,5 +402,15 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
     View.OnClickListener getDismissHandler(AlertEntry alertEntry) {
         return mClickHandlerFactory.getDismissHandler(alertEntry);
+    }
+
+    @Nullable
+    Drawable loadAppLauncherIcon(StatusBarNotification sbn) {
+        if (!mUseLauncherIcon) {
+            return null;
+        }
+        Context packageContext = sbn.getPackageContext(mContext);
+        PackageManager pm = packageContext.getPackageManager();
+        return pm.getApplicationIcon(packageContext.getApplicationInfo());
     }
 }
