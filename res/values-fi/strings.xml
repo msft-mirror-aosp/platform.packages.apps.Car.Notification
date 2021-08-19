@@ -34,7 +34,12 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"Ei ilmoituksia"</string>
     <string name="show_less" msgid="7342677676229302829">"Näytä vähemmän"</string>
     <string name="show_count_more" msgid="480555295700318609">"Näytä vielä <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> muuta"</string>
+    <!-- no translation found for message_unshown_count (8511753143668166196) -->
+    <skip />
+    <!-- no translation found for restricted_numbered_message_content (1272426343864230998) -->
+    <skip />
+    <!-- no translation found for restricted_hun_message_content (631111937988857716) -->
+    <skip />
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> uutta viestiä</item>
       <item quantity="one">1 uusi viesti</item>

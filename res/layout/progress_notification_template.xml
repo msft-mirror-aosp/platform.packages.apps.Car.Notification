@@ -34,8 +34,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/inner_template_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/car_notification_card_inner_top_margin">
+            android:layout_height="wrap_content">
 
             <com.android.car.notification.template.CarNotificationHeaderView
                 android:id="@+id/notification_header"
@@ -45,8 +44,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/card_start_margin"
                 android:layout_marginEnd="@dimen/card_end_margin"
-                android:layout_marginBottom="@dimen/card_header_margin_bottom"
-                android:minHeight="@dimen/card_min_top_padding"
+                android:layout_marginTop="@dimen/card_body_margin_top"
                 app:isHeadsUp="false"/>
 
             <include
@@ -61,9 +59,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/notification_header"
-                android:layout_marginBottom="@dimen/item_spacing"
-                app:maxLines="@integer/config_notificationPanelMaxBodyLines"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_marginTop="@dimen/card_body_margin_top"
+                android:layout_marginBottom="@dimen/card_body_margin_bottom"
                 app:showBigIcon="true"
+                app:maxLines="@integer/config_notificationPanelMaxBodyLines"
                 app:isHeadsUp="false"/>
 
             <ProgressBar
@@ -73,7 +73,7 @@
                 android:layout_below="@id/notification_body"
                 android:layout_marginStart="@dimen/card_start_margin"
                 android:layout_marginEnd="@dimen/card_end_margin"
-                android:layout_marginTop="@dimen/item_spacing"
+                android:layout_marginTop="@dimen/card_body_margin_top"
                 android:layout_marginBottom="@dimen/card_body_margin_bottom"
                 style="?android:attr/progressBarStyleHorizontal"/>
 
@@ -82,7 +82,8 @@
                 style="@style/NotificationActionViewLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/progress_bar"/>
+                android:layout_below="@id/progress_bar"
+                android:layout_marginBottom="@dimen/card_body_margin_bottom"/>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </FrameLayout>
