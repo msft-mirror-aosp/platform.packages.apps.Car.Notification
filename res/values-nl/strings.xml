@@ -34,7 +34,9 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"Geen meldingen"</string>
     <string name="show_less" msgid="7342677676229302829">"Minder tonen"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> meer tonen"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" + nog <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"Nog <xliff:g id="COUNT">%d</xliff:g> berichten"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> nieuwe berichten"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"Nieuw bericht"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> nieuwe berichten</item>
       <item quantity="one">1 nieuw bericht</item>

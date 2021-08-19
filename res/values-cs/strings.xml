@@ -34,7 +34,9 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"Žádná oznámení"</string>
     <string name="show_less" msgid="7342677676229302829">"Zobrazit méně"</string>
     <string name="show_count_more" msgid="480555295700318609">"Zobrazit více (<xliff:g id="COUNT">%d</xliff:g>)"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" a další (<xliff:g id="COUNT">%d</xliff:g>)"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"Další zprávy: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Nové zprávy: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"Nová zpráva"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> nové zprávy</item>
       <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> nové zprávy</item>
