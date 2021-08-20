@@ -34,7 +34,9 @@
     <string name="empty_notification_header" msgid="4928379791607839720">"通知はありません"</string>
     <string name="show_less" msgid="7342677676229302829">"折りたたむ"</string>
     <string name="show_count_more" msgid="480555295700318609">"他 <xliff:g id="COUNT">%d</xliff:g> 件を表示"</string>
-    <string name="message_unshown_count" msgid="2234421277246741233">" 他 <xliff:g id="COUNT">%d</xliff:g> 件"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"他のメッセージ: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"新着メッセージ: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"新着メッセージ"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> 件の新着メッセージ</item>
       <item quantity="one">1 件の新着メッセージ</item>
