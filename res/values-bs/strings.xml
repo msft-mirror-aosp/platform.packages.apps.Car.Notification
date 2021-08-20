@@ -31,11 +31,13 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"Prikaži više"</string>
     <string name="notification_header" msgid="324550431063568049">"Obavještenja"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"Najnovije"</string>
+    <string name="notification_older" msgid="8162161020296499690">"Starije obavijesti"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Nema obavještenja"</string>
     <string name="show_less" msgid="7342677676229302829">"Prikaži manje"</string>
     <string name="show_count_more" msgid="480555295700318609">"Prikaži još <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <string name="message_unshown_count" msgid="8511753143668166196">"Još ovoliko poruka: <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Nove poruke: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="message_unshown_count" msgid="8511753143668166196">"Još <xliff:g id="COUNT">%d</xliff:g> poruke(a)"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Broj novih poruka: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Nova poruka"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> nova poruka</item>
