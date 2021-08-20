@@ -71,7 +71,10 @@
     <string name="empty_notification_header">No notifications</string>
 
     <!-- The label for the button that collapses a grouped notification [CHAR_LIMIT=20] -->
-    <string name="show_less">Show less</string>
+    <string name="collapse_group">Collapse group</string>
+
+    <!-- The label for the button that redirects to application that has more notifications to show. [CHAR_LIMIT=30] -->
+    <string name="show_more_from_app"><xliff:g id="count">%1$d</xliff:g>&#160;more&#160;from&#160;<xliff:g id="app">%2$s</xliff:g></string>
 
     <!-- The label for the button that expands a grouped notification with an unread count [CHAR_LIMIT=25] -->
     <string name="show_count_more">Show&#160;<xliff:g id="count">%d</xliff:g>&#160;more</string>

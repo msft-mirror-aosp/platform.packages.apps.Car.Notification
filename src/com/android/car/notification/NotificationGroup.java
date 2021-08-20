@@ -54,12 +54,22 @@ public class NotificationGroup {
         addNotification(alertEntry);
     }
 
+    /**
+     * Add child notification.
+     *
+     * New notification must have the same group key as other notifications in group.
+     */
     public void addNotification(AlertEntry alertEntry) {
         assertSameGroupKey(alertEntry.getStatusBarNotification().getGroupKey());
         mNotifications.add(alertEntry);
     }
 
-    void setGroupSummaryNotification(AlertEntry groupSummaryNotification) {
+    /**
+     * Set group summary notification.
+     *
+     * Group summary must have the same group key as other notifications in group.
+     */
+    public void setGroupSummaryNotification(AlertEntry groupSummaryNotification) {
         assertSameGroupKey(groupSummaryNotification.getStatusBarNotification().getGroupKey());
         mGroupSummaryNotification = groupSummaryNotification;
     }
