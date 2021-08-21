@@ -31,15 +31,14 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"더보기"</string>
     <string name="notification_header" msgid="324550431063568049">"알림"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"최근 알림"</string>
+    <string name="notification_older" msgid="8162161020296499690">"지난 알림"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"알림 없음"</string>
     <string name="show_less" msgid="7342677676229302829">"간략히"</string>
     <string name="show_count_more" msgid="480555295700318609">"알림 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
-    <!-- no translation found for message_unshown_count (8511753143668166196) -->
-    <skip />
-    <!-- no translation found for restricted_numbered_message_content (1272426343864230998) -->
-    <skip />
-    <!-- no translation found for restricted_hun_message_content (631111937988857716) -->
-    <skip />
+    <string name="message_unshown_count" msgid="8511753143668166196">"그 외 메시지 <xliff:g id="COUNT">%d</xliff:g>개"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"새 메시지 <xliff:g id="COUNT">%d</xliff:g>개"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"새 메시지"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other">새 메시지 <xliff:g id="COUNT">%d</xliff:g>개</item>
       <item quantity="one">새 메시지 1개</item>
