@@ -31,6 +31,8 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"තව පෙන්වන්න"</string>
     <string name="notification_header" msgid="324550431063568049">"දැනුම්දීම්"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"මෑත"</string>
+    <string name="notification_older" msgid="8162161020296499690">"පැරණි දැනුම්දීම්"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"දැනුම්දීම් නැත"</string>
     <string name="show_less" msgid="7342677676229302829">"අඩුවෙන් පෙන්වන්න"</string>
     <string name="show_count_more" msgid="480555295700318609">"තව <xliff:g id="COUNT">%d</xliff:g>ක් පෙන්වන්න"</string>
