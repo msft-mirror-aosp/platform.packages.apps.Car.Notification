@@ -31,15 +31,16 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"ສະແດງເພີ່ມເຕີມ"</string>
     <string name="notification_header" msgid="324550431063568049">"ການແຈ້ງເຕືອນ"</string>
+    <!-- no translation found for notification_recents (5855769440781958546) -->
+    <skip />
+    <!-- no translation found for notification_older (8162161020296499690) -->
+    <skip />
     <string name="empty_notification_header" msgid="4928379791607839720">"ບໍ່ມີການແຈ້ງເຕືອນ"</string>
     <string name="show_less" msgid="7342677676229302829">"ຫຍໍ້ລົງ"</string>
     <string name="show_count_more" msgid="480555295700318609">"ສະແດງອີກ <xliff:g id="COUNT">%d</xliff:g> ລາຍການ"</string>
-    <!-- no translation found for message_unshown_count (8511753143668166196) -->
-    <skip />
-    <!-- no translation found for restricted_numbered_message_content (1272426343864230998) -->
-    <skip />
-    <!-- no translation found for restricted_hun_message_content (631111937988857716) -->
-    <skip />
+    <string name="message_unshown_count" msgid="8511753143668166196">"ອີກ <xliff:g id="COUNT">%d</xliff:g> ຂໍ້ຄວາມ"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> ຂໍ້ຄວາມໃໝ່"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"ຂໍ້ຄວາມໃໝ່"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ຂໍ້ຄວາມໃໝ່</item>
       <item quantity="one">1 ຂໍ້ຄວາມ​ໃໝ່</item>

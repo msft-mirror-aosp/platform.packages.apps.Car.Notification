@@ -31,15 +31,14 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"Pokaži več"</string>
     <string name="notification_header" msgid="324550431063568049">"Obvestila"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"Nedavna"</string>
+    <string name="notification_older" msgid="8162161020296499690">"Starejša obvestila"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Ni obvestil"</string>
     <string name="show_less" msgid="7342677676229302829">"Pokaži manj"</string>
     <string name="show_count_more" msgid="480555295700318609">"Pokaži še <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <!-- no translation found for message_unshown_count (8511753143668166196) -->
-    <skip />
-    <!-- no translation found for restricted_numbered_message_content (1272426343864230998) -->
-    <skip />
-    <!-- no translation found for restricted_hun_message_content (631111937988857716) -->
-    <skip />
+    <string name="message_unshown_count" msgid="8511753143668166196">"Še sporočil: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Še novih sporočil: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"Novo sporočilo"</string>
     <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> novo sporočilo</item>
       <item quantity="two"><xliff:g id="COUNT">%d</xliff:g> novi sporočili</item>
