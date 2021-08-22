@@ -92,6 +92,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     private boolean mEnableCardBackgroundColorForCategoryNavigation;
     private boolean mEnableCardBackgroundColorForSystemApp;
     private boolean mEnableSmallIconAccentColor;
+    private boolean mAlwaysShowDismissButton;
 
     /**
      * Tracks if the foreground colors have been calculated for the binding of the view holder.
@@ -110,8 +111,10 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mBodyView = itemView.findViewById(R.id.notification_body);
         mActionsView = itemView.findViewById(R.id.notification_actions);
         mDismissButton = itemView.findViewById(R.id.dismiss_button);
+        mAlwaysShowDismissButton = mContext.getResources().getBoolean(
+                R.bool.config_alwaysShowNotificationDismissButton);
         mFocusChangeListener = (oldFocus, newFocus) -> {
-            if (mDismissButton != null) {
+            if (mDismissButton != null && !mAlwaysShowDismissButton) {
                 // The dismiss button should only be visible when the focus is on this notification
                 // or within it. Use alpha rather than visibility so that focus can move up to the
                 // previous notification's dismiss button.
@@ -296,7 +299,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
         itemView.getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusChangeListener);
         if (mDismissButton != null) {
-            mDismissButton.setImageAlpha(0);
+            if (!mAlwaysShowDismissButton) {
+                mDismissButton.setImageAlpha(0);
+            }
             mDismissButton.setVisibility(View.GONE);
         }
     }
@@ -330,7 +335,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
             hideDismissButton();
             return;
         }
-        mDismissButton.setImageAlpha(0);
+        if (!mAlwaysShowDismissButton) {
+            mDismissButton.setImageAlpha(0);
+        }
         mDismissButton.setVisibility(View.VISIBLE);
         if (!isHeadsUp) {
             // Only set the click listener here for panel notifications - HUNs already have one

@@ -38,4 +38,6 @@
     <!-- Animation helper for animating heads up notification showing on screen and leaving the screen. -->
     <string name="config_headsUpNotificationAnimationHelper" translatable="false">
         com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationTopAnimationHelper</string>
+    <!-- Whether to always show Notification's dismiss button even without the need to have rotary focus. -->
+    <bool name="config_alwaysShowNotificationDismissButton">false</bool>
 </resources>
