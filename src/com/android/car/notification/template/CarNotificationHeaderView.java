@@ -32,6 +32,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.DateTimeView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,13 +50,14 @@ public class CarNotificationHeaderView extends LinearLayout {
 
     private final int mDefaultTextColor;
     private final String mSeparatorText;
-    private final boolean mUseLauncherIcon;
 
     private boolean mIsHeadsUp;
     @Nullable
     private ImageView mIconView;
     @Nullable
     private TextView mHeaderTextView;
+    @Nullable
+    private DateTimeView mTimeView;
 
     public CarNotificationHeaderView(Context context) {
         super(context);
@@ -80,7 +82,6 @@ public class CarNotificationHeaderView extends LinearLayout {
     {
         mDefaultTextColor = getContext().getColor(R.color.primary_text_color);
         mSeparatorText = getContext().getString(R.string.header_text_separator);
-        mUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
     }
 
     private void init(AttributeSet attrs) {
@@ -99,6 +100,10 @@ public class CarNotificationHeaderView extends LinearLayout {
         super.onFinishInflate();
         mIconView = findViewById(R.id.app_icon);
         mHeaderTextView = findViewById(R.id.header_text);
+        mTimeView = findViewById(R.id.time);
+        if (mTimeView != null) {
+            mTimeView.setShowRelativeTime(true);
+        }
     }
 
     /**
@@ -108,23 +113,18 @@ public class CarNotificationHeaderView extends LinearLayout {
      * @param isInGroup  whether this notification is part of a grouped notification.
      */
     public void bind(AlertEntry alertEntry, boolean isInGroup) {
-        if (mUseLauncherIcon || isInGroup) {
-            // If the notification is part of a group, individual headers are not shown
+        if (isInGroup) {
+            // if the notification is part of a group, individual headers are not shown
             // instead, there is a header for the entire group in the group notification template
-            // OR
-            // If launcher icon is used then hide header
-            setVisibility(View.GONE);
             return;
         }
-
-        setVisibility(View.VISIBLE);
 
         Notification notification = alertEntry.getNotification();
         StatusBarNotification sbn = alertEntry.getStatusBarNotification();
 
         Context packageContext = sbn.getPackageContext(getContext());
 
-        // App icon
+        // app icon
         if (mIconView != null) {
             mIconView.setVisibility(View.VISIBLE);
             Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
@@ -133,7 +133,7 @@ public class CarNotificationHeaderView extends LinearLayout {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        // App name
+        // app name
         if (mHeaderTextView != null) {
             mHeaderTextView.setVisibility(View.VISIBLE);
         }
@@ -143,27 +143,34 @@ public class CarNotificationHeaderView extends LinearLayout {
             if (mHeaderTextView != null) {
                 mHeaderTextView.setText(appName);
             }
+            if (mTimeView != null) {
+                mTimeView.setVisibility(View.GONE);
+            }
             return;
         }
 
         stringBuilder.append(appName);
         Bundle extras = notification.extras;
 
-        // Optional field: sub text
+        // optional field: sub text
         if (!TextUtils.isEmpty(extras.getCharSequence(Notification.EXTRA_SUB_TEXT))) {
             stringBuilder.append(mSeparatorText);
             stringBuilder.append(extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
         }
 
-        // Optional field: content info
+        // optional field: content info
         if (!TextUtils.isEmpty(extras.getCharSequence(Notification.EXTRA_INFO_TEXT))) {
             stringBuilder.append(mSeparatorText);
             stringBuilder.append(extras.getCharSequence(Notification.EXTRA_INFO_TEXT));
         }
 
-        // Optional field: time
+        // optional field: time
         if (notification.showsTime()) {
             stringBuilder.append(mSeparatorText);
+            if (mTimeView != null) {
+                mTimeView.setVisibility(View.VISIBLE);
+                mTimeView.setTime(notification.when);
+            }
         }
 
         mHeaderTextView.setText(BidiFormatter.getInstance().unicodeWrap(stringBuilder,
@@ -189,6 +196,15 @@ public class CarNotificationHeaderView extends LinearLayout {
     }
 
     /**
+     * Sets the text color for the time field.
+     */
+    public void setTimeTextColor(@ColorInt int color) {
+        if (mTimeView != null) {
+            mTimeView.setTextColor(color);
+        }
+    }
+
+    /**
      * Resets the notification header empty.
      */
     public void reset() {
@@ -202,6 +218,12 @@ public class CarNotificationHeaderView extends LinearLayout {
             mHeaderTextView.setVisibility(View.GONE);
             mHeaderTextView.setText(null);
             setHeaderTextColor(mDefaultTextColor);
+        }
+
+        if (mTimeView != null) {
+            mTimeView.setVisibility(View.GONE);
+            mTimeView.setTime(0);
+            setTimeTextColor(mDefaultTextColor);
         }
     }
 
@@ -224,9 +246,10 @@ public class CarNotificationHeaderView extends LinearLayout {
         final Notification notification = sbn.getNotification();
         CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
         if (notification.extras.containsKey(EXTRA_SUBSTITUTE_APP_NAME)) {
-            // Only system packages which lump together a bunch of unrelated stuff may substitute a
-            // different name to make the purpose of the notification more clear
-            // The correct package label should always be accessible via SystemUI
+            // only system packages which lump together a bunch of unrelated stuff
+            // may substitute a different name to make the purpose of the
+            // notification more clear. the correct package label should always
+            // be accessible via SystemUI.
             final String subName = notification.extras.getString(EXTRA_SUBSTITUTE_APP_NAME);
             final String pkg = sbn.getPackageName();
             if (PackageManager.PERMISSION_GRANTED == pm.checkPermission(

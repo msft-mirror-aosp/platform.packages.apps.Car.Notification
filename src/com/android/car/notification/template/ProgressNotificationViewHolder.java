@@ -18,6 +18,7 @@ package com.android.car.notification.template;
 import android.annotation.ColorInt;
 import android.app.Notification;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -73,10 +74,8 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-
-        mBodyView.bind(title, text, loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
-                notification.getLargeIcon(), /* countText= */ null,
-                notification.showsTime() ? notification.when : null);
+        Icon icon = notification.getLargeIcon();
+        mBodyView.bind(title, text, icon);
 
         mProgressBarView.setVisibility(View.VISIBLE);
         boolean isIndeterminate = extraData.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE);
