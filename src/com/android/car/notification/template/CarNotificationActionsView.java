@@ -121,11 +121,8 @@ public class CarNotificationActionsView extends LinearLayout implements
         Notification notification = alertEntry.getNotification();
         Notification.Action[] actions = notification.actions;
         if (actions == null || actions.length == 0) {
-            setVisibility(View.GONE);
             return;
         }
-
-        setVisibility(View.VISIBLE);
 
         if (CarAssistUtils.isCarCompatibleMessagingNotification(
                 alertEntry.getStatusBarNotification())) {

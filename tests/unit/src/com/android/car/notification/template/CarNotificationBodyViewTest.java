@@ -19,8 +19,6 @@ package com.android.car.notification.template;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -30,16 +28,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Calendar;
-
 @RunWith(AndroidJUnit4.class)
 public class CarNotificationBodyViewTest {
     private static final String TEST_TITLE = "TEST_TITLE";
     private static final String TEST_BODY = "TEST BODY";
-    private static final String TEST_COUNT = "TEST BODY";
-    private static final long TEST_WHEN = Calendar.getInstance().getTime().getTime();
-    private static final String EXPECTED_WHEN = "now";
-    private static final Drawable TEST_DRAWABLE = new ShapeDrawable();
 
     private CarNotificationBodyView mCarNotificationBodyView;
     private Context mContext;
@@ -53,34 +45,26 @@ public class CarNotificationBodyViewTest {
     }
 
     @Test
-    public void onBind_launcherIconUsed_titleTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, TEST_DRAWABLE,
-                /* icon= */ null, TEST_COUNT, TEST_WHEN);
-
+    public void onBind_titleTextSet() {
+        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null);
         assertThat(mCarNotificationBodyView.getTitleView().getText()).isEqualTo(TEST_TITLE);
     }
 
     @Test
-    public void onBind_launcherIconUsed_contentTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, TEST_DRAWABLE,
-                /* icon= */ null, TEST_COUNT, TEST_WHEN);
-
+    public void onBind_contentTextSet() {
+        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, /* icon= */ null);
         assertThat(mCarNotificationBodyView.getContentView().getText()).isEqualTo(TEST_BODY);
     }
 
     @Test
-    public void onBind_launcherIconUsed_countTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, TEST_DRAWABLE,
-                /* icon= */ null, TEST_COUNT, TEST_WHEN);
-
-        assertThat(mCarNotificationBodyView.getCountView().getText()).isEqualTo(TEST_COUNT);
+    public void onBindTitleAndMessage_titleTextSet() {
+        mCarNotificationBodyView.bindTitleAndMessage(TEST_TITLE, TEST_BODY);
+        assertThat(mCarNotificationBodyView.getTitleView().getText()).isEqualTo(TEST_TITLE);
     }
 
     @Test
-    public void onBind_launcherIconUsed_timeSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, TEST_DRAWABLE,
-                /* icon= */ null, TEST_COUNT, TEST_WHEN);
-
-        assertThat(mCarNotificationBodyView.getTimeView().getText()).isEqualTo(EXPECTED_WHEN);
+    public void onBindTitleAndMessage_contentTextSet() {
+        mCarNotificationBodyView.bindTitleAndMessage(TEST_TITLE, TEST_BODY);
+        assertThat(mCarNotificationBodyView.getContentView().getText()).isEqualTo(TEST_BODY);
     }
 }

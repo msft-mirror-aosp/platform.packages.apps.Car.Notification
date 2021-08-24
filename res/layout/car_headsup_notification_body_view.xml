@@ -17,6 +17,6 @@
 
 <!-- Body view for headsup notifications -->
 <!-- This allows the body to be customized differently for HUNs vs in the notification center. -->
-<merge>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
     <include layout="@layout/car_notification_body_view"/>
 </merge>
