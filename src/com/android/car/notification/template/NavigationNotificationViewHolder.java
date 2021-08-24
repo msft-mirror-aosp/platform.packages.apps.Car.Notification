@@ -16,6 +16,7 @@
 package com.android.car.notification.template;
 
 import android.app.Notification;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.view.View;
 
@@ -27,6 +28,7 @@ import com.android.car.notification.R;
  * Basic notification view template that displays a minimal notification.
  */
 public class NavigationNotificationViewHolder extends CarNotificationBaseViewHolder {
+
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationActionsView mActionsView;
     private final CarNotificationHeaderView mHeaderView;
@@ -61,9 +63,7 @@ public class NavigationNotificationViewHolder extends CarNotificationBaseViewHol
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-
-        mBodyView.bind(title, text, loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
-                notification.getLargeIcon(), /* countText= */ null,
-                notification.showsTime() ? notification.when : null);
+        Icon icon = notification.getLargeIcon();
+        mBodyView.bind(title, text, icon);
     }
 }

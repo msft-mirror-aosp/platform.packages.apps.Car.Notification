@@ -32,4 +32,5 @@
         android:layout_marginTop="@dimen/clear_all_button_margin"
         android:text="@string/clear_all"
         android:visibility="gone"/>
+
 </RelativeLayout>
