@@ -59,8 +59,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private final int mDividerHeight;
     private final CarNotificationHeaderView mGroupHeaderView;
     private final View mTouchInterceptorView;
-    private final boolean mUseLauncherIcon;
-
     private AlertEntry mSummaryNotification;
     private NotificationGroup mNotificationGroup;
 
@@ -84,7 +82,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mPaint.setColor(mContext.getColor(R.color.notification_list_divider_color));
         mDividerHeight = mContext.getResources().getDimensionPixelSize(
                 R.dimen.notification_list_divider_height);
-        mUseLauncherIcon = mContext.getResources().getBoolean(R.bool.config_useLauncherIcon);
 
         mNotificationListView.setLayoutManager(new LinearLayoutManager(mContext));
         mNotificationListView.addItemDecoration(new GroupedNotificationItemDecoration());
@@ -157,22 +154,15 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             // hide header divider
             mHeaderDividerView.setVisibility(View.GONE);
 
+            // only show group summary notification
             NotificationGroup newGroup = new NotificationGroup();
+            newGroup.addNotification(group.getGroupSummaryNotification());
             newGroup.setSeen(group.isSeen());
-
-            if (mUseLauncherIcon) {
-                // Only show first notification since notification header is not being used.
-                newGroup.addNotification(group.getChildNotifications().get(0));
-            } else {
-                // Only show group summary notification
-                newGroup.addNotification(group.getGroupSummaryNotification());
-                // If the group summary notification is automatically generated,
-                // it does not contain a summary of the titles of the child notifications.
-                // Therefore, we generate a list of the child notification titles from
-                // the parent notification group, and pass them on.
-                newGroup.setChildTitles(group.generateChildTitles());
-            }
-
+            // If the group summary notification is automatically generated,
+            // it does not contain a summary of the titles of the child notifications.
+            // Therefore, we generate a list of the child notification titles from
+            // the parent notification group, and pass them on.
+            newGroup.setChildTitles(group.generateChildTitles());
             list.add(newGroup);
         }
         mAdapter.setNotifications(list,
@@ -205,7 +195,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             return;
         }
 
-        int unshownCount = childCount - (mUseLauncherIcon ? 1 : 2);
+        int unshownCount = childCount - 2;
         mExpansionFooterView.setText(
                 unshownCount <= 0
                         ? mContext.getString(R.string.show_more)
