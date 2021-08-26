@@ -31,10 +31,8 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"ज़्यादा दिखाएं"</string>
     <string name="notification_header" msgid="324550431063568049">"सूचनाएं"</string>
-    <!-- no translation found for notification_recents (5855769440781958546) -->
-    <skip />
-    <!-- no translation found for notification_older (8162161020296499690) -->
-    <skip />
+    <string name="notification_recents" msgid="5855769440781958546">"हाल ही की सूचनाएं"</string>
+    <string name="notification_older" msgid="8162161020296499690">"पुरानी सूचनाएं"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"कोई सूचना नहीं है"</string>
     <string name="show_less" msgid="7342677676229302829">"कम दिखाएं"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> और दिखाएं"</string>
