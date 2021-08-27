@@ -34,6 +34,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
       <item type="bool" name="config_showNavigationHeadsup"/>
       <item type="bool" name="config_showRecentAndOldHeaders"/>
+      <item type="bool" name="config_useLauncherIcon"/>
       <item type="color" name="action_button_background_color"/>
       <item type="color" name="call_accept_button"/>
       <item type="color" name="call_decline_button"/>
@@ -52,15 +53,13 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="action_button_padding_bottom"/>
       <item type="dimen" name="action_button_padding_top"/>
       <item type="dimen" name="action_button_radius"/>
-      <item type="dimen" name="action_button_spacing_bottom"/>
       <item type="dimen" name="action_button_spacing_start"/>
-      <item type="dimen" name="action_button_spacing_top"/>
       <item type="dimen" name="action_view_left_margin"/>
       <item type="dimen" name="action_view_right_margin"/>
       <item type="dimen" name="body_big_icon_margin"/>
       <item type="dimen" name="body_bottom_padding"/>
-      <item type="dimen" name="car_notification_card_inner_top_margin"/>
       <item type="dimen" name="card_body_margin_bottom"/>
+      <item type="dimen" name="card_body_margin_top"/>
       <item type="dimen" name="card_end_margin"/>
       <item type="dimen" name="card_header_margin_bottom"/>
       <item type="dimen" name="card_min_bottom_padding"/>
@@ -101,9 +100,11 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="notification_primary_icon_size"/>
       <item type="dimen" name="notification_scroll_margin"/>
       <item type="dimen" name="notification_secondary_icon_size"/>
+      <item type="dimen" name="notification_text_max_width"/>
       <item type="dimen" name="notification_touch_target_size"/>
       <item type="dimen" name="percentage_of_width_to_dismiss"/>
       <item type="dimen" name="text_padding"/>
+      <item type="dimen" name="time_margin"/>
       <item type="dimen" name="time_stamp_text_size_in_group"/>
       <item type="dimen" name="touch_slop"/>
       <item type="dimen" name="unread_message_count_margin"/>
@@ -142,12 +143,9 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="header_divider"/>
       <item type="id" name="header_text"/>
       <item type="id" name="headsup_content"/>
-      <item type="id" name="in_group_time_stamp"/>
       <item type="id" name="inner_template_view"/>
       <item type="id" name="manage_button"/>
-      <item type="id" name="message_content"/>
       <item type="id" name="message_count"/>
-      <item type="id" name="message_title_view"/>
       <item type="id" name="notification_actions"/>
       <item type="id" name="notification_body"/>
       <item type="id" name="notification_body_content"/>
