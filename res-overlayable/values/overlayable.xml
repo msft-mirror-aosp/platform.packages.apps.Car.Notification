@@ -74,6 +74,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="dismiss_button_margin"/>
       <item type="dimen" name="error_factor_multiplier"/>
       <item type="dimen" name="fling_percentage_of_width_to_dismiss"/>
+      <item type="dimen" name="group_icon_fill_alpha"/>
       <item type="dimen" name="header_small_icon_padding"/>
       <item type="dimen" name="headsup_notification_big_icon_margin"/>
       <item type="dimen" name="headsup_notification_top_margin"/>
@@ -85,6 +86,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="max_percentage_of_width_with_resistance"/>
       <item type="dimen" name="media_action_icon_size"/>
       <item type="dimen" name="notification_app_bar_height"/>
+      <item type="dimen" name="notification_body_title_margin"/>
       <item type="dimen" name="notification_card_footer_height"/>
       <item type="dimen" name="notification_card_header_height"/>
       <item type="dimen" name="notification_card_margin_horizontal"/>
@@ -101,6 +103,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="notification_scroll_margin"/>
       <item type="dimen" name="notification_secondary_icon_size"/>
       <item type="dimen" name="notification_text_max_width"/>
+      <item type="dimen" name="notification_title_icon_top_margin"/>
       <item type="dimen" name="notification_touch_target_size"/>
       <item type="dimen" name="percentage_of_width_to_dismiss"/>
       <item type="dimen" name="text_padding"/>
@@ -118,6 +121,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="drawable" name="headsup_scrim"/>
       <item type="drawable" name="headsup_scrim_bottom"/>
       <item type="drawable" name="ic_clear"/>
+      <item type="drawable" name="ic_group"/>
       <item type="id" name="action_1"/>
       <item type="id" name="action_2"/>
       <item type="id" name="action_3"/>
@@ -151,6 +155,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="notification_body_content"/>
       <item type="id" name="notification_body_icon"/>
       <item type="id" name="notification_body_title"/>
+      <item type="id" name="notification_body_title_icon"/>
       <item type="id" name="notification_center_title"/>
       <item type="id" name="notification_footer"/>
       <item type="id" name="notification_header"/>

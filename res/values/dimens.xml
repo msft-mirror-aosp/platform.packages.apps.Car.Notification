@@ -45,6 +45,9 @@
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="time_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
+    <dimen name="notification_body_title_margin">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_title_icon_top_margin">4dp</dimen>
+    <dimen name="group_icon_fill_alpha">0.72</dimen>
 
     <!-- Text -->
     <dimen name="time_stamp_text_size_in_group">@*android:dimen/car_body3_size</dimen>
