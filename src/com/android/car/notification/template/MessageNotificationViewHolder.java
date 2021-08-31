@@ -53,6 +53,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private final String mNewMessageText;
     private final int mMaxMessageCount;
     private final int mMaxLineCount;
+    private final Drawable mGroupIcon;
 
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
@@ -69,6 +70,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                 mContext.getResources().getInteger(R.integer.config_maxNumberOfMessagesInPanel);
         mMaxLineCount =
                 mContext.getResources().getInteger(R.integer.config_maxNumberOfMessageLinesInPanel);
+        mGroupIcon = mContext.getDrawable(R.drawable.ic_group);
 
         mClickHandlerFactory = clickHandlerFactory;
     }
@@ -186,15 +188,19 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         if (avatar == null) {
             avatar = notification.getLargeIcon();
         }
-        if (isHeadsUp) {
-            avatar = null;
-        }
 
         Long when;
         if (notification.showsTime()) {
             when = notification.when;
         } else {
             when = null;
+        }
+
+        Drawable groupIcon;
+        if (isGroupConversation) {
+            groupIcon = mGroupIcon;
+        } else {
+            groupIcon = null;
         }
 
         int unshownCount = messageCount - 1;
@@ -204,11 +210,11 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             mBodyView.setTimeTextColor(getAccentColor());
             View.OnClickListener listener =
                     getCountViewOnClickListener(unshownCount, messages, isGroupConversation,
-                            sbn, conversationTitle, avatar, when);
+                            sbn, conversationTitle, avatar, groupIcon, when);
             mBodyView.setCountOnClickListener(listener);
         }
 
-        mBodyView.bind(conversationTitle, messageText, loadAppLauncherIcon(sbn), avatar,
+        mBodyView.bind(conversationTitle, messageText, loadAppLauncherIcon(sbn), avatar, groupIcon,
                 unshownCountText, when);
     }
 
@@ -223,7 +229,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private View.OnClickListener getCountViewOnClickListener(int unshownCount,
             @Nullable List<Notification.MessagingStyle.Message> messages,
             boolean isGroupConversation, StatusBarNotification sbn, CharSequence title,
-            @Nullable Icon avatar, @Nullable Long when) {
+            @Nullable Icon avatar, @Nullable Drawable groupIcon, @Nullable Long when) {
         StringBuilder builder = new StringBuilder();
         for (int i = messages.size() - 1; i >= messages.size() - 1 - mMaxMessageCount && i >= 0;
                 i--) {
@@ -258,7 +264,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             }
 
             Drawable launcherIcon = loadAppLauncherIcon(sbn);
-            mBodyView.bind(title, finalMessage, launcherIcon, avatar, unshownCountText, when);
+            mBodyView.bind(title, finalMessage, launcherIcon, avatar, groupIcon, unshownCountText,
+                    when);
             mBodyView.setContentMaxLines(mMaxLineCount);
             mBodyView.setCountOnClickListener(null);
         };
