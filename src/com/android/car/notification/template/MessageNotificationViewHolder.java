@@ -186,9 +186,6 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         if (avatar == null) {
             avatar = notification.getLargeIcon();
         }
-        if (isHeadsUp) {
-            avatar = null;
-        }
 
         Long when;
         if (notification.showsTime()) {
