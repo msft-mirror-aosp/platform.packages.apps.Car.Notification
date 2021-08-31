@@ -63,7 +63,7 @@ public class NavigationNotificationViewHolder extends CarNotificationBaseViewHol
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
 
         mBodyView.bind(title, text, loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
-                notification.getLargeIcon(), /* countText= */ null,
+                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
                 notification.showsTime() ? notification.when : null);
     }
 }
