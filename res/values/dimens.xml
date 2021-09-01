@@ -63,6 +63,11 @@
     <dimen name="action_button_padding_top">10dp</dimen>
     <dimen name="action_button_padding_bottom">10dp</dimen>
     <dimen name="action_view_right_margin">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_action_button_icon_width">18dp</dimen>
+    <dimen name="car_action_button_icon_height">18dp</dimen>
+    <dimen name="car_action_button_icon_margin">@*android:dimen/car_padding_3</dimen>
+    <dimen name="play_arrow_height">18dp</dimen>
+    <dimen name="play_arrow_width">14dp</dimen>
 
     <!-- Icons -->
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
