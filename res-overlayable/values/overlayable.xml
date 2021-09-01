@@ -73,6 +73,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="dismiss_button_diameter"/>
       <item type="dimen" name="dismiss_button_margin"/>
       <item type="dimen" name="error_factor_multiplier"/>
+      <item type="dimen" name="expanded_package_name_margin"/>
       <item type="dimen" name="fling_percentage_of_width_to_dismiss"/>
       <item type="dimen" name="group_icon_fill_alpha"/>
       <item type="dimen" name="header_small_icon_padding"/>
@@ -138,7 +139,11 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="dismiss_button_container"/>
       <item type="id" name="empty_notification_text"/>
       <item type="id" name="exit_button_container"/>
+      <item type="id" name="expanded_group_header"/>
+      <item type="id" name="expanded_group_header_text"/>
+      <item type="id" name="expanded_group_header_toggle_icon"/>
       <item type="id" name="expansion_footer"/>
+      <item type="id" name="expansion_footer_holder"/>
       <item type="id" name="footer_divider"/>
       <item type="id" name="gradient_edge"/>
       <item type="id" name="group_header"/>
@@ -173,6 +178,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="time"/>
       <item type="id" name="touch_interceptor_view"/>
       <item type="integer" name="clear_all_notifications_animation_delay_interval_ms"/>
+      <item type="integer" name="config_expandedGroupNotificationIncrementSize"/>
       <item type="integer" name="config_headsUpNotificationMaxBodyLines"/>
       <item type="integer" name="config_maxNumberOfMessageLinesInPanel"/>
       <item type="integer" name="config_maxNumberOfMessagesInPanel"/>
@@ -238,6 +244,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="assist_action_play_label"/>
       <item type="string" name="canned_reply_message"/>
       <item type="string" name="clear_all"/>
+      <item type="string" name="collapse_group"/>
       <item type="string" name="config_headsUpNotificationAnimationHelper"/>
       <item type="string" name="ellipsized_string"/>
       <item type="string" name="empty_notification_header"/>
@@ -252,13 +259,15 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="restricted_hun_message_content"/>
       <item type="string" name="restricted_numbered_message_content"/>
       <item type="string" name="show_count_more"/>
-      <item type="string" name="show_less"/>
       <item type="string" name="show_more"/>
+      <item type="string" name="show_more_from_app"/>
       <item type="string" name="toast_message_sent_success"/>
       <item type="style" name="ClearAllButton"/>
       <item type="style" name="ClearAllButtonFooter"/>
       <item type="style" name="ClearAllButtonHeader"/>
       <item type="style" name="DismissButtonLayout"/>
+      <item type="style" name="ExpandedGroupNotificationHeaderText"/>
+      <item type="style" name="GroupNotificationFooterText"/>
       <item type="style" name="InGroupTimeStampText"/>
       <item type="style" name="ManageButton"/>
       <item type="style" name="NotificationActionButton1"/>

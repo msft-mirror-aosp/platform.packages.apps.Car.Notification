@@ -207,7 +207,6 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         String unshownCountText = null;
         if (!isRestricted && unshownCount > 0 && !isHeadsUp && messageStyleFlag) {
             unshownCountText = mContext.getString(R.string.message_unshown_count, unshownCount);
-            mBodyView.setTimeTextColor(getAccentColor());
             View.OnClickListener listener =
                     getCountViewOnClickListener(unshownCount, messages, isGroupConversation,
                             sbn, conversationTitle, avatar, groupIcon, when);
