@@ -65,6 +65,8 @@ public class CarNotificationBodyView extends RelativeLayout {
     private TextView mCountView;
     @Nullable
     private DateTimeView mTimeView;
+    @Nullable
+    private ImageView mTitleIconView;
 
     public CarNotificationBodyView(Context context) {
         super(context);
@@ -113,6 +115,7 @@ public class CarNotificationBodyView extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mTitleView = findViewById(R.id.notification_body_title);
+        mTitleIconView = findViewById(R.id.notification_body_title_icon);
         mContentView = findViewById(R.id.notification_body_content);
         mLargeIconView = findViewById(R.id.notification_body_icon);
         mCountView = findViewById(R.id.message_count);
@@ -135,7 +138,7 @@ public class CarNotificationBodyView extends RelativeLayout {
      * @param when      wall clock time in milliseconds for the notification
      */
     public void bind(CharSequence title, @Nullable CharSequence content,
-            @Nullable Drawable launcherIcon, @Nullable Icon largeIcon,
+            @Nullable Drawable launcherIcon, @Nullable Icon largeIcon, @Nullable Drawable titleIcon,
             @Nullable CharSequence countText, @Nullable Long when) {
         setVisibility(View.VISIBLE);
 
@@ -154,6 +157,11 @@ public class CarNotificationBodyView extends RelativeLayout {
         if (mTitleView != null) {
             mTitleView.setVisibility(View.VISIBLE);
             mTitleView.setText(title);
+        }
+
+        if (mTitleIconView != null && titleIcon != null) {
+            mTitleIconView.setVisibility(View.VISIBLE);
+            mTitleIconView.setImageDrawable(titleIcon);
         }
 
         if (mContentView != null && !TextUtils.isEmpty(content)) {
@@ -242,6 +250,9 @@ public class CarNotificationBodyView extends RelativeLayout {
         setVisibility(View.GONE);
         if (mTitleView != null) {
             mTitleView.setVisibility(View.GONE);
+        }
+        if (mTitleIconView != null) {
+            mTitleIconView.setVisibility(View.GONE);
         }
         if (mContentView != null) {
             setContentMaxLines(mMaxLines);
