@@ -32,6 +32,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showFooterForNotifications"/>
       <item type="bool" name="config_showHeaderForNotifications"/>
       <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
+      <item type="bool" name="config_showIconsInActionButtons"/>
       <item type="bool" name="config_showNavigationHeadsup"/>
       <item type="bool" name="config_showRecentAndOldHeaders"/>
       <item type="bool" name="config_useLauncherIcon"/>
@@ -58,6 +59,9 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="action_view_right_margin"/>
       <item type="dimen" name="body_big_icon_margin"/>
       <item type="dimen" name="body_bottom_padding"/>
+      <item type="dimen" name="car_action_button_icon_height"/>
+      <item type="dimen" name="car_action_button_icon_margin"/>
+      <item type="dimen" name="car_action_button_icon_width"/>
       <item type="dimen" name="card_body_margin_bottom"/>
       <item type="dimen" name="card_body_margin_top"/>
       <item type="dimen" name="card_end_margin"/>
@@ -107,6 +111,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="notification_title_icon_top_margin"/>
       <item type="dimen" name="notification_touch_target_size"/>
       <item type="dimen" name="percentage_of_width_to_dismiss"/>
+      <item type="dimen" name="play_arrow_height"/>
+      <item type="dimen" name="play_arrow_width"/>
       <item type="dimen" name="text_padding"/>
       <item type="dimen" name="time_margin"/>
       <item type="dimen" name="time_stamp_text_size_in_group"/>
@@ -123,6 +129,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="drawable" name="headsup_scrim_bottom"/>
       <item type="drawable" name="ic_clear"/>
       <item type="drawable" name="ic_group"/>
+      <item type="drawable" name="ic_play_arrow"/>
       <item type="id" name="action_1"/>
       <item type="id" name="action_2"/>
       <item type="id" name="action_3"/>
@@ -131,6 +138,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="id" name="action_bar"/>
       <item type="id" name="app_icon"/>
       <item type="id" name="big_content_view"/>
+      <item type="id" name="car_action_button_icon"/>
+      <item type="id" name="car_action_button_text"/>
       <item type="id" name="card_view"/>
       <item type="id" name="child_notification_title_1"/>
       <item type="id" name="child_notification_title_2"/>
@@ -208,6 +217,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="layout" name="car_information_headsup_notification_template"/>
       <item type="layout" name="car_information_notification_template"/>
       <item type="layout" name="car_information_notification_template_inner"/>
+      <item type="layout" name="car_notification_action_button"/>
       <item type="layout" name="car_notification_actions_view"/>
       <item type="layout" name="car_notification_body_view"/>
       <item type="layout" name="car_notification_header_view"/>
@@ -274,6 +284,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="style" name="NotificationActionButton2"/>
       <item type="style" name="NotificationActionButton3"/>
       <item type="style" name="NotificationActionButtonBase"/>
+      <item type="style" name="NotificationActionButtonImage"/>
+      <item type="style" name="NotificationActionButtonText"/>
       <item type="style" name="NotificationActionViewLayout"/>
       <item type="style" name="NotificationBodyContentText"/>
       <item type="style" name="NotificationBodyImageIcon"/>

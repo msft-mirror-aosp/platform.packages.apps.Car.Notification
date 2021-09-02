@@ -30,7 +30,6 @@ import android.os.RemoteException;
 import android.service.notification.NotificationStats;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.VisibleForTesting;
@@ -38,6 +37,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.android.car.assist.CarVoiceInteractionSession;
 import com.android.car.assist.client.CarAssistUtils;
+import com.android.car.notification.template.CarNotificationActionButton;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
@@ -217,7 +217,7 @@ public class NotificationClickHandlerFactory {
      * {@param messageNotification}'s {@param muteButton}.
      */
     public View.OnClickListener getMuteClickHandler(
-            Button muteButton, AlertEntry messageNotification) {
+            CarNotificationActionButton muteButton, AlertEntry messageNotification) {
         return v -> {
             NotificationCompat.Action action =
                     CarAssistUtils.getMuteAction(messageNotification.getNotification());
@@ -242,8 +242,8 @@ public class NotificationClickHandlerFactory {
                 Context context = v.getContext().getApplicationContext();
                 muteButton.setText(
                         (mNotificationDataManager.isMessageNotificationMuted(messageNotification))
-                                ? context.getString(R.string.action_unmute_long)
-                                : context.getString(R.string.action_mute_long));
+                                ? context.getString(R.string.action_unmute_short)
+                                : context.getString(R.string.action_mute_short));
                 // Don't trigger mCallback so the shade remains open.
             } else {
                 Log.d(TAG, "Could not set mute click handler as NotificationDataManager is null");
