@@ -44,6 +44,7 @@
     <dimen name="body_bottom_padding">@*android:dimen/car_padding_3</dimen>
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="time_margin">@*android:dimen/car_padding_4</dimen>
+    <dimen name="expanded_package_name_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
     <dimen name="notification_body_title_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="notification_title_icon_top_margin">4dp</dimen>
