@@ -53,6 +53,26 @@
         <item name="android:textSize">@*android:dimen/car_headline3_size</item>
     </style>
 
+    <style name="GroupNotificationFooterText" parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:gravity">center</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:textColor">@color/secondary_text_color</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="ExpandedGroupNotificationHeaderText"
+           parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+
     <style name="NotificationBodyImageIcon">
         <item name="android:scaleType">fitCenter</item>
         <item name="android:background">@null</item>
