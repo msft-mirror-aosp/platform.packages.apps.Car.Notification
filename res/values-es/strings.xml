@@ -34,7 +34,8 @@
     <string name="notification_recents" msgid="5855769440781958546">"Recientes"</string>
     <string name="notification_older" msgid="8162161020296499690">"Notificaciones antiguas"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Sin notificaciones"</string>
-    <string name="show_less" msgid="7342677676229302829">"Mostrar menos"</string>
+    <string name="collapse_group" msgid="4923097735600949715">"Ocultar grupo"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="COUNT">%1$d</xliff:g> más de <xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"Mostrar <xliff:g id="COUNT">%d</xliff:g> más"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> mensajes más"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> mensajes nuevos"</string>
