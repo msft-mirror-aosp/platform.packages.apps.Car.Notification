@@ -34,7 +34,10 @@
     <string name="notification_recents" msgid="5855769440781958546">"最近の通知"</string>
     <string name="notification_older" msgid="8162161020296499690">"以前の通知"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"通知はありません"</string>
-    <string name="show_less" msgid="7342677676229302829">"折りたたむ"</string>
+    <!-- no translation found for collapse_group (4923097735600949715) -->
+    <skip />
+    <!-- no translation found for show_more_from_app (4270626118092846628) -->
+    <skip />
     <string name="show_count_more" msgid="480555295700318609">"他 <xliff:g id="COUNT">%d</xliff:g> 件を表示"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"他のメッセージ: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"新着メッセージ: <xliff:g id="COUNT">%d</xliff:g>"</string>
