@@ -34,7 +34,10 @@
     <string name="notification_recents" msgid="5855769440781958546">"சமீபத்தியவை"</string>
     <string name="notification_older" msgid="8162161020296499690">"பழைய அறிவிப்புகள்"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"அறிவிப்புகள் ஏதுமில்லை"</string>
-    <string name="show_less" msgid="7342677676229302829">"குறைவாகக் காட்டு"</string>
+    <!-- no translation found for collapse_group (4923097735600949715) -->
+    <skip />
+    <!-- no translation found for show_more_from_app (4270626118092846628) -->
+    <skip />
     <string name="show_count_more" msgid="480555295700318609">"மேலும் <xliff:g id="COUNT">%d</xliff:g> காட்டு"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"+<xliff:g id="COUNT">%d</xliff:g> மெசேஜ்கள்"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> புதிய மெசேஜ்கள்"</string>
