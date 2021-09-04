@@ -34,7 +34,10 @@
     <string name="notification_recents" msgid="5855769440781958546">"Të fundit"</string>
     <string name="notification_older" msgid="8162161020296499690">"Njoftime më të vjetra"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Asnjë njoftim"</string>
-    <string name="show_less" msgid="7342677676229302829">"Shfaq më pak"</string>
+    <!-- no translation found for collapse_group (4923097735600949715) -->
+    <skip />
+    <!-- no translation found for show_more_from_app (4270626118092846628) -->
+    <skip />
     <string name="show_count_more" msgid="480555295700318609">"Shfaq <xliff:g id="COUNT">%d</xliff:g> më shumë"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> mesazhe të tjera"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> mesazhe të reja"</string>

@@ -16,7 +16,7 @@
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <Button
+    <com.android.car.notification.template.CarNotificationActionButton
         android:id="@+id/action_1"
         style="@style/NotificationActionButton1"
         android:layout_width="0dp"
@@ -28,7 +28,7 @@
         android:paddingTop="@dimen/action_button_padding_top"
         android:visibility="gone"/>
 
-    <Button
+    <com.android.car.notification.template.CarNotificationActionButton
         android:id="@+id/action_2"
         style="@style/NotificationActionButton2"
         android:layout_width="0dp"
@@ -42,7 +42,7 @@
         android:paddingTop="@dimen/action_button_padding_top"
         android:visibility="gone"/>
 
-    <Button
+    <com.android.car.notification.template.CarNotificationActionButton
         android:id="@+id/action_3"
         style="@style/NotificationActionButton3"
         android:layout_width="0dp"
