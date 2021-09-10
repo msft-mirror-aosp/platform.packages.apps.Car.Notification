@@ -34,10 +34,8 @@
     <string name="notification_recents" msgid="5855769440781958546">"최근 알림"</string>
     <string name="notification_older" msgid="8162161020296499690">"지난 알림"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"알림 없음"</string>
-    <!-- no translation found for collapse_group (4923097735600949715) -->
-    <skip />
-    <!-- no translation found for show_more_from_app (4270626118092846628) -->
-    <skip />
+    <string name="collapse_group" msgid="4923097735600949715">"그룹 접기"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g>의 알림 <xliff:g id="COUNT">%1$d</xliff:g>개 더보기"</string>
     <string name="show_count_more" msgid="480555295700318609">"알림 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"그 외 메시지 <xliff:g id="COUNT">%d</xliff:g>개"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"새 메시지 <xliff:g id="COUNT">%d</xliff:g>개"</string>
