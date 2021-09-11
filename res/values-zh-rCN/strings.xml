@@ -34,10 +34,8 @@
     <string name="notification_recents" msgid="5855769440781958546">"近期通知"</string>
     <string name="notification_older" msgid="8162161020296499690">"时间较早的通知"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"没有通知"</string>
-    <!-- no translation found for collapse_group (4923097735600949715) -->
-    <skip />
-    <!-- no translation found for show_more_from_app (4270626118092846628) -->
-    <skip />
+    <string name="collapse_group" msgid="4923097735600949715">"收起群组"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"“<xliff:g id="APP">%2$s</xliff:g>”还有 <xliff:g id="COUNT">%1$d</xliff:g> 条通知"</string>
     <string name="show_count_more" msgid="480555295700318609">"显示另外 <xliff:g id="COUNT">%d</xliff:g> 个"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"另外还有 <xliff:g id="COUNT">%d</xliff:g> 条消息"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> 条新消息"</string>
