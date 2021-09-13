@@ -105,6 +105,8 @@ public class NotificationClickHandlerFactoryTest {
     private RemoteInput mRemoteInput;
     @Mock
     private CarAssistUtils mCarAssistUtils;
+    @Mock
+    private NotificationClickHandlerFactory.MuteStatusSetter mMuteStatusSetter;
 
     @Before
     public void setUp() {
@@ -315,50 +317,49 @@ public class NotificationClickHandlerFactoryTest {
                 mAlertEntryMessageHeadsUp)).isFalse();
 
         mNotificationClickHandlerFactory.getMuteClickHandler(button,
-                mAlertEntryMessageHeadsUp).onClick(mView);
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
         assertThat(notificationDataManager.isMessageNotificationMuted(
                 mAlertEntryMessageHeadsUp)).isTrue();
 
         mNotificationClickHandlerFactory.getMuteClickHandler(button,
-                mAlertEntryMessageHeadsUp).onClick(mView);
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
         assertThat(notificationDataManager.isMessageNotificationMuted(
                 mAlertEntryMessageHeadsUp)).isFalse();
     }
 
     @Test
-    public void onClickMuteClickHandler_isMuted_showsUnmuteLabel() {
+    public void onClickMuteClickHandler_isMuted_muteStatusSetTrue() {
         NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
         notificationDataManager.addNewMessageNotification(mAlertEntryMessageHeadsUp);
         CarNotificationActionButton button = new CarNotificationActionButton(mContext);
-
         // first make sure it is not muted by default
         assertThat(notificationDataManager.isMessageNotificationMuted(
                 mAlertEntryMessageHeadsUp)).isFalse();
 
         mNotificationClickHandlerFactory.getMuteClickHandler(button,
-                mAlertEntryMessageHeadsUp).onClick(mView);
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
-        assertThat(button.getText()).isEqualTo(mContext.getString(R.string.action_unmute_short));
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ true);
     }
 
     @Test
-    public void onClickMuteClickHandler_isUnmuted_showsMuteLabel() {
+    public void onClickMuteClickHandler_isUnmuted_muteStatusSetFalse() {
         NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
         notificationDataManager.addNewMessageNotification(mAlertEntryMessageHeadsUp);
         CarNotificationActionButton button = new CarNotificationActionButton(mContext);
-
         // first make sure it is not muted by default
         assertThat(notificationDataManager.isMessageNotificationMuted(
                 mAlertEntryMessageHeadsUp)).isFalse();
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ true);
 
         mNotificationClickHandlerFactory.getMuteClickHandler(button,
-                mAlertEntryMessageHeadsUp).onClick(mView);
-        mNotificationClickHandlerFactory.getMuteClickHandler(button,
-                mAlertEntryMessageHeadsUp).onClick(mView);
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
-        assertThat(button.getText()).isEqualTo(mContext.getString(R.string.action_mute_short));
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ false);
     }
 
     @Test

@@ -65,4 +65,6 @@
     <bool name="config_alwaysShowNotificationDismissButton">false</bool>
     <!-- Whether to show action icons inside action buttons. -->
     <bool name="config_showIconsInActionButtons">true</bool>
+    <!-- Whether to enable direct reply for message notifications. -->
+    <bool name="config_enableMessageNotificationDirectReply">true</bool>
 </resources>
