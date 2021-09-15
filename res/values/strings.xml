@@ -19,6 +19,9 @@
     <!-- The assistant action label to read aloud a message notification and optionally prompt user to respond [CHAR_LIMIT=20]-->
     <string name="assist_action_play_label">Play</string>
 
+    <!-- The assistant action label to prompt user to respond [CHAR_LIMIT=20]-->
+    <string name="assist_action_reply_label">Reply</string>
+
     <!-- The Action label displayed to mute a message notification [CHAR_LIMIT=20]-->
     <string name="action_mute_short">Mute</string>
 
@@ -87,12 +90,6 @@
 
     <!-- Text indicating that a new message has been received inside a HUN with a messaging style notification during driving restriction [CHAR_LIMIT=30] -->
     <string name="restricted_hun_message_content">New message</string>
-
-    <!-- Text indicating the number of messages a user has received when driving [CHAR_LIMIT=20] -->
-    <plurals name="restricted_message_text">
-        <item quantity="one">1 new message</item>
-        <item quantity="other"><xliff:g id="count" example="3">%d</xliff:g> new messages</item>
-    </plurals>
 
     <!-- The button text for managing notifications in settings [CHAR_LIMIT=20] -->
     <string name="manage_text">Manage</string>
