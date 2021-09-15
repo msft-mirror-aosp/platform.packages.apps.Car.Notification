@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -56,18 +57,34 @@ public class CarNotificationActionsView extends LinearLayout implements
     static final int FIRST_MESSAGE_ACTION_BUTTON_INDEX = 0;
     @VisibleForTesting
     static final int SECOND_MESSAGE_ACTION_BUTTON_INDEX = 1;
+    @VisibleForTesting
+    static final int THIRD_MESSAGE_ACTION_BUTTON_INDEX = 2;
 
     private final List<CarNotificationActionButton> mActionButtons = new ArrayList<>();
     private final Context mContext;
     private final CarAssistUtils mCarAssistUtils;
+    private final Drawable mActionButtonBackground;
     private final Drawable mCallButtonBackground;
     private final Drawable mDeclineButtonBackground;
+    private final Drawable mUnmuteButtonBackground;
+    private final String mReplyButtonText;
     private final String mPlayButtonText;
     private final String mMuteText;
     private final String mUnmuteText;
+    @ColorInt
+    private final int mUnmuteTextColor;
+    @ColorInt
+    private final int mTextColor;
+    private final boolean mEnableDirectReply;
 
     @VisibleForTesting
     final Drawable mPlayButtonDrawable;
+    @VisibleForTesting
+    final Drawable mReplyButtonDrawable;
+    @VisibleForTesting
+    final Drawable mMuteButtonDrawable;
+    @VisibleForTesting
+    final Drawable mUnmuteButtonDrawable;
 
 
     private NotificationDataManager mNotificationDataManager;
@@ -99,6 +116,7 @@ public class CarNotificationActionsView extends LinearLayout implements
         mContext = context;
         mCarAssistUtils = carAssistUtils;
         mNotificationDataManager = NotificationDataManager.getInstance();
+        mActionButtonBackground = mContext.getDrawable(R.drawable.action_button_background);
         mCallButtonBackground = mContext.getDrawable(R.drawable.call_action_button_background);
         mCallButtonBackground.setColorFilter(
                 new PorterDuffColorFilter(mContext.getColor(R.color.call_accept_button),
@@ -107,10 +125,22 @@ public class CarNotificationActionsView extends LinearLayout implements
         mDeclineButtonBackground.setColorFilter(
                 new PorterDuffColorFilter(mContext.getColor(R.color.call_decline_button),
                         PorterDuff.Mode.SRC_IN));
+        mUnmuteButtonBackground = mContext.getDrawable(R.drawable.call_action_button_background);
+        mUnmuteButtonBackground.setColorFilter(
+                new PorterDuffColorFilter(mContext.getColor(R.color.unmute_button),
+                        PorterDuff.Mode.SRC_IN));
         mPlayButtonText =  mContext.getString(R.string.assist_action_play_label);
+        mReplyButtonText = mContext.getString(R.string.assist_action_reply_label);
         mMuteText =  mContext.getString(R.string.action_mute_short);
         mUnmuteText =  mContext.getString(R.string.action_unmute_short);
         mPlayButtonDrawable = mContext.getDrawable(R.drawable.ic_play_arrow);
+        mReplyButtonDrawable = mContext.getDrawable(R.drawable.ic_reply);
+        mMuteButtonDrawable = mContext.getDrawable(R.drawable.ic_mute);
+        mUnmuteButtonDrawable = mContext.getDrawable(R.drawable.ic_unmute);
+        mEnableDirectReply = mContext.getResources()
+                .getBoolean(R.bool.config_enableMessageNotificationDirectReply);
+        mUnmuteTextColor = mContext.getColor(R.color.dark_icon_tint);
+        mTextColor = mContext.getColor(R.color.notification_accent_color);
         init(attrs);
     }
 
@@ -154,10 +184,15 @@ public class CarNotificationActionsView extends LinearLayout implements
                 alertEntry.getStatusBarNotification())) {
             boolean canPlayMessage = mCarAssistUtils.hasActiveAssistant()
                     || mCarAssistUtils.isFallbackAssistantEnabled();
+            boolean canReplyMessage = mEnableDirectReply && mCarAssistUtils.hasActiveAssistant()
+                    && clickHandlerFactory.getReplyAction(alertEntry.getNotification()) != null;
             if (canPlayMessage) {
                 createPlayButton(clickHandlerFactory, alertEntry);
             }
-            createMuteButton(clickHandlerFactory, alertEntry);
+            if (canReplyMessage) {
+                createReplyButton(clickHandlerFactory, alertEntry);
+            }
+            createMuteButton(clickHandlerFactory, alertEntry, canReplyMessage);
             return;
         }
 
@@ -233,20 +268,44 @@ public class CarNotificationActionsView extends LinearLayout implements
     }
 
     /**
+     * The Reply button triggers the assistant to read the message aloud, optionally prompting the
+     * user to reply to the message afterwards.
+     */
+    private void createReplyButton(NotificationClickHandlerFactory clickHandlerFactory,
+            AlertEntry alertEntry) {
+        if (mIsInCall) return;
+        int index = SECOND_MESSAGE_ACTION_BUTTON_INDEX;
+
+        CarNotificationActionButton button = mActionButtons.get(index);
+        button.setText(mReplyButtonText);
+        button.setImageDrawable(mReplyButtonDrawable);
+        button.setVisibility(View.VISIBLE);
+        button.setOnClickListener(
+                clickHandlerFactory.getReplyClickHandler(alertEntry));
+    }
+
+    /**
      * The Mute button allows users to toggle whether or not incoming notification with the same
      * statusBarNotification key will be shown with a HUN and trigger a notification sound.
      */
     private void createMuteButton(NotificationClickHandlerFactory clickHandlerFactory,
-            AlertEntry alertEntry) {
-        int index = SECOND_MESSAGE_ACTION_BUTTON_INDEX;
+            AlertEntry alertEntry, boolean canReply) {
+        int index = THIRD_MESSAGE_ACTION_BUTTON_INDEX;
+        if (!canReply) index = SECOND_MESSAGE_ACTION_BUTTON_INDEX;
         if (mIsInCall) index = FIRST_MESSAGE_ACTION_BUTTON_INDEX;
 
         CarNotificationActionButton button = mActionButtons.get(index);
-        button.setText((mNotificationDataManager.isMessageNotificationMuted(alertEntry))
-                ? mUnmuteText : mMuteText);
-        button.setImageDrawable(null);
+        setMuteStatus(button, mNotificationDataManager.isMessageNotificationMuted(alertEntry));
         button.setVisibility(View.VISIBLE);
-        button.setOnClickListener(clickHandlerFactory.getMuteClickHandler(button, alertEntry));
+        button.setOnClickListener(
+                clickHandlerFactory.getMuteClickHandler(button, alertEntry, this::setMuteStatus));
+    }
+
+    private void setMuteStatus(CarNotificationActionButton button, boolean isMuted) {
+        button.setText(isMuted ? mUnmuteText : mMuteText);
+        button.setTextColor(isMuted ? mUnmuteTextColor : mTextColor);
+        button.setImageDrawable(isMuted ? mUnmuteButtonDrawable : mMuteButtonDrawable);
+        button.setBackground(isMuted ? mUnmuteButtonBackground :  mActionButtonBackground);
     }
 
     /** Implementation of {@link PreprocessingManager.CallStateListener} **/

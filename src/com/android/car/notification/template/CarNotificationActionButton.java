@@ -16,6 +16,7 @@
 
 package com.android.car.notification.template;
 
+import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -71,6 +72,13 @@ public class CarNotificationActionButton extends LinearLayout {
         } else {
             mTextView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Set text color for button.
+     */
+    public void setTextColor(@ColorInt int color) {
+        mTextView.setTextColor(color);
     }
 
     /**

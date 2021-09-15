@@ -69,6 +69,12 @@
     <dimen name="car_action_button_icon_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="play_arrow_height">18dp</dimen>
     <dimen name="play_arrow_width">14dp</dimen>
+    <dimen name="reply_icon_height">14dp</dimen>
+    <dimen name="reply_icon_width">18dp</dimen>
+    <dimen name="mute_icon_height">20dp</dimen>
+    <dimen name="mute_icon_width">17dp</dimen>
+    <dimen name="unmute_icon_height">20dp</dimen>
+    <dimen name="unmute_icon_width">18dp</dimen>
 
     <!-- Icons -->
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
