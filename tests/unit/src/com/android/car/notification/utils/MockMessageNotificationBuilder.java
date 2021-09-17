@@ -75,8 +75,8 @@ public class MockMessageNotificationBuilder {
     private boolean mIsOldMessage = false;
     private boolean mHasReplyAction = false;
     private boolean mReplyActionIsMocked = false;
-    private boolean mMarkAsReadActionIsMocked = false;
     private boolean mMuteActionIsMocked = false;
+    private boolean mMarkAsReadActionIsMocked = false;
     private boolean mPendingIntentIsMocked = false;
     private boolean mHasReplyWrongSemanticAction = false;
     private boolean mHasMarkAsRead = false;
@@ -88,8 +88,8 @@ public class MockMessageNotificationBuilder {
     private String mCategory = "";
     private String mContentText = "";
     private Action mReplyAction = null;
-    private Action mMarkAsReadAction = null;
     private Action mMuteAction = null;
+    private Action mMarkAsReadAction = null;
     private PendingIntent mPendingIntent = null;
 
     public MockMessageNotificationBuilder(Context context, String channelId, int smallIconId) {
@@ -231,7 +231,7 @@ public class MockMessageNotificationBuilder {
         return this;
     }
 
-    public MockMessageNotificationBuilder setHasMute(boolean hasMute) {
+    public MockMessageNotificationBuilder setHasMuteAction(boolean hasMute) {
         mHasMute = hasMute;
         return this;
     }
@@ -279,6 +279,10 @@ public class MockMessageNotificationBuilder {
 
     public Action getReplyAction() {
         return mReplyAction;
+    }
+
+    public Action getMuteAction() {
+        return mMuteAction;
     }
 
     public Action getMarkAsReadAction() {

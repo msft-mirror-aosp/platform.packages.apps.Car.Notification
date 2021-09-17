@@ -28,7 +28,9 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_collapseShadePanelAfterClearAllNotifications"/>
       <item type="bool" name="config_enableCardBackgroundColorForCategoryNavigation"/>
       <item type="bool" name="config_enableCardBackgroundColorForSystemApp"/>
+      <item type="bool" name="config_enableMessageNotificationDirectReply"/>
       <item type="bool" name="config_enableSmallIconAccentColor"/>
+      <item type="bool" name="config_focusHUNWhenShown"/>
       <item type="bool" name="config_showFooterForNotifications"/>
       <item type="bool" name="config_showHeaderForNotifications"/>
       <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
@@ -40,6 +42,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="color" name="call_accept_button"/>
       <item type="color" name="call_decline_button"/>
       <item type="color" name="clear_all_button_background_color"/>
+      <item type="color" name="dark_icon_tint"/>
       <item type="color" name="emergency_background_color"/>
       <item type="color" name="group_notification_background_color"/>
       <item type="color" name="icon_tint"/>
@@ -48,6 +51,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="color" name="notification_ripple_untinted_color"/>
       <item type="color" name="primary_text_color"/>
       <item type="color" name="secondary_text_color"/>
+      <item type="color" name="unmute_button"/>
       <item type="dimen" name="action_button_height"/>
       <item type="dimen" name="action_button_min_width"/>
       <item type="dimen" name="action_button_padding"/>
@@ -90,6 +94,8 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="manage_button_top_margin"/>
       <item type="dimen" name="max_percentage_of_width_with_resistance"/>
       <item type="dimen" name="media_action_icon_size"/>
+      <item type="dimen" name="mute_icon_height"/>
+      <item type="dimen" name="mute_icon_width"/>
       <item type="dimen" name="notification_app_bar_height"/>
       <item type="dimen" name="notification_body_title_margin"/>
       <item type="dimen" name="notification_card_footer_height"/>
@@ -113,10 +119,14 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="percentage_of_width_to_dismiss"/>
       <item type="dimen" name="play_arrow_height"/>
       <item type="dimen" name="play_arrow_width"/>
+      <item type="dimen" name="reply_icon_height"/>
+      <item type="dimen" name="reply_icon_width"/>
       <item type="dimen" name="text_padding"/>
       <item type="dimen" name="time_margin"/>
       <item type="dimen" name="time_stamp_text_size_in_group"/>
       <item type="dimen" name="touch_slop"/>
+      <item type="dimen" name="unmute_icon_height"/>
+      <item type="dimen" name="unmute_icon_width"/>
       <item type="dimen" name="unread_message_count_margin"/>
       <item type="dimen" name="unshown_count_start_margin"/>
       <item type="drawable" name="action_button_background"/>
@@ -129,7 +139,10 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="drawable" name="headsup_scrim_bottom"/>
       <item type="drawable" name="ic_clear"/>
       <item type="drawable" name="ic_group"/>
+      <item type="drawable" name="ic_mute"/>
       <item type="drawable" name="ic_play_arrow"/>
+      <item type="drawable" name="ic_reply"/>
+      <item type="drawable" name="ic_unmute"/>
       <item type="id" name="action_1"/>
       <item type="id" name="action_2"/>
       <item type="id" name="action_3"/>
@@ -252,6 +265,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="action_unmute_long"/>
       <item type="string" name="action_unmute_short"/>
       <item type="string" name="assist_action_play_label"/>
+      <item type="string" name="assist_action_reply_label"/>
       <item type="string" name="canned_reply_message"/>
       <item type="string" name="clear_all"/>
       <item type="string" name="collapse_group"/>
