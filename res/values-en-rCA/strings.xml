@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Show less"</string>
     <string name="show_count_more" msgid="480555295700318609">"Show <xliff:g id="COUNT">%d</xliff:g> more"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> more"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> new messages</item>
-      <item quantity="one">1 new message</item>
-    </plurals>
 </resources>

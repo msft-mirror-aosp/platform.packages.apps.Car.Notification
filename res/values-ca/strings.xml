@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Mostra’n menys"</string>
     <string name="show_count_more" msgid="480555295700318609">"Mostra\'n <xliff:g id="COUNT">%d</xliff:g> més"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" i <xliff:g id="COUNT">%d</xliff:g> més"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> missatges nous</item>
-      <item quantity="one">1 missatge nou</item>
-    </plurals>
 </resources>

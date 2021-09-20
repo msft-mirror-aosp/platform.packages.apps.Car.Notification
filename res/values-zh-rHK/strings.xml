@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"顯示較少"</string>
     <string name="show_count_more" msgid="480555295700318609">"顯示另外 <xliff:g id="COUNT">%d</xliff:g> 項通知"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> 則訊息"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> 則新訊息</item>
-      <item quantity="one">1 則新訊息</item>
-    </plurals>
 </resources>

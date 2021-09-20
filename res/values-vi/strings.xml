@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Ẩn bớt"</string>
     <string name="show_count_more" msgid="480555295700318609">"Hiển thị thêm <xliff:g id="COUNT">%d</xliff:g> thông báo"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> tin nhắn khác"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> tin nhắn mới</item>
-      <item quantity="one">1 tin nhắn mới</item>
-    </plurals>
 </resources>

@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"අඩුවෙන් පෙන්වන්න"</string>
     <string name="show_count_more" msgid="480555295700318609">"තව <xliff:g id="COUNT">%d</xliff:g>ක් පෙන්වන්න"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" තව +<xliff:g id="COUNT">%d</xliff:g>"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one">නව පණිවුඩ <xliff:g id="COUNT">%d</xliff:g>ක්</item>
-      <item quantity="other">නව පණිවුඩ <xliff:g id="COUNT">%d</xliff:g>ක්</item>
-    </plurals>
 </resources>

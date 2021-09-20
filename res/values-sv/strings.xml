@@ -35,8 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Visa färre"</string>
     <string name="show_count_more" msgid="480555295700318609">"Visa <xliff:g id="COUNT">%d</xliff:g> fler"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" + <xliff:g id="COUNT">%d</xliff:g> till"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> nya meddelanden</item>
-      <item quantity="one">1 nytt meddelande</item>
-    </plurals>
 </resources>

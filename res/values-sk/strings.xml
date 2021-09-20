@@ -35,10 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Zobraziť menej"</string>
     <string name="show_count_more" msgid="480555295700318609">"Zobraziť viac (<xliff:g id="COUNT">%d</xliff:g>)"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" a ďalšie (<xliff:g id="COUNT">%d</xliff:g>)"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> nové správy</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> new messages</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> nových správ</item>
-      <item quantity="one">1 nová správa</item>
-    </plurals>
 </resources>

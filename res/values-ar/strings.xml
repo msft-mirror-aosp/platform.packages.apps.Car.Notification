@@ -35,12 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"عرض إشعارات أقل"</string>
     <string name="show_count_more" msgid="480555295700318609">"عرض <xliff:g id="COUNT">%d</xliff:g> إشعار آخر"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">"و<xliff:g id="COUNT">%d</xliff:g> رسالة أخرى"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="zero"><xliff:g id="COUNT">%d</xliff:g> رسالة جديدة</item>
-      <item quantity="two">رسالتان (<xliff:g id="COUNT">%d</xliff:g>) جديدتان</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> رسائل جديدة</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> رسالة جديدة</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> رسالة جديدة</item>
-      <item quantity="one">رسالة واحدة جديدة</item>
-    </plurals>
 </resources>
