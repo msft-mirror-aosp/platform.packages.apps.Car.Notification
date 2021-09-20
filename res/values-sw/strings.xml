@@ -18,7 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="6278705468288338172">"Cheza"</string>
-    <string name="assist_action_reply_label" msgid="6946087036560525072">"Jibu"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Zima"</string>
     <string name="action_mute_long" msgid="6846675719189989477">"Komesha mazungumzo"</string>
     <string name="action_unmute_short" msgid="7157822835069715986">"Rejesha arifa"</string>
@@ -41,5 +40,9 @@
     <string name="message_unshown_count" msgid="8511753143668166196">"Ujumbe <xliff:g id="COUNT">%d</xliff:g> zaidi"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Ujumbe <xliff:g id="COUNT">%d</xliff:g> mpya"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Ujumbe mpya"</string>
+    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
+      <item quantity="other">Ujumbe <xliff:g id="COUNT">%d</xliff:g> mpya</item>
+      <item quantity="one">Ujumbe 1 mpya</item>
+    </plurals>
     <string name="manage_text" msgid="4225197445283791757">"Dhibiti"</string>
 </resources>
