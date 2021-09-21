@@ -40,9 +40,5 @@
     <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> სხვა შეტყობინ."</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> ახალი შეტყობინება"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"ახალი შეტყობინება"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ახალი შეტყობინება</item>
-      <item quantity="one">1 ახალი შეტყობინება</item>
-    </plurals>
     <string name="manage_text" msgid="4225197445283791757">"მართვა"</string>
 </resources>
