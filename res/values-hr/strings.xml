@@ -40,10 +40,5 @@
     <string name="message_unshown_count" msgid="8511753143668166196">"Još ovoliko poruka: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Nove poruke: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Nova poruka"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> nova poruka</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> nove poruke</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> novih poruka</item>
-    </plurals>
     <string name="manage_text" msgid="4225197445283791757">"Upravljanje"</string>
 </resources>
