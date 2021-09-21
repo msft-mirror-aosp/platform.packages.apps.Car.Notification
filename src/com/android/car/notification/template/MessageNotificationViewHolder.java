@@ -206,7 +206,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         int unshownCount = messageCount - 1;
         String unshownCountText = null;
         if (!isRestricted && unshownCount > 0 && !isHeadsUp && messageStyleFlag) {
-            unshownCountText = mContext.getString(R.string.message_unshown_count, unshownCount);
+            unshownCountText =
+                    mContext.getString(R.string.restricted_numbered_message_content, unshownCount);
             View.OnClickListener listener =
                     getCountViewOnClickListener(unshownCount, messages, isGroupConversation,
                             sbn, conversationTitle, avatar, groupIcon, when);
@@ -258,8 +259,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             if (finalUnshownCount <= 0) {
                 unshownCountText = null;
             } else {
-                unshownCountText = mContext.getString(R.string.restricted_numbered_message_content,
-                        finalUnshownCount);
+                unshownCountText =
+                        mContext.getString(R.string.message_unshown_count, finalUnshownCount);
             }
 
             Drawable launcherIcon = loadAppLauncherIcon(sbn);
