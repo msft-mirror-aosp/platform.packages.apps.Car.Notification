@@ -23,7 +23,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.text.BidiFormatter;
@@ -35,7 +35,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.R;
@@ -127,8 +126,10 @@ public class CarNotificationHeaderView extends LinearLayout {
         // App icon
         if (mIconView != null) {
             mIconView.setVisibility(View.VISIBLE);
-            Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
-            mIconView.setImageDrawable(drawable);
+            Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                mIconView.setImageDrawable(icon.loadDrawable(packageContext));
+            }
         }
 
         StringBuilder stringBuilder = new StringBuilder();
