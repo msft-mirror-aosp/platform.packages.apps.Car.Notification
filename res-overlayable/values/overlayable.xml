@@ -258,7 +258,6 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="layout" name="notification_recents_template"/>
       <item type="layout" name="progress_notification_template"/>
       <item type="layout" name="progress_notification_template_inner"/>
-      <item type="plurals" name="restricted_message_text"/>
       <item type="string" name="action_canned_reply"/>
       <item type="string" name="action_mute_long"/>
       <item type="string" name="action_mute_short"/>
