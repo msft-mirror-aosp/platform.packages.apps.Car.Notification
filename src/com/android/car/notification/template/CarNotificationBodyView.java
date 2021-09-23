@@ -94,7 +94,6 @@ public class CarNotificationBodyView extends RelativeLayout {
         mDefaultSecondaryTextColor =
                 NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
         mUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
-        inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
     }
 
     private void init(AttributeSet attrs) {
@@ -106,6 +105,8 @@ public class CarNotificationBodyView extends RelativeLayout {
                 /* defValue= */ DEFAULT_MAX_LINES);
         mIsHeadsUp = attributes.getBoolean(R.styleable.CarNotificationHeaderView_isHeadsUp,
                 /* defValue= */ false);
+        inflate(getContext(), mIsHeadsUp ? R.layout.car_headsup_notification_body_view
+                : R.layout.car_notification_body_view, /* root= */ this);
         attributes.recycle();
     }
 
@@ -148,7 +149,7 @@ public class CarNotificationBodyView extends RelativeLayout {
         } else if (mLargeIconView != null && launcherIcon != null && mUseLauncherIcon) {
             mLargeIconView.setVisibility(View.VISIBLE);
             mLargeIconView.setImageDrawable(launcherIcon);
-        } else {
+        } else if (mLargeIconView != null) {
             mLargeIconView.setVisibility(View.GONE);
         }
 
@@ -166,21 +167,21 @@ public class CarNotificationBodyView extends RelativeLayout {
             mContentView.setVisibility(View.VISIBLE);
             mContentView.setMaxLines(mMaxLines);
             mContentView.setText(content);
-        } else {
+        } else if (mContentView != null) {
             mContentView.setVisibility(View.GONE);
         }
 
         if (mTimeView != null && when != null && !mIsHeadsUp) {
             mTimeView.setVisibility(View.VISIBLE);
             mTimeView.setTime(when);
-        } else {
+        } else if (mTimeView != null) {
             mTimeView.setVisibility(View.GONE);
         }
 
         if (mCountView != null && countText != null) {
             mCountView.setVisibility(View.VISIBLE);
             mCountView.setText(countText);
-        } else {
+        } else if (mCountView != null) {
             mCountView.setVisibility(View.GONE);
         }
     }
@@ -202,7 +203,6 @@ public class CarNotificationBodyView extends RelativeLayout {
             mContentView.setMaxLines(maxLines);
         }
     }
-
 
     /**
      * Sets the primary text color.
