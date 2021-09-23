@@ -34,6 +34,7 @@
         <item name="android:ellipsize">end</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textSize">@*android:dimen/car_headline2_size</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="InGroupTimeStampText" parent="@android:TextAppearance.DeviceDefault">
@@ -65,12 +66,12 @@
 
     <style name="ExpandedGroupNotificationHeaderText"
            parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:textSize">@*android:dimen/car_headline2_size</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxWidth">@dimen/notification_text_max_width</item>
         <item name="android:textAlignment">gravity</item>
         <item name="android:textDirection">locale</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
     <style name="NotificationBodyImageIcon">
