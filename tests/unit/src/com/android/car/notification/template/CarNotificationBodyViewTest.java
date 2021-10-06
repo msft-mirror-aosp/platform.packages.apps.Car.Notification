@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification.template;
@@ -19,22 +19,16 @@ package com.android.car.notification.template;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.graphics.drawable.Icon;
-import android.util.AttributeSet;
-import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.notification.R;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationBodyViewTest {
     private static final String TEST_TITLE = "TEST_TITLE";
     private static final String TEST_BODY = "TEST BODY";

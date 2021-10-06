@@ -30,6 +30,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.R;
 import com.android.car.ui.FocusArea;
@@ -49,8 +50,7 @@ public class HeadsUpContainerView extends FrameLayout {
         init();
     }
 
-    public HeadsUpContainerView(@NonNull Context context,
-            @Nullable AttributeSet attrs) {
+    public HeadsUpContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -62,8 +62,7 @@ public class HeadsUpContainerView extends FrameLayout {
     }
 
     public HeadsUpContainerView(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyleAttr,
-            int defStyleRes) {
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -115,5 +114,10 @@ public class HeadsUpContainerView extends FrameLayout {
         }
 
         return topmostChild.performAccessibilityAction(ACTION_FOCUS, /* arguments= */ null);
+    }
+
+    @VisibleForTesting
+    void setHandler(Handler handler) {
+        mHandler = handler;
     }
 }

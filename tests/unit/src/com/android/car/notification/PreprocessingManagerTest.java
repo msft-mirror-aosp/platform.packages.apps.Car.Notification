@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 
 package com.android.car.notification;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_NEGATIVE;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_NEUTRAL;
 import static android.service.notification.NotificationListenerService.Ranking.USER_SENTIMENT_POSITIVE;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -32,30 +35,29 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.car.drivingstate.CarUxRestrictions;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.SnoozeCriterion;
 import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
+import android.testing.TestableContext;
 
-import com.android.car.notification.testutils.ShadowApplicationPackageManager;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,11 +66,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowApplicationPackageManager.class})
+@RunWith(AndroidJUnit4.class)
 public class PreprocessingManagerTest {
-
-    private Context mContext;
 
     private static final String PKG = "com.package.PREPROCESSING_MANAGER_TEST";
     private static final String OP_PKG = "OpPackage";
@@ -85,10 +84,9 @@ public class PreprocessingManagerTest {
     private static final String GROUP_KEY_B = "GROUP_KEY_B";
     private static final String GROUP_KEY_C = "GROUP_KEY_C";
     private static final int MAX_STRING_LENGTH = 10;
-
-    private PreprocessingManager mPreprocessingManager;
-    @Mock
-    private ApplicationInfo mApplicationInfo;
+    @Rule
+    public final TestableContext mContext = new TestableContext(
+            InstrumentationRegistry.getInstrumentation().getTargetContext());
     @Mock
     private StatusBarNotification mStatusBarNotification1;
     @Mock
@@ -117,6 +115,11 @@ public class PreprocessingManagerTest {
     private Notification mMediaNotification;
     @Mock
     private Notification mSummaryNotification;
+    @Mock
+    private PackageManager mPackageManager;
+
+    private PreprocessingManager mPreprocessingManager;
+
     private Notification mForegroundNotification;
     private Notification mBackgroundNotification;
     private Notification mNavigationNotification;
@@ -134,9 +137,22 @@ public class PreprocessingManagerTest {
     private NotificationListenerService.RankingMap mRankingMap;
 
     @Before
-    public void setup() {
+    public void setup() throws PackageManager.NameNotFoundException {
         MockitoAnnotations.initMocks(this);
-        mContext = RuntimeEnvironment.application;
+
+        // prevents less important foreground notifications from not being filtered due to the
+        // application and package setup.
+        PackageInfo packageInfo = mock(PackageInfo.class);
+        ApplicationInfo applicationInfo = mock(ApplicationInfo.class);
+        packageInfo.packageName = PKG;
+        when(applicationInfo.isPrivilegedApp()).thenReturn(true);
+        when(applicationInfo.isSystemApp()).thenReturn(true);
+        when(applicationInfo.isSignedWithPlatformKey()).thenReturn(true);
+        packageInfo.applicationInfo = applicationInfo;
+        when(mPackageManager.getPackageInfoAsUser(anyString(), anyInt(), anyInt())).thenReturn(
+                packageInfo);
+        mContext.setMockPackageManager(mPackageManager);
+
         mPreprocessingManager = PreprocessingManager.getInstance(mContext);
 
         mForegroundNotification = generateNotification(
@@ -174,16 +190,15 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification6.getNotification()).thenReturn(mForegroundNotification);
         when(mSummaryStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
 
-        when(mSummaryNotification.isGroupSummary()).thenReturn(true);
+        when(mStatusBarNotification1.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification2.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification3.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification4.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification5.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification6.getPackageName()).thenReturn(PKG);
+        when(mSummaryStatusBarNotification.getPackageName()).thenReturn(PKG);
 
-        // prevents less important foreground notifications from not being filtered due to the
-        // application and package setup.
-        when(mApplicationInfo.isSignedWithPlatformKey()).thenReturn(true);
-        when(mApplicationInfo.isSystemApp()).thenReturn(true);
-        when(mApplicationInfo.isPrivilegedApp()).thenReturn(true);
-        PackageInfo packageInfo = new PackageInfo();
-        packageInfo.applicationInfo = mApplicationInfo;
-        ShadowApplicationPackageManager.setPackageInfo(packageInfo);
+        when(mSummaryNotification.isGroupSummary()).thenReturn(true);
 
         // Always start system with no phone calls in progress.
         Intent intent = new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
@@ -191,11 +206,6 @@ public class PreprocessingManagerTest {
         mPreprocessingManager.mIntentReceiver.onReceive(mContext, intent);
 
         initTestData();
-    }
-
-    @After
-    public void tearDown() {
-        ShadowApplicationPackageManager.reset();
     }
 
     @Test
@@ -208,7 +218,8 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onFilter_dontShowLessImportantNotifications_filtersLessImportantForeground() {
+    public void onFilter_dontShowLessImportantNotifications_filtersLessImportantForeground()
+            throws PackageManager.NameNotFoundException {
         mPreprocessingManager
                 .filter( /* showLessImportantNotifications= */ false, mAlertEntries, mRankingMap);
 
@@ -536,7 +547,7 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onAdditionalGroup_returnsTheSameGroupsAsStandardGroup() {
+    public void onAdditionalGroupAndRank_returnsTheSameGroupsAsStandardGroup() {
         Notification additionalNotification =
                 generateNotification( /* isForegrond= */ true, /* isNavigation= */ false);
         additionalNotification.category = Notification.CATEGORY_MESSAGE;
@@ -556,7 +567,7 @@ public class PreprocessingManagerTest {
         }
 
         List<NotificationGroup> actual =
-                mPreprocessingManager.additionalGroup(additionalAlertEntry);
+                mPreprocessingManager.additionalGroupAndRank(additionalAlertEntry, mRankingMap);
         String[] actualKeys = new String[actual.size()];
         for (int i = 0; i < actualKeys.length; i++) {
             actualKeys[i] = actual.get(i).getGroupKey();
@@ -568,13 +579,36 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onAdditionalRank_returnsTheSameOrderAsStandardRank() {
-        List<AlertEntry> testCopy = new ArrayList<>(mAlertEntries);
+    public void onAdditionalGroupAndRank_maintainsPreviousRanking() {
+        Map<String, AlertEntry> testCopy = new HashMap<>(mAlertEntriesMap);
+        // Seed the list with the notifications
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
 
-        List<NotificationGroup> additionalRanked = mPreprocessingManager.additionalRank(
-                mPreprocessingManager.group(mAlertEntries), mRankingMap);
+        String key = "NEW_KEY";
+        String groupKey = "NEW_GROUP_KEY";
+        Notification newNotification = generateNotification(false, false);
+        StatusBarNotification newSBN = mock(StatusBarNotification.class);
+        when(newSBN.getNotification()).thenReturn(newNotification);
+        when(newSBN.getKey()).thenReturn(key);
+        when(newSBN.getGroupKey()).thenReturn(groupKey);
+
+        AlertEntry newEntry = new AlertEntry(newSBN);
+
+        // Change the ordering, add a new notification and validate that the existing
+        // notifications don't reorder
+        AlertEntry first = mAlertEntries.get(0);
+        mAlertEntries.remove(0);
+        mAlertEntries.add(first);
+
+        List<NotificationGroup> additionalRanked = mPreprocessingManager
+                .additionalGroupAndRank(newEntry, generateRankingMap(mAlertEntries))
+                .stream()
+                .filter(g -> !g.getGroupKey().equals(groupKey))
+                .collect(Collectors.toList());
+
         List<NotificationGroup> standardRanked = mPreprocessingManager.rank(
-                mPreprocessingManager.group(testCopy), mRankingMap);
+                mPreprocessingManager.process(/* showLessImportantNotifications = */ false,
+                        testCopy, mRankingMap), mRankingMap);
 
         assertThat(additionalRanked.size()).isEqualTo(standardRanked.size());
 
@@ -582,6 +616,27 @@ public class PreprocessingManagerTest {
             assertThat(additionalRanked.get(i).getGroupKey()).isEqualTo(
                     standardRanked.get(i).getGroupKey());
         }
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_prependsHighRankNotification() {
+        // Seed the list
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+
+        String key = "NEW_KEY";
+        String groupKey = "NEW_GROUP_KEY";
+        Notification newNotification = generateNotification(false, false);
+        StatusBarNotification newSBN = mock(StatusBarNotification.class);
+        when(newSBN.getNotification()).thenReturn(newNotification);
+        when(newSBN.getKey()).thenReturn(key);
+        when(newSBN.getGroupKey()).thenReturn(groupKey);
+
+        AlertEntry newEntry = new AlertEntry(newSBN);
+        mAlertEntries.add(newEntry);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries));
+        assertThat(result.get(0).getSingleNotification()).isEqualTo(newEntry);
     }
 
     @Test
@@ -760,8 +815,8 @@ public class PreprocessingManagerTest {
                     isVisuallyInterruptive(i),
                     isConversation(i),
                     null,
+                    getRankingAdjustment(i),
                     isBubble(i)
-
             );
             rankings[i] = ranking;
         }
@@ -851,7 +906,7 @@ public class PreprocessingManagerTest {
                     mContext,
                     index /*requestCode*/,
                     new Intent("ACTION_" + key),
-                    0 /*flags*/);
+                    FLAG_IMMUTABLE);
             actions.add(new Notification.Action.Builder(null /*icon*/, key, intent).build());
         }
         return actions;
@@ -875,6 +930,10 @@ public class PreprocessingManagerTest {
 
     private boolean isConversation(int index) {
         return index % 4 == 0;
+    }
+
+    private int getRankingAdjustment(int index) {
+        return index % 3 - 1;
     }
 
     private boolean isBubble(int index) {
