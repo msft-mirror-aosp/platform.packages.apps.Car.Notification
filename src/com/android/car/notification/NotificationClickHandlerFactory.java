@@ -30,9 +30,11 @@ import android.os.RemoteException;
 import android.service.notification.NotificationStats;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.assist.CarVoiceInteractionSession;
 import com.android.car.assist.client.CarAssistUtils;
@@ -79,6 +81,11 @@ public class NotificationClickHandlerFactory {
         mBarService = barService;
         mCarAssistUtils = null;
         mMainHandler = new Handler(Looper.getMainLooper());
+    }
+
+    @VisibleForTesting
+    void setCarAssistUtils(CarAssistUtils carAssistUtils) {
+        mCarAssistUtils = carAssistUtils;
     }
 
     /**
@@ -228,7 +235,25 @@ public class NotificationClickHandlerFactory {
     public View.OnClickListener getMuteClickHandler(
             Button muteButton, AlertEntry messageNotification) {
         return v -> {
-            if (mNotificationDataManager != null) {
+            NotificationCompat.Action action =
+                    CarAssistUtils.getMuteAction(messageNotification.getNotification());
+            Log.d(TAG, action == null ? "Mute action is null, using built-in logic." :
+                    "Mute action is not null, deferring muting behavior to app");
+
+            if (action != null && action.getActionIntent() != null) {
+                try {
+                    action.getActionIntent().send();
+                    // clear all notifications when mute button is clicked.
+                    // once a mute pending intent is provided,
+                    // the mute functionality is fully delegated to the app who will handle
+                    // the mute state and ability to toggle on and off a notification.
+                    // This is necessary to ensure that mute state has one single source of truth.
+                    clearNotification(messageNotification);
+                } catch (PendingIntent.CanceledException e) {
+                    Log.d(TAG, "Could not send pending intent to mute notification "
+                            + e.getLocalizedMessage());
+                }
+            } else if (mNotificationDataManager != null) {
                 mNotificationDataManager.toggleMute(messageNotification);
                 Context context = v.getContext().getApplicationContext();
                 muteButton.setText(
@@ -322,8 +347,6 @@ public class NotificationClickHandlerFactory {
 
             mBarService.onNotificationClear(
                     alertEntry.getStatusBarNotification().getPackageName(),
-                    alertEntry.getStatusBarNotification().getTag(),
-                    alertEntry.getStatusBarNotification().getId(),
                     alertEntry.getStatusBarNotification().getUser().getIdentifier(),
                     alertEntry.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
