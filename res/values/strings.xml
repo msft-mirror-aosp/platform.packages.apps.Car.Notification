@@ -88,6 +88,9 @@
     <!-- Text indicating the number of new messages inside a messaging style notification during driving restriction [CHAR_LIMIT=30] -->
     <string name="restricted_numbered_message_content"><xliff:g id="count">%d</xliff:g>&#160;new&#160;messages</string>
 
+    <!-- Text indicating that a long text message notification can be expanded to show more text from the message [CHAR_LIMIT=20] -->
+    <string name="see_more_message">See more</string>
+
     <!-- Text indicating that a new message has been received inside a HUN with a messaging style notification during driving restriction [CHAR_LIMIT=30] -->
     <string name="restricted_hun_message_content">New message</string>
 

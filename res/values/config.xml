@@ -43,6 +43,9 @@
     <integer name="config_headsUpNotificationMaxBodyLines">3</integer>
     <!-- The number of lines of body text to show for notifications inside the notification panel -->
     <integer name="config_notificationPanelMaxBodyLines">3</integer>
+    <!-- The additional number of characters to show in body text for single message notifications
+         inside the notification panel after expansion. -->
+    <integer name="config_additionalCharactersToShowInSingleMessageExpandedNotification">120</integer>
     <!-- The maximum number of messages to show in body text for message notifications inside the
          notification panel. -->
     <integer name="config_maxNumberOfMessagesInPanel">7</integer>
