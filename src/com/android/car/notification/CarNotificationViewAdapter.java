@@ -687,6 +687,11 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
         if (mNotificationDataManager != null) {
             List<AlertEntry> notifications = new ArrayList();
             for (int i = start; i <= end; i++) {
+                AlertEntry groupSummary =  mNotifications.get(i).getGroupSummaryNotification();
+                if (groupSummary != null) {
+                    notifications.add(groupSummary);
+                }
+
                 notifications.addAll(mNotifications.get(i).getChildNotifications());
             }
             mNotificationDataManager.setNotificationsAsSeen(notifications);
