@@ -22,9 +22,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -48,6 +50,8 @@ import java.util.List;
  */
 public class CarNotificationActionsView extends LinearLayout implements
         PreprocessingManager.CallStateListener {
+    private static final boolean DEBUG = Build.IS_DEBUGGABLE;
+    private static final String TAG = "CarNotificationActionsView";
 
     // Maximum 3 actions
     // https://developer.android.com/reference/android/app/Notification.Builder.html#addAction
@@ -88,6 +92,8 @@ public class CarNotificationActionsView extends LinearLayout implements
 
 
     private NotificationDataManager mNotificationDataManager;
+    private NotificationClickHandlerFactory mNotificationClickHandlerFactory;
+    private AlertEntry mAlertEntry;
     private boolean mIsCategoryCall;
     private boolean mIsInCall;
 
@@ -159,8 +165,6 @@ public class CarNotificationActionsView extends LinearLayout implements
             attributes.recycle();
         }
 
-        PreprocessingManager.getInstance(mContext).addCallStateListener(this);
-
         inflate(mContext, R.layout.car_notification_actions_view, /* root= */ this);
     }
 
@@ -177,6 +181,11 @@ public class CarNotificationActionsView extends LinearLayout implements
             setVisibility(View.GONE);
             return;
         }
+
+        PreprocessingManager.getInstance(mContext).addCallStateListener(this);
+
+        mNotificationClickHandlerFactory = clickHandlerFactory;
+        mAlertEntry = alertEntry;
 
         setVisibility(View.VISIBLE);
 
@@ -224,13 +233,19 @@ public class CarNotificationActionsView extends LinearLayout implements
      * Resets the notification actions empty for recycling.
      */
     public void reset() {
+        resetButtons();
+        PreprocessingManager.getInstance(getContext()).removeCallStateListener(this);
+        mAlertEntry = null;
+        mNotificationClickHandlerFactory = null;
+    }
+
+    private void resetButtons() {
         for (CarNotificationActionButton button : mActionButtons) {
             button.setVisibility(View.GONE);
             button.setText(null);
             button.setImageDrawable(null);
             button.setOnClickListener(null);
         }
-        PreprocessingManager.getInstance(getContext()).removeCallStateListener(this);
     }
 
     @Override
@@ -311,6 +326,49 @@ public class CarNotificationActionsView extends LinearLayout implements
     /** Implementation of {@link PreprocessingManager.CallStateListener} **/
     @Override
     public void onCallStateChanged(boolean isInCall) {
+        if (mIsInCall == isInCall) {
+            return;
+        }
+
         mIsInCall = isInCall;
+
+        if (mNotificationClickHandlerFactory == null || mAlertEntry == null) {
+            return;
+        }
+
+        if (DEBUG) {
+            if (isInCall) {
+                Log.d(TAG, "Call state activated: " + mAlertEntry);
+            } else {
+                Log.d(TAG, "Call state deactivated: " + mAlertEntry);
+            }
+        }
+
+        int focusedButtonIndex = getFocusedButtonIndex();
+        resetButtons();
+        bind(mNotificationClickHandlerFactory, mAlertEntry);
+
+        // If not in touch mode and action button had focus, then have original or preceding button
+        // request focus.
+        if (!isInTouchMode() && focusedButtonIndex != -1) {
+            for (int i = focusedButtonIndex; i != -1; i--) {
+                CarNotificationActionButton button = getActionButtons().get(i);
+                if (button.getVisibility() == View.VISIBLE) {
+                    button.requestFocus();
+                    return;
+                }
+            }
+        }
+    }
+
+    private int getFocusedButtonIndex() {
+        for (int i = FIRST_MESSAGE_ACTION_BUTTON_INDEX; i <= THIRD_MESSAGE_ACTION_BUTTON_INDEX;
+                i++) {
+            boolean hasFocus = getActionButtons().get(i).hasFocus();
+            if (hasFocus) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
