@@ -63,7 +63,7 @@ public class PreprocessingManager {
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final String TAG = "PreprocessingManager";
 
-    private final String mEllipsizedString;
+    private final String mEllipsizedSuffix;
     private final Context mContext;
     private final boolean mShowRecentsAndOlderHeaders;
 
@@ -94,7 +94,7 @@ public class PreprocessingManager {
     };
 
     private PreprocessingManager(Context context) {
-        mEllipsizedString = context.getString(R.string.ellipsized_string);
+        mEllipsizedSuffix = context.getString(R.string.ellipsized_string);
         mContext = context;
         mNotificationDataManager = NotificationDataManager.getInstance();
         mShowRecentsAndOlderHeaders =
@@ -257,12 +257,23 @@ public class PreprocessingManager {
         }
 
         if (DEBUG) {
-            Log.d(TAG, alertEntry + " importance sufficient enough to show in notification "
-                    + "center: " + (importance < NotificationManager.IMPORTANCE_DEFAULT));
-            Log.d(TAG, alertEntry + " application is system privileged or signed with "
-                    + "platform key " + NotificationUtils
-                    .isSystemPrivilegedOrPlatformKey(mContext, alertEntry));
+            if (importance < NotificationManager.IMPORTANCE_DEFAULT) {
+                Log.d(TAG, alertEntry + " importance is insufficient to show in notification "
+                        + "center");
+            } else {
+                Log.d(TAG, alertEntry + " importance is sufficient to show in notification "
+                        + "center");
+            }
+
+            if (NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext, alertEntry)) {
+                Log.d(TAG, alertEntry + " application is system privileged or signed with "
+                        + "platform key");
+            } else {
+                Log.d(TAG, alertEntry + " application is neither system privileged nor signed "
+                        + "with platform key");
+            }
         }
+
         return importance < NotificationManager.IMPORTANCE_DEFAULT
                 && NotificationUtils.isSystemPrivilegedOrPlatformKey(mContext, alertEntry);
     }
@@ -328,8 +339,15 @@ public class PreprocessingManager {
         if (TextUtils.isEmpty(text) || text.length() < mMaxStringLength) {
             return text;
         }
-        int maxLength = mMaxStringLength - mEllipsizedString.length();
-        return text.toString().substring(0, maxLength).concat(mEllipsizedString);
+        int maxLength = mMaxStringLength - mEllipsizedSuffix.length();
+        return text.toString().substring(0, maxLength) + mEllipsizedSuffix;
+    }
+
+    /**
+     * @return the maximum numbers of characters allowed by the {@link CarUxRestrictionsManager}
+     */
+    public int getMaximumStringLength() {
+        return mMaxStringLength;
     }
 
     /**
