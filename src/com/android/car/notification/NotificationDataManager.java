@@ -48,7 +48,7 @@ public class NotificationDataManager {
         void onUnseenCountUpdate();
     }
 
-    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
+    private static final boolean DEBUG = Build.IS_DEBUGGABLE;
     private static final String TAG = "NotificationDataManager";
 
     private static NotificationDataManager sInstance;
@@ -115,7 +115,7 @@ public class NotificationDataManager {
 
                 if (mOnUnseenCountUpdateListener != null) {
                     if (DEBUG) {
-                        Log.d(TAG, "UnseenNotificationMap: " + mUnseenNotificationMap);
+                        Log.d(TAG, "Unseen notification map: " + mUnseenNotificationMap);
                     }
                     mOnUnseenCountUpdateListener.onUnseenCountUpdate();
                 }
@@ -219,7 +219,7 @@ public class NotificationDataManager {
 
         if (mOnUnseenCountUpdateListener != null) {
             if (DEBUG) {
-                Log.d(TAG, "UnseenNotificationMap: " + mUnseenNotificationMap);
+                Log.d(TAG, "Unseen notifications cleared");
             }
             mOnUnseenCountUpdateListener.onUnseenCountUpdate();
         }
@@ -235,7 +235,7 @@ public class NotificationDataManager {
         }
         if (mOnUnseenCountUpdateListener != null) {
             if (DEBUG) {
-                Log.d(TAG, "UnseenNotificationMap: " + mUnseenNotificationMap);
+                Log.d(TAG, "Unseen notification map: " + mUnseenNotificationMap);
             }
             mOnUnseenCountUpdateListener.onUnseenCountUpdate();
         }
@@ -257,6 +257,9 @@ public class NotificationDataManager {
                 }
             }
         });
+        if (DEBUG) {
+            Log.d(TAG, "Unseen notification map: " + mUnseenNotificationMap);
+        }
         return unseenCount[0];
     }
 
