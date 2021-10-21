@@ -101,6 +101,11 @@ public class NotificationViewController {
         mPreprocessingManager.init(mCarNotificationListener.getNotifications(),
                 mCarNotificationListener.getCurrentRanking());
 
+        if (DEBUG) {
+            Log.d(TAG, "Unprocessed notification map: "
+                    + mCarNotificationListener.getNotifications());
+        }
+
         List<NotificationGroup> notificationGroups = mPreprocessingManager.process(
                 showLessImportantNotifications,
                 mCarNotificationListener.getNotifications(),

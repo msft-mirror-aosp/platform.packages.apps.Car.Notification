@@ -29,6 +29,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_enableCardBackgroundColorForCategoryNavigation"/>
       <item type="bool" name="config_enableCardBackgroundColorForSystemApp"/>
       <item type="bool" name="config_enableMessageNotificationDirectReply"/>
+      <item type="bool" name="config_enableMessageNotificationPlay"/>
       <item type="bool" name="config_enableSmallIconAccentColor"/>
       <item type="bool" name="config_focusHUNWhenShown"/>
       <item type="bool" name="config_showFooterForNotifications"/>
@@ -94,9 +95,11 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="manage_button_top_margin"/>
       <item type="dimen" name="max_percentage_of_width_with_resistance"/>
       <item type="dimen" name="media_action_icon_size"/>
+      <item type="dimen" name="message_count_top_margin"/>
       <item type="dimen" name="mute_icon_height"/>
       <item type="dimen" name="mute_icon_width"/>
       <item type="dimen" name="notification_app_bar_height"/>
+      <item type="dimen" name="notification_body_content_top_margin"/>
       <item type="dimen" name="notification_body_title_margin"/>
       <item type="dimen" name="notification_card_footer_height"/>
       <item type="dimen" name="notification_card_header_height"/>
