@@ -80,6 +80,7 @@ public class CarNotificationActionsView extends LinearLayout implements
     @ColorInt
     private final int mTextColor;
     private final boolean mEnableDirectReply;
+    private final boolean mEnablePlay;
 
     @VisibleForTesting
     final Drawable mPlayButtonDrawable;
@@ -143,6 +144,8 @@ public class CarNotificationActionsView extends LinearLayout implements
         mReplyButtonDrawable = mContext.getDrawable(R.drawable.ic_reply);
         mMuteButtonDrawable = mContext.getDrawable(R.drawable.ic_mute);
         mUnmuteButtonDrawable = mContext.getDrawable(R.drawable.ic_unmute);
+        mEnablePlay =
+                mContext.getResources().getBoolean(R.bool.config_enableMessageNotificationPlay);
         mEnableDirectReply = mContext.getResources()
                 .getBoolean(R.bool.config_enableMessageNotificationDirectReply);
         mUnmuteTextColor = mContext.getColor(R.color.dark_icon_tint);
@@ -191,7 +194,7 @@ public class CarNotificationActionsView extends LinearLayout implements
 
         if (CarAssistUtils.isCarCompatibleMessagingNotification(
                 alertEntry.getStatusBarNotification())) {
-            boolean canPlayMessage = mCarAssistUtils.hasActiveAssistant()
+            boolean canPlayMessage = mEnablePlay && mCarAssistUtils.hasActiveAssistant()
                     || mCarAssistUtils.isFallbackAssistantEnabled();
             boolean canReplyMessage = mEnableDirectReply && mCarAssistUtils.hasActiveAssistant()
                     && clickHandlerFactory.getReplyAction(alertEntry.getNotification()) != null;
