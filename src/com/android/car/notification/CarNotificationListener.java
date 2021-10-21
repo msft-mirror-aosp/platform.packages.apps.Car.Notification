@@ -168,15 +168,20 @@ public class CarNotificationListener extends NotificationListenerService impleme
     public void onNotificationRankingUpdate(RankingMap rankingMap) {
         mRankingMap = rankingMap;
         for (AlertEntry alertEntry : mActiveNotifications.values()) {
-            if (!mRankingMap.getRanking(alertEntry.getKey(), mTemporaryRanking)) {
-                continue;
-            }
-            String oldOverrideGroupKey =
-                    alertEntry.getStatusBarNotification().getOverrideGroupKey();
-            String newOverrideGroupKey = getOverrideGroupKey(alertEntry.getKey());
-            if (!Objects.equals(oldOverrideGroupKey, newOverrideGroupKey)) {
-                alertEntry.getStatusBarNotification().setOverrideGroupKey(newOverrideGroupKey);
-            }
+            updateOverrideGroupKey(alertEntry);
+        }
+    }
+
+    private void updateOverrideGroupKey(AlertEntry alertEntry) {
+        if (!mRankingMap.getRanking(alertEntry.getKey(), mTemporaryRanking)) {
+            return;
+        }
+
+        String oldOverrideGroupKey =
+                alertEntry.getStatusBarNotification().getOverrideGroupKey();
+        String newOverrideGroupKey = getOverrideGroupKey(alertEntry.getKey());
+        if (!Objects.equals(oldOverrideGroupKey, newOverrideGroupKey)) {
+            alertEntry.getStatusBarNotification().setOverrideGroupKey(newOverrideGroupKey);
         }
     }
 
@@ -237,6 +242,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             Log.d(TAG, "Is " + alertEntry + " shown as HUN?: " + isShowingHeadsUp);
         }
         if (!isShowingHeadsUp) {
+            updateOverrideGroupKey(alertEntry);
             postNewNotification(alertEntry);
         }
     }
@@ -253,6 +259,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
         // No more a HUN
         if (!isHeadsUp) {
+            updateOverrideGroupKey(alertEntry);
             postNewNotification(alertEntry);
         }
     }
