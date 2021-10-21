@@ -107,21 +107,19 @@
                 android:layout_below="@id/notification_list"
                 android:background="@color/notification_list_divider_color"/>
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/expansion_footer_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/footer_divider"
-                android:orientation="horizontal"
-                android:layoutDirection="ltr">
+                android:layout_below="@id/footer_divider">
 
                 <TextView
                     android:id="@+id/expansion_footer"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/notification_card_footer_height"
-                    android:layout_weight="1"
                     android:layout_marginEnd="@dimen/card_end_margin"
                     android:layout_marginStart="@dimen/card_start_margin"
+                    android:layout_gravity="center"
                     android:gravity="center"
                     android:textDirection="locale"
                     android:textAlignment="gravity"
@@ -131,9 +129,9 @@
                     layout="@layout/dismiss_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"/>
+                    android:layout_gravity="end"/>
 
-            </LinearLayout>
+            </FrameLayout>
 
         </RelativeLayout>
 
