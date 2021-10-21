@@ -47,6 +47,8 @@
     <dimen name="expanded_package_name_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
     <dimen name="notification_body_title_margin">@*android:dimen/car_padding_2</dimen>
+    <dimen name="notification_body_content_top_margin">8dp</dimen>
+    <dimen name="message_count_top_margin">12dp</dimen>
     <dimen name="notification_title_icon_top_margin">4dp</dimen>
     <dimen name="group_icon_fill_alpha">0.72</dimen>
 
