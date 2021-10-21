@@ -29,6 +29,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="bool" name="config_enableCardBackgroundColorForCategoryNavigation"/>
       <item type="bool" name="config_enableCardBackgroundColorForSystemApp"/>
       <item type="bool" name="config_enableMessageNotificationDirectReply"/>
+      <item type="bool" name="config_enableMessageNotificationPlay"/>
       <item type="bool" name="config_enableSmallIconAccentColor"/>
       <item type="bool" name="config_focusHUNWhenShown"/>
       <item type="bool" name="config_showFooterForNotifications"/>
