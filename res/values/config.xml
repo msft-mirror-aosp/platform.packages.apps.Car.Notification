@@ -68,6 +68,8 @@
     <bool name="config_alwaysShowNotificationDismissButton">false</bool>
     <!-- Whether to show action icons inside action buttons. -->
     <bool name="config_showIconsInActionButtons">true</bool>
+    <!-- Whether to enable play for message notifications. -->
+    <bool name="config_enableMessageNotificationPlay">true</bool>
     <!-- Whether to enable direct reply for message notifications. -->
     <bool name="config_enableMessageNotificationDirectReply">true</bool>
     <!-- Whether to focus on HUN when new HUN is revealed. -->

@@ -19,6 +19,7 @@ package com.android.car.notification;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -157,6 +158,17 @@ public class CarNotificationListenerTest {
 
 
     @Test
+    public void onNotificationPosted_isNotHun_isForCurrentUser_overrideGroupKeySet() {
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        testingHeadsUpNotification(false);
+
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+
+        verify(mStatusBarNotification).setOverrideGroupKey(eq(null));
+    }
+
+    @Test
     public void onNotificationPosted_isNotHun_isForCurrentUser_addsAlertEntryToDataManager() {
         UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
@@ -243,10 +255,22 @@ public class CarNotificationListenerTest {
 
     @Test
     public void onStateChange_hunNoLongerHun_notifiesHandler() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
         AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
         mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
 
         verify(mHandler).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onStateChange_overrideGroupKeySet() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
+
+        verify(mStatusBarNotification).setOverrideGroupKey(eq(null));
     }
 
     @Test
