@@ -40,6 +40,7 @@
     <string name="show_count_more" msgid="480555295700318609">"Prikaži još <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"Još ovoliko poruka: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"Nove poruke: <xliff:g id="COUNT">%d</xliff:g>"</string>
+    <string name="see_more_message" msgid="6343183827924395955">"Pogledajte više"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Nova poruka"</string>
     <string name="manage_text" msgid="4225197445283791757">"Upravljanje"</string>
 </resources>

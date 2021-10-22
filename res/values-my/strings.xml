@@ -40,6 +40,7 @@
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> ခု ထပ်ပြရန်"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"နောက်ထပ် <xliff:g id="COUNT">%d</xliff:g> စောင်"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"မက်ဆေ့ဂျ်အသစ် <xliff:g id="COUNT">%d</xliff:g> စောင်"</string>
+    <string name="see_more_message" msgid="6343183827924395955">"ပိုကြည့်ရန်"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"မက်ဆေ့ဂျ်အသစ်"</string>
     <string name="manage_text" msgid="4225197445283791757">"စီမံရန်"</string>
 </resources>
