@@ -40,6 +40,7 @@
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g>-г дэлгэрэнгүй харуулах"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> нэмэлт мессеж"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> шинэ мессеж"</string>
+    <string name="see_more_message" msgid="6343183827924395955">"Дэлгэрэнгүй харах"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Шинэ мессеж"</string>
     <string name="manage_text" msgid="4225197445283791757">"Удирдах"</string>
 </resources>
