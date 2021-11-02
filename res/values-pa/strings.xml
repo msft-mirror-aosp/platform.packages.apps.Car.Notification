@@ -40,8 +40,7 @@
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> ਹੋਰ ਦਿਖਾਓ"</string>
     <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> ਹੋਰ ਸੁਨੇਹੇ"</string>
     <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> ਨਵੇਂ ਸੁਨੇਹੇ"</string>
-    <!-- no translation found for see_more_message (6343183827924395955) -->
-    <skip />
+    <string name="see_more_message" msgid="6343183827924395955">"ਹੋਰ ਦੇਖੋ"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"ਨਵਾਂ ਸੁਨੇਹਾ"</string>
     <string name="manage_text" msgid="4225197445283791757">"ਪ੍ਰਬੰਧਨ ਕਰੋ"</string>
 </resources>
