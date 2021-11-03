@@ -170,27 +170,21 @@ public class PreprocessingManager {
             int updateType,
             RankingMap newRankingMap) {
 
-        if (updateType == CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED) {
-            // removal of a notification is the same as a normal preprocessing
-            mOldNotifications.remove(alertEntry.getKey());
-            mOldProcessedNotifications =
-                    process(showLessImportantNotifications, mOldNotifications, mOldRankingMap);
-        }
-
-        if (updateType == CarNotificationListener.NOTIFY_NOTIFICATION_POSTED) {
-            AlertEntry notification = optimizeForDriving(alertEntry);
-            boolean isUpdate = mOldNotifications.containsKey(notification.getKey());
-            if (isUpdate) {
-                // if is an update of the previous notification
+        switch (updateType) {
+            case CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED:
+                // removal of a notification is the same as a normal preprocessing
+                mOldNotifications.remove(alertEntry.getKey());
+                mOldProcessedNotifications =
+                        process(showLessImportantNotifications, mOldNotifications, mOldRankingMap);
+                break;
+            case CarNotificationListener.NOTIFY_NOTIFICATION_POSTED:
+                AlertEntry notification = optimizeForDriving(alertEntry);
+                boolean isUpdate = mOldNotifications.containsKey(notification.getKey());
                 mOldNotifications.put(notification.getKey(), notification);
-                mOldProcessedNotifications = process(showLessImportantNotifications,
-                        mOldNotifications, mOldRankingMap);
-            } else {
                 // insert a new notification into the list
-                mOldNotifications.put(notification.getKey(), notification);
                 mOldProcessedNotifications = new ArrayList<>(
-                        additionalGroupAndRank((alertEntry), newRankingMap));
-            }
+                        additionalGroupAndRank((alertEntry), newRankingMap, isUpdate));
+                break;
         }
 
         return mOldProcessedNotifications;
@@ -564,19 +558,20 @@ public class PreprocessingManager {
      */
     @VisibleForTesting
     protected List<NotificationGroup> additionalGroupAndRank(AlertEntry newNotification,
-            RankingMap newRankingMap) {
+            RankingMap newRankingMap, boolean isUpdate) {
         Notification notification = newNotification.getNotification();
         NotificationGroup newGroup = new NotificationGroup();
-        newGroup.setSeen(true);
+        newGroup.setSeen(false);
 
         if (notification.isGroupSummary()) {
-            // if child notifications already exist, ignore this insertion
-            for (String key : mOldNotifications.keySet()) {
-                if (hasSameGroupKey(mOldNotifications.get(key), newNotification)) {
+            // If child notifications already exist, update group summary
+            for (NotificationGroup oldGroup: mOldProcessedNotifications) {
+                if (hasSameGroupKey(oldGroup.getSingleNotification(), newNotification)) {
+                    oldGroup.setGroupSummaryNotification(newNotification);
                     return mOldProcessedNotifications;
                 }
             }
-            // if child notifications do not exist, insert the summary as a new notification
+            // If child notifications do not exist, insert the summary as a new notification
             newGroup.setGroupSummaryNotification(newNotification);
             insertRankedNotification(newGroup, newRankingMap);
             return mOldProcessedNotifications;
@@ -584,21 +579,32 @@ public class PreprocessingManager {
             newGroup.addNotification(newNotification);
             for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
                 NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
-                // if an unseen group already exists, add to group
                 if (TextUtils.equals(oldGroup.getGroupKey(),
                         newNotification.getStatusBarNotification().getGroupKey())
-                        && !oldGroup.isSeen()) {
-                    // if a standalone group summary exists, replace the group summary notification
+                        && (!mShowRecentsAndOlderHeaders || !oldGroup.isSeen())) {
+                    // If an unseen group already exists
                     if (oldGroup.getChildCount() == 0) {
-                        mOldProcessedNotifications.add(i, newGroup);
+                        // If a standalone group summary exists
+                        if (isUpdate) {
+                            // This is an update; replace the group summary notification
+                            mOldProcessedNotifications.set(i, newGroup);
+                        } else {
+                            // Adding new notification; add to existing group
+                            oldGroup.addNotification(newNotification);
+                            mOldProcessedNotifications.set(i, oldGroup);
+                        }
                         return mOldProcessedNotifications;
                     }
-                    // if a group already exist with multiple children, insert outside of the group
-                    mOldProcessedNotifications.add(newGroup);
+                    // If a group already exist with multiple children, insert outside of the group
+                    if (isUpdate) {
+                        oldGroup.removeNotification(newNotification);
+                    }
+                    oldGroup.addNotification(newNotification);
+                    mOldProcessedNotifications.set(i, oldGroup);
                     return mOldProcessedNotifications;
                 }
             }
-            // if it is a new notification, insert directly
+            // If it is a new notification, insert directly
             insertRankedNotification(newGroup, newRankingMap);
             return mOldProcessedNotifications;
         }
