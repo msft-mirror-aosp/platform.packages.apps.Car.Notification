@@ -681,21 +681,25 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
      * @param end Final adapter position of the notification groups.
      */
     /* package */ void setNotificationsAsSeen(int start, int end) {
+        if (mNotificationDataManager == null || mIsGroupNotificationAdapter) {
+            return;
+        }
+
         start = Math.max(start, 0);
         end = Math.min(end, mNotifications.size() - 1);
 
-        if (mNotificationDataManager != null) {
-            List<AlertEntry> notifications = new ArrayList();
-            for (int i = start; i <= end; i++) {
-                AlertEntry groupSummary =  mNotifications.get(i).getGroupSummaryNotification();
-                if (groupSummary != null) {
-                    notifications.add(groupSummary);
-                }
-
-                notifications.addAll(mNotifications.get(i).getChildNotifications());
+        List<AlertEntry> notifications = new ArrayList();
+        for (int i = start; i <= end; i++) {
+            NotificationGroup group = mNotifications.get(i);
+            AlertEntry groupSummary =  group.getGroupSummaryNotification();
+            if (groupSummary != null) {
+                notifications.add(groupSummary);
             }
-            mNotificationDataManager.setNotificationsAsSeen(notifications);
+
+            notifications.addAll(group.getChildNotifications());
         }
+
+        mNotificationDataManager.setNotificationsAsSeen(notifications);
     }
 
     @Override
