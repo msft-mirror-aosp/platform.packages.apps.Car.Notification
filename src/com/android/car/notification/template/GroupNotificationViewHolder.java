@@ -81,15 +81,51 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private String mHeaderName;
     private int mNumberOfShownNotifications;
     private List<NotificationGroup> mNotificationGroupsShown;
+    private FocusRequestStates mCurrentFocusRequestState;
 
     public GroupNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
         mContext = view.getContext();
 
+        mCurrentFocusRequestState = FocusRequestStates.NONE;
         mCardView = itemView.findViewById(R.id.card_view);
+        mCardView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                if (v.isInTouchMode()) {
+                    return;
+                }
+                if (mCurrentFocusRequestState != FocusRequestStates.CARD_VIEW) {
+                    return;
+                }
+                v.requestFocus();
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                // no-op
+            }
+        });
         mGroupHeaderView = view.findViewById(R.id.group_header);
         mExpandedGroupHeader = view.findViewById(R.id.expanded_group_header);
+        mExpandedGroupHeader.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                if (v.isInTouchMode()) {
+                    return;
+                }
+                if (mCurrentFocusRequestState != FocusRequestStates.EXPANDED_GROUP_HEADER) {
+                    return;
+                }
+                v.requestFocus();
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                // no-op
+            }
+        });
         mHeaderDividerView = view.findViewById(R.id.header_divider);
         mToggleIcon = view.findViewById(R.id.group_toggle_icon);
         mExpansionFooterView = view.findViewById(R.id.expansion_footer);
@@ -213,6 +249,23 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
 
         updateExpansionIcon(isExpanded);
         updateOnClickListener(parentAdapter, isExpanded);
+        if (isExpanded) {
+            if (mUseLauncherIcon) {
+                if (!itemView.isInTouchMode()) {
+                    mCurrentFocusRequestState = FocusRequestStates.EXPANDED_GROUP_HEADER;
+                } else {
+                    mCurrentFocusRequestState = FocusRequestStates.NONE;
+                }
+            }
+        } else {
+            if (mUseLauncherIcon) {
+                if (!itemView.isInTouchMode()) {
+                    mCurrentFocusRequestState = FocusRequestStates.CARD_VIEW;
+                } else {
+                    mCurrentFocusRequestState = FocusRequestStates.NONE;
+                }
+            }
+        }
     }
 
     private void updateExpansionIcon(boolean isExpanded) {
@@ -258,9 +311,27 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             parentAdapter.setExpanded(mNotificationGroup.getGroupKey(), mNotificationGroup.isSeen(),
                     isExpanding);
             mAdapter.notifyDataSetChanged();
+            if (!itemView.isInTouchMode()) {
+                if (isExpanding) {
+                    mCurrentFocusRequestState = FocusRequestStates.EXPANDED_GROUP_HEADER;
+                } else {
+                    mCurrentFocusRequestState = FocusRequestStates.CARD_VIEW;
+                }
+            } else {
+                mCurrentFocusRequestState = FocusRequestStates.NONE;
+            }
         };
 
         View.OnClickListener paginationClickListener = view -> {
+            if (!itemView.isInTouchMode() && mUseLauncherIcon) {
+                mCurrentFocusRequestState = FocusRequestStates.CHILD_NOTIFICATION;
+                mNotificationListView.smoothScrollToPosition(mNumberOfShownNotifications - 1);
+                mNotificationListView
+                        .findViewHolderForAdapterPosition(mNumberOfShownNotifications - 1)
+                        .itemView.requestFocus();
+            } else {
+                mCurrentFocusRequestState = FocusRequestStates.NONE;
+            }
             mNumberOfShownNotifications =
                     addNextPageOfNotificationsToList(mNotificationGroupsShown);
             mAdapter.setNotifications(mNotificationGroupsShown,
@@ -381,5 +452,12 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             return null;
         }
         return String.valueOf(name);
+    }
+
+    private enum FocusRequestStates {
+        CHILD_NOTIFICATION,
+        EXPANDED_GROUP_HEADER,
+        CARD_VIEW,
+        NONE,
     }
 }
