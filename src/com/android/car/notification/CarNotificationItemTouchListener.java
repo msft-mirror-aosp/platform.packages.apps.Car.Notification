@@ -56,8 +56,6 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
 
     private final CarNotificationViewAdapter mAdapter;
-    private final NotificationDataManager mNotificationDataManager;
-
 
     /** StatusBarService for dismissing a notification. */
     private final IStatusBarService mBarService;
@@ -107,7 +105,6 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
 
     public CarNotificationItemTouchListener(Context context, CarNotificationViewAdapter adapter) {
         mAdapter = adapter;
-        mNotificationDataManager = NotificationDataManager.getInstance();
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
@@ -206,6 +203,10 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                     mViewHolder = null;
                 }
 
+                if (isInteractingWithExpandedGroupNotificationList(mInitialY)) {
+                    return false;
+                }
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!hasValidGestureSwipeTarget()) {
@@ -242,19 +243,8 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                         return false;
                     }
 
-                    // If a group notification is expanded, we desire a behavior that swiping on the
-                    // header would swipe the entire group away; while swiping on the child
-                    // notifications would swipe individual child notification away.
-                    AlertEntry alertEntry = mViewHolder.getAlertEntry();
-                    String groupKey = alertEntry.getStatusBarNotification().getGroupKey();
-                    boolean isSeen = mNotificationDataManager.isNotificationSeen(alertEntry);
-                    if (mAdapter.isExpanded(groupKey, isSeen)) {
-                        float itemTop = mViewHolder.itemView.getY();
-                        boolean isTouchingGroupHeader =
-                                (currY > itemTop) && (currY < itemTop + mGroupHeaderHeight);
-                        if (!isTouchingGroupHeader) {
-                            return false;
-                        }
+                    if (isInteractingWithExpandedGroupNotificationList(currY)) {
+                        return false;
                     }
 
                     if (absDeltaX > mTouchSlop) {
@@ -284,6 +274,37 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
 
         // Start intercepting touch events from children if we detect a swipe.
         return mIsSwiping;
+    }
+
+    /**
+     * Returns {@code true} if {@code currY} is pointing to an expanded group notification's
+     * notification list. If a group notification is expanded, we desire a behavior that swiping
+     * on the child notifications would swipe individual child notification away.
+     */
+    private boolean isInteractingWithExpandedGroupNotificationList(float currY) {
+        if (!(mViewHolder instanceof GroupNotificationViewHolder)) {
+            return false;
+        }
+
+        GroupNotificationViewHolder groupNotificationViewHolder =
+                (GroupNotificationViewHolder) mViewHolder;
+        NotificationGroup group = groupNotificationViewHolder.getNotificationGroup();
+        if (!mAdapter.isExpanded(group.getGroupKey(), group.isSeen())) {
+            return false;
+        }
+
+        View innerNotificationList = mViewHolder.itemView
+                .requireViewById(R.id.notification_list);
+        int[] screenXY = {0, 0};
+        innerNotificationList.getLocationOnScreen(screenXY);
+        int top = screenXY[1];
+        int bottom = screenXY[1] + innerNotificationList.getHeight();
+        boolean isTouchingNotificationList = currY >= top && currY <= bottom;
+        if (DEBUG) {
+            Log.d(TAG, "Is interaction with inner group list: "
+                    + isTouchingNotificationList);
+        }
+        return isTouchingNotificationList;
     }
 
     @Override

@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Keeps track of the additional state of notifications. This class is not thread safe and should
@@ -72,7 +73,7 @@ public class NotificationDataManager {
     /**
      * List of notifications that are visible to the user.
      */
-    private final List<AlertEntry> mVisibleNotifications = new ArrayList<>();
+    private final Set<AlertEntry> mVisibleNotifications = new HashSet<>();
 
     private OnUnseenCountUpdateListener mOnUnseenCountUpdateListener;
 
@@ -112,6 +113,7 @@ public class NotificationDataManager {
 
             if (mUnseenNotificationMap.containsKey(alertEntry.getKey())) {
                 mUnseenNotificationMap.put(alertEntry.getKey(), true);
+                mVisibleNotifications.add(alertEntry);
 
                 if (mOnUnseenCountUpdateListener != null) {
                     if (DEBUG) {
@@ -267,7 +269,7 @@ public class NotificationDataManager {
      * Returns a collection containing all notifications the user should be seeing right now.
      */
     public List<AlertEntry> getVisibleNotifications() {
-        return mVisibleNotifications;
+        return mVisibleNotifications.stream().collect(Collectors.toList());
     }
 
     /**
