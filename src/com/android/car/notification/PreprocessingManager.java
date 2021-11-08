@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
@@ -66,6 +67,8 @@ public class PreprocessingManager {
     private final String mEllipsizedSuffix;
     private final Context mContext;
     private final boolean mShowRecentsAndOlderHeaders;
+    private final boolean mUseLauncherIcon;
+    private final int mMinimumGroupingThreshold;
 
     private static PreprocessingManager sInstance;
 
@@ -97,8 +100,11 @@ public class PreprocessingManager {
         mEllipsizedSuffix = context.getString(R.string.ellipsized_string);
         mContext = context;
         mNotificationDataManager = NotificationDataManager.getInstance();
-        mShowRecentsAndOlderHeaders =
-                mContext.getResources().getBoolean(R.bool.config_showRecentAndOldHeaders);
+
+        Resources resources = mContext.getResources();
+        mShowRecentsAndOlderHeaders = resources.getBoolean(R.bool.config_showRecentAndOldHeaders);
+        mUseLauncherIcon = resources.getBoolean(R.bool.config_useLauncherIcon);
+        mMinimumGroupingThreshold = resources.getInteger(R.integer.config_minimumGroupingThreshold);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
@@ -413,36 +419,15 @@ public class PreprocessingManager {
                     + groupList);
         }
 
-        // Third pass: a notification group without a group summary should be restored back into
-        // individual notifications.
-        List<NotificationGroup> validGroupList = new ArrayList<>();
-        groupList.forEach(
-                group -> {
-                    if (group.getChildCount() > 1 && group.getGroupSummaryNotification() == null) {
-                        group.getChildNotifications().forEach(
-                                notification -> {
-                                    NotificationGroup newGroup = new NotificationGroup();
-                                    newGroup.addNotification(notification);
-                                    validGroupList.add(newGroup);
-                                });
-                    } else {
-                        validGroupList.add(group);
-                    }
-                });
-        if (DEBUG) {
-            Log.d(TAG, "(Third pass) Restore notifications without group summaries: "
-                    + validGroupList);
-        }
-
         if (mShowRecentsAndOlderHeaders) {
-            mNotificationDataManager.updateUnseenNotificationGroups(validGroupList);
+            mNotificationDataManager.updateUnseenNotificationGroups(groupList);
         }
 
 
-        // Fourth Pass: If a notification group, has seen and unseen notifications we need to split
+        // Third Pass: If a notification group has seen and unseen notifications, we need to split
         // up the group into its seen and unseen constituents.
         List<NotificationGroup> tempGroupList = new ArrayList<>();
-        validGroupList.forEach(notificationGroup -> {
+        groupList.forEach(notificationGroup -> {
             AlertEntry groupSummary = notificationGroup.getGroupSummaryNotification();
             if (groupSummary == null || !mShowRecentsAndOlderHeaders) {
                 boolean isNotificationSeen = mNotificationDataManager
@@ -469,12 +454,67 @@ public class PreprocessingManager {
             tempGroupList.add(unseenNotificationGroup);
             tempGroupList.add(seenNotificationGroup);
         });
-        validGroupList.clear();
-        validGroupList.addAll(tempGroupList);
+        groupList.clear();
+        groupList.addAll(tempGroupList);
         if (DEBUG) {
-            Log.d(TAG, "(Fourth pass) Split notification groups by seen and unseen: "
-                    + validGroupList);
+            Log.d(TAG, "(Third pass) Split notification groups by seen and unseen: "
+                    + groupList);
         }
+
+        List<NotificationGroup> validGroupList = new ArrayList<>();
+        if (mUseLauncherIcon) {
+            // Fourth pass: since we do not use group summaries when using launcher icon, we can
+            // restore groups into individual notifications that do not meet grouping threshold.
+            groupList.forEach(
+                    group -> {
+                        if (group.getChildCount() < mMinimumGroupingThreshold) {
+                            group.getChildNotifications().forEach(
+                                    notification -> {
+                                        NotificationGroup newGroup = new NotificationGroup();
+                                        newGroup.addNotification(notification);
+                                        newGroup.setSeen(group.isSeen());
+                                        validGroupList.add(newGroup);
+                                    });
+                        } else {
+                            validGroupList.add(group);
+                        }
+                    });
+        } else {
+            // Fourth pass: a notification group without a group summary or a notification group
+            // that do not meet grouping threshold should be restored back into individual
+            // notifications.
+            groupList.forEach(
+                    group -> {
+                        boolean groupWithNoGroupSummary = group.getChildCount() > 1
+                                && group.getGroupSummaryNotification() == null;
+                        boolean groupWithGroupSummaryButNotEnoughNotifs =
+                                group.getChildCount() < mMinimumGroupingThreshold
+                                        && group.getGroupSummaryNotification() != null;
+                        if (groupWithNoGroupSummary || groupWithGroupSummaryButNotEnoughNotifs) {
+                            group.getChildNotifications().forEach(
+                                    notification -> {
+                                        NotificationGroup newGroup = new NotificationGroup();
+                                        newGroup.addNotification(notification);
+                                        newGroup.setSeen(group.isSeen());
+                                        validGroupList.add(newGroup);
+                                    });
+                        } else {
+                            validGroupList.add(group);
+                        }
+                    });
+        }
+        if (DEBUG) {
+            if (mUseLauncherIcon) {
+                Log.d(TAG, "(Fourth pass) Split notification groups that do not meet minimum "
+                        + "grouping threshold of " + mMinimumGroupingThreshold + " : "
+                        + validGroupList);
+            } else {
+                Log.d(TAG, "(Fourth pass) Restore notifications without group summaries and do"
+                        + " not meet minimum grouping threshold of " + mMinimumGroupingThreshold
+                        + " : " + validGroupList);
+            }
+        }
+
 
         // Fifth Pass: group notifications with no child notifications should be removed.
         validGroupList.removeIf(notificationGroup ->
