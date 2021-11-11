@@ -42,9 +42,7 @@ import com.android.car.notification.template.MessageNotificationViewHolder;
 import com.android.car.ui.recyclerview.ContentLimitingAdapter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Notification data adapter that binds a notification to the corresponding view.
@@ -75,8 +73,6 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
     private boolean mIsInCall;
-    // Suppress binding views to child notifications in the process of being removed.
-    private Set<AlertEntry> mChildNotificationsBeingCleared = new HashSet<>();
     private boolean mHasHeaderAndFooter;
     private boolean mHasUnseenNotifications;
     private boolean mHasSeenNotifications;
@@ -454,10 +450,6 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
             return;
         }
 
-        notifications.removeIf(notificationGroup ->
-                mChildNotificationsBeingCleared.contains(notificationGroup.getSingleNotification())
-        );
-
         List<NotificationGroup> notificationGroupList = new ArrayList<>(notifications);
 
         if (setRecyclerViewListHeadersAndFooters) {
@@ -477,7 +469,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                 DiffUtil.calculateDiff(notificationDiff, /* detectMoves= */ false);
         mNotifications = notificationGroupList;
         if (DEBUG) {
-            Log.d(TAG, "Updated adapter view holders: " + notificationGroupList);
+            Log.d(TAG, "Updated adapter view holders: " + mNotifications);
         }
         updateUnderlyingDataChanged(getUnrestrictedItemCount(), /* newAnchorIndex= */ 0);
         diffResult.dispatchUpdatesTo(this);
@@ -486,15 +478,6 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
     private void setSeenAndUnseenNotifications(List<NotificationGroup> unseenNotifications,
             List<NotificationGroup> seenNotifications,
             boolean setRecyclerViewListHeadersAndFooters) {
-
-        unseenNotifications.removeIf(notificationGroup ->
-                mChildNotificationsBeingCleared.contains(notificationGroup.getSingleNotification())
-        );
-
-        seenNotifications.removeIf(notificationGroup ->
-                mChildNotificationsBeingCleared.contains(notificationGroup.getSingleNotification())
-        );
-
         if (DEBUG) {
             Log.d(TAG, "Seen notifications: " + seenNotifications);
             Log.d(TAG, "Unseen notifications: " + unseenNotifications);
@@ -544,23 +527,10 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                 DiffUtil.calculateDiff(notificationDiff, /* detectMoves= */ false);
         mNotifications = notificationGroupList;
         if (DEBUG) {
-            Log.d(TAG, "Updated adapter view holders: " + notificationGroupList);
+            Log.d(TAG, "Updated adapter view holders: " + mNotifications);
         }
         updateUnderlyingDataChanged(getUnrestrictedItemCount(), /* newAnchorIndex= */ 0);
         diffResult.dispatchUpdatesTo(this);
-    }
-
-    /**
-     * Sets child notifications of the group notification that is in the process of being cleared.
-     * This prevents these child notifications from appearing briefly while the clearing process is
-     * running.
-     *
-     * <p>NOTE: To reset mChildNotificationsBeingCleared, pass an empty Set instead of null.</p>
-     *
-     * @param notificationsBeingCleared
-     */
-    protected void setChildNotificationsBeingCleared(@NonNull Set notificationsBeingCleared) {
-        mChildNotificationsBeingCleared = notificationsBeingCleared;
     }
 
     /**
