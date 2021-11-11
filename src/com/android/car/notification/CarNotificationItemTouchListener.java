@@ -43,7 +43,6 @@ import com.android.car.ui.recyclerview.ScrollingLimitedViewHolder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
-import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -125,9 +124,6 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                     if (summaryNotification != null) {
                         clearNotification(summaryNotification);
                     }
-
-                    mAdapter.setChildNotificationsBeingCleared(
-                            new HashSet<>(notificationGroup.getChildNotifications()));
 
                     for (AlertEntry alertEntry
                             : notificationGroup.getChildNotifications()) {

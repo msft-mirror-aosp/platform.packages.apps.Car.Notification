@@ -18,6 +18,7 @@ package com.android.car.notification;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Notification;
+import android.os.Build;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -33,14 +34,16 @@ import java.util.List;
  * </ol>
  */
 public class NotificationGroup {
+    private static final String TAG = "NotificationGroup";
+    private static final boolean DEBUG = Build.IS_DEBUGGABLE;
 
-    private String mGroupKey;
     private final List<AlertEntry> mNotifications = new ArrayList<>();
+
     @Nullable
     private List<String> mChildTitles;
     @Nullable
     private AlertEntry mGroupSummaryNotification;
-
+    private String mGroupKey;
     private boolean mIsHeader;
     private boolean mIsFooter;
     private boolean mIsRecentsHeader;
@@ -54,6 +57,22 @@ public class NotificationGroup {
         addNotification(alertEntry);
     }
 
+    public NotificationGroup(NotificationGroup group) {
+        setGroupKey(group.getGroupKey());
+        if (group.getGroupSummaryNotification() != null) {
+            setGroupSummaryNotification(group.getGroupSummaryNotification());
+        }
+        for (AlertEntry alertEntry : group.getChildNotifications()) {
+            addNotification(alertEntry);
+        }
+        setChildTitles(group.getChildTitles());
+        setFooter(group.isFooter());
+        setHeader(group.isHeader());
+        setOlderHeader(group.isOlderHeader());
+        setRecentsHeader(group.isRecentsHeader());
+        setSeen(group.isSeen());
+    }
+
     /**
      * Add child notification.
      *
@@ -62,6 +81,21 @@ public class NotificationGroup {
     public void addNotification(AlertEntry alertEntry) {
         assertSameGroupKey(alertEntry.getStatusBarNotification().getGroupKey());
         mNotifications.add(alertEntry);
+    }
+
+    /**
+     * Removes child notification.
+     *
+     * @return {@code true} if notification was removed
+     */
+    public boolean removeNotification(AlertEntry alertEntry) {
+        for (int i = 0; i < mNotifications.size(); i++) {
+            if (mNotifications.get(i).getKey().equals(alertEntry.getKey())) {
+                mNotifications.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -185,7 +219,6 @@ public class NotificationGroup {
      * are dismissible by user action.
      */
     public boolean isDismissible() {
-
         if (mIsHeader || mIsFooter) {
             return false;
         }
@@ -241,17 +274,14 @@ public class NotificationGroup {
             Bundle extras = notification.getNotification().extras;
             if (extras.containsKey(Notification.EXTRA_TITLE)) {
                 titles.add(extras.getString(Notification.EXTRA_TITLE));
-
             } else if (extras.containsKey(Notification.EXTRA_TITLE_BIG)) {
                 titles.add(extras.getString(Notification.EXTRA_TITLE_BIG));
-
             } else if (extras.containsKey(Notification.EXTRA_MESSAGES)) {
                 List<Notification.MessagingStyle.Message> messages =
                         Notification.MessagingStyle.Message.getMessagesFromBundleArray(
                                 extras.getParcelableArray(Notification.EXTRA_MESSAGES));
                 Notification.MessagingStyle.Message lastMessage = messages.get(messages.size() - 1);
                 titles.add(lastMessage.getSenderPerson().getName().toString());
-
             } else if (extras.containsKey(Notification.EXTRA_SUB_TEXT)) {
                 titles.add(extras.getString(Notification.EXTRA_SUB_TEXT));
             }
@@ -275,7 +305,6 @@ public class NotificationGroup {
     public AlertEntry getSingleNotification() {
         if (isGroup() || getChildCount() == 0) {
             return getGroupSummaryNotification();
-
         } else {
             return mNotifications.get(0);
         }
@@ -300,9 +329,6 @@ public class NotificationGroup {
 
     @Override
     public String toString() {
-        if (mNotifications.isEmpty()) {
-            return "GroupKey: " + mGroupKey;
-        }
-        return mNotifications.toString();
+        return mGroupKey + ": " + mNotifications.toString();
     }
 }
