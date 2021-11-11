@@ -54,6 +54,8 @@
     <integer name="config_maxNumberOfMessageLinesInPanel">9</integer>
     <!-- The number of notifications to add when expanding a group notification. -->
     <integer name="config_expandedGroupNotificationIncrementSize">5</integer>
+    <!-- The minimum number of notifications from same application before grouping is applied. -->
+    <integer name="config_minimumGroupingThreshold">4</integer>
     <!-- Animation helper for animating heads up notification showing on screen and leaving the screen. -->
     <string name="config_headsUpNotificationAnimationHelper" translatable="false">
         com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationTopAnimationHelper</string>
