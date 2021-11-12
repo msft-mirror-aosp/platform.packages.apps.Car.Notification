@@ -57,7 +57,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -763,25 +762,6 @@ public class CarNotificationViewAdapterTest {
         int itemCount = mCarNotificationViewAdapter.getItemCount();
 
         assertThat(itemCount).isEqualTo(2);
-    }
-
-    @Test
-    public void setNotifications_shouldNotIncludeChildNotificationsBeingCleared() {
-        initializeGroupAdapterWithFactory();
-        List<NotificationGroup> notificationGroups = new ArrayList<>();
-        NotificationGroup notificationGroup = new NotificationGroup();
-        notificationGroup.addNotification(mNotification1);
-        notificationGroups.add(notificationGroup);
-
-        HashSet<AlertEntry> childNotificationsBeingCleared = new HashSet<>();
-        childNotificationsBeingCleared.add(mNotification1);
-        mCarNotificationViewAdapter
-                .setChildNotificationsBeingCleared(childNotificationsBeingCleared);
-
-        mCarNotificationViewAdapter.setNotifications(notificationGroups,
-                /* setRecyclerViewListHeaderAndFooter= */ false);
-
-        assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(0);
     }
 
     @Test
