@@ -208,6 +208,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="integer" name="config_headsUpNotificationMaxBodyLines"/>
       <item type="integer" name="config_maxNumberOfMessageLinesInPanel"/>
       <item type="integer" name="config_maxNumberOfMessagesInPanel"/>
+      <item type="integer" name="config_minimumGroupingThreshold"/>
       <item type="integer" name="config_notificationPanelMaxBodyLines"/>
       <item type="integer" name="delay_between_clear_all_notifications_end_and_collapse_shade_panel_ms"/>
       <item type="integer" name="heads_up_notification_minimum_time"/>
