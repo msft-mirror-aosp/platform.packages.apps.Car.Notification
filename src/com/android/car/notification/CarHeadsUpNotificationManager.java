@@ -48,9 +48,11 @@ import com.android.car.notification.template.MessageNotificationViewHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Notification Manager for heads-up notifications in car.
@@ -97,6 +99,7 @@ public class CarHeadsUpNotificationManager
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
 
+    private Set<String> mAlertEntryKeyToRemove = new HashSet<>();
 
     public CarHeadsUpNotificationManager(Context context,
             NotificationClickHandlerFactory clickHandlerFactory,
@@ -188,6 +191,7 @@ public class CarHeadsUpNotificationManager
     public void maybeRemoveHeadsUp(AlertEntry alertEntry) {
         HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
                 alertEntry.getKey());
+        mAlertEntryKeyToRemove.add(alertEntry.getKey());
         // if the heads up notification is already removed do nothing.
         if (currentActiveHeadsUpNotification == null) {
             return;
@@ -230,6 +234,17 @@ public class CarHeadsUpNotificationManager
      * OnHeadsUpNotificationStateChange}s array.
      */
     private void handleHeadsUpNotificationStateChanged(AlertEntry alertEntry, boolean isHeadsUp) {
+        String alertEntryKey = alertEntry.getKey();
+        // TODO(b/203784760): Implement a proper why to remove notification by user clicks.
+        boolean scheduledToBeRemoved = mAlertEntryKeyToRemove.contains(alertEntryKey);
+        if (scheduledToBeRemoved) {
+            mAlertEntryKeyToRemove.remove(alertEntryKey);
+            if (!isHeadsUp) {
+                // Skip creation of notification center notification.
+                return;
+            }
+        }
+
         mNotificationStateChangeListeners.forEach(
                 listener -> listener.onStateChange(alertEntry, isHeadsUp));
     }
