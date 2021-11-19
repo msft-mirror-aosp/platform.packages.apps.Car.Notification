@@ -75,7 +75,6 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="card_min_top_padding"/>
       <item type="dimen" name="card_start_margin"/>
       <item type="dimen" name="clear_all_button_height"/>
-      <item type="dimen" name="clear_all_button_margin"/>
       <item type="dimen" name="clear_all_button_min_width"/>
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
