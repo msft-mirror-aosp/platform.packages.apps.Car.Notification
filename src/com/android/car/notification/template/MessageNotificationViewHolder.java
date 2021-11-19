@@ -217,8 +217,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         String unshownCountText = null;
         if (!isRestricted && !isHeadsUp && messageStyleFlag) {
             if (unshownCount > 0) {
-                unshownCountText = mContext
-                        .getString(R.string.restricted_numbered_message_content, unshownCount);
+                unshownCountText = mContext.getResources().getQuantityString(
+                        R.plurals.restricted_numbered_message_content, unshownCount, unshownCount);
             } else if (messageText.toString().endsWith(mEllipsizedSuffix)) {
                 unshownCountText = mSeeMoreText;
             }
@@ -262,9 +262,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             if (isHeadsUp || messageCount == 1) {
                 messageText = mNewMessageText;
             } else {
-                messageText =
-                        mContext.getString(R.string.restricted_numbered_message_content,
-                                messageCount);
+                messageText = mContext.getResources().getQuantityString(
+                        R.plurals.restricted_numbered_message_content, messageCount, messageCount);
             }
         }
 
@@ -397,8 +396,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             if (finalUnshownCount <= 0) {
                 unshownCountText = null;
             } else {
-                unshownCountText =
-                        mContext.getString(R.string.message_unshown_count, finalUnshownCount);
+                unshownCountText = mContext.getResources().getQuantityString(
+                        R.plurals.message_unshown_count, finalUnshownCount, finalUnshownCount);
             }
 
             Drawable launcherIcon = loadAppLauncherIcon(sbn);
