@@ -75,7 +75,6 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="card_min_top_padding"/>
       <item type="dimen" name="card_start_margin"/>
       <item type="dimen" name="clear_all_button_height"/>
-      <item type="dimen" name="clear_all_button_margin"/>
       <item type="dimen" name="clear_all_button_min_width"/>
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
@@ -278,19 +277,19 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="empty_notification_header"/>
       <item type="string" name="header_text_separator"/>
       <item type="string" name="manage_text"/>
-      <item type="string" name="message_unshown_count"/>
       <item type="string" name="notification_header"/>
       <item type="string" name="notification_older"/>
       <item type="string" name="notification_recents"/>
       <item type="string" name="notification_service_label"/>
       <item type="string" name="notifications"/>
       <item type="string" name="restricted_hun_message_content"/>
-      <item type="string" name="restricted_numbered_message_content"/>
       <item type="string" name="see_more_message"/>
       <item type="string" name="show_count_more"/>
       <item type="string" name="show_more"/>
       <item type="string" name="show_more_from_app"/>
       <item type="string" name="toast_message_sent_success"/>
+      <item type="plurals" name="message_unshown_count"/>
+      <item type="plurals" name="restricted_numbered_message_content"/>
       <item type="style" name="ClearAllButton"/>
       <item type="style" name="ClearAllButtonFooter"/>
       <item type="style" name="ClearAllButtonHeader"/>
