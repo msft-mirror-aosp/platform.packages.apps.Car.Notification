@@ -38,8 +38,14 @@
     <string name="collapse_group" msgid="4923097735600949715">"I-collapse ang grupo"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="COUNT">%1$d</xliff:g> pa mula sa <xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"Magpakita ng <xliff:g id="COUNT">%d</xliff:g> pa"</string>
-    <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> pang mensahe"</string>
-    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> (na) bagong mensahe"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> pang mensahe</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> pang mensahe</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> bagong mensahe</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> na bagong mensahe</item>
+    </plurals>
     <string name="see_more_message" msgid="6343183827924395955">"Tumingin pa"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Bagong mensahe"</string>
     <string name="manage_text" msgid="4225197445283791757">"Pamahalaan"</string>

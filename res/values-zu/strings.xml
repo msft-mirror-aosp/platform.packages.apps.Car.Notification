@@ -38,8 +38,14 @@
     <string name="collapse_group" msgid="4923097735600949715">"Goqa iqembu"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="COUNT">%1$d</xliff:g> okuningi kusuka ku-<xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"Bonisa <xliff:g id="COUNT">%d</xliff:g> okuningi"</string>
-    <string name="message_unshown_count" msgid="8511753143668166196">"<xliff:g id="COUNT">%d</xliff:g> imiyalezo eminingi"</string>
-    <string name="restricted_numbered_message_content" msgid="1272426343864230998">"<xliff:g id="COUNT">%d</xliff:g> imiyalezo emisha"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="one">Imiyalezo engu-<xliff:g id="COUNT_1">%d</xliff:g> eminingi</item>
+      <item quantity="other">Imiyalezo engu-<xliff:g id="COUNT_1">%d</xliff:g> eminingi</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="one">Imiyalezo engu-<xliff:g id="COUNT_1">%d</xliff:g> emisha</item>
+      <item quantity="other">Imiyalezo engu-<xliff:g id="COUNT_1">%d</xliff:g> emisha</item>
+    </plurals>
     <string name="see_more_message" msgid="6343183827924395955">"Bona okuningi"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Umlayezo omusha"</string>
     <string name="manage_text" msgid="4225197445283791757">"Phatha"</string>
