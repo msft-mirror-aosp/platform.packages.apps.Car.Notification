@@ -35,11 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Pokaži manj"</string>
     <string name="show_count_more" msgid="480555295700318609">"Pokaži še <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" in še <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> novo sporočilo</item>
-      <item quantity="two"><xliff:g id="COUNT">%d</xliff:g> novi sporočili</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> nova sporočila</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> novih sporočil</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"Upravljaj"</string>
 </resources>
