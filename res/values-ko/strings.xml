@@ -35,9 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"간략히"</string>
     <string name="show_count_more" msgid="480555295700318609">"알림 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">"외 <xliff:g id="COUNT">%d</xliff:g>개 더보기"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other">새 메시지 <xliff:g id="COUNT">%d</xliff:g>개</item>
-      <item quantity="one">새 메시지 1개</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"관리"</string>
 </resources>

@@ -35,9 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Shfaq më pak"</string>
     <string name="show_count_more" msgid="480555295700318609">"Shfaq <xliff:g id="COUNT">%d</xliff:g> më shumë"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> më shumë"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> mesazhe të reja</item>
-      <item quantity="one">1 mesazh i ri</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"Menaxho"</string>
 </resources>
