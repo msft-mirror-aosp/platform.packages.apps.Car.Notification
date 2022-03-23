@@ -35,11 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Згарнуць"</string>
     <string name="show_count_more" msgid="480555295700318609">"Паказаць яшчэ <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" яшчэ +<xliff:g id="COUNT">%d</xliff:g>"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> новае паведамленне</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> новыя паведамленні</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> новых паведамленняў</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> новага паведамлення</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"Кіраваць"</string>
 </resources>

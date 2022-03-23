@@ -35,11 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Rodyti mažiau"</string>
     <string name="show_count_more" msgid="480555295700318609">"Rodyti dar <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" Dar <xliff:g id="COUNT">%d</xliff:g>"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> naujas pranešimas</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> nauji pranešimai</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> naujo pranešimo</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> naujų pranešimų</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"Tvarkyti"</string>
 </resources>

@@ -35,9 +35,4 @@
     <string name="show_less" msgid="7342677676229302829">"Εμφάνιση λιγότερων"</string>
     <string name="show_count_more" msgid="480555295700318609">"Εμφάνιση <xliff:g id="COUNT">%d</xliff:g> ακόμη"</string>
     <string name="message_unshown_count" msgid="2234421277246741233">" +<xliff:g id="COUNT">%d</xliff:g> ακόμα"</string>
-    <plurals name="restricted_message_text" formatted="false" msgid="507312322886633308">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> νέα μηνύματα</item>
-      <item quantity="one">1 νέο μήνυμα</item>
-    </plurals>
-    <string name="manage_text" msgid="4225197445283791757">"Διαχείριση"</string>
 </resources>
