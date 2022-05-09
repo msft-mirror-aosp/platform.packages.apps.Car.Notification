@@ -167,6 +167,10 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         bindBody(mBodyView, isInGroup);
     }
 
+    Context getContext() {
+        return mContext;
+    }
+
     /**
      * Binds a {@link AlertEntry} to a notification template's card.
      *
@@ -406,7 +410,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
     @Nullable
     Drawable loadAppLauncherIcon(StatusBarNotification sbn) {
-        if (!mUseLauncherIcon) {
+        if (!NotificationUtils.shouldUseLauncherIcon(mContext, sbn)) {
             return null;
         }
         Context packageContext = sbn.getPackageContext(mContext);
