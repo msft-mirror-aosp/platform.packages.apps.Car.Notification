@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
@@ -20,23 +20,22 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Notification;
 import android.content.Context;
+import android.os.Looper;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.widget.FrameLayout;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.android.car.notification.template.BasicNotificationViewHolder;
-import com.android.car.notification.template.CarNotificationBaseViewHolder;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class HeadsUpEntryTest {
-
-    private Context mContext;
 
     private static final String PKG_1 = "package_1";
     private static final String PKG_2 = "package_2";
@@ -51,14 +50,14 @@ public class HeadsUpEntryTest {
     private static final String OVERRIDE_GROUP_KEY_123 = "OVERRIDE_GROUP_KEY_123";
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
-
+    private Context mContext;
     private Notification.Builder mNotificationBuilder1;
     private StatusBarNotification mNotification1;
     private HeadsUpEntry mHeadsUpEntry;
 
     @Before
     public void setupBaseActivityAndLayout() {
-        mContext = RuntimeEnvironment.application;
+        mContext = ApplicationProvider.getApplicationContext();
         mNotificationBuilder1 = new Notification.Builder(mContext,
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
@@ -66,12 +65,18 @@ public class HeadsUpEntryTest {
         mNotification1 = new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder1.build(), USER_HANDLE,
                 OVERRIDE_GROUP_KEY, POST_TIME);
+
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+
         mHeadsUpEntry = new HeadsUpEntry(mNotification1);
     }
 
     @Test
     public void headsUpEntry_shouldInitializePostTime() {
         long currentTme = System.currentTimeMillis();
+        Looper.prepare();
         mHeadsUpEntry = new HeadsUpEntry(mNotification1);
 
         assertThat(mHeadsUpEntry.getPostTime()).isNotEqualTo(0);
@@ -98,6 +103,7 @@ public class HeadsUpEntryTest {
 
     @Test
     public void setNotificationView_shouldSetNotificationView() {
+        Looper.prepare();
         mHeadsUpEntry = new HeadsUpEntry(mNotification1);
 
         assertThat(mHeadsUpEntry.getNotificationView()).isNull();
@@ -109,6 +115,7 @@ public class HeadsUpEntryTest {
 
     @Test
     public void setViewHolder_shouldSetViewHolder() {
+        Looper.prepare();
         mHeadsUpEntry = new HeadsUpEntry(mNotification1);
 
         assertThat(mHeadsUpEntry.getViewHolder()).isNull();
