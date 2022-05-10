@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,10 +11,12 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
+
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -34,42 +36,54 @@ import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.notification.testutils.ShadowCarAssistUtils;
+import com.android.car.assist.client.CarAssistUtils;
+import com.android.car.notification.template.CarNotificationActionButton;
+import com.android.car.notification.utils.MockMessageNotificationBuilder;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowCarAssistUtils.class})
-// TODO(b/149339447): Resolve failure and re-enable.
-@Ignore
+@RunWith(AndroidJUnit4.class)
 public class NotificationClickHandlerFactoryTest {
+    private static final String PKG_1 = "package_1";
+    private static final String OP_PKG = "OpPackage";
+    private static final int ID = 1;
+    private static final String TAG = "Tag";
+    private static final int UID = 2;
+    private static final int INITIAL_PID = 3;
+    private static final String CHANNEL_ID = "CHANNEL_ID";
+    private static final String CONTENT_TITLE = "CONTENT_TITLE";
+    private static final String OVERRIDE_GROUP_KEY = "OVERRIDE_GROUP_KEY";
+    private static final long POST_TIME = 12345L;
+    private static final UserHandle USER_HANDLE = new UserHandle(/* userId= */ 12);
 
     private Context mContext;
     private NotificationClickHandlerFactory mNotificationClickHandlerFactory;
     private AlertEntry mAlertEntry1;
     private AlertEntry mAlertEntry2;
+    private AlertEntry mAlertEntryMessageHeadsUp;
+    private AlertEntry mAlertEntryMessageWithMuteAction;
+    private PendingIntent mReplyActionPendingIntent;
+    private PendingIntent mMuteActionPendingIntent;
 
     @Mock
     private IStatusBarService mBarService;
@@ -91,6 +105,10 @@ public class NotificationClickHandlerFactoryTest {
     private PendingIntent mActionIntent;
     @Mock
     private RemoteInput mRemoteInput;
+    @Mock
+    private CarAssistUtils mCarAssistUtils;
+    @Mock
+    private NotificationClickHandlerFactory.MuteStatusSetter mMuteStatusSetter;
 
     @Before
     public void setUp() {
@@ -100,9 +118,9 @@ public class NotificationClickHandlerFactoryTest {
         Notification notification1 = new Notification();
         Notification notification2 = new Notification();
         notification1.contentIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
         notification2.contentIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), /* flags= */ 0);
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
         when(mStatusBarNotification1.getNotification()).thenReturn(notification1);
         when(mStatusBarNotification2.getNotification()).thenReturn(notification2);
         when(mStatusBarNotification1.getKey()).thenReturn("TEST_KEY_1");
@@ -111,12 +129,46 @@ public class NotificationClickHandlerFactoryTest {
         when(mStatusBarNotification2.getUser()).thenReturn(mUser2);
         mAlertEntry1 = new AlertEntry(mStatusBarNotification1);
         mAlertEntry2 = new AlertEntry(mStatusBarNotification2);
+
+        MockMessageNotificationBuilder mockNotificationBuilder_messageHeadsUp =
+                new MockMessageNotificationBuilder(mContext,
+                        CHANNEL_ID, android.R.drawable.sym_def_app_icon)
+                        .setContentTitle(CONTENT_TITLE)
+                        .setCategory(Notification.CATEGORY_MESSAGE)
+                        .setHasMessagingStyle(true)
+                        .setHasReplyAction(true)
+                        .setPendingIntentIsMocked(true)
+                        .setHasMarkAsRead(true);
+        MockMessageNotificationBuilder mockNotificationBuilder_messageHeadsUpWithMute =
+                new MockMessageNotificationBuilder(mContext,
+                        CHANNEL_ID, android.R.drawable.sym_def_app_icon)
+                        .setContentTitle(CONTENT_TITLE)
+                        .setCategory(Notification.CATEGORY_MESSAGE)
+                        .setHasMessagingStyle(true)
+                        .setHasReplyAction(true)
+                        .setPendingIntentIsMocked(true)
+                        .setHasMarkAsRead(true)
+                        .setHasMuteAction(true);
+        mAlertEntryMessageHeadsUp = new AlertEntry(
+                new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
+                        mockNotificationBuilder_messageHeadsUp.build(), USER_HANDLE,
+                        OVERRIDE_GROUP_KEY, POST_TIME));
+        mAlertEntryMessageWithMuteAction = new AlertEntry(
+                new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
+                        mockNotificationBuilder_messageHeadsUpWithMute
+                                .build(), USER_HANDLE,
+                        OVERRIDE_GROUP_KEY, POST_TIME));
+        mReplyActionPendingIntent = mockNotificationBuilder_messageHeadsUp.getPendingIntent();
+        mMuteActionPendingIntent =
+                mockNotificationBuilder_messageHeadsUpWithMute.getPendingIntent();
+
         when(mView.getContext()).thenReturn(mContext);
+        mNotificationClickHandlerFactory.setCarAssistUtils(mCarAssistUtils);
     }
 
     @After
     public void tearDown() {
-        ShadowCarAssistUtils.reset();
+        NotificationDataManager.refreshInstance();
     }
 
     @Test
@@ -173,8 +225,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService).onNotificationClear(
                     mAlertEntry1.getStatusBarNotification().getPackageName(),
-                    mAlertEntry1.getStatusBarNotification().getTag(),
-                    mAlertEntry1.getStatusBarNotification().getId(),
                     mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry1.getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -188,23 +238,15 @@ public class NotificationClickHandlerFactoryTest {
 
     @Test
     public void onClickActionClickHandler_isReplyAction_sendsPendingIntent() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
-        PendingIntent pendingIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0,
-                new Intent(), /* flags= */ 0);
-        Notification.Action action = new Notification.Action
-                .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
-                .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
-                .addRemoteInput(mRemoteInput)
-                .build();
-        action.actionIntent = mActionIntent;
-        Notification.Action[] actions = {action};
-        mStatusBarNotification1.getNotification().actions = actions;
+        // Have to prepare looper since Toast will be shown in test.
+        Looper.prepare();
 
-        mNotificationClickHandlerFactory.getActionClickHandler(mAlertEntry1, /* index= */
+        mNotificationClickHandlerFactory.getActionClickHandler(
+                mAlertEntryMessageHeadsUp, /* index= */
                 0).onClick(mView);
         try {
-            verify(mActionIntent).sendAndReturnResult(any(Context.class), eq(0), any(Intent.class),
+            verify(mReplyActionPendingIntent).sendAndReturnResult(any(Context.class), eq(0),
+                    any(Intent.class),
                     isNull(), isNull(), isNull(), isNull());
         } catch (PendingIntent.CanceledException e) {
             // ignore
@@ -213,21 +255,11 @@ public class NotificationClickHandlerFactoryTest {
 
     @Test
     public void onClickActionClickHandler_isReplyAction_doesNotInvokeRegisteredClickListeners() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
-        mNotificationClickHandlerFactory.registerClickListener(mListener1);
-        PendingIntent pendingIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0,
-                new Intent(), /* flags= */ 0);
-        Notification.Action action = new Notification.Action
-                .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
-                .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
-                .addRemoteInput(mRemoteInput)
-                .build();
-        action.actionIntent = mActionIntent;
-        Notification.Action[] actions = {action};
-        mStatusBarNotification1.getNotification().actions = actions;
+        // Have to prepare looper since Toast will be shown in test.
+        Looper.prepare();
 
-        mNotificationClickHandlerFactory.getActionClickHandler(mAlertEntry1, /* index= */
+        mNotificationClickHandlerFactory.getActionClickHandler(
+                mAlertEntryMessageHeadsUp, /* index= */
                 0).onClick(mView);
 
         verify(mListener1, never()).onNotificationClicked(anyInt(), any(AlertEntry.class));
@@ -237,7 +269,7 @@ public class NotificationClickHandlerFactoryTest {
     public void onClickActionClickHandler_notCarCompatibleMessage_sendsPendingIntent() {
         PendingIntent pendingIntent = PendingIntent.getForegroundService(
                 mContext, /* requestCode= */0,
-                new Intent(), /* flags= */ 0);
+                new Intent(), FLAG_IMMUTABLE);
         Notification.Action action = new Notification.Action
                 .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
                 .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
@@ -262,7 +294,7 @@ public class NotificationClickHandlerFactoryTest {
         mNotificationClickHandlerFactory.registerClickListener(mListener1);
         PendingIntent pendingIntent = PendingIntent.getForegroundService(
                 mContext, /* requestCode= */0,
-                new Intent(), /* flags= */ 0);
+                new Intent(), FLAG_IMMUTABLE);
         Notification.Action action = new Notification.Action
                 .Builder(/* icon= */ null, "ACTION_TITLE", pendingIntent)
                 .setSemanticAction(Notification.Action.SEMANTIC_ACTION_REPLY)
@@ -282,69 +314,137 @@ public class NotificationClickHandlerFactoryTest {
     public void onClickPlayClickHandler_notCarCompatibleMessage_returnsImmediately() {
         mNotificationClickHandlerFactory.getPlayClickHandler(mAlertEntry1).onClick(mView);
 
-        assertThat(ShadowCarAssistUtils.getRequestAssistantVoiceActionCount()).isEqualTo(0);
+        verify(mCarAssistUtils, never()).requestAssistantVoiceAction(any(), any(), any());
     }
 
     @Test
     public void onClickPlayClickHandler_isCarCompatibleMessage_requestsAssistantVoiceAction() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
+        mNotificationClickHandlerFactory.getPlayClickHandler(mAlertEntryMessageHeadsUp).onClick(
+                mView);
 
-        mNotificationClickHandlerFactory.getPlayClickHandler(mAlertEntry1).onClick(mView);
-
-        assertThat(ShadowCarAssistUtils.getRequestAssistantVoiceActionCount()).isEqualTo(1);
+        verify(mCarAssistUtils).requestAssistantVoiceAction(any(), any(), any());
     }
 
     @Test
     public void onClickMuteClickHandler_togglesMute() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
-        NotificationDataManager notificationDataManager = new NotificationDataManager();
-        notificationDataManager.addNewMessageNotification(mAlertEntry1);
-        mNotificationClickHandlerFactory.setNotificationDataManager(notificationDataManager);
-        Button button = new Button(mContext);
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageHeadsUp);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
 
         // first make sure it is not muted by default
-        assertThat(notificationDataManager.isMessageNotificationMuted(mAlertEntry1)).isFalse();
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageHeadsUp)).isFalse();
 
-        mNotificationClickHandlerFactory.getMuteClickHandler(button, mAlertEntry1).onClick(mView);
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
-        assertThat(notificationDataManager.isMessageNotificationMuted(mAlertEntry1)).isTrue();
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageHeadsUp)).isTrue();
 
-        mNotificationClickHandlerFactory.getMuteClickHandler(button, mAlertEntry1).onClick(mView);
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
 
-        assertThat(notificationDataManager.isMessageNotificationMuted(mAlertEntry1)).isFalse();
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageHeadsUp)).isFalse();
     }
 
     @Test
-    public void onClickMuteClickHandler_isMuted_showsUnmuteLabel() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
-        NotificationDataManager notificationDataManager = new NotificationDataManager();
-        notificationDataManager.addNewMessageNotification(mAlertEntry1);
-        mNotificationClickHandlerFactory.setNotificationDataManager(notificationDataManager);
-        Button button = new Button(mContext);
+    public void onClickMuteClickHandler_mutePendingIntent_notificationDataManagerUnchanged() {
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageWithMuteAction);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
 
         // first make sure it is not muted by default
-        assertThat(notificationDataManager.isMessageNotificationMuted(mAlertEntry1)).isFalse();
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageWithMuteAction)).isFalse();
 
-        mNotificationClickHandlerFactory.getMuteClickHandler(button, mAlertEntry1).onClick(mView);
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageWithMuteAction, mMuteStatusSetter).onClick(mView);
 
-        assertThat(button.getText()).isEqualTo(mContext.getString(R.string.action_unmute_long));
+        // verify that notification data manager does not handle muting the notification
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageWithMuteAction)).isFalse();
     }
 
     @Test
-    public void onClickMuteClickHandler_isUnmuted_showsMuteLabel() {
-        ShadowCarAssistUtils.addMessageNotification(mStatusBarNotification1.getKey());
-        NotificationDataManager notificationDataManager = new NotificationDataManager();
-        notificationDataManager.addNewMessageNotification(mAlertEntry1);
-        mNotificationClickHandlerFactory.setNotificationDataManager(notificationDataManager);
-        Button button = new Button(mContext);
+    public void onClickMuteClickHandler_mutePendingIntent_dismissesNotification() {
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageWithMuteAction);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
+        NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
+                mAlertEntryMessageWithMuteAction.getKey(),
+                /* rank= */ -1,
+                /* count= */ -1,
+                /* visible= */ true);
+
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageWithMuteAction, mMuteStatusSetter).onClick(mView);
+
+        // verify notification is dismissed
+        try {
+            verify(mBarService).onNotificationClear(
+                    mAlertEntryMessageWithMuteAction.getStatusBarNotification().getPackageName(),
+                    mAlertEntryMessageWithMuteAction
+                            .getStatusBarNotification().getUser().getIdentifier(),
+                    mAlertEntryMessageWithMuteAction.getStatusBarNotification().getKey(),
+                    NotificationStats.DISMISSAL_SHADE,
+                    NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
+                    notificationVisibility);
+        } catch (RemoteException e) {
+            // ignore.
+        }
+    }
+
+    @Test
+    public void onClickMuteClickHandler_mutePendingIntent_firesPendingIntent() {
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageWithMuteAction);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
 
         // first make sure it is not muted by default
-        assertThat(notificationDataManager.isMessageNotificationMuted(mAlertEntry1)).isFalse();
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageWithMuteAction)).isFalse();
 
-        mNotificationClickHandlerFactory.getMuteClickHandler(button, mAlertEntry1).onClick(mView);
-        mNotificationClickHandlerFactory.getMuteClickHandler(button, mAlertEntry1).onClick(mView);
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageWithMuteAction, mMuteStatusSetter).onClick(mView);
+        try {
+            verify(mMuteActionPendingIntent).send();
+        } catch (PendingIntent.CanceledException e) {
+            // ignore
+        }
+    }
 
-        assertThat(button.getText()).isEqualTo(mContext.getString(R.string.action_mute_long));
+    @Test
+    public void onClickMuteClickHandler_isMuted_muteStatusSetTrue() {
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageHeadsUp);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
+        // first make sure it is not muted by default
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageHeadsUp)).isFalse();
+
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
+
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ true);
+    }
+
+    @Test
+    public void onClickMuteClickHandler_isUnmuted_muteStatusSetFalse() {
+        NotificationDataManager notificationDataManager = NotificationDataManager.getInstance();
+        notificationDataManager.addNewMessageNotification(mAlertEntryMessageHeadsUp);
+        CarNotificationActionButton button = new CarNotificationActionButton(mContext);
+        // first make sure it is not muted by default
+        assertThat(notificationDataManager.isMessageNotificationMuted(
+                mAlertEntryMessageHeadsUp)).isFalse();
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ true);
+
+        mNotificationClickHandlerFactory.getMuteClickHandler(button,
+                mAlertEntryMessageHeadsUp, mMuteStatusSetter).onClick(mView);
+
+        verify(mMuteStatusSetter).setMuteStatus(button, /* isMuted= */ false);
     }
 
     @Test
@@ -434,8 +534,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService).onNotificationClear(
                     mAlertEntry1.getStatusBarNotification().getPackageName(),
-                    mAlertEntry1.getStatusBarNotification().getTag(),
-                    mAlertEntry1.getStatusBarNotification().getId(),
                     mAlertEntry1.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry1.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -466,8 +564,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService, times(3)).onNotificationClear(
                     mAlertEntry2.getStatusBarNotification().getPackageName(),
-                    mAlertEntry2.getStatusBarNotification().getTag(),
-                    mAlertEntry2.getStatusBarNotification().getId(),
                     mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
@@ -497,8 +593,6 @@ public class NotificationClickHandlerFactoryTest {
         try {
             verify(mBarService, times(3)).onNotificationClear(
                     mAlertEntry2.getStatusBarNotification().getPackageName(),
-                    mAlertEntry2.getStatusBarNotification().getTag(),
-                    mAlertEntry2.getStatusBarNotification().getId(),
                     mAlertEntry2.getStatusBarNotification().getUser().getIdentifier(),
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
