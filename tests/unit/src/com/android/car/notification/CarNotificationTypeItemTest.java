@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
@@ -26,6 +26,7 @@ import android.view.View;
 
 import androidx.annotation.LayoutRes;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
 import com.android.car.notification.template.CallNotificationViewHolder;
@@ -40,9 +41,8 @@ import com.android.car.notification.template.ProgressNotificationViewHolder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationTypeItemTest {
     // No template is represented by -1 in CarNotificationTypeItem.
     private static final int NO_TEMPLATE = -1;
