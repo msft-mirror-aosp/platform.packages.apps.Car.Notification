@@ -16,31 +16,30 @@
 package com.android.car.notification.template;
 
 import android.app.Notification;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.view.View;
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
  * incoming phone call notification view template that displays notification.
  */
 public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
-
+    private final CarNotificationHeaderView mHeaderView;
     private final CarNotificationBodyView mBodyView;
     private final CarNotificationActionsView mActionsView;
-    private final CarNotificationHeaderView mHeaderView;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
 
     public CallNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
+        mHeaderView = view.findViewById(R.id.notification_header);
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mClickHandlerFactory = clickHandlerFactory;
-        mHeaderView = view.findViewById(R.id.notification_header);
     }
 
     /**
@@ -63,7 +62,11 @@ public class CallNotificationViewHolder extends CarNotificationBaseViewHolder {
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-        Icon icon = notification.getSmallIcon();
-        mBodyView.bind(title, text, icon);
+        boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(),
+                alertEntry.getStatusBarNotification());
+        mBodyView.bind(title, text, useLauncherIcon,
+                loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
+                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
+                notification.showsTime() ? notification.when : null);
     }
 }
