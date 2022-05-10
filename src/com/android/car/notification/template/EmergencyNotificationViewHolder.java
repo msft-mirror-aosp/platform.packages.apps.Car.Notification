@@ -17,7 +17,6 @@ package com.android.car.notification.template;
 
 import android.annotation.ColorInt;
 import android.app.Notification;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.view.View;
 
@@ -25,6 +24,7 @@ import androidx.cardview.widget.CardView;
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
@@ -37,6 +37,7 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
     private final CarNotificationBodyView mBodyView;
     @ColorInt
     private final int mEmergencyBackgroundColor;
+
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
     public EmergencyNotificationViewHolder(View view,
@@ -72,7 +73,12 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-        Icon icon = notification.getLargeIcon();
-        mBodyView.bind(title, text, icon);
+        boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(),
+                alertEntry.getStatusBarNotification());
+
+        mBodyView.bind(title, text, useLauncherIcon,
+                loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
+                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
+                notification.showsTime() ? notification.when : null);
     }
 }

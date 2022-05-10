@@ -17,7 +17,6 @@
 package com.android.car.notification;
 
 import android.app.ActivityManager;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +29,7 @@ import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.telephony.TelephonyManager;
@@ -48,7 +48,7 @@ import java.util.HashMap;
 class Beeper {
     private static final String TAG = "Beeper";
     private static final long ALLOWED_ALERT_INTERVAL = 1000;
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
 
     private final Context mContext;
     private final AudioManager mAudioManager;
