@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.android.car.notification;
@@ -24,6 +24,9 @@ import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,13 +34,11 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationDiffTest {
 
     private Context mContext;
@@ -77,7 +78,7 @@ public class CarNotificationDiffTest {
     @Before
     public void setupBaseActivityAndLayout() {
         MockitoAnnotations.initMocks(this);
-        mContext = RuntimeEnvironment.application;
+        mContext = ApplicationProvider.getApplicationContext();
         mNotificationBuilder1 = new Notification.Builder(mContext,
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
@@ -174,13 +175,23 @@ public class CarNotificationDiffTest {
     @Test
     public void sameGroupUniqueIdentifiers_shouldReturnTrue() {
         assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(mNotificationGroup1,
-                mNotificationGroup1)).isTrue();
+                mNotificationGroup1, /* showRecentsAndOlderHeaders= */ false)).isTrue();
     }
 
     @Test
-    public void sameGroupUniqueIdentifiers_differenKeys_shouldReturnFalse() {
+    public void sameGroupUniqueIdentifiers_differentIsSeen_shouldReturnFalse() {
+        NotificationGroup notificationGroup = new NotificationGroup();
+        notificationGroup.addNotification(mNotification1);
+        notificationGroup.setSeen(true);
+
+        assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(notificationGroup,
+                mNotificationGroup1, /* showRecentsAndOlderHeaders= */ true)).isFalse();
+    }
+
+    @Test
+    public void sameGroupUniqueIdentifiers_differentKeys_shouldReturnFalse() {
         assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(mNotificationGroup1,
-                mNotificationGroup3)).isFalse();
+                mNotificationGroup3, /* showRecentsAndOlderHeaders= */ false)).isFalse();
     }
 
     @Test
@@ -197,7 +208,7 @@ public class CarNotificationDiffTest {
         assertThat(mNotificationGroup1.getChildCount()).isEqualTo(
                 mNotificationGroup4.getChildCount());
         assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(mNotificationGroup1,
-                mNotificationGroup4)).isFalse();
+                mNotificationGroup4, /* showRecentsAndOlderHeaders= */ false)).isFalse();
     }
 
     @Test
@@ -213,7 +224,7 @@ public class CarNotificationDiffTest {
         assertThat(mNotificationGroup1.getChildCount()).isEqualTo(
                 mNotificationGroup4.getChildCount());
         assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(mNotificationGroup1,
-                mNotificationGroup4)).isTrue();
+                mNotificationGroup4, /* showRecentsAndOlderHeaders= */ false)).isTrue();
     }
 
     /**
@@ -222,7 +233,7 @@ public class CarNotificationDiffTest {
     @Test
     public void differentGroupUniqueIdentifiers_shouldReturnFalse() {
         assertThat(CarNotificationDiff.sameGroupUniqueIdentifiers(mNotificationGroup1,
-                mNotificationGroup3)).isFalse();
+                mNotificationGroup3, /* showRecentsAndOlderHeaders= */ false)).isFalse();
     }
 
     /**
@@ -261,6 +272,30 @@ public class CarNotificationDiffTest {
         CarNotificationDiff carNotificationDiff = new CarNotificationDiff(mContext,
                 mNotificationGroupList1, mNotificationGroupList2);
         assertThat(carNotificationDiff.getNewListSize()).isEqualTo(1);
+    }
+
+    @Test
+    public void maxItemsSet_getOldListSize_shouldReturnTwo() {
+        mNotificationGroupList4 = new ArrayList<>();
+        mNotificationGroupList4.add(mNotificationGroup1);
+        mNotificationGroupList4.add(mNotificationGroup2);
+        mNotificationGroupList4.add(mNotificationGroup3);
+        CarNotificationDiff carNotificationDiff = new CarNotificationDiff(mContext,
+                mNotificationGroupList4, mNotificationGroupList3, /* maxItems= */ 1);
+        // Should return two - one for the notification and one for the limited message
+        assertThat(carNotificationDiff.getOldListSize()).isEqualTo(2);
+    }
+
+    @Test
+    public void maxItemsSet_getNewListSize_shouldReturnTwo() {
+        mNotificationGroupList4 = new ArrayList<>();
+        mNotificationGroupList4.add(mNotificationGroup1);
+        mNotificationGroupList4.add(mNotificationGroup2);
+        mNotificationGroupList4.add(mNotificationGroup3);
+        CarNotificationDiff carNotificationDiff = new CarNotificationDiff(mContext,
+                mNotificationGroupList1, mNotificationGroupList4, /* maxItems= */ 1);
+        // Should return two - one for the notification and one for the limited message
+        assertThat(carNotificationDiff.getNewListSize()).isEqualTo(2);
     }
 
     @Test
