@@ -19,7 +19,9 @@ package com.android.car.notification;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +35,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.notification.testutils.ShadowActivityManager;
 import com.android.internal.statusbar.IStatusBarService;
 
 import org.junit.Before;
@@ -42,16 +44,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CarNotificationListenerTest {
 
-    private static int CURRENT_USER_ID = 0;
-    private static String TEST_KEY = "TEST_KEY";
-    private static String TEST_OVERRIDE_GROUP_KEY = "TEST_OVERRIDE_GROUP_KEY";
+    private static final int CURRENT_USER_ID = 10;
+    private static final String TEST_KEY = "TEST_KEY";
+    private static final String TEST_OVERRIDE_GROUP_KEY = "TEST_OVERRIDE_GROUP_KEY";
 
     private Context mContext;
     private CarNotificationListener mCarNotificationListener;
@@ -77,13 +78,13 @@ public class CarNotificationListenerTest {
         mCarNotificationListener.setHandler(mHandler);
 
         mCarNotificationListener.registerAsSystemService(mContext, mCarUxRestrictionManagerWrapper,
-                mCarHeadsUpNotificationManager, mNotificationDataManager);
+                mCarHeadsUpNotificationManager);
+        mCarNotificationListener.setNotificationDataManager(mNotificationDataManager);
 
         createMockRankingMap(NotificationManager.IMPORTANCE_DEFAULT);
 
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OVERRIDE_GROUP_KEY);
-        ShadowActivityManager.setCurrentUser(CURRENT_USER_ID);
     }
 
     @Test
@@ -156,6 +157,17 @@ public class CarNotificationListenerTest {
                 mStatusBarNotification.getKey())).isFalse();
     }
 
+
+    @Test
+    public void onNotificationPosted_isNotHun_isForCurrentUser_overrideGroupKeySet() {
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        testingHeadsUpNotification(false);
+
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+
+        verify(mStatusBarNotification).setOverrideGroupKey(eq(null));
+    }
 
     @Test
     public void onNotificationPosted_isNotHun_isForCurrentUser_addsAlertEntryToDataManager() {
@@ -244,10 +256,22 @@ public class CarNotificationListenerTest {
 
     @Test
     public void onStateChange_hunNoLongerHun_notifiesHandler() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
         AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
         mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
 
         verify(mHandler).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onStateChange_overrideGroupKeySet() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
+
+        verify(mStatusBarNotification).setOverrideGroupKey(eq(null));
     }
 
     @Test
@@ -270,6 +294,34 @@ public class CarNotificationListenerTest {
 
         assertThat(mCarNotificationListener.getNotifications().containsKey(alertEntry.getKey()))
                 .isFalse();
+    }
+
+    @Test
+    public void onNotificationRankingUpdate_overrideGroupKeyUpdated_doesNotNotifyHandler() {
+        testingHeadsUpNotification(false);
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+        reset(mHandler);
+
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+
+        verify(mHandler, never()).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onNotificationRankingUpdate_overrideGroupKeyUpdated_notifiesHandler() {
+        testingHeadsUpNotification(false);
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+        when(mStatusBarNotification.getOverrideGroupKey())
+                .thenReturn(TEST_OVERRIDE_GROUP_KEY + "A");
+        reset(mHandler);
+
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+
+        verify(mHandler).sendMessage(any(Message.class));
     }
 
     private void testingHeadsUpNotification(boolean isHeadsUpNotification) {
@@ -309,6 +361,7 @@ public class CarNotificationListenerTest {
                 /* visuallyInterruptive= */ false,
                 /* isConversation= */ false,
                 /* shortcutInfo= */ null,
+                /* rankingAdjustment= */ 0,
                 /* isBubble= */ false);
         mRankingMap = new NotificationListenerService.RankingMap(
                 new NotificationListenerService.Ranking[]{ranking});
