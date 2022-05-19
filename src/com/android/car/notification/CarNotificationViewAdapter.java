@@ -173,13 +173,11 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                 ((CarNotificationOlderViewHolder) holder)
                         .bind(mHasSeenNotifications, !mHasUnseenNotifications);
                 return;
-            case NotificationViewType.GROUP_EXPANDED:
+            case NotificationViewType.GROUP:
                 ((GroupNotificationViewHolder) holder)
-                        .bind(notificationGroup, this, /* isExpanded= */ true);
-                return;
-            case NotificationViewType.GROUP_COLLAPSED:
-                ((GroupNotificationViewHolder) holder)
-                        .bind(notificationGroup, this, /* isExpanded= */ false);
+                        .bind(notificationGroup, this, /* isExpanded= */
+                                isExpanded(notificationGroup.getGroupKey(),
+                                        notificationGroup.isSeen()));
                 return;
             case NotificationViewType.GROUP_SUMMARY:
                 ((CarNotificationBaseViewHolder) holder).setHideDismissButton(true);
@@ -222,11 +220,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                 new ExpandedNotification(notificationGroup.getGroupKey(),
                         notificationGroup.isSeen());
         if (notificationGroup.isGroup()) {
-            if (mExpandedNotifications.contains(expandedNotification)) {
-                return NotificationViewType.GROUP_EXPANDED;
-            } else {
-                return NotificationViewType.GROUP_COLLAPSED;
-            }
+            return NotificationViewType.GROUP;
         } else if (mExpandedNotifications.contains(expandedNotification)) {
             // when there are 2 notifications left in the expanded notification and one of them is
             // removed at that time the item type changes from group to normal and hence the
@@ -431,7 +425,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
     /**
      * Updates notifications and update views.
      *
-     * @param setRecyclerViewListHeaderAndFooter sets the header and footer on the entire list of
+     * @param setRecyclerViewListHeadersAndFooters sets the header and footer on the entire list of
      * items within the recycler view. This is NOT the header/footer for the grouped notifications.
      */
     public void setNotifications(List<NotificationGroup> notifications,
