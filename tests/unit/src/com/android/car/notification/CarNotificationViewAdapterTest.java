@@ -152,30 +152,19 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void onCreateViewHolder_groupExpandedType_shouldReturnObjectOfGroupNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+    public void onCreateViewHolder_groupType_shouldReturnObjectOfGroupNotificationViewHolder() {
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
-                NotificationViewType.GROUP_EXPANDED);
-
-        assertThat(vh.getClass()).isEqualTo(GroupNotificationViewHolder.class);
-    }
-
-    @Test
-    public void onCreateViewHolder_groupCollapsed_shouldReturnObjectOfGroupNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
-                /* isGroupNotificationAdapter= */ false,
-                /* notificationItemController= */ null);
-        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
-                NotificationViewType.GROUP_COLLAPSED);
+                NotificationViewType.GROUP);
 
         assertThat(vh.getClass()).isEqualTo(GroupNotificationViewHolder.class);
     }
 
     @Test
     public void onCreateViewHolder_groupSummaryType_shouldReturnObjectOfGroupSummaryNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -186,7 +175,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_carInformation_shouldReturnObjectOfBasicNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -197,7 +186,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_carInfoInGroup_shouldReturnObjectOfBasicNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -208,7 +197,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_shouldReturnObjectOfMessageNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -219,7 +208,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_message_shouldReturnObjectOfMessageNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -230,7 +219,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_progressInGroupType_shouldReturnObjectOfProgressNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -241,7 +230,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_progressInGroup_shouldReturnObjectOfProgressNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -252,7 +241,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_inboxInGroupType_shouldReturnObjectOfInboxNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -263,7 +252,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_inbox_shouldReturnObjectOfInboxNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -274,7 +263,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_basicInGroup_shouldReturnObjectOfBasicNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -285,7 +274,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onCreateViewHolder_basic_shouldReturnObjectOfBasicNotificationViewHolder() {
-               mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
+        mCarNotificationViewAdapter = new CarNotificationViewAdapter(mContext,
                 /* isGroupNotificationAdapter= */ false,
                 /* notificationItemController= */ null);
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.onCreateViewHolder(null,
@@ -337,22 +326,7 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void onBindViewHolder_groupExpanded_shouldNotThrowError() {
-        initializeWithFactory();
-
-        NotificationGroup notificationGroup = new NotificationGroup();
-        notificationGroup.setGroupSummaryNotification(mNotification1);
-        mNotificationGroupList1.add(notificationGroup);
-        mCarNotificationViewAdapter.setNotifications(
-                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
-
-        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
-                NotificationViewType.GROUP_EXPANDED);
-        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
-    }
-
-    @Test
-    public void onBindViewHolder_groupCollapsed_shouldNotThrowError() {
+    public void onBindViewHolder_group_shouldNotThrowError() {
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -363,7 +337,7 @@ public class CarNotificationViewAdapterTest {
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
 
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
-                NotificationViewType.GROUP_COLLAPSED);
+                NotificationViewType.GROUP);
         mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
     }
 
@@ -537,23 +511,7 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void onBindViewHolder_groupExpanded_shouldNotHideDismissButton() {
-        initializeWithFactory();
-
-        NotificationGroup notificationGroup = new NotificationGroup();
-        notificationGroup.setGroupSummaryNotification(mNotification1);
-        mNotificationGroupList1.add(notificationGroup);
-        mCarNotificationViewAdapter.setNotifications(
-                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
-
-        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
-                NotificationViewType.GROUP_EXPANDED);
-        mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
-        assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
-    }
-
-    @Test
-    public void onBindViewHolder_groupCollapsed_shouldNotHideDismissButton() {
+    public void onBindViewHolder_group_shouldNotHideDismissButton() {
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -564,7 +522,7 @@ public class CarNotificationViewAdapterTest {
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
 
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
-                NotificationViewType.GROUP_COLLAPSED);
+                NotificationViewType.GROUP);
         mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
         assertThat(((CarNotificationBaseViewHolder) vh).shouldHideDismissButton()).isFalse();
     }
@@ -586,7 +544,7 @@ public class CarNotificationViewAdapterTest {
     }
 
     @Test
-    public void getItemViewType_shouldReturnGroupCollapsed() {
+    public void getItemViewType_shouldReturnGroup() {
         initializeWithFactory();
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.setGroupSummaryNotification(mNotification1);
@@ -595,29 +553,10 @@ public class CarNotificationViewAdapterTest {
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
-        mCarNotificationViewAdapter.setExpanded(notificationGroup.getGroupKey(),
-                /* isSeen= */ false, /* isExpanded= */ false);
 
         int itemViewType = mCarNotificationViewAdapter.getItemViewType(2);
 
-        assertThat(itemViewType).isEqualTo(NotificationViewType.GROUP_COLLAPSED);
-    }
-
-    @Test
-    public void getItemViewType_shouldReturnGroupExpanded() {
-        initializeWithFactory();
-        NotificationGroup notificationGroup = new NotificationGroup();
-        notificationGroup.setGroupSummaryNotification(mNotification1);
-        notificationGroup.addNotification(mNotification1);
-        notificationGroup.addNotification(mNotification1);
-        mNotificationGroupList1.add(notificationGroup);
-        mCarNotificationViewAdapter.setNotifications(
-                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
-        mCarNotificationViewAdapter.setExpanded(notificationGroup.getGroupKey(),
-                /* isSeen= */ false, /* isExpanded= */ true);
-        int itemViewType = mCarNotificationViewAdapter.getItemViewType(2);
-
-        assertThat(itemViewType).isEqualTo(NotificationViewType.GROUP_EXPANDED);
+        assertThat(itemViewType).isEqualTo(NotificationViewType.GROUP);
     }
 
     @Test
