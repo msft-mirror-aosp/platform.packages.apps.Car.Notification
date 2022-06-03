@@ -301,6 +301,7 @@ public class CarNotificationListenerTest {
         testingHeadsUpNotification(false);
         UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(null);
         mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
         reset(mHandler);
 
