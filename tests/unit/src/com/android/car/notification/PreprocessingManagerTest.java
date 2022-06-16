@@ -715,7 +715,7 @@ public class PreprocessingManagerTest {
 
     @Test
     public void onAdditionalGroupAndRank_isGroupSummary_returnsTheSameGroupsAsStandardGroup() {
-        Notification additionalNotification = generateNotification(/* isForeground= */ true,
+        Notification additionalNotification = generateNotification(/* isForeground= */ false,
                 /* isNavigation= */ false, /* isGroupSummary= */ true);
         additionalNotification.category = Notification.CATEGORY_MESSAGE;
         when(mAdditionalStatusBarNotification.getKey()).thenReturn("ADDITIONAL");
@@ -989,6 +989,7 @@ public class PreprocessingManagerTest {
                 .build();
 
         if (isForeground) {
+            // this will reset flags previously set like FLAG_GROUP_SUMMARY
             notification.flags = Notification.FLAG_FOREGROUND_SERVICE;
         }
 
