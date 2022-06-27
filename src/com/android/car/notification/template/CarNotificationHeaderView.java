@@ -23,7 +23,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Icon;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.text.BidiFormatter;
@@ -36,6 +36,7 @@ import android.widget.DateTimeView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.R;
@@ -115,8 +116,8 @@ public class CarNotificationHeaderView extends LinearLayout {
      */
     public void bind(AlertEntry alertEntry, boolean isInGroup) {
         if (mUseLauncherIcon || isInGroup) {
-            // If the notification is part of a group, individual headers are not shown.
-            // Instead, there is a header for the entire group in the group notification template
+            // If the notification is part of a group, individual headers are not shown
+            // instead, there is a header for the entire group in the group notification template
             // OR
             // If launcher icon is used then hide header
             setVisibility(View.GONE);
@@ -133,10 +134,8 @@ public class CarNotificationHeaderView extends LinearLayout {
         // App icon
         if (mIconView != null) {
             mIconView.setVisibility(View.VISIBLE);
-            Icon icon = notification.getSmallIcon();
-            if (icon != null) {
-                mIconView.setImageDrawable(icon.loadDrawable(packageContext));
-            }
+            Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
+            mIconView.setImageDrawable(drawable);
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -255,7 +254,7 @@ public class CarNotificationHeaderView extends LinearLayout {
         CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
         if (notification.extras.containsKey(EXTRA_SUBSTITUTE_APP_NAME)) {
             // Only system packages which lump together a bunch of unrelated stuff may substitute a
-            // different name to make the purpose of the notification more clear.
+            // different name to make the purpose of the notification more clear
             // The correct package label should always be accessible via SystemUI
             final String subName = notification.extras.getString(EXTRA_SUBSTITUTE_APP_NAME);
             final String pkg = sbn.getPackageName();
