@@ -19,6 +19,8 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="animator" name="clear_all_animate_out"/>
       <item type="animator" name="heads_up_notification_transition_in"/>
       <item type="animator" name="heads_up_notification_transition_out"/>
+      <item type="array" name="headsup_category_immediate_show"/>
+      <item type="array" name="headsup_category_priority"/>
       <item type="attr" name="categoryCall"/>
       <item type="attr" name="isHeadsUp"/>
       <item type="attr" name="maxLines"/>
@@ -31,6 +33,8 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_enableMessageNotificationDirectReply"/>
       <item type="bool" name="config_enableMessageNotificationPlay"/>
       <item type="bool" name="config_enableSmallIconAccentColor"/>
+      <item type="bool" name="config_expireHeadsUpWhenDriving"/>
+      <item type="bool" name="config_expireHeadsUpWhenParked"/>
       <item type="bool" name="config_focusHUNWhenShown"/>
       <item type="bool" name="config_showFooterForNotifications"/>
       <item type="bool" name="config_showHeaderForNotifications"/>
@@ -38,6 +42,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showIconsInActionButtons"/>
       <item type="bool" name="config_showNavigationHeadsup"/>
       <item type="bool" name="config_showRecentAndOldHeaders"/>
+      <item type="bool" name="config_suppressAndThrottleHeadsUp"/>
       <item type="bool" name="config_useLauncherIcon"/>
       <item type="color" name="action_button_background_color"/>
       <item type="color" name="call_accept_button"/>
@@ -214,6 +219,8 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="integer" name="headsup_alpha_enter_duration_ms"/>
       <item type="integer" name="headsup_exit_duration_ms"/>
       <item type="integer" name="headsup_notification_duration_ms"/>
+      <item type="integer" name="headsup_queue_expire_driving_duration_ms"/>
+      <item type="integer" name="headsup_queue_expire_parked_duration_ms"/>
       <item type="integer" name="headsup_total_enter_duration_ms"/>
       <item type="integer" name="max_group_children_number"/>
       <item type="integer" name="min_velocity_for_swipe_direction_detection"/>
@@ -272,6 +279,10 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="string" name="assist_action_play_label"/>
       <item type="string" name="assist_action_reply_label"/>
       <item type="string" name="canned_reply_message"/>
+      <item type="string" name="category_call"/>
+      <item type="string" name="category_car_emergency"/>
+      <item type="string" name="category_message"/>
+      <item type="string" name="category_navigation"/>
       <item type="string" name="clear_all"/>
       <item type="string" name="collapse_group"/>
       <item type="string" name="config_headsUpNotificationAnimationHelper"/>
