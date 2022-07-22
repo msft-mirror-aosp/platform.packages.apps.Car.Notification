@@ -148,16 +148,15 @@ public class CarHeadsUpNotificationManager
             NotificationListenerService.RankingMap rankingMap,
             Map<String, AlertEntry> activeNotifications) {
         if (!shouldShowHeadsUp(alertEntry, rankingMap)) {
-            // check if this is an update to the existing notification and if it should still show
-            // as a heads up or not.
-            HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                    alertEntry.getKey());
-            if (currentActiveHeadsUpNotification == null) {
+            if (!isActiveHun(alertEntry)) {
                 if (DEBUG) {
                     Log.d(TAG, alertEntry + " is not an active heads up notification");
                 }
                 return false;
             }
+            // Check if this is an update to the existing notification and if it should still show
+            // as a heads up or not.
+            HeadsUpEntry currentActiveHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
             if (CarNotificationDiff.sameNotificationKey(currentActiveHeadsUpNotification,
                     alertEntry)
                     && currentActiveHeadsUpNotification.getHandler().hasMessagesOrCallbacks()) {
@@ -185,13 +184,18 @@ public class CarHeadsUpNotificationManager
      * This method gets called when an app wants to cancel or withdraw its notification.
      */
     public void maybeRemoveHeadsUp(AlertEntry alertEntry) {
-        HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        // if the heads up notification is already removed do nothing.
-        if (currentActiveHeadsUpNotification == null) {
+        if (!isActiveHun(alertEntry)) {
+            // If the heads up notification is already removed do nothing.
             return;
         }
-        currentActiveHeadsUpNotification.mShouldRemove = true;
+        tagCurrentActiveHunToBeRemoved(alertEntry);
+
+        scheduleRemoveHeadsUp(alertEntry);
+    }
+
+    private void scheduleRemoveHeadsUp(AlertEntry alertEntry) {
+        HeadsUpEntry currentActiveHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
+
         long totalDisplayDuration =
                 System.currentTimeMillis() - currentActiveHeadsUpNotification.getPostTime();
         // ongoing notification that has passed the minimum threshold display time.
@@ -247,23 +251,16 @@ public class CarHeadsUpNotificationManager
      * notification.
      */
     private boolean isUpdate(AlertEntry alertEntry) {
-        HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        if (currentActiveHeadsUpNotification == null) {
-            return false;
-        }
-        return CarNotificationDiff.sameNotificationKey(currentActiveHeadsUpNotification,
-                alertEntry);
+        return isActiveHun(alertEntry) && CarNotificationDiff.sameNotificationKey(
+                getActiveHeadsUpEntry(alertEntry), alertEntry);
     }
 
     /**
      * Updates only when the notification is being displayed.
      */
     private boolean canUpdate(AlertEntry alertEntry) {
-        HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        return currentActiveHeadsUpNotification != null && System.currentTimeMillis() -
-                currentActiveHeadsUpNotification.getPostTime() < mDuration;
+        return isActiveHun(alertEntry) && (System.currentTimeMillis()
+                - getActiveHeadsUpEntry(alertEntry).getPostTime()) < mDuration;
     }
 
     /**
@@ -271,19 +268,18 @@ public class CarHeadsUpNotificationManager
      * mActiveHeadsUpNotifications.
      */
     private HeadsUpEntry addNewHeadsUpEntry(AlertEntry alertEntry) {
-        HeadsUpEntry currentActiveHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        if (currentActiveHeadsUpNotification == null) {
-            currentActiveHeadsUpNotification = new HeadsUpEntry(
+        if (!isActiveHun(alertEntry)) {
+            HeadsUpEntry newActiveHeadsUpNotification = new HeadsUpEntry(
                     alertEntry.getStatusBarNotification());
             handleHeadsUpNotificationStateChanged(alertEntry, /* isHeadsUp= */ true);
             mActiveHeadsUpNotifications.put(alertEntry.getKey(),
-                    currentActiveHeadsUpNotification);
-            currentActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
+                    newActiveHeadsUpNotification);
+            newActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
                     alertEntry.getNotification());
-            currentActiveHeadsUpNotification.mIsNewHeadsUp = true;
-            return currentActiveHeadsUpNotification;
+            newActiveHeadsUpNotification.mIsNewHeadsUp = true;
+            return newActiveHeadsUpNotification;
         }
+        HeadsUpEntry currentActiveHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
         currentActiveHeadsUpNotification.mIsNewHeadsUp = false;
         currentActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
                 alertEntry.getNotification());
@@ -481,14 +477,13 @@ public class CarHeadsUpNotificationManager
      */
     private void dismissHun(AlertEntry alertEntry) {
         Log.d(TAG, "clearViews for Heads Up Notification: ");
-        // get the current notification to perform animations and remove it immediately from the
-        // active notification maps and cancel all other call backs if any.
-        HeadsUpEntry currentHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        // view can also be removed when swiped away.
-        if (currentHeadsUpNotification == null) {
+        if (!isActiveHun(alertEntry)) {
+            // View can also be removed when swiped away.
             return;
         }
+        // Get the current notification to perform animations and remove it immediately from the
+        // active notification maps and cancel all other call backs if any.
+        HeadsUpEntry currentHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
         // view could already be in the process of being dismissed
         if (currentHeadsUpNotification.mIsDismissing) {
             return;
@@ -523,10 +518,10 @@ public class CarHeadsUpNotificationManager
      * of active Notifications.
      */
     private void resetView(AlertEntry alertEntry) {
-        HeadsUpEntry currentHeadsUpNotification = mActiveHeadsUpNotifications.get(
-                alertEntry.getKey());
-        if (currentHeadsUpNotification == null) return;
-
+        if (!isActiveHun(alertEntry)) {
+            return;
+        }
+        HeadsUpEntry currentHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
         mHunContainer.removeNotification(currentHeadsUpNotification.getNotificationView());
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
@@ -631,6 +626,22 @@ public class CarHeadsUpNotificationManager
         // Allow for Call, and nav TBT categories.
         return Notification.CATEGORY_CALL.equals(notification.category)
                 || Notification.CATEGORY_NAVIGATION.equals(notification.category);
+    }
+
+    private boolean isActiveHun(AlertEntry alertEntry) {
+        return mActiveHeadsUpNotifications.containsKey(alertEntry.getKey());
+    }
+
+    private HeadsUpEntry getActiveHeadsUpEntry(AlertEntry alertEntry) {
+        return mActiveHeadsUpNotifications.get(alertEntry.getKey());
+    }
+
+    /**
+     * We tag HUN that was removed by the app and hence not to be shown in the notification panel
+     * against the normal behaviour (on dismiss add to notification panel).
+     */
+    private void tagCurrentActiveHunToBeRemoved(AlertEntry alertEntry) {
+        getActiveHeadsUpEntry(alertEntry).mShouldRemove = true;
     }
 
     @VisibleForTesting
