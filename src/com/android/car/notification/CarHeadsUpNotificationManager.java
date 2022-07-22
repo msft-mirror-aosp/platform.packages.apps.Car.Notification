@@ -79,6 +79,8 @@ public class CarHeadsUpNotificationManager
     private final long mMinDisplayDuration;
     private HeadsUpNotificationAnimationHelper mAnimationHelper;
     private final int mNotificationHeadsUpCardMarginTop;
+    private final boolean mIsSuppressAndThrottleHeadsUp;
+    private final CarHeadsUpNotificationQueue mCarHeadsUpNotificationQueue;
 
     private final KeyguardManager mKeyguardManager;
     private final PreprocessingManager mPreprocessingManager;
@@ -119,6 +121,38 @@ public class CarHeadsUpNotificationManager
         mClickHandlerFactory.registerClickListener(
                 (launchResult, alertEntry) -> dismissHun(alertEntry));
         mHunContainer = hunContainer;
+        mIsSuppressAndThrottleHeadsUp = context.getResources().getBoolean(
+                R.bool.config_suppressAndThrottleHeadsUp);
+        mCarHeadsUpNotificationQueue = new CarHeadsUpNotificationQueue(context,
+                new CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback() {
+                    @Override
+                    public void showAsHeadsUp(AlertEntry alertEntry,
+                            NotificationListenerService.RankingMap rankingMap) {
+                        showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
+                                rankingMap);
+                    }
+
+                    @Override
+                    public void removedFromHeadsUpQueue(AlertEntry alertEntry) {
+                        handleHeadsUpNotificationStateChanged(alertEntry, /* isHeadsUp= */ false);
+                    }
+
+                    @Override
+                    public void dismissAllActiveHeadsUp() {
+                        mActiveHeadsUpNotifications
+                                .keySet()
+                                .stream()
+                                .map(mActiveHeadsUpNotifications::get)
+                                .forEach(currentActiveHeadsUpNotification ->
+                                        dismissHun(currentActiveHeadsUpNotification));
+                    }
+
+                    @Override
+                    public boolean isHunActive() {
+                        return !mActiveHeadsUpNotifications.keySet().isEmpty();
+                    }
+                });
+        registerHeadsUpNotificationStateChangeListener(mCarHeadsUpNotificationQueue);
     }
 
     @VisibleForTesting
@@ -172,9 +206,17 @@ public class CarHeadsUpNotificationManager
             Log.d(TAG, alertEntry + " is an updatable notification: " + canUpdateFlag);
             Log.d(TAG, alertEntry + " is not an alert once notification: " + alertAgainFlag);
         }
-        if (containsKeyFlag || canUpdateFlag || alertAgainFlag) {
+        if (canUpdateFlag) {
             showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
                     rankingMap);
+            return true;
+        } else if (containsKeyFlag || alertAgainFlag) {
+            if (!mIsSuppressAndThrottleHeadsUp) {
+                showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
+                        rankingMap);
+            } else {
+                mCarHeadsUpNotificationQueue.addToQueue(alertEntry, rankingMap);
+            }
             return true;
         }
         return false;
@@ -218,14 +260,6 @@ public class CarHeadsUpNotificationManager
         if (!mNotificationStateChangeListeners.contains(listener)) {
             mNotificationStateChangeListeners.add(listener);
         }
-    }
-
-    /**
-     * Unregisters a {@link OnHeadsUpNotificationStateChange} from the list of listeners.
-     */
-    public void unregisterHeadsUpNotificationStateChangeListener(
-            OnHeadsUpNotificationStateChange listener) {
-        mNotificationStateChangeListeners.remove(listener);
     }
 
     /**
@@ -651,6 +685,8 @@ public class CarHeadsUpNotificationManager
 
     @Override
     public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
+        mCarHeadsUpNotificationQueue.setActiveUxRestriction(
+                restrictions.isRequiresDistractionOptimization());
         mShouldRestrictMessagePreview =
                 (restrictions.getActiveRestrictions()
                         & CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE) != 0;
