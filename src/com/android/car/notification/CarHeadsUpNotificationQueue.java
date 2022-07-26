@@ -129,8 +129,9 @@ public class CarHeadsUpNotificationQueue implements
      * Returns {@code true} if an {@link AlertEntry} should be shown immediately.
      */
     private boolean isNotificationImmediateShow(AlertEntry alertEntry) {
-        return mNotificationCategoriesForImmediateShow.contains(
-                alertEntry.getNotification().category);
+        return alertEntry.getNotification().category != null
+                && mNotificationCategoriesForImmediateShow.contains(
+                        alertEntry.getNotification().category);
     }
 
     @Override
