@@ -185,6 +185,18 @@ public class CarHeadsUpNotificationQueueTest {
     }
 
     @Test
+    public void addToQueue_handles_notificationWithNoCategory() {
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", /* category= */ null), 4000);
+
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
+
+        PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.poll()).isEqualTo("key1");
+    }
+
+    @Test
     public void triggerCallback_expireNotifications_whenParked() {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ true);
