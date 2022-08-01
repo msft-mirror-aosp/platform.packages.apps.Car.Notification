@@ -109,4 +109,6 @@
     <string name="category_call">call</string>
     <string name="category_message">msg</string>
 
+    <!-- Package Names [DO NOT TRANSLATE] -->
+    <string name="pkg_car_dialer">com.android.car.dialer</string>
 </resources>

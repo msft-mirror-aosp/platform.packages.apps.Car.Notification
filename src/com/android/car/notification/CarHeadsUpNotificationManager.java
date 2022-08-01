@@ -25,6 +25,7 @@ import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessag
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.app.ActivityTaskManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -40,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationContainer;
@@ -124,12 +126,15 @@ public class CarHeadsUpNotificationManager
         mIsSuppressAndThrottleHeadsUp = context.getResources().getBoolean(
                 R.bool.config_suppressAndThrottleHeadsUp);
         mCarHeadsUpNotificationQueue = new CarHeadsUpNotificationQueue(context,
+                ActivityTaskManager.getInstance(),
                 new CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback() {
                     @Override
                     public void showAsHeadsUp(AlertEntry alertEntry,
                             NotificationListenerService.RankingMap rankingMap) {
-                        showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
-                                rankingMap);
+                        mContext.getMainExecutor().execute(() -> showHeadsUp(
+                                mPreprocessingManager.optimizeForDriving(alertEntry),
+                                rankingMap)
+                        );
                     }
 
                     @Override
@@ -263,6 +268,15 @@ public class CarHeadsUpNotificationManager
     }
 
     /**
+     * Unregisters all {@link OnHeadsUpNotificationStateChange} listeners along with other listeners
+     * registered by {@link CarHeadsUpNotificationManager}.
+     */
+    public void unregisterListeners() {
+        mNotificationStateChangeListeners.clear();
+        mCarHeadsUpNotificationQueue.unregisterListeners();
+    }
+
+    /**
      * Invokes all OnHeadsUpNotificationStateChange handlers registered in {@link
      * OnHeadsUpNotificationStateChange}s array.
      */
@@ -338,6 +352,7 @@ public class CarHeadsUpNotificationManager
      * will only be done if {@link Notification#FLAG_ONLY_ALERT_ONCE} flag is not set.
      * </ol>
      */
+    @UiThread
     private void showHeadsUp(AlertEntry alertEntry,
             NotificationListenerService.RankingMap rankingMap) {
         // Show animations only when there is no active HUN and notification is new. This check
