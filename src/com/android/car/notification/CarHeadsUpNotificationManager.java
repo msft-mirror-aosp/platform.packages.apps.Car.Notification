@@ -412,18 +412,20 @@ public class CarHeadsUpNotificationManager
         mRegisteredViewTreeListeners.put(currentNotification,
                 new Pair<>(onComputeInternalInsetsListener, onGlobalFocusChangeListener));
 
-        if (currentNotification.mIsNewHeadsUp) {
-            // Add swipe gesture
-            View cardView = currentNotification.getNotificationView().findViewById(R.id.card_view);
-            cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
-                    shouldDismissOnSwipe(alertEntry), () -> resetView(alertEntry)));
+        attachHunViewListeners(currentNotification.getNotificationView(), alertEntry);
+    }
 
-            // Add dismiss button listener
-            View dismissButton = currentNotification.getNotificationView().findViewById(
-                    R.id.dismiss_button);
-            if (dismissButton != null) {
-                dismissButton.setOnClickListener(v -> dismissHun(alertEntry));
-            }
+    private void attachHunViewListeners(View notificationView, AlertEntry alertEntry) {
+        // Add swipe gesture
+        View cardView = notificationView.findViewById(R.id.card_view);
+        cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
+                shouldDismissOnSwipe(alertEntry), () -> resetView(alertEntry)));
+
+        // Add dismiss button listener
+        View dismissButton = notificationView.findViewById(
+                R.id.dismiss_button);
+        if (dismissButton != null) {
+            dismissButton.setOnClickListener(v -> dismissHun(alertEntry));
         }
     }
 
