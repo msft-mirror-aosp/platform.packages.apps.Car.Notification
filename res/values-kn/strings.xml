@@ -49,4 +49,7 @@
     <string name="see_more_message" msgid="6343183827924395955">"ಇನ್ನಷ್ಟು ನೋಡಿ"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"ಹೊಸ ಸಂದೇಶ"</string>
     <string name="manage_text" msgid="4225197445283791757">"ನಿರ್ವಹಿಸಿ"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"ನ್ಯಾವಿಗೇಶನ್"</string>
+    <string name="category_call" msgid="2249490790700877973">"ಕರೆ"</string>
+    <string name="category_message" msgid="451360226248504859">"ಸಂದೇಶ"</string>
 </resources>

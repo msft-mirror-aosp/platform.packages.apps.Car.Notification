@@ -53,4 +53,7 @@
     <string name="see_more_message" msgid="6343183827924395955">"Pokaż więcej"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Nowa wiadomość"</string>
     <string name="manage_text" msgid="4225197445283791757">"Zarządzaj"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"nawigacja"</string>
+    <string name="category_call" msgid="2249490790700877973">"połączenia"</string>
+    <string name="category_message" msgid="451360226248504859">"wiadomości"</string>
 </resources>
