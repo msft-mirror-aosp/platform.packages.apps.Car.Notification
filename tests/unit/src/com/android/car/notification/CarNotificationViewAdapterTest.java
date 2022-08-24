@@ -37,6 +37,7 @@ import android.testing.TestableContext;
 import android.testing.TestableResources;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -565,7 +566,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_CAR_EMERGENCY));
+                generateNotificationWithCategory(Notification.CATEGORY_CAR_EMERGENCY));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -581,7 +582,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_CAR_WARNING));
+                generateNotificationWithCategory(Notification.CATEGORY_CAR_WARNING));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -597,7 +598,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_CAR_INFORMATION));
+                generateNotificationWithCategory(Notification.CATEGORY_CAR_INFORMATION));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -613,7 +614,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_CAR_INFORMATION));
+                generateNotificationWithCategory(Notification.CATEGORY_CAR_INFORMATION));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -629,7 +630,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_MESSAGE));
+                generateNotificationWithCategory(Notification.CATEGORY_MESSAGE));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -645,7 +646,7 @@ public class CarNotificationViewAdapterTest {
 
         NotificationGroup notificationGroup = new NotificationGroup();
         notificationGroup.addNotification(
-                getNotificationWithCategory(Notification.CATEGORY_MESSAGE));
+                generateNotificationWithCategory(Notification.CATEGORY_MESSAGE));
         mNotificationGroupList1.add(notificationGroup);
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -800,7 +801,6 @@ public class CarNotificationViewAdapterTest {
         assertThat(mCarNotificationViewAdapter.getItemCount()).isEqualTo(5);
     }
 
-
     @Test
     public void getViewPool_shouldReturnNotNull() {
         initializeWithFactory();
@@ -888,18 +888,78 @@ public class CarNotificationViewAdapterTest {
         assertThat(itemId).isEqualTo(notificationGroup.getSingleNotification().getKey().hashCode());
     }
 
-    private AlertEntry getNotificationWithCategory(String category) {
+    @Test
+    public void shouldRemoveGroupSummary_returnTrue_oneGroupWithSameGroupKeyIsPresent() {
+        String group = "TEST_GROUP";
+        initializeWithFactoryShowingRecentAndOlderHeaders();
+        AlertEntry groupSummaryNotification = generateNotification(Notification.CATEGORY_MESSAGE,
+                group, /* overrideGroupKey= */ null, /* isGroupSummary= */ true);
+        NotificationGroup notificationGroup = generateGroupedNotification(group);
+        notificationGroup.setGroupSummaryNotification(groupSummaryNotification);
+        mNotificationGroupList1.add(notificationGroup);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        boolean result = mCarNotificationViewAdapter.shouldRemoveGroupSummary(
+                groupSummaryNotification.getStatusBarNotification().getGroupKey());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void shouldRemoveGroupSummary_returnFalse_multipleGroupsWithSameGroupKeyArePresent() {
+        String group = "TEST_GROUP";
+        initializeWithFactoryShowingRecentAndOlderHeaders();
+        AlertEntry groupSummaryNotification = generateNotification(Notification.CATEGORY_MESSAGE,
+                group, /* overrideGroupKey= */ null, /* isGroupSummary= */ true);
+        NotificationGroup notificationGroup1 = generateGroupedNotification(group);
+        NotificationGroup notificationGroup2 = generateGroupedNotification(group);
+        notificationGroup1.setGroupSummaryNotification(groupSummaryNotification);
+        notificationGroup2.setGroupSummaryNotification(groupSummaryNotification);
+        mNotificationGroupList1.add(notificationGroup1);
+        mNotificationGroupList1.add(notificationGroup2);
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        boolean result = mCarNotificationViewAdapter.shouldRemoveGroupSummary(
+                groupSummaryNotification.getStatusBarNotification().getGroupKey());
+
+        assertThat(result).isFalse();
+    }
+
+
+    private NotificationGroup generateGroupedNotification(String group) {
+        NotificationGroup notificationGroup = new NotificationGroup();
+        for (int i = 0; i < 5; i++) {
+            notificationGroup.addNotification(generateNotification(Notification.CATEGORY_MESSAGE,
+                    group, /* overrideGroupKey= */ null,
+                    /* isGroupSummary= */ false));
+        }
+        return notificationGroup;
+    }
+
+    private AlertEntry generateNotificationWithCategory(String category) {
+        return generateNotification(category, /* group= */ null, OVERRIDE_GROUP_KEY,
+                /* isGroupSummary= */ false);
+    }
+
+    private AlertEntry generateNotification(String category, @Nullable String group,
+            @Nullable String overrideGroupKey, boolean isGroupSummary) {
         Notification.Builder nb = new Notification.Builder(mContext,
                 CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
                 .setCategory(category)
-                .setSmallIcon(android.R.drawable.sym_def_app_icon);
+                .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                .setGroupSummary(isGroupSummary);
+
+        if (group != null) {
+            nb.setGroup(group);
+        }
 
         return new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, nb.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME));
+                overrideGroupKey, POST_TIME));
     }
-
 
     private void initializeWithFactoryShowingRecentAndOlderHeaders() {
         initializeWithFactory(/* isGroup= */ false, /* showRecentAndOldHeaders= */ true);
