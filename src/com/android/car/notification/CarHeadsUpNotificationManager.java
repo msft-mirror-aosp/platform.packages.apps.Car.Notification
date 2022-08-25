@@ -129,6 +129,7 @@ public class CarHeadsUpNotificationManager
                 R.bool.config_suppressAndThrottleHeadsUp);
         mCarHeadsUpNotificationQueue = new CarHeadsUpNotificationQueue(context,
                 ActivityTaskManager.getInstance(),
+                mContext.getSystemService(NotificationManager.class),
                 new CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback() {
                     @Override
                     public void showAsHeadsUp(AlertEntry alertEntry,
