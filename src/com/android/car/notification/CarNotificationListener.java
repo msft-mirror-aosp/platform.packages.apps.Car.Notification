@@ -114,6 +114,12 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHeadsUpManager.unregisterListeners();
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return ACTION_LOCAL_BINDING.equals(intent.getAction())
                 ? new LocalBinder() : super.onBind(intent);

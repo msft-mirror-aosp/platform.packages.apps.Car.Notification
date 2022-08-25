@@ -16,15 +16,23 @@
 
 package com.android.car.notification;
 
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.app.ActivityTaskManager;
+import android.app.TaskStackListener;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
+import android.os.RemoteException;
 import android.service.notification.NotificationListenerService;
+
+import androidx.annotation.AnyThread;
 
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.time.Clock;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -35,21 +43,27 @@ import java.util.Set;
 public class CarHeadsUpNotificationQueue implements
         CarHeadsUpNotificationManager.OnHeadsUpNotificationStateChange {
     private final PriorityQueue<String> mPriorityQueue;
+    private final ActivityTaskManager mActivityTaskManager;
     private final CarHeadsUpNotificationQueueCallback mQueueCallback;
+    private final TaskStackListener mTaskStackListener;
     private final long mNotificationExpirationTimeFromQueueWhenDriving;
     private final long mNotificationExpirationTimeFromQueueWhenParked;
     private final boolean mExpireHeadsUpWhileDriving;
     private final boolean mExpireHeadsUpWhileParked;
     private final Set<String> mNotificationCategoriesForImmediateShow;
+    private final Set<String> mPackagesToThrottleHeadsUp;
     private final Map<String, AlertEntry> mKeyToAlertEntryMap;
+    private final Set<Integer> mThrottledDisplays;
     private NotificationListenerService.RankingMap mRankingMap;
     private Clock mClock;
     private boolean mIsActiveUxRestriction;
 
-    public CarHeadsUpNotificationQueue(Context context,
+    public CarHeadsUpNotificationQueue(Context context, ActivityTaskManager activityTaskManager,
             CarHeadsUpNotificationQueueCallback queuePopCallback) {
+        mActivityTaskManager = activityTaskManager;
         mQueueCallback = queuePopCallback;
         mKeyToAlertEntryMap = new HashMap<>();
+        mThrottledDisplays = new HashSet<>();
 
         mExpireHeadsUpWhileDriving = context.getResources().getBoolean(
                 R.bool.config_expireHeadsUpWhenDriving);
@@ -61,12 +75,32 @@ public class CarHeadsUpNotificationQueue implements
                 R.integer.headsup_queue_expire_parked_duration_ms);
         mNotificationCategoriesForImmediateShow = Set.of(context.getResources().getStringArray(
                 R.array.headsup_category_immediate_show));
+        mPackagesToThrottleHeadsUp = Set.of(context.getResources().getStringArray(
+                R.array.headsup_throttled_foreground_packages));
 
         mPriorityQueue = new PriorityQueue<>(
                 new PrioritisedNotifications(context.getResources().getStringArray(
                         R.array.headsup_category_priority), mKeyToAlertEntryMap));
 
         mClock = Clock.systemUTC();
+
+        mTaskStackListener = new TaskStackListener() {
+            @Override
+            public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
+                    throws RemoteException {
+                super.onTaskMovedToFront(taskInfo);
+                if (taskInfo.baseActivity == null) {
+                    return;
+                }
+                if (mPackagesToThrottleHeadsUp.contains(taskInfo.baseActivity.getPackageName())) {
+                    mThrottledDisplays.add(taskInfo.displayAreaFeatureId);
+                } else {
+                    mThrottledDisplays.remove(taskInfo.displayAreaFeatureId);
+                    triggerCallback();
+                }
+            }
+        };
+        mActivityTaskManager.registerTaskStackListener(mTaskStackListener);
     }
 
     /**
@@ -75,7 +109,7 @@ public class CarHeadsUpNotificationQueue implements
     public void addToQueue(AlertEntry alertEntry,
             NotificationListenerService.RankingMap rankingMap) {
         mRankingMap = rankingMap;
-        if (isNotificationImmediateShow(alertEntry)) {
+        if (isCategoryImmediateShow(alertEntry.getNotification().category)) {
             mQueueCallback.dismissAllActiveHeadsUp();
             mQueueCallback.showAsHeadsUp(alertEntry, rankingMap);
             return;
@@ -98,6 +132,11 @@ public class CarHeadsUpNotificationQueue implements
         if (mQueueCallback.isHunActive()) {
             return;
         }
+
+        if (!mThrottledDisplays.isEmpty()) {
+            return;
+        }
+
         AlertEntry alertEntry;
         do {
             if (mPriorityQueue.isEmpty()) {
@@ -126,12 +165,10 @@ public class CarHeadsUpNotificationQueue implements
     }
 
     /**
-     * Returns {@code true} if an {@link AlertEntry} should be shown immediately.
+     * Returns {@code true} if the {@code category} should be shown immediately.
      */
-    private boolean isNotificationImmediateShow(AlertEntry alertEntry) {
-        return alertEntry.getNotification().category != null
-                && mNotificationCategoriesForImmediateShow.contains(
-                        alertEntry.getNotification().category);
+    private boolean isCategoryImmediateShow(@Nullable String category) {
+        return category != null && mNotificationCategoriesForImmediateShow.contains(category);
     }
 
     @Override
@@ -150,12 +187,20 @@ public class CarHeadsUpNotificationQueue implements
     }
 
     /**
+     * Unregisters all listeners.
+     */
+    public void unregisterListeners() {
+        mActivityTaskManager.unregisterTaskStackListener(mTaskStackListener);
+    }
+
+    /**
      * Callback to communicate status of HUN.
      */
     public interface CarHeadsUpNotificationQueueCallback {
         /**
          * Show the AlertEntry as HUN.
          */
+        @AnyThread
         void showAsHeadsUp(AlertEntry alertEntry,
                 NotificationListenerService.RankingMap rankingMap);
 

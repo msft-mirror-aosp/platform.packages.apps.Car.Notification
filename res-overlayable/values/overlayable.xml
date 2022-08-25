@@ -21,6 +21,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="animator" name="heads_up_notification_transition_out"/>
       <item type="array" name="headsup_category_immediate_show"/>
       <item type="array" name="headsup_category_priority"/>
+      <item type="array" name="headsup_throttled_foreground_packages"/>
       <item type="attr" name="categoryCall"/>
       <item type="attr" name="isHeadsUp"/>
       <item type="attr" name="maxLines"/>
@@ -295,6 +296,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="string" name="notification_recents"/>
       <item type="string" name="notification_service_label"/>
       <item type="string" name="notifications"/>
+      <item type="string" name="pkg_car_dialer"/>
       <item type="string" name="restricted_hun_message_content"/>
       <item type="string" name="see_more_message"/>
       <item type="string" name="show_count_more"/>
