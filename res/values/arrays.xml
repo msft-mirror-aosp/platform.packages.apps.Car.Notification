@@ -27,4 +27,8 @@
     <array name="headsup_category_priority">
         <item>@string/category_message</item>
     </array>
+    <!-- Allowlist packages when in foreground, heads-up notifications will be throttled -->
+    <array name="headsup_throttled_foreground_packages">
+        <item>@string/pkg_car_dialer</item>
+    </array>
 </resources>
