@@ -665,7 +665,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
      * @param start Initial adapter position of the notification groups.
      * @param end Final adapter position of the notification groups.
      */
-    /* package */ void setNotificationsAsSeen(int start, int end) {
+    void setVisibleNotificationsAsSeen(int start, int end) {
         if (mNotificationDataManager == null || mIsGroupNotificationAdapter) {
             return;
         }
@@ -684,7 +684,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
             notifications.addAll(group.getChildNotifications());
         }
 
-        mNotificationDataManager.setNotificationsAsSeen(notifications);
+        mNotificationDataManager.setVisibleNotificationsAsSeen(notifications);
     }
 
     @Override
