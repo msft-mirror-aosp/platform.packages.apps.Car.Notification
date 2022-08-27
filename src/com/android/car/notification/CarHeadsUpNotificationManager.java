@@ -231,6 +231,10 @@ public class CarHeadsUpNotificationManager
      * This method gets called when an app wants to cancel or withdraw its notification.
      */
     public void maybeRemoveHeadsUp(AlertEntry alertEntry) {
+        if (mCarHeadsUpNotificationQueue.removeFromQueue(alertEntry)) {
+            return;
+        }
+
         if (!isActiveHun(alertEntry)) {
             // If the heads up notification is already removed do nothing.
             return;

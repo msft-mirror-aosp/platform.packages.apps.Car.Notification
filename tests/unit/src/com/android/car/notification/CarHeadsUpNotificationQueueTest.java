@@ -436,6 +436,35 @@ public class CarHeadsUpNotificationQueueTest {
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
     }
 
+    @Test
+    public void removeFromQueue_returnsFalse_whenNotificationNotInQueue() {
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), 1000);
+        AlertEntry alertEntry2 = new AlertEntry(generateMockStatusBarNotification(
+                "key2", "msg"), 2000);
+        AlertEntry alertEntryNotAddedToQueue = new AlertEntry(generateMockStatusBarNotification(
+                "key3", "msg"), 3000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry2);
+
+        boolean result = mCarHeadsUpNotificationQueue.removeFromQueue(alertEntryNotAddedToQueue);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void removeFromQueue_returnsTrue_whenNotificationInQueue() {
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), 1000);
+        AlertEntry alertEntry2 = new AlertEntry(generateMockStatusBarNotification(
+                "key2", "msg"), 2000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry2);
+
+        boolean result = mCarHeadsUpNotificationQueue.removeFromQueue(alertEntry2);
+
+        assertThat(result).isTrue();
+    }
 
     private StatusBarNotification generateMockStatusBarNotification(String key, String category) {
         StatusBarNotification sbn = mock(StatusBarNotification.class);

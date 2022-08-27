@@ -123,6 +123,14 @@ public class CarHeadsUpNotificationQueue implements
     }
 
     /**
+     * Removes the {@link AlertEntry} from the queue if present.
+     */
+    public boolean removeFromQueue(AlertEntry alertEntry) {
+        mKeyToAlertEntryMap.remove(alertEntry.getKey());
+        return mPriorityQueue.remove(alertEntry.getKey());
+    }
+
+    /**
      * Triggers {@code CarHeadsUpNotificationQueueCallback.showAsHeadsUp} on non expired HUN and
      * {@code CarHeadsUpNotificationQueueCallback.removedFromHeadsUpQueue} for expired HUN if
      * there are no active HUNs.
