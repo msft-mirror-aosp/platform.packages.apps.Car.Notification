@@ -424,7 +424,7 @@ public class CarNotificationView extends ConstraintLayout
         // No visible items are found.
         if (firstVisible == RecyclerView.NO_POSITION) return;
 
-        mAdapter.setNotificationsAsSeen(firstVisible, lastVisible);
+        mAdapter.setVisibleNotificationsAsSeen(firstVisible, lastVisible);
     }
 
     private void manageButtonOnClickListener(View v) {
