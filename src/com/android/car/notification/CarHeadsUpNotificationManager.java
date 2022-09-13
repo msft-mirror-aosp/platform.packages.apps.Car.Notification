@@ -25,6 +25,8 @@ import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessag
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityTaskManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
@@ -143,18 +145,15 @@ public class CarHeadsUpNotificationManager
                     }
 
                     @Override
-                    public void dismissAllActiveHeadsUp() {
-                        mActiveHeadsUpNotifications
-                                .keySet()
-                                .stream()
-                                .map(mActiveHeadsUpNotifications::get)
-                                .forEach(currentActiveHeadsUpNotification ->
-                                        dismissHun(currentActiveHeadsUpNotification));
+                    public void dismissHeadsUp(@Nullable AlertEntry alertEntry) {
+                        if (alertEntry != null) {
+                            dismissHun(alertEntry);
+                        }
                     }
 
                     @Override
-                    public boolean isHunActive() {
-                        return !mActiveHeadsUpNotifications.keySet().isEmpty();
+                    public List<AlertEntry> getActiveHeadsUpNotifications() {
+                        return new ArrayList<>(mActiveHeadsUpNotifications.values());
                     }
                 });
         registerHeadsUpNotificationStateChangeListener(mCarHeadsUpNotificationQueue);
@@ -242,6 +241,13 @@ public class CarHeadsUpNotificationManager
         tagCurrentActiveHunToBeRemoved(alertEntry);
 
         scheduleRemoveHeadsUp(alertEntry);
+    }
+
+    /**
+     * Release the notifications stored in the queue.
+     */
+    public void releaseQueue() {
+        mCarHeadsUpNotificationQueue.releaseQueue();
     }
 
     private void scheduleRemoveHeadsUp(AlertEntry alertEntry) {
@@ -385,7 +391,7 @@ public class CarHeadsUpNotificationManager
                             mClickHandlerFactory));
         }
 
-        currentNotification.getViewHolder().setHideDismissButton(!shouldDismissOnSwipe(alertEntry));
+        currentNotification.getViewHolder().setHideDismissButton(!isHeadsUpDismissible(alertEntry));
 
         if (mShouldRestrictMessagePreview && notificationTypeItem.getNotificationType()
                 == NotificationViewType.MESSAGE) {
@@ -438,7 +444,7 @@ public class CarHeadsUpNotificationManager
         // Add swipe gesture
         View cardView = notificationView.findViewById(R.id.card_view);
         cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
-                shouldDismissOnSwipe(alertEntry), () -> resetView(alertEntry)));
+                isHeadsUpDismissible(alertEntry), () -> resetView(alertEntry)));
 
         // Add dismiss button listener
         View dismissButton = notificationView.findViewById(
@@ -500,7 +506,10 @@ public class CarHeadsUpNotificationManager
         }
     }
 
-    private boolean shouldDismissOnSwipe(AlertEntry alertEntry) {
+    /**
+     * @return true if the {@code alertEntry} can be dismissed/swiped away.
+     */
+    public static boolean isHeadsUpDismissible(@NonNull AlertEntry alertEntry) {
         return !(hasFullScreenIntent(alertEntry)
                 && Objects.equals(alertEntry.getNotification().category, Notification.CATEGORY_CALL)
                 && alertEntry.getStatusBarNotification().isOngoing());
@@ -523,7 +532,7 @@ public class CarHeadsUpNotificationManager
     /**
      * Returns true if AlertEntry has a full screen Intent.
      */
-    private boolean hasFullScreenIntent(AlertEntry alertEntry) {
+    private static boolean hasFullScreenIntent(@NonNull AlertEntry alertEntry) {
         return alertEntry.getNotification().fullScreenIntent != null;
     }
 
