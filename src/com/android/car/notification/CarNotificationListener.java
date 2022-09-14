@@ -60,6 +60,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private RankingMap mRankingMap;
     private CarHeadsUpNotificationManager mHeadsUpManager;
     private NotificationDataManager mNotificationDataManager;
+    private boolean mIsNotificationPanelVisible;
 
     /**
      * Map that contains all the active notifications that are not currently HUN. These
@@ -250,6 +251,17 @@ public class CarNotificationListener extends NotificationListenerService impleme
         mHandler = handler;
     }
 
+    /**
+     * Called when Notification Panel's visibility changes.
+     */
+    public void onVisibilityChanged(boolean isVisible) {
+        mIsNotificationPanelVisible = isVisible;
+        if (mIsNotificationPanelVisible) {
+            mHeadsUpManager.releaseQueue();
+        }
+    }
+
+
     private void notifyNotificationPosted(AlertEntry alertEntry) {
         if (isNotificationHigherThanLowImportance(alertEntry)) {
             mNotificationDataManager.addNewMessageNotification(alertEntry);
@@ -257,8 +269,12 @@ public class CarNotificationListener extends NotificationListenerService impleme
             mNotificationDataManager.untrackUnseenNotification(alertEntry);
         }
 
-        boolean isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
-                mActiveNotifications);
+        boolean isShowingHeadsUp = false;
+        if (!mIsNotificationPanelVisible
+                || !CarHeadsUpNotificationManager.isHeadsUpDismissible(alertEntry)) {
+            isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
+                    mActiveNotifications);
+        }
         if (DEBUG) {
             Log.d(TAG, "Is " + alertEntry + " shown as HUN?: " + isShowingHeadsUp);
         }
