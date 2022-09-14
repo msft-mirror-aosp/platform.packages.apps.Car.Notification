@@ -29,6 +29,7 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -438,6 +439,21 @@ public class CarHeadsUpNotificationManagerTest {
         View notificationView = getNotificationView(
                 mManager.getActiveHeadsUpNotifications().get(mAlertEntryInboxHeadsUp.getKey()));
         assertThat(notificationView).isNull();
+    }
+
+    @Test
+    public void isHeadsUpDismissible_ongoingCallNotificationWithFullScreenIntent_returnsFalse() {
+        Notification.Builder notificationBuilder = new Notification.Builder(mContext, CHANNEL_ID)
+                .setCategory(Notification.CATEGORY_CALL)
+                .setOngoing(true)
+                .setFullScreenIntent(mock(PendingIntent.class), /* highPriority= */ true);
+        StatusBarNotification sbn = mock(StatusBarNotification.class);
+        when(sbn.getNotification()).thenReturn(notificationBuilder.build());
+        AlertEntry alertEntry = new AlertEntry(sbn, /* postTime= */ 1000);
+
+        boolean result = CarHeadsUpNotificationManager.isHeadsUpDismissible(alertEntry);
+
+        assertThat(result).isFalse();
     }
 
     private void setPackageInfo(String packageName, boolean isSystem,
