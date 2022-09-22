@@ -233,6 +233,10 @@ public class PreprocessingManager {
         notifications.removeIf(alertEntry -> Notification.CATEGORY_CALL.equals(
                 alertEntry.getNotification().category));
 
+        // HUN suppression notifications should not be shown in the panel.
+        notifications.removeIf(alertEntry -> CarHeadsUpNotificationQueue.CATEGORY_HUN_QUEUE_INTERNAL
+                .equals(alertEntry.getNotification().category));
+
         if (DEBUG) {
             Log.d(TAG, "Filtered notifications: " + notifications);
         }
