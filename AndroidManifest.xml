@@ -38,8 +38,12 @@
     when allowlist applications are in foreground -->
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
 
-    <!--Permission to query application package info-->
+    <!-- Permission to query application package info to determine if sender package is a
+            system or privileged app -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+    <!-- Permission to send notification when HUN is suppressed by the system -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application android:name=".NotificationApplication">
         <activity android:name=".CarNotificationCenterActivity"

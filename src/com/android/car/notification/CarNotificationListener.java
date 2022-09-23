@@ -140,7 +140,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         }
         if (!isNotificationForCurrentUser(sbn)) {
             if (DEBUG) {
-                Log.d(TAG, "Notification is not for current user: " + sbn.toString());
+                Log.d(TAG, "Notification is not for current user: " + sbn);
                 Log.d(TAG, "Notification user: " + sbn.getUser().getIdentifier());
                 Log.d(TAG, "Current user: " + ActivityManager.getCurrentUser());
             }
@@ -160,6 +160,15 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
         if (DEBUG) {
             Log.d(TAG, "onNotificationRemoved: " + sbn);
+        }
+
+        if (!isNotificationForCurrentUser(sbn)) {
+            if (DEBUG) {
+                Log.d(TAG, "Notification is not for current user: " + sbn);
+                Log.d(TAG, "Notification user: " + sbn.getUser().getIdentifier());
+                Log.d(TAG, "Current user: " + ActivityManager.getCurrentUser());
+            }
+            return;
         }
 
         AlertEntry alertEntry = mActiveNotifications.get(sbn.getKey());
