@@ -52,4 +52,10 @@
     <string name="category_navigation" msgid="4406139232918521087">"навигация"</string>
     <string name="category_call" msgid="2249490790700877973">"обаждане"</string>
     <string name="category_message" msgid="451360226248504859">"съобщ."</string>
+    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
+    <skip />
 </resources>
