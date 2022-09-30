@@ -52,10 +52,7 @@
     <string name="category_navigation" msgid="4406139232918521087">"నావిగేషన్"</string>
     <string name="category_call" msgid="2249490790700877973">"కాల్ చేయండి"</string>
     <string name="category_message" msgid="451360226248504859">"మెసేజ్"</string>
-    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
-    <skip />
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"సురక్షిత నడక కోసం ఆధారమైనది"</string>
+    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"డ్రైవింగ్‌పై ఫోకస్ చేయండి"</string>
+    <string name="hun_suppression_notification_description" msgid="879668975431108081">"కొన్ని కొత్త నోటిఫికేషన్‌లు నోటిఫికేషన్ సెంటర్‌లో సేవ్ చేయబడ్డాయి."</string>
 </resources>

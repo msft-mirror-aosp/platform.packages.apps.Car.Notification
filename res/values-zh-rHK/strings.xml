@@ -52,10 +52,7 @@
     <string name="category_navigation" msgid="4406139232918521087">"導航"</string>
     <string name="category_call" msgid="2249490790700877973">"通話"</string>
     <string name="category_message" msgid="451360226248504859">"訊息"</string>
-    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
-    <skip />
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"「專心走路」抑制"</string>
+    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"專心駕駛"</string>
+    <string name="hun_suppression_notification_description" msgid="879668975431108081">"部分新通知會儲存至「通知中心」。"</string>
 </resources>

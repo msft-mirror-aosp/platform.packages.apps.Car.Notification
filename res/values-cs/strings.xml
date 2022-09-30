@@ -56,10 +56,7 @@
     <string name="category_navigation" msgid="4406139232918521087">"navigace"</string>
     <string name="category_call" msgid="2249490790700877973">"hovor"</string>
     <string name="category_message" msgid="451360226248504859">"zpr"</string>
-    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
-    <skip />
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"Potlačení funkce Pozor na cestu!"</string>
+    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"Soustřeďte se na jízdu"</string>
+    <string name="hun_suppression_notification_description" msgid="879668975431108081">"Některá nová oznámení se ukládají do Centra oznámení."</string>
 </resources>
