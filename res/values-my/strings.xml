@@ -52,10 +52,7 @@
     <string name="category_navigation" msgid="4406139232918521087">"navigation"</string>
     <string name="category_call" msgid="2249490790700877973">"call"</string>
     <string name="category_message" msgid="451360226248504859">"msg"</string>
-    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
-    <skip />
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"ကြိုတင်သတိပေးချက် လျှော့ချခြင်း"</string>
+    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"မောင်းနှင်မှုကို အာရုံပြုရန်"</string>
+    <string name="hun_suppression_notification_description" msgid="879668975431108081">"အကြောင်းကြားချက်အသစ်များကို ‘အကြောင်းကြားချက်စင်တာ’ တွင် သိမ်းသည်။"</string>
 </resources>

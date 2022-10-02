@@ -52,10 +52,7 @@
     <string name="category_navigation" msgid="4406139232918521087">"navigation"</string>
     <string name="category_call" msgid="2249490790700877973">"call"</string>
     <string name="category_message" msgid="451360226248504859">"msg"</string>
-    <!-- no translation found for hun_suppression_channel_name (8298850157350352525) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title (3548557351920446202) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (879668975431108081) -->
-    <skip />
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"ହେଡ୍ସ ଅପ ସପ୍ରେସନ"</string>
+    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"ଡ୍ରାଇଭିଂ ଉପରେ ଫୋକସ କରନ୍ତୁ"</string>
+    <string name="hun_suppression_notification_description" msgid="879668975431108081">"ବିଜ୍ଞପ୍ତି କେନ୍ଦ୍ରରେ କିଛି ନୂଆ ବିଜ୍ଞପ୍ତି ସେଭ କରାଯାଇଛି।"</string>
 </resources>
