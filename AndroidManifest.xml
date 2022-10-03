@@ -35,6 +35,9 @@
     <!--Permission to start a voice interaction service-->
     <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE"/>
 
+    <!--Permission to query application package info-->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
     <application android:name=".NotificationApplication">
         <activity android:name=".CarNotificationCenterActivity"
              android:theme="@style/Theme.DeviceDefault.NoActionBar.Notification"
