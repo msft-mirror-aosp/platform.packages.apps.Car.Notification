@@ -60,8 +60,8 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
      */
     @Override
     public void bind(AlertEntry alertEntry, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+            boolean isHeadsUp, boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
 
         Notification notification = alertEntry.getNotification();
 

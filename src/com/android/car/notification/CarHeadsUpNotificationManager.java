@@ -396,11 +396,11 @@ public class CarHeadsUpNotificationManager
 
         if (mShouldRestrictMessagePreview && notificationTypeItem.getNotificationType()
                 == NotificationViewType.MESSAGE) {
-            ((MessageNotificationViewHolder) currentNotification.getViewHolder())
-                    .bindRestricted(alertEntry, /* isInGroup= */ false, /* isHeadsUp= */ true);
+            ((MessageNotificationViewHolder) currentNotification.getViewHolder()).bindRestricted(
+                    alertEntry, /* isInGroup= */ false, /* isHeadsUp= */ true, /* isSeen= */ false);
         } else {
             currentNotification.getViewHolder().bind(alertEntry, /* isInGroup= */false,
-                    /* isHeadsUp= */ true);
+                    /* isHeadsUp= */ true, /* isSeen= */ false);
         }
 
         resetViewTreeListenersEntry(currentNotification);
