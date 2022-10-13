@@ -64,7 +64,8 @@ public class CarHeadsUpNotificationQueue implements
     private final boolean mExpireHeadsUpWhileDriving;
     private final boolean mExpireHeadsUpWhileParked;
     private final boolean mDismissHeadsUpWhenNotificationCenterOpens;
-    private final String mNotificationTitle;
+    private final String mNotificationTitleInParkState;
+    private final String mNotificationTitleInDriveState;
     private final String mNotificationDescription;
     private final Set<String> mNotificationCategoriesForImmediateShow;
     private final Set<String> mPackagesToThrottleHeadsUp;
@@ -105,8 +106,10 @@ public class CarHeadsUpNotificationQueue implements
                 R.array.headsup_throttled_foreground_packages));
         String notificationChannelName = context.getResources().getString(
                 R.string.hun_suppression_channel_name);
-        mNotificationTitle = context.getResources().getString(
-                R.string.hun_suppression_notification_title);
+        mNotificationTitleInParkState = context.getResources().getString(
+                R.string.hun_suppression_notification_title_park);
+        mNotificationTitleInDriveState = context.getResources().getString(
+                R.string.hun_suppression_notification_title_drive);
         mNotificationDescription = context.getResources().getString(
                 R.string.hun_suppression_notification_description);
 
@@ -243,11 +246,13 @@ public class CarHeadsUpNotificationQueue implements
         return category != null && mNotificationCategoriesForImmediateShow.contains(category);
     }
 
-    private Notification getUserNotificationForExpiredHun() {
+    @VisibleForTesting
+    Notification getUserNotificationForExpiredHun() {
         return new Notification
                 .Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setCategory(CATEGORY_HUN_QUEUE_INTERNAL)
-                .setContentTitle(mNotificationTitle)
+                .setContentTitle(mIsActiveUxRestriction ? mNotificationTitleInDriveState
+                        : mNotificationTitleInParkState)
                 .setContentText(mNotificationDescription)
                 .setSmallIcon(R.drawable.car_ui_icon_settings)
                 .build();
