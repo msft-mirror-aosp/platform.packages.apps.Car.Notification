@@ -293,7 +293,8 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="string" name="header_text_separator"/>
       <item type="string" name="hun_suppression_channel_name"/>
       <item type="string" name="hun_suppression_notification_description"/>
-      <item type="string" name="hun_suppression_notification_title"/>
+      <item type="string" name="hun_suppression_notification_title_drive"/>
+      <item type="string" name="hun_suppression_notification_title_park"/>
       <item type="string" name="manage_text"/>
       <item type="string" name="notification_header"/>
       <item type="string" name="notification_older"/>
