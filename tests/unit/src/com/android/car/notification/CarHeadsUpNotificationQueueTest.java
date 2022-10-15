@@ -744,6 +744,38 @@ public class CarHeadsUpNotificationQueueTest {
         assertThat(mCarHeadsUpNotificationQueue.mCancelInternalNotificationOnStateChange).isTrue();
     }
 
+    @Test
+    public void getUserNotificationForExpiredHun_parkState_usesParkNotificationTitle() {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.string.hun_suppression_notification_title_park, /* value= */ "test_value");
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                /* activityTaskManager= */ null,
+                /* notificationManager= */ null,
+                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
+
+        Notification result = mCarHeadsUpNotificationQueue.getUserNotificationForExpiredHun();
+
+        assertThat(result.extras.getCharSequence(Notification.EXTRA_TITLE).toString()).isEqualTo(
+                "test_value");
+    }
+
+    @Test
+    public void getUserNotificationForExpiredHun_driveState_usesDriveNotificationTitle() {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.string.hun_suppression_notification_title_drive, /* value= */ "test_value");
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                /* activityTaskManager= */ null,
+                /* notificationManager= */ null,
+                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
+
+        Notification result = mCarHeadsUpNotificationQueue.getUserNotificationForExpiredHun();
+
+        assertThat(result.extras.getCharSequence(Notification.EXTRA_TITLE).toString()).isEqualTo(
+                "test_value");
+    }
+
     private StatusBarNotification generateMockStatusBarNotification(String key, String category) {
         return generateMockStatusBarNotification(key, category,
                 /* isOngoing= */ false, /* hasFullScreenIntent= */ false);
