@@ -53,6 +53,10 @@
     <string name="category_call" msgid="2249490790700877973">"call"</string>
     <string name="category_message" msgid="451360226248504859">"msg"</string>
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"보행 중 주의 알림 중지"</string>
-    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"운전에 집중하세요"</string>
-    <string name="hun_suppression_notification_description" msgid="879668975431108081">"알림 센터에 새 알림이 있습니다."</string>
+    <!-- no translation found for hun_suppression_notification_title_park (2790860076784227523) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_title_drive (4403363470548899844) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_description (5269238832987802104) -->
+    <skip />
 </resources>

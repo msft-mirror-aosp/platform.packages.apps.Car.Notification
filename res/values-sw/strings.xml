@@ -53,6 +53,10 @@
     <string name="category_call" msgid="2249490790700877973">"piga simu"</string>
     <string name="category_message" msgid="451360226248504859">"ujumbe"</string>
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"Uzuiaji wa kipengele cha Kaa Macho!"</string>
-    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"Weka umakini unapoendesha gari"</string>
-    <string name="hun_suppression_notification_description" msgid="879668975431108081">"Baadhi ya arifa mpya huhifadhiwa kwenye Kituo cha Arifa."</string>
+    <!-- no translation found for hun_suppression_notification_title_park (2790860076784227523) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_title_drive (4403363470548899844) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_description (5269238832987802104) -->
+    <skip />
 </resources>
