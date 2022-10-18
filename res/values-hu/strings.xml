@@ -53,6 +53,10 @@
     <string name="category_call" msgid="2249490790700877973">"hívás"</string>
     <string name="category_message" msgid="451360226248504859">"üzenet"</string>
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"A Nézzen előre funkció tiltása"</string>
-    <string name="hun_suppression_notification_title" msgid="3548557351920446202">"Koncentráljon a vezetésre"</string>
-    <string name="hun_suppression_notification_description" msgid="879668975431108081">"Új értesítéseket mentett el a rendszer az értesítési központban."</string>
+    <!-- no translation found for hun_suppression_notification_title_park (2790860076784227523) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_title_drive (4403363470548899844) -->
+    <skip />
+    <!-- no translation found for hun_suppression_notification_description (5269238832987802104) -->
+    <skip />
 </resources>
