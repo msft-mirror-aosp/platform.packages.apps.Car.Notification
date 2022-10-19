@@ -196,11 +196,9 @@ public class CarNotificationView extends ConstraintLayout
 
     private void refreshVisibility() {
         if (mAdapter.hasNotifications()) {
-            mListView.setVisibility(View.VISIBLE);
             mEmptyNotificationHeaderText.setVisibility(View.GONE);
             mManageButton.setVisibility(View.GONE);
         } else {
-            mListView.setVisibility(View.GONE);
             mEmptyNotificationHeaderText.setVisibility(View.VISIBLE);
             mManageButton.setVisibility(View.VISIBLE);
         }
