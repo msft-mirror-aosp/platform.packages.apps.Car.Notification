@@ -167,7 +167,8 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
                 ((CarNotificationHeaderViewHolder) holder).bind(hasNotifications());
                 return;
             case NotificationViewType.FOOTER:
-                ((CarNotificationFooterViewHolder) holder).bind(hasNotifications());
+                ((CarNotificationFooterViewHolder) holder).bind(hasNotifications(),
+                        mHasSeenNotifications);
                 return;
             case NotificationViewType.RECENTS:
                 ((CarNotificationRecentsViewHolder) holder).bind(mHasUnseenNotifications);
@@ -193,10 +194,11 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
 
         if (shouldRestrictMessagePreview() && (viewType == NotificationViewType.MESSAGE
                 || viewType == NotificationViewType.MESSAGE_IN_GROUP)) {
-            ((MessageNotificationViewHolder) holder)
-                    .bindRestricted(alertEntry, /* isInGroup= */ false, /* isHeadsUp= */false);
+            ((MessageNotificationViewHolder) holder).bindRestricted(alertEntry, /* isInGroup= */
+                    false, /* isHeadsUp= */ false, notificationGroup.isSeen());
         } else {
-            carNotificationTypeItem.bind(alertEntry, false, (CarNotificationBaseViewHolder) holder);
+            carNotificationTypeItem.bind(alertEntry, false, (CarNotificationBaseViewHolder) holder,
+                    notificationGroup.isSeen());
         }
     }
 

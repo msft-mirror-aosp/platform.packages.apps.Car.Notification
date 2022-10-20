@@ -87,4 +87,6 @@
     <bool name="config_enableMessageNotificationDirectReply">true</bool>
     <!-- Whether to focus on HUN when new HUN is revealed. -->
     <bool name="config_focusHUNWhenShown">true</bool>
+    <!-- Alpha for older notifications when config_showRecentAndOldHeaders is true -->
+    <item name="config_olderNotificationsAlpha" format="float" type="dimen">1</item>
 </resources>

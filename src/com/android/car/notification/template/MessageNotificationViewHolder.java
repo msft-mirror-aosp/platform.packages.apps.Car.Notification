@@ -91,8 +91,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     @Override
     public void bind(AlertEntry alertEntry, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+            boolean isHeadsUp, boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
         bindBody(alertEntry, isInGroup, /* isRestricted= */ false, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
         mActionsView.bind(mClickHandlerFactory, alertEntry);
@@ -102,8 +102,9 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * Binds a {@link AlertEntry} to a messaging car notification template with
      * UX restriction.
      */
-    public void bindRestricted(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+    public void bindRestricted(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp,
+            boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
         bindBody(alertEntry, isInGroup, /* isRestricted= */ true, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
 
