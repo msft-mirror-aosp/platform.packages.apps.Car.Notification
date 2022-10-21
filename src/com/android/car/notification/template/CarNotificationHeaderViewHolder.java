@@ -16,7 +16,6 @@
 package com.android.car.notification.template;
 
 import android.annotation.CallSuper;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
@@ -29,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.notification.CarNotificationItemController;
 import com.android.car.notification.NotificationClickHandlerFactory;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
@@ -103,7 +103,8 @@ public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
         Intent intent = new Intent(Settings.ACTION_NOTIFICATION_SETTINGS);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        mContext.startActivityAsUser(intent, UserHandle.of(ActivityManager.getCurrentUser()));
+        mContext.startActivityAsUser(intent,
+                UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
 
         if (mClickHandlerFactory != null) mClickHandlerFactory.collapsePanel();
     }
