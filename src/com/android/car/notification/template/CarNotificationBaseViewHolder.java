@@ -53,6 +53,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     private final CarNotificationActionsView mActionsView;
     @Nullable
     private final ImageButton mDismissButton;
+    private final float mIsSeenAlpha;
 
     /**
      * Focus change listener to make the dismiss button transparent or opaque depending on whether
@@ -94,6 +95,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     private boolean mEnableCardBackgroundColorForSystemApp;
     private boolean mEnableSmallIconAccentColor;
     private boolean mAlwaysShowDismissButton;
+    private boolean mIsSeen;
 
     /**
      * Tracks if the foreground colors have been calculated for the binding of the view holder.
@@ -137,6 +139,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
                         R.bool.config_enableCardBackgroundColorForSystemApp);
         mEnableSmallIconAccentColor =
                 mContext.getResources().getBoolean(R.bool.config_enableSmallIconAccentColor);
+        mIsSeenAlpha = mContext.getResources().getFloat(R.dimen.config_olderNotificationsAlpha);
     }
 
     /**
@@ -147,8 +150,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      * @param isInGroup whether this notification is part of a grouped notification.
      */
     @CallSuper
-    public void bind(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp) {
+    public void bind(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp, boolean isSeen) {
         reset();
+        mIsSeen = isSeen;
         mAlertEntry = alertEntry;
 
         if (isInGroup) {
@@ -162,6 +166,8 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         bindCardView(mCardView, isInGroup);
         bindHeader(mHeaderView, isInGroup);
         bindBody(mBodyView, isInGroup);
+
+        itemView.setAlpha(mIsSeen ? mIsSeenAlpha : 1);
     }
 
     protected final Context getContext() {
@@ -282,6 +288,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mAlertEntry = null;
         mBackgroundColor = mDefaultBackgroundColor;
         mInitializedColors = false;
+        mIsSeen = false;
 
         itemView.setTranslationX(0);
         itemView.setAlpha(1f);
@@ -390,6 +397,13 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      */
     public boolean isAnimating() {
         return mIsAnimating;
+    }
+
+    /**
+     * Returns is seen alpha if is seen is {@code true}.
+     */
+    public float getAlpha() {
+        return mIsSeen ? mIsSeenAlpha : 1;
     }
 
     @VisibleForTesting

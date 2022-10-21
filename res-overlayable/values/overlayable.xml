@@ -22,10 +22,14 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="array" name="headsup_category_immediate_show"/>
       <item type="array" name="headsup_category_priority"/>
       <item type="array" name="headsup_throttled_foreground_packages"/>
+      <item type="attr" name="cardBackgroundColor"/>
+      <item type="attr" name="cardCornerRadius"/>
+      <item type="attr" name="cardElevation"/>
       <item type="attr" name="categoryCall"/>
       <item type="attr" name="isHeadsUp"/>
       <item type="attr" name="maxLines"/>
       <item type="attr" name="showBigIcon"/>
+      <item type="attr" name="textColor"/>
       <item type="bool" name="config_alwaysShowNotificationDismissButton"/>
       <item type="bool" name="config_clearAllNotificationsAnimationFromBottomUp"/>
       <item type="bool" name="config_collapseShadePanelAfterClearAllNotifications"/>
@@ -52,6 +56,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="color" name="clear_all_button_background_color"/>
       <item type="color" name="dark_icon_tint"/>
       <item type="color" name="emergency_background_color"/>
+      <item type="color" name="first_action_button_text_color"/>
       <item type="color" name="group_notification_background_color"/>
       <item type="color" name="icon_tint"/>
       <item type="color" name="notification_accent_color"/>
@@ -85,6 +90,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="dimen" name="clear_all_button_min_width"/>
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
+      <item type="dimen" name="config_olderNotificationsAlpha"/>
       <item type="dimen" name="dismiss_button_diameter"/>
       <item type="dimen" name="dismiss_button_margin"/>
       <item type="dimen" name="error_factor_multiplier"/>
@@ -327,6 +333,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="style" name="NotificationBodyImageIcon"/>
       <item type="style" name="NotificationBodyTitleText"/>
       <item type="style" name="NotificationCenterAppTitle"/>
+      <item type="style" name="NotificationCenterHeaderText"/>
       <item type="style" name="NotificationHeaderText"/>
       <item type="style" name="Theme.DeviceDefault.NoActionBar.Notification"/>
       <item type="xml" name="uxr_config"/>

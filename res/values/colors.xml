@@ -24,6 +24,7 @@
     <color name="primary_text_color">@*android:color/car_body1</color>
     <color name="secondary_text_color">@*android:color/car_body3</color>
     <color name="notification_accent_color">@*android:color/car_body1</color>
+    <color name="first_action_button_text_color">@color/notification_accent_color</color>
 
     <!-- The color of the clear all button for notifications -->
     <color name="clear_all_button_background_color">@*android:color/car_grey_868</color>

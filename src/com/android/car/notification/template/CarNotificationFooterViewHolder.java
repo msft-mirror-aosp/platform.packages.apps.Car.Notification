@@ -41,6 +41,7 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
     private final boolean mShowFooter;
     private final boolean mShowRecentsAndOlderHeaders;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
+    private final float mAlpha;
 
     public CarNotificationFooterViewHolder(Context context, View view,
             CarNotificationItemController notificationItemController,
@@ -60,10 +61,11 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
         mNotificationItemController = notificationItemController;
         mShowRecentsAndOlderHeaders =
                 context.getResources().getBoolean(R.bool.config_showRecentAndOldHeaders);
+        mAlpha = context.getResources().getFloat(R.dimen.config_olderNotificationsAlpha);
     }
 
     @CallSuper
-    public void bind(boolean containsNotification) {
+    public void bind(boolean containsNotification, boolean containsSeenNotifications) {
         if (mClearAllButton == null || !mShowFooter) {
             return;
         }
@@ -72,15 +74,11 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
             mClearAllButton.setVisibility(View.VISIBLE);
             if (mShowRecentsAndOlderHeaders) {
                 mClearAllButton.setText(R.string.manage_text);
-                if (!mClearAllButton.hasOnClickListeners()) {
-                    mClearAllButton.setOnClickListener(this::manageButtonOnClickListener);
-                }
+                mClearAllButton.setOnClickListener(this::manageButtonOnClickListener);
+                mClearAllButton.setAlpha(containsSeenNotifications ? mAlpha : 1);
             } else {
-                if (!mClearAllButton.hasOnClickListeners()) {
-                    mClearAllButton.setOnClickListener(view -> {
-                        mNotificationItemController.clearAllNotifications();
-                    });
-                }
+                mClearAllButton.setOnClickListener(
+                        view -> mNotificationItemController.clearAllNotifications());
             }
             return;
         }
