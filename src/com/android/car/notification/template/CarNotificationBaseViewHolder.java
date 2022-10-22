@@ -21,9 +21,6 @@ import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
@@ -167,7 +164,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         bindBody(mBodyView, isInGroup);
     }
 
-    Context getContext() {
+    protected final Context getContext() {
         return mContext;
     }
 
@@ -406,15 +403,5 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
 
     View.OnClickListener getDismissHandler(AlertEntry alertEntry) {
         return mClickHandlerFactory.getDismissHandler(alertEntry);
-    }
-
-    @Nullable
-    Drawable loadAppLauncherIcon(StatusBarNotification sbn) {
-        if (!NotificationUtils.shouldUseLauncherIcon(mContext, sbn)) {
-            return null;
-        }
-        Context packageContext = sbn.getPackageContext(mContext);
-        PackageManager pm = packageContext.getPackageManager();
-        return pm.getApplicationIcon(packageContext.getApplicationInfo());
     }
 }
