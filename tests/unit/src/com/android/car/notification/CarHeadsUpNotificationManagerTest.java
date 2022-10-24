@@ -43,6 +43,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -56,7 +57,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
@@ -102,6 +105,8 @@ public class CarHeadsUpNotificationManagerTest {
     CarHeadsUpNotificationQueue mCarHeadsUpNotificationQueue;
     @Mock
     KeyguardManager mKeyguardManager;
+    @Mock
+    HeadsUpEntry mHeadsUpEntry;
     private CarHeadsUpNotificationManager mManager;
     private AlertEntry mAlertEntryMessageHeadsUp;
     private AlertEntry mAlertEntryNavigationHeadsUp;
@@ -111,6 +116,8 @@ public class CarHeadsUpNotificationManagerTest {
     private AlertEntry mAlertEntryEmergencyHeadsUp;
     private AlertEntry mAlertEntryCarInformationHeadsUp;
     private Map<String, AlertEntry> mActiveNotifications;
+    private List<CarHeadsUpNotificationManager.HeadsUpState> mHeadsUpStates;
+
 
     @Before
     public void setup() throws PackageManager.NameNotFoundException {
@@ -214,6 +221,7 @@ public class CarHeadsUpNotificationManagerTest {
                         POST_TIME));
 
         mActiveNotifications = new HashMap<>();
+        mHeadsUpStates = new ArrayList<>();
 
         createCarHeadsUpNotificationManager();
     }
@@ -435,7 +443,29 @@ public class CarHeadsUpNotificationManagerTest {
         assertThat(result).isFalse();
     }
 
+    @Test
+    public void notification_removedFromQueue_notifyListeners()
+            throws PackageManager.NameNotFoundException {
+        setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
+        mManager.registerHeadsUpNotificationStateChangeListener((alertEntry, headsUpState) -> {
+            mHeadsUpStates.add(headsUpState);
+        });
+        CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback queueCallback =
+                mManager.getCarHeadsUpNotificationQueueCallback();
+
+        queueCallback.removedFromHeadsUpQueue(mAlertEntryMessageHeadsUp);
+
+        assertThat(mHeadsUpStates.size()).isEqualTo(1);
+        assertThat(mHeadsUpStates.get(0)).isEqualTo(
+                CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE);
+    }
+
     private void createCarHeadsUpNotificationManager() {
+        createCarHeadsUpNotificationManager(mCarHeadsUpNotificationQueue);
+    }
+
+    private void createCarHeadsUpNotificationManager(
+            @Nullable CarHeadsUpNotificationQueue carHeadsUpNotificationQueue) {
         mManager = new CarHeadsUpNotificationManager(mContext, mClickHandlerFactory,
                 mCarHeadsUpNotificationContainer) {
             @Override
@@ -443,7 +473,9 @@ public class CarHeadsUpNotificationManagerTest {
                 return mRankingMock;
             }
         };
-        mManager.setCarHeadsUpNotificationQueue(mCarHeadsUpNotificationQueue);
+        if (carHeadsUpNotificationQueue != null) {
+            mManager.setCarHeadsUpNotificationQueue(carHeadsUpNotificationQueue);
+        }
         mManager.setNotificationDataManager(mNotificationDataManager);
     }
 

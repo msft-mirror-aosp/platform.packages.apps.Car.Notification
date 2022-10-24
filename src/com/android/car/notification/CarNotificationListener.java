@@ -301,9 +301,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
 
     @Override
-    public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
-        // No more a HUN
-        if (!isHeadsUp) {
+    public void onStateChange(AlertEntry alertEntry,
+            CarHeadsUpNotificationManager.HeadsUpState headsUpState) {
+        if (headsUpState == CarHeadsUpNotificationManager.HeadsUpState.DISMISSED
+                || headsUpState == CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE) {
             updateOverrideGroupKey(alertEntry);
             postNewNotification(alertEntry);
         }
