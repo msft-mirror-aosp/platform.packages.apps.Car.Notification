@@ -46,6 +46,9 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,7 +56,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -64,6 +68,9 @@ import java.util.PriorityQueue;
 
 @RunWith(AndroidJUnit4.class)
 public class CarHeadsUpNotificationQueueTest {
+    private static final int USER_ID = ActivityManager.getCurrentUser();
+
+    private MockitoSession mSession;
     private CarHeadsUpNotificationQueue mCarHeadsUpNotificationQueue;
 
     @Mock
@@ -91,14 +98,27 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        mSession = ExtendedMockito.mockitoSession()
+                .initMocks(this)
+                .spyStatic(NotificationUtils.class)
+                .strictness(Strictness.LENIENT)
+                .startMocking();
         // To add elements to the queue rather than displaying immediately
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>(Collections.singletonList(mock(AlertEntry.class))));
+        ExtendedMockito.doReturn(USER_ID).when(() -> NotificationUtils.getCurrentUser(any()));
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
                 /* activityTaskManager= */ null,
                 /* notificationManager= */ null,
                 mCarHeadsUpNotificationQueueCallback);
+    }
+
+    @After
+    public void tearDown() {
+        if (mSession != null) {
+            mSession.finishMocking();
+            mSession = null;
+        }
     }
 
     private CarHeadsUpNotificationQueue createCarHeadsUpNotificationQueue(
@@ -469,7 +489,7 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.triggerCallback();
 
         verify(notificationManager).notifyAsUser(anyString(), anyInt(), mNotificationArg.capture(),
-                eq(UserHandle.CURRENT));
+                eq(UserHandle.of(USER_ID)));
         assertThat(mNotificationArg.getValue().category).isEqualTo("HUN_QUEUE_INTERNAL");
     }
 
@@ -714,7 +734,7 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry, /* isHeadsUp= */ false);
 
         verify(notificationManager).cancelAsUser(anyString(), eq(/* id= */ 2000),
-                eq(UserHandle.CURRENT));
+                eq(UserHandle.of(USER_ID)));
     }
 
     @Test

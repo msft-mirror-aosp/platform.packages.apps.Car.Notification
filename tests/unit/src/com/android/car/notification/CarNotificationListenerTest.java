@@ -289,6 +289,8 @@ public class CarNotificationListenerTest {
     public void onNotificationRemoved_notificationPreviouslyAdded_removesNotification() {
         AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
         mCarNotificationListener.getNotifications().put(alertEntry.getKey(), alertEntry);
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
 
         mCarNotificationListener.onNotificationRemoved(mStatusBarNotification);
 
