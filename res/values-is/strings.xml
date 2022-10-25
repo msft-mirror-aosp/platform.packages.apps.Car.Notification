@@ -53,10 +53,7 @@
     <string name="category_call" msgid="2249490790700877973">"símtal"</string>
     <string name="category_message" msgid="451360226248504859">"skeyti"</string>
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"„Líttu upp“ þaggað"</string>
-    <!-- no translation found for hun_suppression_notification_title_park (2790860076784227523) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title_drive (4403363470548899844) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (5269238832987802104) -->
-    <skip />
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Fylgstu með því nýjasta"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Einbeittu þér að akstrinum"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Einhverjar nýjar tilkynningar eru vistaðar í tilkynningamiðstöðinni"</string>
 </resources>

@@ -53,10 +53,7 @@
     <string name="category_call" msgid="2249490790700877973">"कल गर्नुहोस्"</string>
     <string name="category_message" msgid="451360226248504859">"msg"</string>
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"सावधानीसम्बन्धी सूचनाहरू रोक्ने"</string>
-    <!-- no translation found for hun_suppression_notification_title_park (2790860076784227523) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_title_drive (4403363470548899844) -->
-    <skip />
-    <!-- no translation found for hun_suppression_notification_description (5269238832987802104) -->
-    <skip />
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"पछिल्लो अवस्थाका बारेमा जानकार रहनुहोस्"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"सवारी साधन चलाउँदा ध्यान दिनुहोस्"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"केही नयाँ सूचनाहरू \"सूचना केन्द्र\" मा सेभ गरिन्छन्"</string>
 </resources>
