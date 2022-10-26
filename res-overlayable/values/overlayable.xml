@@ -60,6 +60,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="color" name="group_notification_background_color"/>
       <item type="color" name="icon_tint"/>
       <item type="color" name="notification_accent_color"/>
+      <item type="color" name="notification_background_color"/>
       <item type="color" name="notification_list_divider_color"/>
       <item type="color" name="notification_ripple_untinted_color"/>
       <item type="color" name="primary_text_color"/>

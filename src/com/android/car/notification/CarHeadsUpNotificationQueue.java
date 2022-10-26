@@ -210,7 +210,8 @@ public class CarHeadsUpNotificationQueue implements
                 if (mAreNotificationsExpired) {
                     mAreNotificationsExpired = false;
                     mNotificationManager.notifyAsUser(TAG, NOTIFICATION_ID,
-                            getUserNotificationForExpiredHun(), UserHandle.CURRENT);
+                            getUserNotificationForExpiredHun(),
+                            UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
                     mCancelInternalNotificationOnStateChange = true;
                 }
                 return;
@@ -265,7 +266,8 @@ public class CarHeadsUpNotificationQueue implements
                     alertEntry.getNotification().category, CATEGORY_HUN_QUEUE_INTERNAL)) {
                 mCancelInternalNotificationOnStateChange = false;
                 mAreNotificationsExpired = false;
-                mNotificationManager.cancelAsUser(TAG, NOTIFICATION_ID, UserHandle.CURRENT);
+                mNotificationManager.cancelAsUser(TAG, NOTIFICATION_ID,
+                        UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
             }
             triggerCallback();
         }
