@@ -125,8 +125,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
                 mDismissButton.setImageAlpha(itemView.hasFocus() ? 255 : 0);
             }
         };
-        mDefaultBackgroundColor = NotificationUtils.getAttrColor(mContext,
-                android.R.attr.colorPrimary);
+        mDefaultBackgroundColor = mContext.getColor(R.color.notification_background_color);
         mDefaultCarAccentColor = NotificationUtils.getAttrColor(mContext,
                 android.R.attr.colorAccent);
         mDefaultPrimaryForegroundColor = mContext.getColor(R.color.primary_text_color);

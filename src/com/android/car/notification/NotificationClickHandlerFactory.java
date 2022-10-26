@@ -316,9 +316,9 @@ public class NotificationClickHandlerFactory {
     /**
      * Clears all notifications.
      */
-    public void clearAllNotifications() {
+    public void clearAllNotifications(Context context) {
         try {
-            mBarService.onClearAllNotifications(ActivityManager.getCurrentUser());
+            mBarService.onClearAllNotifications(NotificationUtils.getCurrentUser(context));
         } catch (RemoteException e) {
             Log.e(TAG, "clearAllNotifications: ", e);
         }

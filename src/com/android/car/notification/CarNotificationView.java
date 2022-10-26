@@ -5,7 +5,6 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.ActivityManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
@@ -432,7 +431,8 @@ public class CarNotificationView extends ConstraintLayout
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        mContext.startActivityAsUser(intent, UserHandle.of(ActivityManager.getCurrentUser()));
+        mContext.startActivityAsUser(intent,
+                UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
 
         if (mClickHandlerFactory != null) mClickHandlerFactory.collapsePanel();
     }

@@ -103,10 +103,8 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     {
-        mDefaultPrimaryTextColor =
-                NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorPrimary);
-        mDefaultSecondaryTextColor =
-                NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
+        mDefaultPrimaryTextColor = getContext().getColor(R.color.primary_text_color);
+        mDefaultSecondaryTextColor = getContext().getColor(R.color.secondary_text_color);
         mDefaultUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
         inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
     }

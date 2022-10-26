@@ -16,7 +16,6 @@
 package com.android.car.notification;
 
 import android.annotation.Nullable;
-import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -87,7 +86,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             mNotificationDataManager = NotificationDataManager.getInstance();
             registerAsSystemService(context,
                     new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
-                    ActivityManager.getCurrentUser());
+                    NotificationUtils.getCurrentUser(context));
             mHeadsUpManager = carHeadsUpNotificationManager;
             mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
@@ -142,7 +141,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             if (DEBUG) {
                 Log.d(TAG, "Notification is not for current user: " + sbn);
                 Log.d(TAG, "Notification user: " + sbn.getUser().getIdentifier());
-                Log.d(TAG, "Current user: " + ActivityManager.getCurrentUser());
+                Log.d(TAG, "Current user: " + NotificationUtils.getCurrentUser(getContext()));
             }
             return;
         }
@@ -166,7 +165,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             if (DEBUG) {
                 Log.d(TAG, "Notification is not for current user: " + sbn);
                 Log.d(TAG, "Notification user: " + sbn.getUser().getIdentifier());
-                Log.d(TAG, "Current user: " + ActivityManager.getCurrentUser());
+                Log.d(TAG, "Current user: " + NotificationUtils.getCurrentUser(getContext()));
             }
             return;
         }
@@ -296,7 +295,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {
         // Notifications should only be shown for the current user and the the notifications from
         // the system when CarNotification is running as SystemUI component.
-        return (sbn.getUser().getIdentifier() == ActivityManager.getCurrentUser()
+        return (sbn.getUser().getIdentifier() == NotificationUtils.getCurrentUser(getContext())
                 || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
     }
 
