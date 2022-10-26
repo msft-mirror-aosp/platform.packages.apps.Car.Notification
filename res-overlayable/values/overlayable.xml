@@ -227,6 +227,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="integer" name="delay_between_clear_all_notifications_end_and_collapse_shade_panel_ms"/>
       <item type="integer" name="heads_up_notification_minimum_time"/>
       <item type="integer" name="headsup_alpha_enter_duration_ms"/>
+      <item type="integer" name="headsup_delay_duration"/>
       <item type="integer" name="headsup_exit_duration_ms"/>
       <item type="integer" name="headsup_notification_duration_ms"/>
       <item type="integer" name="headsup_queue_expire_driving_duration_ms"/>
