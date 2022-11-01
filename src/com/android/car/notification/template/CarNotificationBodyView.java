@@ -106,7 +106,9 @@ public class CarNotificationBodyView extends RelativeLayout {
         mDefaultPrimaryTextColor = getContext().getColor(R.color.primary_text_color);
         mDefaultSecondaryTextColor = getContext().getColor(R.color.secondary_text_color);
         mDefaultUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
-        inflate(getContext(), R.layout.car_notification_body_view, /* root= */ this);
+
+        inflate(getContext(), mIsHeadsUp ? R.layout.car_headsup_notification_body_view
+                : R.layout.car_notification_body_view, /* root= */ this);
     }
 
     private void init(AttributeSet attrs) {
