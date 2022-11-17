@@ -110,6 +110,9 @@ public class CarNotificationView extends ConstraintLayout
             @Override
             public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder
                     newHolder, int fromX, int fromY, int toX, int toY) {
+                if (oldHolder == newHolder) {
+                    return animateMove(newHolder, fromX, fromY, toX, toY);
+                }
                 // return without animation to prevent flashing on notification update.
                 dispatchChangeFinished(oldHolder, /* oldItem= */ true);
                 dispatchChangeFinished(newHolder, /* oldItem= */ false);
