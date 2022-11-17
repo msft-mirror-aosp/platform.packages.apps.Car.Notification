@@ -45,6 +45,9 @@
     <!-- Permission to send notification when HUN is suppressed by the system -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Permission needed to collapse panels using StatusBarService -->
+    <uses-permission android:name="android.permission.STATUS_BAR"/>
+
     <application android:name=".NotificationApplication">
         <activity android:name=".CarNotificationCenterActivity"
                   android:theme="@style/Theme.DeviceDefault.NoActionBar.Notification"
