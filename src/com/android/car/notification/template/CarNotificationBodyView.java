@@ -84,6 +84,7 @@ public class CarNotificationBodyView extends RelativeLayout {
 
     public CarNotificationBodyView(Context context) {
         super(context);
+        init(/* attrs= */ null);
     }
 
     public CarNotificationBodyView(Context context, AttributeSet attrs) {
@@ -109,17 +110,19 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     private void init(AttributeSet attrs) {
-        TypedArray attributes =
-                getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationBodyView);
-        mShowBigIcon =
-                attributes.getBoolean(R.styleable.CarNotificationBodyView_showBigIcon,
-                        /* defValue= */ false);
-        mMaxLines = attributes.getInteger(R.styleable.CarNotificationBodyView_maxLines,
-                /* defValue= */ DEFAULT_MAX_LINES);
-        mIsHeadsUp =
-                attributes.getBoolean(R.styleable.CarNotificationBodyView_isHeadsUp,
-                        /* defValue= */ false);
-        attributes.recycle();
+        if (attrs != null) {
+            TypedArray attributes =
+                    getContext().obtainStyledAttributes(attrs, R.styleable.CarNotificationBodyView);
+            mShowBigIcon =
+                    attributes.getBoolean(R.styleable.CarNotificationBodyView_showBigIcon,
+                            /* defValue= */ false);
+            mMaxLines = attributes.getInteger(R.styleable.CarNotificationBodyView_maxLines,
+                    /* defValue= */ DEFAULT_MAX_LINES);
+            mIsHeadsUp =
+                    attributes.getBoolean(R.styleable.CarNotificationBodyView_isHeadsUp,
+                            /* defValue= */ false);
+            attributes.recycle();
+        }
 
         inflate(getContext(), mIsHeadsUp ? R.layout.car_headsup_notification_body_view
                 : R.layout.car_notification_body_view, /* root= */ this);
