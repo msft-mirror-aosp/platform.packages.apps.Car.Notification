@@ -42,6 +42,7 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
     private final boolean mShowRecentsAndOlderHeaders;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
     private final float mAlpha;
+    private final boolean mCollapsePanelAfterManageButton;
 
     public CarNotificationFooterViewHolder(Context context, View view,
             CarNotificationItemController notificationItemController,
@@ -62,6 +63,8 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
         mShowRecentsAndOlderHeaders =
                 context.getResources().getBoolean(R.bool.config_showRecentAndOldHeaders);
         mAlpha = context.getResources().getFloat(R.dimen.config_olderNotificationsAlpha);
+        mCollapsePanelAfterManageButton = context.getResources().getBoolean(
+                R.bool.config_collapseShadePanelAfterManageButtonPress);
     }
 
     @CallSuper
@@ -92,6 +95,8 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
         mContext.startActivityAsUser(intent,
                 UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
 
-        if (mClickHandlerFactory != null) mClickHandlerFactory.collapsePanel();
+        if (mClickHandlerFactory != null && mCollapsePanelAfterManageButton) {
+            mClickHandlerFactory.collapsePanel();
+        }
     }
 }
