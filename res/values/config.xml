@@ -50,6 +50,8 @@
     <bool name="config_clearAllNotificationsAnimationFromBottomUp">true</bool>
     <!-- Whether to collapse notification shade panel on clear all notification animation end -->
     <bool name="config_collapseShadePanelAfterClearAllNotifications">false</bool>
+    <!-- Whether to collapse notification shade panel after manage button click -->
+    <bool name="config_collapseShadePanelAfterManageButtonPress">true</bool>
     <!-- The number of lines of body text to show in HUNs -->
     <integer name="config_headsUpNotificationMaxBodyLines">3</integer>
     <!-- The number of lines of body text to show for notifications inside the notification panel -->

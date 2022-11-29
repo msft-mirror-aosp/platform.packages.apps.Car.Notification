@@ -33,6 +33,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_alwaysShowNotificationDismissButton"/>
       <item type="bool" name="config_clearAllNotificationsAnimationFromBottomUp"/>
       <item type="bool" name="config_collapseShadePanelAfterClearAllNotifications"/>
+      <item type="bool" name="config_collapseShadePanelAfterManageButtonPress"/>
       <item type="bool" name="config_dismissHeadsUpWhenNotificationCenterOpens"/>
       <item type="bool" name="config_enableCardBackgroundColorForCategoryNavigation"/>
       <item type="bool" name="config_enableCardBackgroundColorForSystemApp"/>
