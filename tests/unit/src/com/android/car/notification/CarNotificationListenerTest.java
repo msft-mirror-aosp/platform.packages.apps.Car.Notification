@@ -85,6 +85,7 @@ public class CarNotificationListenerTest {
 
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OVERRIDE_GROUP_KEY);
+        when(mStatusBarNotification.getUser()).thenReturn(new UserHandle(CURRENT_USER_ID));
     }
 
     @Test
@@ -156,7 +157,6 @@ public class CarNotificationListenerTest {
         assertThat(mCarNotificationListener.getNotifications().containsKey(
                 mStatusBarNotification.getKey())).isFalse();
     }
-
 
     @Test
     public void onNotificationPosted_isNotHun_isForCurrentUser_overrideGroupKeySet() {
@@ -255,13 +255,47 @@ public class CarNotificationListenerTest {
     }
 
     @Test
-    public void onStateChange_hunNoLongerHun_notifiesHandler() {
+    public void onStateChange_hunDismissed_notifiesHandler() {
         mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
         AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
 
-        mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
+        mCarNotificationListener.onStateChange(alertEntry,
+                CarHeadsUpNotificationManager.HeadsUpState.DISMISSED);
 
         verify(mHandler).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onStateChange_hunRemovedFromQueue_notifiesHandler() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        mCarNotificationListener.onStateChange(alertEntry,
+                CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE);
+
+        verify(mHandler).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onStateChange_hunRemovedBySender_doesNotNotifyHandler() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        mCarNotificationListener.onStateChange(alertEntry,
+                CarHeadsUpNotificationManager.HeadsUpState.REMOVED_BY_SENDER);
+
+        verify(mHandler, never()).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void onStateChange_hunShown_doesNotNotifyHandler() {
+        mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        mCarNotificationListener.onStateChange(alertEntry,
+                CarHeadsUpNotificationManager.HeadsUpState.SHOWN);
+
+        verify(mHandler, never()).sendMessage(any(Message.class));
     }
 
     @Test
@@ -269,7 +303,8 @@ public class CarNotificationListenerTest {
         mCarNotificationListener.onNotificationRankingUpdate(mRankingMap);
         AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
 
-        mCarNotificationListener.onStateChange(alertEntry, /* isHeadsUp= */ false);
+        mCarNotificationListener.onStateChange(alertEntry,
+                CarHeadsUpNotificationManager.HeadsUpState.DISMISSED);
 
         verify(mStatusBarNotification).setOverrideGroupKey(eq(null));
     }
