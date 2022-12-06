@@ -260,10 +260,8 @@ public class CarHeadsUpNotificationQueue implements
     }
 
     @Override
-    public void onStateChange(AlertEntry alertEntry,
-            CarHeadsUpNotificationManager.HeadsUpState headsUpState) {
-        if (headsUpState == CarHeadsUpNotificationManager.HeadsUpState.DISMISSED
-                || headsUpState == CarHeadsUpNotificationManager.HeadsUpState.REMOVED_BY_SENDER) {
+    public void onStateChange(AlertEntry alertEntry, boolean isHeadsUp) {
+        if (!isHeadsUp) {
             if (mCancelInternalNotificationOnStateChange && TextUtils.equals(
                     alertEntry.getNotification().category, CATEGORY_HUN_QUEUE_INTERNAL)) {
                 mCancelInternalNotificationOnStateChange = false;
