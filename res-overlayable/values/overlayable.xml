@@ -50,6 +50,8 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showNavigationHeadsup"/>
       <item type="bool" name="config_showRecentAndOldHeaders"/>
       <item type="bool" name="config_suppressAndThrottleHeadsUp"/>
+      <item type="bool" name="config_useCustomColorsForInformationNotification"/>
+      <item type="bool" name="config_useCustomColorsForWarningNotification"/>
       <item type="bool" name="config_useLauncherIcon"/>
       <item type="color" name="action_button_background_color"/>
       <item type="color" name="call_accept_button"/>
@@ -57,9 +59,14 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="color" name="clear_all_button_background_color"/>
       <item type="color" name="dark_icon_tint"/>
       <item type="color" name="emergency_background_color"/>
+      <item type="color" name="emergency_primary_text_color"/>
+      <item type="color" name="emergency_secondary_text_color"/>
       <item type="color" name="first_action_button_text_color"/>
       <item type="color" name="group_notification_background_color"/>
       <item type="color" name="icon_tint"/>
+      <item type="color" name="information_background_color"/>
+      <item type="color" name="information_primary_text_color"/>
+      <item type="color" name="information_secondary_text_color"/>
       <item type="color" name="notification_accent_color"/>
       <item type="color" name="notification_background_color"/>
       <item type="color" name="notification_list_divider_color"/>
@@ -67,6 +74,9 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="color" name="primary_text_color"/>
       <item type="color" name="secondary_text_color"/>
       <item type="color" name="unmute_button"/>
+      <item type="color" name="warning_background_color"/>
+      <item type="color" name="warning_primary_text_color"/>
+      <item type="color" name="warning_secondary_text_color"/>
       <item type="dimen" name="action_button_height"/>
       <item type="dimen" name="action_button_min_width"/>
       <item type="dimen" name="action_button_padding"/>
