@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Queue for throttling heads up notifications.
@@ -59,10 +62,12 @@ public class CarHeadsUpNotificationQueue implements
     private final ActivityTaskManager mActivityTaskManager;
     private final CarHeadsUpNotificationQueueCallback mQueueCallback;
     private final TaskStackListener mTaskStackListener;
+    private final ScheduledExecutorService mScheduledExecutorService;
     private final long mNotificationExpirationTimeFromQueueWhenDriving;
     private final long mNotificationExpirationTimeFromQueueWhenParked;
     private final boolean mExpireHeadsUpWhileDriving;
     private final boolean mExpireHeadsUpWhileParked;
+    private final int mHeadsUpDelayDuration;
     private final boolean mDismissHeadsUpWhenNotificationCenterOpens;
     private final String mNotificationTitleInParkState;
     private final String mNotificationTitleInDriveState;
@@ -73,6 +78,8 @@ public class CarHeadsUpNotificationQueue implements
     private final Set<Integer> mThrottledDisplays;
     private NotificationListenerService.RankingMap mRankingMap;
     private Clock mClock;
+    @VisibleForTesting
+    ScheduledFuture<?> mScheduledFuture;
     private boolean mIsActiveUxRestriction;
     private boolean mIsOngoingHeadsUpFlush;
     @VisibleForTesting
@@ -82,6 +89,7 @@ public class CarHeadsUpNotificationQueue implements
 
     public CarHeadsUpNotificationQueue(Context context, ActivityTaskManager activityTaskManager,
             NotificationManager notificationManager,
+            ScheduledExecutorService scheduledExecutorService,
             CarHeadsUpNotificationQueueCallback queuePopCallback) {
         mContext = context;
         mActivityTaskManager = activityTaskManager;
@@ -100,6 +108,8 @@ public class CarHeadsUpNotificationQueue implements
                 R.integer.headsup_queue_expire_driving_duration_ms);
         mNotificationExpirationTimeFromQueueWhenParked = context.getResources().getInteger(
                 R.integer.headsup_queue_expire_parked_duration_ms);
+        mHeadsUpDelayDuration = mContext.getResources().getInteger(
+                R.integer.headsup_delay_duration);
         mNotificationCategoriesForImmediateShow = Set.of(context.getResources().getStringArray(
                 R.array.headsup_category_immediate_show));
         mPackagesToThrottleHeadsUp = Set.of(context.getResources().getStringArray(
@@ -129,10 +139,13 @@ public class CarHeadsUpNotificationQueue implements
                 }
                 if (mPackagesToThrottleHeadsUp.contains(taskInfo.baseActivity.getPackageName())) {
                     mThrottledDisplays.add(taskInfo.displayAreaFeatureId);
-                } else {
-                    mThrottledDisplays.remove(taskInfo.displayAreaFeatureId);
-                    triggerCallback();
+                    return;
                 }
+
+                if (mThrottledDisplays.remove(taskInfo.displayAreaFeatureId)) {
+                    scheduleCallback(mHeadsUpDelayDuration);
+                }
+
             }
         };
         mActivityTaskManager.registerTaskStackListener(mTaskStackListener);
@@ -140,6 +153,8 @@ public class CarHeadsUpNotificationQueue implements
         mNotificationManager.createNotificationChannel(new NotificationChannel(
                 NOTIFICATION_CHANNEL_ID, notificationChannelName,
                 NotificationManager.IMPORTANCE_HIGH));
+
+        mScheduledExecutorService = scheduledExecutorService;
     }
 
     /**
@@ -158,7 +173,7 @@ public class CarHeadsUpNotificationQueue implements
         if (!headsUpExistsInQueue) {
             mPriorityQueue.add(alertEntry.getKey());
         }
-        triggerCallback();
+        scheduleCallback(/* delay= */ 0);
     }
 
     /**
@@ -191,6 +206,24 @@ public class CarHeadsUpNotificationQueue implements
         mIsOngoingHeadsUpFlush = false;
     }
 
+    @VisibleForTesting
+    void scheduleCallback(long delay) {
+        if (!canShowHeadsUp()) {
+            return;
+        }
+
+        if (mScheduledFuture != null && !mScheduledFuture.isDone()) {
+            long delayLeft = mScheduledFuture.getDelay(TimeUnit.MILLISECONDS);
+            if (delay < delayLeft) {
+                return;
+            }
+            mScheduledFuture.cancel(/* mayInterruptIfRunning= */ true);
+
+        }
+        mScheduledFuture = mScheduledExecutorService.schedule(this::triggerCallback,
+                delay, TimeUnit.MILLISECONDS);
+    }
+
     /**
      * Triggers {@code CarHeadsUpNotificationQueueCallback.showAsHeadsUp} on non expired HUN and
      * {@code CarHeadsUpNotificationQueueCallback.removedFromHeadsUpQueue} for expired HUN if
@@ -198,9 +231,7 @@ public class CarHeadsUpNotificationQueue implements
      */
     @VisibleForTesting
     void triggerCallback() {
-        if (!mQueueCallback.getActiveHeadsUpNotifications().isEmpty()
-                || !mThrottledDisplays.isEmpty()
-                || mIsOngoingHeadsUpFlush) {
+        if (!canShowHeadsUp()) {
             return;
         }
 
@@ -240,6 +271,13 @@ public class CarHeadsUpNotificationQueue implements
         mQueueCallback.showAsHeadsUp(alertEntry, mRankingMap);
     }
 
+    private boolean canShowHeadsUp() {
+        return mQueueCallback.getActiveHeadsUpNotifications().isEmpty()
+                && mThrottledDisplays.isEmpty()
+                && !mIsOngoingHeadsUpFlush
+                && !mPriorityQueue.isEmpty();
+    }
+
     /**
      * Returns {@code true} if the {@code category} should be shown immediately.
      */
@@ -262,17 +300,18 @@ public class CarHeadsUpNotificationQueue implements
     @Override
     public void onStateChange(AlertEntry alertEntry,
             CarHeadsUpNotificationManager.HeadsUpState headsUpState) {
-        if (headsUpState == CarHeadsUpNotificationManager.HeadsUpState.DISMISSED
-                || headsUpState == CarHeadsUpNotificationManager.HeadsUpState.REMOVED_BY_SENDER) {
-            if (mCancelInternalNotificationOnStateChange && TextUtils.equals(
-                    alertEntry.getNotification().category, CATEGORY_HUN_QUEUE_INTERNAL)) {
-                mCancelInternalNotificationOnStateChange = false;
-                mAreNotificationsExpired = false;
-                mNotificationManager.cancelAsUser(TAG, NOTIFICATION_ID,
-                        UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
-            }
-            triggerCallback();
+        if (headsUpState == CarHeadsUpNotificationManager.HeadsUpState.SHOWN
+                || headsUpState == CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE) {
+            return;
         }
+        if (mCancelInternalNotificationOnStateChange && TextUtils.equals(
+                alertEntry.getNotification().category, CATEGORY_HUN_QUEUE_INTERNAL)) {
+            mCancelInternalNotificationOnStateChange = false;
+            mAreNotificationsExpired = false;
+            mNotificationManager.cancelAsUser(TAG, NOTIFICATION_ID,
+                    UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
+        }
+        scheduleCallback(mHeadsUpDelayDuration);
     }
 
     /**

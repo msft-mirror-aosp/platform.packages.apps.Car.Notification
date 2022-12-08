@@ -35,9 +35,10 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +69,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
      * onNotificationRemoved method. New notifications will be added to this map if the notification
      * is posted as a non-HUN or when a HUN's state is changed to non-HUN.
      */
-    private Map<String, AlertEntry> mActiveNotifications = new HashMap<>();
+    private ConcurrentMap<String, AlertEntry> mActiveNotifications = new ConcurrentHashMap<>();
 
     /**
      * Call this if to register this service as a system service and connect to HUN. This is useful
@@ -247,7 +248,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     @Override
     public void onListenerConnected() {
         mActiveNotifications = Stream.of(getActiveNotifications()).collect(
-                Collectors.toMap(StatusBarNotification::getKey, sbn -> new AlertEntry(sbn)));
+                Collectors.toConcurrentMap(StatusBarNotification::getKey, AlertEntry::new));
         mRankingMap = super.getCurrentRanking();
     }
 
