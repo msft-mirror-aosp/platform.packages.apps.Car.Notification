@@ -73,6 +73,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private final CarNotificationHeaderView mGroupHeaderView;
     private final View mTouchInterceptorView;
     private final boolean mUseLauncherIcon;
+    private final boolean mShowExpansionHeader;
     private final int mExpandedGroupNotificationIncrementSize;
     private final String mShowLessText;
 
@@ -143,6 +144,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mDividerHeight = getContext().getResources().getDimensionPixelSize(
                 R.dimen.notification_list_divider_height);
         mUseLauncherIcon = getContext().getResources().getBoolean(R.bool.config_useLauncherIcon);
+        mShowExpansionHeader = getContext().getResources().getBoolean(
+                R.bool.config_showExpansionHeader);
         mExpandedGroupNotificationIncrementSize = getContext().getResources()
                 .getInteger(R.integer.config_expandedGroupNotificationIncrementSize);
         mShowLessText = getContext().getString(R.string.collapse_group);
@@ -237,11 +240,11 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     private void expandGroup() {
         mNumberOfShownNotifications = 0;
-        mHeaderDividerView.setVisibility(View.VISIBLE);
         mNotificationGroupsShown = new ArrayList<>();
         if (mUseLauncherIcon) {
-            mExpandedGroupHeader.setVisibility(View.VISIBLE);
+            mExpandedGroupHeader.setVisibility(mShowExpansionHeader ? View.VISIBLE : View.GONE);
         } else {
+            mHeaderDividerView.setVisibility(View.VISIBLE);
             mExpandedGroupHeader.setVisibility(View.GONE);
         }
     }
