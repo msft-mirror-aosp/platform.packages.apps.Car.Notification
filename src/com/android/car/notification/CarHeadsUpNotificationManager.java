@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Notification Manager for heads-up notifications in car.
@@ -182,6 +183,7 @@ public class CarHeadsUpNotificationManager
         mCarHeadsUpNotificationQueue = new CarHeadsUpNotificationQueue(context,
                 ActivityTaskManager.getInstance(),
                 mContext.getSystemService(NotificationManager.class),
+                new ScheduledThreadPoolExecutor(/* corePoolSize= */ 1),
                 mCarHeadsUpNotificationQueueCallback
         );
         registerHeadsUpNotificationStateChangeListener(mCarHeadsUpNotificationQueue);

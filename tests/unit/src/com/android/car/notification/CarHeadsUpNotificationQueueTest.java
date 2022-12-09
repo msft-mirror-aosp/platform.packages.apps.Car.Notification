@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -65,6 +66,10 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.PriorityQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class CarHeadsUpNotificationQueueTest {
@@ -80,6 +85,11 @@ public class CarHeadsUpNotificationQueueTest {
     private NotificationListenerService.RankingMap mRankingMap;
     @Mock
     private ActivityTaskManager mActivityTaskManager;
+    @Mock
+    private ScheduledExecutorService mScheduledExecutorService;
+    @Mock
+    private NotificationManager mNotificationManager;
+
 
     @Captor
     private ArgumentCaptor<TaskStackListener> mTaskStackListenerArg;
@@ -94,6 +104,7 @@ public class CarHeadsUpNotificationQueueTest {
 
     private static final String PKG_1 = "PKG_1";
     private static final String PKG_2 = "PKG_2";
+    private static final String PKG_3 = "PKG_3";
     private static final String CHANNEL_ID = "CHANNEL_ID";
 
     @Before
@@ -107,10 +118,7 @@ public class CarHeadsUpNotificationQueueTest {
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>(Collections.singletonList(mock(AlertEntry.class))));
         ExtendedMockito.doReturn(USER_ID).when(() -> NotificationUtils.getCurrentUser(any()));
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
     }
 
     @After
@@ -121,16 +129,27 @@ public class CarHeadsUpNotificationQueueTest {
         }
     }
 
+    private CarHeadsUpNotificationQueue createCarHeadsUpNotificationQueue() {
+        return createCarHeadsUpNotificationQueue(
+                /* activityTaskManager= */ null,
+                /* notificationManager= */ null,
+                /* scheduledExecutorService= */ null,
+                /* callback= */ null);
+    }
+
     private CarHeadsUpNotificationQueue createCarHeadsUpNotificationQueue(
             @Nullable ActivityTaskManager activityTaskManager,
             @Nullable NotificationManager notificationManager,
-            CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback callback) {
+            @Nullable ScheduledExecutorService scheduledExecutorService,
+            @Nullable CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback callback) {
         return new CarHeadsUpNotificationQueue(mContext,
                 activityTaskManager != null ? activityTaskManager
                         : ActivityTaskManager.getInstance(),
                 notificationManager != null ? notificationManager
                         : mContext.getSystemService(NotificationManager.class),
-                callback);
+                scheduledExecutorService != null ? scheduledExecutorService
+                        : new ScheduledThreadPoolExecutor(/* corePoolSize= */ 1),
+                callback != null ? callback : mCarHeadsUpNotificationQueueCallback);
     }
 
     @Test
@@ -168,10 +187,7 @@ public class CarHeadsUpNotificationQueueTest {
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_category_priority, /* value= */ new String[]{
                         "car_emergency", "navigation", "call", "msg"});
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "navigation"), 1000);
         AlertEntry alertEntry2 = new AlertEntry(generateMockStatusBarNotification(
@@ -204,10 +220,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.array.headsup_category_immediate_show, /* value= */ new String[0]);
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_category_priority, /* value= */ new String[]{"msg"});
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry alertEntry2 = new AlertEntry(generateMockStatusBarNotification(
@@ -254,10 +267,7 @@ public class CarHeadsUpNotificationQueueTest {
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_category_immediate_show, /* value= */
                 new String[]{"car_emergency"});
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry alertEntry2 = new AlertEntry(generateMockStatusBarNotification(
@@ -295,10 +305,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ true);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_parked_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -333,10 +340,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_driving_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -369,10 +373,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenDriving, /* value= */ true);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_driving_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -407,10 +408,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ true);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_parked_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -432,10 +430,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ true);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_parked_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -456,9 +451,19 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Test
     public void triggerCallback_setHunExpiredFlagToFalse_onHunExpiredAndEmptyQueue() {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.bool.config_expireHeadsUpWhenDriving, /* value= */ true);
+        mContext.getOrCreateTestableResources().addOverride(
+                R.integer.headsup_queue_expire_driving_duration_ms, /* value= */ 1000);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
+        mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
+        Instant now = Instant.now();
+        mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), now.minusMillis(2000).toEpochMilli());
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
-        mCarHeadsUpNotificationQueue.mAreNotificationsExpired = true;
 
         mCarHeadsUpNotificationQueue.triggerCallback();
 
@@ -467,9 +472,19 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Test
     public void triggerCallback_setHunRemovalFlagToTrue_onHunExpiredAndEmptyQueue() {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.bool.config_expireHeadsUpWhenDriving, /* value= */ true);
+        mContext.getOrCreateTestableResources().addOverride(
+                R.integer.headsup_queue_expire_driving_duration_ms, /* value= */ 1000);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
+        mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
+        Instant now = Instant.now();
+        mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), now.minusMillis(2000).toEpochMilli());
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
-        mCarHeadsUpNotificationQueue.mAreNotificationsExpired = true;
 
         mCarHeadsUpNotificationQueue.triggerCallback();
 
@@ -478,17 +493,19 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Test
     public void triggerCallback_sendsNotificationToCurrentUser_onHunExpiredAndEmptyQueue() {
-        NotificationManager notificationManager = mock(NotificationManager.class);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null, notificationManager,
-                mCarHeadsUpNotificationQueueCallback);
+                /* activityTaskManager= */ null, mNotificationManager,
+                /* scheduledExecutorService= */ null, mCarHeadsUpNotificationQueueCallback);
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
         mCarHeadsUpNotificationQueue.mAreNotificationsExpired = true;
 
         mCarHeadsUpNotificationQueue.triggerCallback();
 
-        verify(notificationManager).notifyAsUser(anyString(), anyInt(), mNotificationArg.capture(),
+        verify(mNotificationManager).notifyAsUser(anyString(), anyInt(), mNotificationArg.capture(),
                 eq(UserHandle.of(USER_ID)));
         assertThat(mNotificationArg.getValue().category).isEqualTo("HUN_QUEUE_INTERNAL");
     }
@@ -499,10 +516,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenDriving, /* value= */ false);
         mContext.getOrCreateTestableResources().addOverride(
                 R.integer.headsup_queue_expire_driving_duration_ms, /* value= */ 1000);
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
         Instant now = Instant.now();
         mCarHeadsUpNotificationQueue.setClock(Clock.fixed(now, ZoneId.systemDefault()));
@@ -537,7 +551,8 @@ public class CarHeadsUpNotificationQueueTest {
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_throttled_foreground_packages, /* value= */ new String[]{PKG_1});
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager,
+                /* notificationManager= */ null, /* scheduledExecutorService= */ null,
                 mCarHeadsUpNotificationQueueCallback);
         verify(mActivityTaskManager).registerTaskStackListener(mTaskStackListenerArg.capture());
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
@@ -563,7 +578,8 @@ public class CarHeadsUpNotificationQueueTest {
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_throttled_foreground_packages, /* value= */ new String[]{PKG_1});
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager,
+                /* notificationManager= */ null, /* scheduledExecutorService= */ null,
                 mCarHeadsUpNotificationQueueCallback);
         verify(mActivityTaskManager).registerTaskStackListener(mTaskStackListenerArg.capture());
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
@@ -583,14 +599,14 @@ public class CarHeadsUpNotificationQueueTest {
     }
 
     @Test
-    public void triggerCallback_called_whenNonAllowlistAppsComesToForeground()
+    public void nonAllowlistAppInForeground_afterAllowlistApp_callbackScheduled()
             throws RemoteException {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         mContext.getOrCreateTestableResources().addOverride(
                 R.array.headsup_throttled_foreground_packages, /* value= */ new String[]{PKG_1});
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
                 mCarHeadsUpNotificationQueueCallback);
         verify(mActivityTaskManager).registerTaskStackListener(mTaskStackListenerArg.capture());
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
@@ -606,9 +622,36 @@ public class CarHeadsUpNotificationQueueTest {
         mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo_AllowlistPkg);
         mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo_nonAllowlistPkg);
 
-        verify(mCarHeadsUpNotificationQueueCallback).showAsHeadsUp(
-                mAlertEntryArg.capture(), nullable(NotificationListenerService.RankingMap.class));
-        assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
+        verify(mScheduledExecutorService).schedule(any(Runnable.class), anyLong(),
+                any(TimeUnit.class));
+    }
+
+    @Test
+    public void nonAllowlistAppInForeground_afterNonAllowlistApp_callbackNotScheduled()
+            throws RemoteException {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
+        mContext.getOrCreateTestableResources().addOverride(
+                R.array.headsup_throttled_foreground_packages, /* value= */ new String[]{PKG_1});
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
+                mCarHeadsUpNotificationQueueCallback);
+        verify(mActivityTaskManager).registerTaskStackListener(mTaskStackListenerArg.capture());
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
+                new ArrayList<>());
+        ActivityManager.RunningTaskInfo mockRunningTaskInfo_nonAllowlistPkg_1 =
+                generateRunningTaskInfo(PKG_2, /* displayAreaFeatureId= */ 111);
+        ActivityManager.RunningTaskInfo mockRunningTaskInfo_nonAllowlistPkg_2 =
+                generateRunningTaskInfo(PKG_3, /* displayAreaFeatureId= */ 111);
+
+        mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo_nonAllowlistPkg_1);
+        mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo_nonAllowlistPkg_2);
+
+        verify(mScheduledExecutorService, never()).schedule(any(Runnable.class), anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
@@ -646,7 +689,8 @@ public class CarHeadsUpNotificationQueueTest {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_dismissHeadsUpWhenNotificationCenterOpens, /* value= */ false);
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager,
+                /* notificationManager= */ null, /* scheduledExecutorService= */ null,
                 mCarHeadsUpNotificationQueueCallback);
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), /* postTime= */ 1000);
@@ -671,7 +715,8 @@ public class CarHeadsUpNotificationQueueTest {
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>(Collections.singletonList(alertEntry)));
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager,
+                /* notificationManager= */ null, /* scheduledExecutorService= */ null,
                 mCarHeadsUpNotificationQueueCallback);
 
         mCarHeadsUpNotificationQueue.releaseQueue();
@@ -691,7 +736,8 @@ public class CarHeadsUpNotificationQueueTest {
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>(Collections.singletonList(alertEntry)));
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                mActivityTaskManager, /* notificationManager= */ null,
+                mActivityTaskManager,
+                /* notificationManager= */ null, /* scheduledExecutorService= */ null,
                 mCarHeadsUpNotificationQueueCallback);
 
         mCarHeadsUpNotificationQueue.releaseQueue();
@@ -725,10 +771,9 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Test
     public void onStateChange_internalCategory_hunRemovalFlagTrue_cancelHunForCurrentUser() {
-        NotificationManager notificationManager = mock(NotificationManager.class);
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null, notificationManager,
-                mCarHeadsUpNotificationQueueCallback);
+                /* activityTaskManager= */ null, mNotificationManager,
+                /* scheduledExecutorService= */ null, mCarHeadsUpNotificationQueueCallback);
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "HUN_QUEUE_INTERNAL"), 1000);
         mCarHeadsUpNotificationQueue.mCancelInternalNotificationOnStateChange = true;
@@ -736,16 +781,15 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.DISMISSED);
 
-        verify(notificationManager).cancelAsUser(anyString(), eq(/* id= */ 2000),
+        verify(mNotificationManager).cancelAsUser(anyString(), eq(/* id= */ 2000),
                 eq(UserHandle.of(USER_ID)));
     }
 
     @Test
     public void onStateChange_notInternalCategory_hunRemovalFlagTrue_notCancelHunForCurrentUser() {
-        NotificationManager notificationManager = mock(NotificationManager.class);
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null, notificationManager,
-                mCarHeadsUpNotificationQueueCallback);
+                /* activityTaskManager= */ null, mNotificationManager,
+                /* scheduledExecutorService= */ null, mCarHeadsUpNotificationQueueCallback);
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         mCarHeadsUpNotificationQueue.mCancelInternalNotificationOnStateChange = true;
@@ -753,7 +797,7 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.DISMISSED);
 
-        verify(notificationManager, times(0)).cancelAsUser(anyString(), anyInt(),
+        verify(mNotificationManager, times(0)).cancelAsUser(anyString(), anyInt(),
                 any(UserHandle.class));
     }
 
@@ -770,15 +814,14 @@ public class CarHeadsUpNotificationQueueTest {
     }
 
     @Test
-    public void onStateChange_dismissed_showNextNotificationInQueue() {
+    public void onStateChange_dismissed_callbackScheduled() {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+                /* activityTaskManager= */ null, /* notificationManager= */ null,
+                mScheduledExecutorService, mCarHeadsUpNotificationQueueCallback);
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry nextAlertEntry = new AlertEntry(generateMockStatusBarNotification(
@@ -788,21 +831,19 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.DISMISSED);
 
-        verify(mCarHeadsUpNotificationQueueCallback).showAsHeadsUp(mAlertEntryArg.capture(),
-                nullable(NotificationListenerService.RankingMap.class));
-        assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key2");
+        verify(mScheduledExecutorService).schedule(any(Runnable.class), anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
-    public void onStateChange_removedBySender_showNextNotificationInQueue() {
+    public void onStateChange_removedBySender_callbackScheduled() {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
         mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+                /* activityTaskManager= */ null, /* notificationManager= */ null,
+                mScheduledExecutorService, mCarHeadsUpNotificationQueueCallback);
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry nextAlertEntry = new AlertEntry(generateMockStatusBarNotification(
@@ -812,9 +853,8 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.REMOVED_BY_SENDER);
 
-        verify(mCarHeadsUpNotificationQueueCallback).showAsHeadsUp(mAlertEntryArg.capture(),
-                nullable(NotificationListenerService.RankingMap.class));
-        assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key2");
+        verify(mScheduledExecutorService).schedule(any(Runnable.class), anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
@@ -823,10 +863,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry nextAlertEntry = new AlertEntry(generateMockStatusBarNotification(
@@ -846,10 +883,7 @@ public class CarHeadsUpNotificationQueueTest {
                 R.bool.config_expireHeadsUpWhenParked, /* value= */ false);
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>());
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         AlertEntry alertEntry = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 1000);
         AlertEntry nextAlertEntry = new AlertEntry(generateMockStatusBarNotification(
@@ -868,10 +902,7 @@ public class CarHeadsUpNotificationQueueTest {
     public void getUserNotificationForExpiredHun_parkState_usesParkNotificationTitle() {
         mContext.getOrCreateTestableResources().addOverride(
                 R.string.hun_suppression_notification_title_park, /* value= */ "test_value");
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(false); // car is parked
 
         Notification result = mCarHeadsUpNotificationQueue.getUserNotificationForExpiredHun();
@@ -884,16 +915,94 @@ public class CarHeadsUpNotificationQueueTest {
     public void getUserNotificationForExpiredHun_driveState_usesDriveNotificationTitle() {
         mContext.getOrCreateTestableResources().addOverride(
                 R.string.hun_suppression_notification_title_drive, /* value= */ "test_value");
-        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
-                /* activityTaskManager= */ null,
-                /* notificationManager= */ null,
-                mCarHeadsUpNotificationQueueCallback);
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue();
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(true); // car is driving
 
         Notification result = mCarHeadsUpNotificationQueue.getUserNotificationForExpiredHun();
 
         assertThat(result.extras.getCharSequence(Notification.EXTRA_TITLE).toString()).isEqualTo(
                 "test_value");
+    }
+
+    @Test
+    public void scheduleCallback_schedulesNewTask_whenNoTaskScheduled() {
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
+                mCarHeadsUpNotificationQueueCallback);
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
+                new ArrayList<>());
+        mCarHeadsUpNotificationQueue.mScheduledFuture = null;
+        long delay = 10;
+
+        mCarHeadsUpNotificationQueue.scheduleCallback(delay);
+
+        verify(mScheduledExecutorService).schedule(any(Runnable.class),
+                eq(delay), eq(TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void scheduleCallback_schedulesNewTask_whenShorterTaskScheduled() {
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
+                mCarHeadsUpNotificationQueueCallback);
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
+                new ArrayList<>());
+        ScheduledFuture<?> mockScheduledFuture = mock(ScheduledFuture.class);
+        when(mockScheduledFuture.getDelay(TimeUnit.MILLISECONDS)).thenReturn(5L);
+        mCarHeadsUpNotificationQueue.mScheduledFuture = mockScheduledFuture;
+        long delay = 10L;
+
+        mCarHeadsUpNotificationQueue.scheduleCallback(delay);
+
+        verify(mScheduledExecutorService).schedule(any(Runnable.class),
+                eq(delay), eq(TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void scheduleCallback_cancelsFutureTask_whenShorterTaskScheduled() {
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
+                mCarHeadsUpNotificationQueueCallback);
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
+                new ArrayList<>());
+        ScheduledFuture<?> mockScheduledFuture = mock(ScheduledFuture.class);
+        when(mockScheduledFuture.getDelay(TimeUnit.MILLISECONDS)).thenReturn(5L);
+        mCarHeadsUpNotificationQueue.mScheduledFuture = mockScheduledFuture;
+        long delay = 10L;
+
+        mCarHeadsUpNotificationQueue.scheduleCallback(delay);
+
+        verify(mockScheduledFuture).cancel(/* mayInterruptIfRunning= */ true);
+    }
+
+    @Test
+    public void scheduleCallback_doesNotScheduleNewTask_whenLongerTaskScheduled() {
+        mCarHeadsUpNotificationQueue = createCarHeadsUpNotificationQueue(
+                mActivityTaskManager, /* notificationManager= */ null, mScheduledExecutorService,
+                mCarHeadsUpNotificationQueueCallback);
+        AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
+                "key1", "msg"), /* postTime= */ 1000);
+        mCarHeadsUpNotificationQueue.addToPriorityQueue(alertEntry1);
+        when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
+                new ArrayList<>());
+        ScheduledFuture<?> mockScheduledFuture = mock(ScheduledFuture.class);
+        when(mockScheduledFuture.getDelay(TimeUnit.MILLISECONDS)).thenReturn(20L);
+        mCarHeadsUpNotificationQueue.mScheduledFuture = mockScheduledFuture;
+        long delay = 10L;
+
+        mCarHeadsUpNotificationQueue.scheduleCallback(delay);
+
+        verify(mScheduledExecutorService, never()).schedule(any(Runnable.class), anyLong(),
+                any(TimeUnit.class));
     }
 
     private StatusBarNotification generateMockStatusBarNotification(String key, String category) {
