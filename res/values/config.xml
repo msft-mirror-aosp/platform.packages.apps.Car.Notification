@@ -91,6 +91,8 @@
     <bool name="config_focusHUNWhenShown">true</bool>
     <!-- Alpha for older notifications when config_showRecentAndOldHeaders is true -->
     <item name="config_olderNotificationsAlpha" format="float" type="dimen">1</item>
+    <!-- Whether to show expansion header in group notifications.  -->
+    <bool name="config_showExpansionHeader">true</bool>
     <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->
     <bool name="config_useCustomColorsForWarningNotification">false</bool>
     <!-- When true, ignore the notification color for information notification background and use @color/information_background_color instead. -->
