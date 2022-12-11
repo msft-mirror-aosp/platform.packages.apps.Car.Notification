@@ -43,6 +43,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_expireHeadsUpWhenDriving"/>
       <item type="bool" name="config_expireHeadsUpWhenParked"/>
       <item type="bool" name="config_focusHUNWhenShown"/>
+      <item type="bool" name="config_showExpansionHeader"/>
       <item type="bool" name="config_showFooterForNotifications"/>
       <item type="bool" name="config_showHeaderForNotifications"/>
       <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
@@ -196,7 +197,6 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="id" name="footer_divider"/>
       <item type="id" name="gradient_edge"/>
       <item type="id" name="group_header"/>
-      <item type="id" name="group_toggle_button"/>
       <item type="id" name="group_toggle_icon"/>
       <item type="id" name="header_divider"/>
       <item type="id" name="header_text"/>
