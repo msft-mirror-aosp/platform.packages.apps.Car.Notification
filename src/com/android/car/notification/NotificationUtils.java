@@ -166,7 +166,7 @@ public class NotificationUtils {
         UserManager userManager = context.getSystemService(UserManager.class);
         UserHandle processUser = Process.myUserHandle();
         boolean isSecondaryUserNotifications =
-                userManager.isVisibleBackgroundUsersSupported()
+                userManager.isUsersOnSecondaryDisplaysSupported()
                         && !processUser.isSystem()
                         && processUser.getIdentifier() != ActivityManager.getCurrentUser();
         return isSecondaryUserNotifications ? processUser.getIdentifier()
