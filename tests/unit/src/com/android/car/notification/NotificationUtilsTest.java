@@ -256,8 +256,8 @@ public class NotificationUtilsTest {
     }
 
     @Test
-    public void getCurrentUser_usersOnSecondaryDisplaysNotSupported_returnsPrimaryUser() {
-        when(mUserManager.isUsersOnSecondaryDisplaysSupported()).thenReturn(false);
+    public void getCurrentUser_visibleBackgroundUsersNotSupported_returnsPrimaryUser() {
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(false);
 
         assertThat(NotificationUtils.getCurrentUser(mContext)).isEqualTo(
                 ActivityManager.getCurrentUser());
@@ -265,7 +265,7 @@ public class NotificationUtilsTest {
 
     @Test
     public void getCurrentUser_systemUser_returnsPrimaryUser() {
-        when(mUserManager.isUsersOnSecondaryDisplaysSupported()).thenReturn(true);
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
         when(Process.myUserHandle()).thenReturn(UserHandle.SYSTEM);
 
         assertThat(NotificationUtils.getCurrentUser(mContext)).isEqualTo(
@@ -274,7 +274,7 @@ public class NotificationUtilsTest {
 
     @Test
     public void getCurrentUser_primaryUser_returnsPrimaryUser() {
-        when(mUserManager.isUsersOnSecondaryDisplaysSupported()).thenReturn(true);
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
         when(Process.myUserHandle()).thenReturn(UserHandle.of(ActivityManager.getCurrentUser()));
 
         assertThat(NotificationUtils.getCurrentUser(mContext)).isEqualTo(
@@ -284,7 +284,7 @@ public class NotificationUtilsTest {
     @Test
     public void getCurrentUser_secondaryUser_returnsSecondaryUser() {
         UserHandle myUserHandle = UserHandle.of(1000);
-        when(mUserManager.isUsersOnSecondaryDisplaysSupported()).thenReturn(true);
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
         when(Process.myUserHandle()).thenReturn(myUserHandle);
 
         assertThat(NotificationUtils.getCurrentUser(mContext)).isEqualTo(
