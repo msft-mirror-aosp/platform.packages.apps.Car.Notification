@@ -1182,7 +1182,8 @@ public class PreprocessingManagerTest {
                     isConversation(i),
                     null,
                     getRankingAdjustment(i),
-                    isBubble(i)
+                    isBubble(i),
+                    0
             );
             rankings[i] = ranking;
         }
