@@ -51,6 +51,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="bool" name="config_showNavigationHeadsup"/>
       <item type="bool" name="config_showRecentAndOldHeaders"/>
       <item type="bool" name="config_suppressAndThrottleHeadsUp"/>
+      <item type="bool" name="config_useCustomColorForMessageNotificationCountTextButton"/>
       <item type="bool" name="config_useCustomColorsForInformationNotification"/>
       <item type="bool" name="config_useCustomColorsForWarningNotification"/>
       <item type="bool" name="config_useLauncherIcon"/>
@@ -58,6 +59,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="color" name="call_accept_button"/>
       <item type="color" name="call_decline_button"/>
       <item type="color" name="clear_all_button_background_color"/>
+      <item type="color" name="count_text"/>
       <item type="color" name="dark_icon_tint"/>
       <item type="color" name="emergency_background_color"/>
       <item type="color" name="emergency_primary_text_color"/>
@@ -103,6 +105,7 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="dimen" name="clear_all_button_min_width"/>
       <item type="dimen" name="clear_all_button_padding"/>
       <item type="dimen" name="clear_all_button_radius"/>
+      <item type="dimen" name="config_disabledCountTextButtonAlpha"/>
       <item type="dimen" name="config_olderNotificationsAlpha"/>
       <item type="dimen" name="dismiss_button_diameter"/>
       <item type="dimen" name="dismiss_button_margin"/>

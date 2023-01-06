@@ -257,6 +257,15 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     /**
+     * Sets the alpha for the count field.
+     */
+    public void setCountTextAlpha(float alpha) {
+        if (mCountView != null) {
+            mCountView.setAlpha(alpha);
+        }
+    }
+
+    /**
      * Sets the {@link OnClickListener} for the count field.
      */
     public void setCountOnClickListener(@Nullable OnClickListener listener) {
