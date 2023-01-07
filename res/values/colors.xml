@@ -44,4 +44,5 @@
     <color name="notification_list_divider_color">@*android:color/car_list_divider</color>
     <color name="icon_tint">@*android:color/car_tint</color>
     <color name="dark_icon_tint">@*android:color/car_tint_dark</color>
+    <color name="count_text">@color/notification_accent_color</color>
 </resources>
