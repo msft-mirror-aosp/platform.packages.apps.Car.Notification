@@ -90,7 +90,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                         R.bool.config_useCustomColorForMessageNotificationCountTextButton);
         mCountTextColor = getContext().getResources().getColor(R.color.count_text);
         mDisabledCountTextButtonAlpha = getContext().getResources().getFloat(
-                R.dimen.config_olderNotificationsAlpha);
+                R.dimen.config_disabledCountTextButtonAlpha);
 
         mClickHandlerFactory = clickHandlerFactory;
         mPreprocessingManager = PreprocessingManager.getInstance(getContext());
