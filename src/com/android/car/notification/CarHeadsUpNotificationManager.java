@@ -147,6 +147,8 @@ public class CarHeadsUpNotificationManager
         mInflater = LayoutInflater.from(mContext);
         mClickHandlerFactory.registerClickListener(
                 (launchResult, alertEntry) -> dismissHun(alertEntry));
+        mClickHandlerFactory.setHunDismissCallback(
+                (launchResult, alertEntry) -> dismissHun(alertEntry));
         mHunContainer = hunContainer;
         mIsSuppressAndThrottleHeadsUp = context.getResources().getBoolean(
                 R.bool.config_suppressAndThrottleHeadsUp);
