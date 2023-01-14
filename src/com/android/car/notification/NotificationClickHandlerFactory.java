@@ -76,6 +76,7 @@ public class NotificationClickHandlerFactory {
     @Nullable
     private NotificationDataManager mNotificationDataManager;
     private Handler mMainHandler;
+    private OnNotificationClickListener mHunDismissCallback;
 
     public NotificationClickHandlerFactory(IStatusBarService barService) {
         mBarService = barService;
@@ -209,6 +210,12 @@ public class NotificationClickHandlerFactory {
                     messageNotification.getStatusBarNotification(),
                     CarVoiceInteractionSession.VOICE_ACTION_READ_NOTIFICATION,
                     requestCallback);
+
+            if (context.getResources().getBoolean(
+                    R.bool.config_dismissMessageHunWhenReplyOrPlayActionButtonPressed)) {
+                mHunDismissCallback.onNotificationClicked(/* launchResult= */ 0,
+                        messageNotification);
+            }
         };
     }
 
@@ -236,6 +243,12 @@ public class NotificationClickHandlerFactory {
                     messageNotification.getStatusBarNotification(),
                     CarVoiceInteractionSession.VOICE_ACTION_REPLY_NOTIFICATION,
                     requestCallback);
+
+            if (context.getResources().getBoolean(
+                    R.bool.config_dismissMessageHunWhenReplyOrPlayActionButtonPressed)) {
+                mHunDismissCallback.onNotificationClicked(/* launchResult= */ 0,
+                        messageNotification);
+            }
         };
     }
 
@@ -295,6 +308,13 @@ public class NotificationClickHandlerFactory {
      */
     public View.OnClickListener getDismissHandler(AlertEntry alertEntry) {
         return v -> clearNotification(alertEntry);
+    }
+
+    /**
+     * Set a new {@link OnNotificationClickListener} to be used to dismiss HUNs.
+     */
+    public void setHunDismissCallback(OnNotificationClickListener hunDismissCallback) {
+        mHunDismissCallback = hunDismissCallback;
     }
 
     /**
