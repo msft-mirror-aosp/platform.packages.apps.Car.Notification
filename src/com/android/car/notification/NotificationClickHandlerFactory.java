@@ -76,6 +76,7 @@ public class NotificationClickHandlerFactory {
     @Nullable
     private NotificationDataManager mNotificationDataManager;
     private Handler mMainHandler;
+    private OnNotificationClickListener mHunDismissCallback;
 
     public NotificationClickHandlerFactory(IStatusBarService barService) {
         mBarService = barService;
@@ -209,6 +210,12 @@ public class NotificationClickHandlerFactory {
                     messageNotification.getStatusBarNotification(),
                     CarVoiceInteractionSession.VOICE_ACTION_READ_NOTIFICATION,
                     requestCallback);
+
+            if (context.getResources().getBoolean(
+                    R.bool.config_dismissMessageHunWhenReplyOrPlayActionButtonPressed)) {
+                mHunDismissCallback.onNotificationClicked(/* launchResult= */ 0,
+                        messageNotification);
+            }
         };
     }
 
@@ -236,6 +243,12 @@ public class NotificationClickHandlerFactory {
                     messageNotification.getStatusBarNotification(),
                     CarVoiceInteractionSession.VOICE_ACTION_REPLY_NOTIFICATION,
                     requestCallback);
+
+            if (context.getResources().getBoolean(
+                    R.bool.config_dismissMessageHunWhenReplyOrPlayActionButtonPressed)) {
+                mHunDismissCallback.onNotificationClicked(/* launchResult= */ 0,
+                        messageNotification);
+            }
         };
     }
 
@@ -298,6 +311,13 @@ public class NotificationClickHandlerFactory {
     }
 
     /**
+     * Set a new {@link OnNotificationClickListener} to be used to dismiss HUNs.
+     */
+    public void setHunDismissCallback(OnNotificationClickListener hunDismissCallback) {
+        mHunDismissCallback = hunDismissCallback;
+    }
+
+    /**
      * Registers a new {@link OnNotificationClickListener} to the list of click event listeners.
      */
     public void registerClickListener(OnNotificationClickListener clickListener) {
@@ -316,9 +336,9 @@ public class NotificationClickHandlerFactory {
     /**
      * Clears all notifications.
      */
-    public void clearAllNotifications() {
+    public void clearAllNotifications(Context context) {
         try {
-            mBarService.onClearAllNotifications(ActivityManager.getCurrentUser());
+            mBarService.onClearAllNotifications(NotificationUtils.getCurrentUser(context));
         } catch (RemoteException e) {
             Log.e(TAG, "clearAllNotifications: ", e);
         }

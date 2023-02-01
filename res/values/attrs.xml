@@ -36,4 +36,8 @@
         <!-- Signifies that the notification is of 'call' category. -->
         <attr name="categoryCall" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="CarNotificationActionButton">
+        <!-- Text color -->
+        <attr name="textColor" format="color"/>
+    </declare-styleable>
 </resources>
