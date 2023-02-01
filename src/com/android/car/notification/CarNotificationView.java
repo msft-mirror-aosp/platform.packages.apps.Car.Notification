@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
+import com.android.car.notification.template.GroupNotificationViewHolder;
 import com.android.car.uxr.UxrContentLimiterImpl;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.statusbar.IStatusBarService;
@@ -207,6 +208,14 @@ public class CarNotificationView extends ConstraintLayout
      */
     public void resetState() {
         mAdapter.collapseAllGroups();
+        for (int i = 0; i < mAdapter.getItemCount(); i++) {
+            RecyclerView.ViewHolder holder = mListView.findViewHolderForAdapterPosition(i);
+            if (holder != null && holder.getItemViewType() == NotificationViewType.GROUP) {
+                GroupNotificationViewHolder groupNotificationViewHolder =
+                        (GroupNotificationViewHolder) holder;
+                groupNotificationViewHolder.collapseGroup();
+            }
+        }
     }
 
     @Override
@@ -415,7 +424,7 @@ public class CarNotificationView extends ConstraintLayout
         // No visible items are found.
         if (firstVisible == RecyclerView.NO_POSITION) return;
 
-        mAdapter.setNotificationsAsSeen(firstVisible, lastVisible);
+        mAdapter.setVisibleNotificationsAsSeen(firstVisible, lastVisible);
     }
 
     private void manageButtonOnClickListener(View v) {
@@ -432,5 +441,15 @@ public class CarNotificationView extends ConstraintLayout
     public interface KeyEventHandler {
         /** Allows handling of a {@link KeyEvent} if it isn't already handled by the superclass. */
         boolean dispatchKeyEvent(KeyEvent event);
+    }
+
+    @VisibleForTesting
+    void setAdapter(CarNotificationViewAdapter adapter) {
+        mAdapter = adapter;
+    }
+
+    @VisibleForTesting
+    void setListView(RecyclerView listView) {
+        mListView = listView;
     }
 }

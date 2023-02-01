@@ -45,8 +45,10 @@ import com.android.car.notification.CarNotificationViewAdapter;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationGroup;
 import com.android.car.notification.R;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,7 +58,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         implements CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
     private static final String TAG = "GroupNotificationViewHolder";
 
-    private final Context mContext;
     private final CardView mCardView;
     private final View mHeaderDividerView;
     private final View mExpandedGroupHeader;
@@ -65,7 +66,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private final TextView mExpansionFooterView;
     private final View mExpansionFooterGroup;
     private final RecyclerView mNotificationListView;
-    private final CarNotificationViewAdapter mAdapter;
     private final Drawable mExpandDrawable;
     private final Drawable mCollapseDrawable;
     private final Paint mPaint;
@@ -76,6 +76,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private final int mExpandedGroupNotificationIncrementSize;
     private final String mShowLessText;
 
+    private CarNotificationViewAdapter mAdapter;
+    private CarNotificationViewAdapter mParentAdapter;
     private AlertEntry mSummaryNotification;
     private NotificationGroup mNotificationGroup;
     private String mHeaderName;
@@ -86,7 +88,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     public GroupNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
         super(view, clickHandlerFactory);
-        mContext = view.getContext();
 
         mCurrentFocusRequestState = FocusRequestStates.NONE;
         mCardView = itemView.findViewById(R.id.card_view);
@@ -134,24 +135,29 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mNotificationListView = view.findViewById(R.id.notification_list);
         mTouchInterceptorView = view.findViewById(R.id.touch_interceptor_view);
 
-        mExpandDrawable = mContext.getDrawable(R.drawable.expand_more);
-        mCollapseDrawable = mContext.getDrawable(R.drawable.expand_less);
+        mExpandDrawable = getContext().getDrawable(R.drawable.expand_more);
+        mCollapseDrawable = getContext().getDrawable(R.drawable.expand_less);
 
         mPaint = new Paint();
-        mPaint.setColor(mContext.getColor(R.color.notification_list_divider_color));
-        mDividerHeight = mContext.getResources().getDimensionPixelSize(
+        mPaint.setColor(getContext().getColor(R.color.notification_list_divider_color));
+        mDividerHeight = getContext().getResources().getDimensionPixelSize(
                 R.dimen.notification_list_divider_height);
-        mUseLauncherIcon = mContext.getResources().getBoolean(R.bool.config_useLauncherIcon);
-        mExpandedGroupNotificationIncrementSize = mContext.getResources()
+        mUseLauncherIcon = getContext().getResources().getBoolean(R.bool.config_useLauncherIcon);
+        mExpandedGroupNotificationIncrementSize = getContext().getResources()
                 .getInteger(R.integer.config_expandedGroupNotificationIncrementSize);
-        mShowLessText = mContext.getString(R.string.collapse_group);
+        mShowLessText = getContext().getString(R.string.collapse_group);
 
-        mNotificationListView.setLayoutManager(new LinearLayoutManager(mContext));
+        mNotificationListView.setLayoutManager(new LinearLayoutManager(getContext()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        });
         mNotificationListView.addItemDecoration(new GroupedNotificationItemDecoration());
         ((SimpleItemAnimator) mNotificationListView.getItemAnimator())
                 .setSupportsChangeAnimations(false);
         mNotificationListView.setNestedScrollingEnabled(false);
-        mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
+        mAdapter = new CarNotificationViewAdapter(getContext(), /* isGroupNotificationAdapter= */
                 true, /* notificationItemController= */ null);
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
         mNotificationListView.addOnItemTouchListener(
@@ -188,6 +194,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         reset();
 
         mNotificationGroup = group;
+        mParentAdapter = parentAdapter;
         mSummaryNotification = mNotificationGroup.getGroupSummaryNotification();
         mHeaderName = loadHeaderAppName(mSummaryNotification.getStatusBarNotification());
         mExpandedGroupHeaderTextView.setText(mHeaderName);
@@ -200,56 +207,12 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         // use the same view pool with all the grouped notifications
         // to increase the number of the shared views and reduce memory cost
         // the view pool is created and stored in the root adapter
-        mNotificationListView.setRecycledViewPool(parentAdapter.getViewPool());
+        mNotificationListView.setRecycledViewPool(mParentAdapter.getViewPool());
 
         // notification cards
         if (isExpanded) {
-            mNumberOfShownNotifications = 0;
-            // show header divider
-            mHeaderDividerView.setVisibility(View.VISIBLE);
-
-            mNotificationGroupsShown = new ArrayList<>();
-            mNumberOfShownNotifications =
-                    addNextPageOfNotificationsToList(mNotificationGroupsShown);
-
-            if (mUseLauncherIcon) {
-                mExpandedGroupHeader.setVisibility(View.VISIBLE);
-            } else {
-                mExpandedGroupHeader.setVisibility(View.GONE);
-            }
-        } else {
-            mExpandedGroupHeader.setVisibility(View.GONE);
-            // hide header divider
-            mHeaderDividerView.setVisibility(View.GONE);
-
-            NotificationGroup newGroup = new NotificationGroup();
-            newGroup.setSeen(mNotificationGroup.isSeen());
-
-            if (mUseLauncherIcon) {
-                // Only show first notification since notification header is not being used.
-                newGroup.addNotification(mNotificationGroup.getChildNotifications().get(0));
-                mNumberOfShownNotifications = 1;
-            } else {
-                // Only show group summary notification
-                newGroup.addNotification(mNotificationGroup.getGroupSummaryNotification());
-                // If the group summary notification is automatically generated,
-                // it does not contain a summary of the titles of the child notifications.
-                // Therefore, we generate a list of the child notification titles from
-                // the parent notification group, and pass them on.
-                newGroup.setChildTitles(mNotificationGroup.generateChildTitles());
-                mNumberOfShownNotifications = 0;
-            }
-
-            List<NotificationGroup> list = new ArrayList<>();
-            list.add(newGroup);
-            mNotificationGroupsShown = list;
-        }
-        mAdapter.setNotifications(mNotificationGroupsShown,
-                /* setRecyclerViewListHeadersAndFooters= */ false);
-
-        updateExpansionIcon(isExpanded);
-        updateOnClickListener(parentAdapter, isExpanded);
-        if (isExpanded) {
+            expandGroup();
+            addNotifications();
             if (mUseLauncherIcon) {
                 if (!itemView.isInTouchMode()) {
                     mCurrentFocusRequestState = FocusRequestStates.EXPANDED_GROUP_HEADER;
@@ -258,6 +221,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
                 }
             }
         } else {
+            collapseGroup();
             if (mUseLauncherIcon) {
                 if (!itemView.isInTouchMode()) {
                     mCurrentFocusRequestState = FocusRequestStates.CARD_VIEW;
@@ -266,6 +230,66 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
                 }
             }
         }
+    }
+
+    /**
+     * Expands the {@link GroupNotificationViewHolder}.
+     */
+    private void expandGroup() {
+        mNumberOfShownNotifications = 0;
+        mHeaderDividerView.setVisibility(View.VISIBLE);
+        mNotificationGroupsShown = new ArrayList<>();
+        if (mUseLauncherIcon) {
+            mExpandedGroupHeader.setVisibility(View.VISIBLE);
+        } else {
+            mExpandedGroupHeader.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Adds notifications to {@link GroupNotificationViewHolder}.
+     */
+    private void addNotifications() {
+        mNumberOfShownNotifications =
+                addNextPageOfNotificationsToList(mNotificationGroupsShown);
+        mAdapter.setNotifications(
+                mNotificationGroupsShown, /* setRecyclerViewListHeadersAndFooters= */ false);
+        updateExpansionIcon(/* isExpanded= */ true);
+        updateOnClickListener(/* isExpanded= */ true);
+    }
+
+    /**
+     * Collapses the {@link GroupNotificationViewHolder}.
+     */
+    public void collapseGroup() {
+        mExpandedGroupHeader.setVisibility(View.GONE);
+        // hide header divider
+        mHeaderDividerView.setVisibility(View.GONE);
+
+        NotificationGroup newGroup = new NotificationGroup();
+        newGroup.setSeen(mNotificationGroup.isSeen());
+
+        if (mUseLauncherIcon) {
+            // Only show first notification since notification header is not being used.
+            newGroup.addNotification(mNotificationGroup.getChildNotifications().get(0));
+            mNumberOfShownNotifications = 1;
+        } else {
+            // Only show group summary notification
+            newGroup.addNotification(mNotificationGroup.getGroupSummaryNotification());
+            // If the group summary notification is automatically generated,
+            // it does not contain a summary of the titles of the child notifications.
+            // Therefore, we generate a list of the child notification titles from
+            // the parent notification group, and pass them on.
+            newGroup.setChildTitles(mNotificationGroup.generateChildTitles());
+            mNumberOfShownNotifications = 0;
+        }
+
+        mNotificationGroupsShown = new ArrayList(Collections.singleton(newGroup));
+        mAdapter.setNotifications(
+                mNotificationGroupsShown, /* setRecyclerViewListHeadersAndFooters= */ false);
+
+        updateExpansionIcon(/* isExpanded= */ false);
+        updateOnClickListener(/* isExpanded= */ false);
     }
 
     private void updateExpansionIcon(boolean isExpanded) {
@@ -290,7 +314,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mExpansionFooterView.setFocusable(isExpanded);
 
         int unshownCount = mNotificationGroup.getChildCount() - mNumberOfShownNotifications;
-        String footerText = mContext
+        String footerText = getContext()
                 .getString(R.string.show_more_from_app, unshownCount, mHeaderName);
         mExpansionFooterView.setText(footerText);
 
@@ -303,14 +327,19 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         updateDismissButton(getAlertEntry(), /* isHeadsUp= */ false);
     }
 
-    private void updateOnClickListener(CarNotificationViewAdapter parentAdapter,
-            boolean isExpanded) {
+    private void updateOnClickListener(boolean isExpanded) {
 
         View.OnClickListener expansionClickListener = view -> {
             boolean isExpanding = !isExpanded;
-            parentAdapter.setExpanded(mNotificationGroup.getGroupKey(), mNotificationGroup.isSeen(),
+            mParentAdapter.setExpanded(mNotificationGroup.getGroupKey(),
+                    mNotificationGroup.isSeen(),
                     isExpanding);
-            mAdapter.notifyDataSetChanged();
+            if (isExpanding) {
+                expandGroup();
+                addNotifications();
+            } else {
+                collapseGroup();
+            }
             if (!itemView.isInTouchMode()) {
                 if (isExpanding) {
                     mCurrentFocusRequestState = FocusRequestStates.EXPANDED_GROUP_HEADER;
@@ -332,12 +361,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
             } else {
                 mCurrentFocusRequestState = FocusRequestStates.NONE;
             }
-            mNumberOfShownNotifications =
-                    addNextPageOfNotificationsToList(mNotificationGroupsShown);
-            mAdapter.setNotifications(mNotificationGroupsShown,
-                    /* setRecyclerViewListHeadersAndFooters= */ false);
-            updateExpansionIcon(isExpanded);
-            updateOnClickListener(parentAdapter, isExpanded);
+            addNotifications();
         };
 
         if (isExpanded) {
@@ -428,7 +452,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     @Nullable
     private String loadHeaderAppName(StatusBarNotification sbn) {
-        Context packageContext = sbn.getPackageContext(mContext);
+        Context packageContext = sbn.getPackageContext(getContext());
         PackageManager pm = packageContext.getPackageManager();
         Notification notification = sbn.getNotification();
         CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
@@ -459,5 +483,10 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         EXPANDED_GROUP_HEADER,
         CARD_VIEW,
         NONE,
+    }
+
+    @VisibleForTesting
+    void setAdapter(CarNotificationViewAdapter adapter) {
+        mAdapter = adapter;
     }
 }
