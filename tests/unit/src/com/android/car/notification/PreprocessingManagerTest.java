@@ -1180,10 +1180,11 @@ public class PreprocessingManagerTest {
                     canBubble(i),
                     isVisuallyInterruptive(i),
                     isConversation(i),
-                    null,
+                    /* shortcutInfo= */ null,
                     getRankingAdjustment(i),
                     isBubble(i),
-                    0
+                    /* proposedImportance= */ 0,
+                    /* sensitiveContent= */ false
             );
             rankings[i] = ranking;
         }
