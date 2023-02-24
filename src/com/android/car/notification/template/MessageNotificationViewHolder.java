@@ -34,7 +34,6 @@ import androidx.core.app.NotificationCompat.MessagingStyle;
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.NotificationClickHandlerFactory;
-import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.PreprocessingManager;
 import com.android.car.notification.R;
 
@@ -226,11 +225,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                             sbn, conversationTitle, avatar, groupIcon, when);
             mBodyView.setCountOnClickListener(listener);
         }
-        boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(), sbn);
-
-        mBodyView.bind(conversationTitle, messageText, useLauncherIcon,
-                loadAppLauncherIcon(sbn), avatar, groupIcon,
-                unshownCountText, when);
+        mBodyView.bind(conversationTitle, messageText,
+                sbn, avatar, groupIcon, unshownCountText, when);
     }
 
     private CharSequence getMessageText(Notification.MessagingStyle.Message message,
@@ -400,10 +396,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                         R.plurals.message_unshown_count, finalUnshownCount, finalUnshownCount);
             }
 
-            Drawable launcherIcon = loadAppLauncherIcon(sbn);
-            boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(),
-                    sbn);
-            mBodyView.bind(title, finalMessage, useLauncherIcon, launcherIcon, avatar, groupIcon,
+            mBodyView.bind(title, finalMessage, sbn, avatar, groupIcon,
                     unshownCountText, when);
             mBodyView.setContentMaxLines(mMaxLineCount);
             mBodyView.setCountOnClickListener(null);

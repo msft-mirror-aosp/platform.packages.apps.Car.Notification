@@ -73,11 +73,9 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-        boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(),
-                alertEntry.getStatusBarNotification());
 
-        mBodyView.bind(title, text, useLauncherIcon,
-                loadAppLauncherIcon(alertEntry.getStatusBarNotification()),
+        mBodyView.bind(title, text,
+                alertEntry.getStatusBarNotification(),
                 notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
                 notification.showsTime() ? notification.when : null);
 
