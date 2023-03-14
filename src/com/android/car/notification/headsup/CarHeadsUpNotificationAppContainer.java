@@ -30,11 +30,10 @@ import com.android.car.notification.R;
  */
 public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationContainer {
     private static final String TAG = "CarHUNContainerApp";
-    private Context mContext;
+
 
     public CarHeadsUpNotificationAppContainer(Context context) {
         super(context, context.getSystemService(WindowManager.class));
-        mContext = context;
     }
 
     @Override
@@ -48,9 +47,8 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         wrapperParams.gravity = getShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
-
-        wrapperParams.y = (int) mContext.getResources().getDimension(
-                R.dimen.headsup_notification_window_y_offset);;
+        wrapperParams.y = (int) getContext().getResources().getDimension(
+                R.dimen.headsup_notification_window_y_offset);
         return wrapperParams;
     }
 }
