@@ -197,13 +197,13 @@ public class CarNotificationViewTest {
     }
 
     @Test
-    public void setNotifications_empty_listViewIsGone() {
+    public void setNotifications_empty_listViewStaysVisible() {
         List<NotificationGroup> notifications = new ArrayList<>();
 
         mCarNotificationView.setNotifications(notifications);
 
         assertThat(mCarNotificationView.findViewById(R.id.notifications).getVisibility())
-                .isEqualTo(View.GONE);
+                .isEqualTo(View.VISIBLE);
     }
 
     @Test
