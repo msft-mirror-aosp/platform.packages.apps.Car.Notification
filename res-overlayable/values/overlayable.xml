@@ -22,6 +22,9 @@ REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
       <item type="array" name="headsup_category_immediate_show"/>
       <item type="array" name="headsup_category_priority"/>
       <item type="array" name="headsup_throttled_foreground_packages"/>
+      <item type="attr" name="cardBackgroundColor"/>
+      <item type="attr" name="cardCornerRadius"/>
+      <item type="attr" name="cardElevation"/>
       <item type="attr" name="categoryCall"/>
       <item type="attr" name="isHeadsUp"/>
       <item type="attr" name="maxLines"/>
