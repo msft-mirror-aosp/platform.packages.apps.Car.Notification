@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
@@ -36,7 +35,6 @@ public class CarNotificationCenterActivity extends Activity {
 
     private static final String TAG = "CarNotificationActivity";
 
-    private boolean mNotificationListenerBound;
     private CarNotificationListener mNotificationListener;
     private PreprocessingManager mPreprocessingManager;
     private CarNotificationView mCarNotificationView;
@@ -56,7 +54,6 @@ public class CarNotificationCenterActivity extends Activity {
                             mNotificationListener,
                             app.getCarUxRestrictionWrapper());
             mNotificationViewController.enable();
-            mNotificationListenerBound = true;
             getApplicationContext().getMainExecutor().execute(() -> {
                 if (isResumed()) {
                     notifyVisibilityChanged(/* isVisible= */ true);
@@ -70,7 +67,6 @@ public class CarNotificationCenterActivity extends Activity {
             mNotificationViewController.disable();
             mNotificationViewController = null;
             mNotificationListener = null;
-            mNotificationListenerBound = false;
         }
     };
 
@@ -114,17 +110,18 @@ public class CarNotificationCenterActivity extends Activity {
         notifyVisibilityChanged(/* isVisible= */ false);
 
         // Unbind notification listener
-        if (mNotificationListenerBound) {
+        if (mNotificationViewController != null) {
             mNotificationViewController.disable();
             mNotificationViewController = null;
             mNotificationListener = null;
             unbindService(mNotificationListenerConnectionListener);
-            mNotificationListenerBound = false;
         }
     }
 
     private void notifyVisibilityChanged(boolean isVisible) {
-        mNotificationViewController.onVisibilityChanged(isVisible);
+        if (mNotificationViewController != null) {
+            mNotificationViewController.onVisibilityChanged(isVisible);
+        }
         try {
             if (isVisible) {
                 mStatusBarService.onPanelRevealed(/* clearNotificationEffects= */ true,
