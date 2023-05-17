@@ -113,8 +113,11 @@ public class CarNotificationCenterActivity extends Activity {
         if (mNotificationViewController != null) {
             mNotificationViewController.disable();
             mNotificationViewController = null;
-            mNotificationListener = null;
+        }
+
+        if (mNotificationListenerConnectionListener != null) {
             unbindService(mNotificationListenerConnectionListener);
+            mNotificationListener = null;
         }
     }
 
