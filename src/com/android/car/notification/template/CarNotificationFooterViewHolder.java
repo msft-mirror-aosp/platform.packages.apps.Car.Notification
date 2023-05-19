@@ -76,6 +76,7 @@ public class CarNotificationFooterViewHolder extends RecyclerView.ViewHolder {
         if (containsNotification) {
             mClearAllButton.setVisibility(View.VISIBLE);
             if (mShowRecentsAndOlderHeaders) {
+                mClearAllButton.setId(R.id.manage_button);
                 mClearAllButton.setText(R.string.manage_text);
                 mClearAllButton.setOnClickListener(this::manageButtonOnClickListener);
                 mClearAllButton.setAlpha(containsSeenNotifications ? mAlpha : 1);
