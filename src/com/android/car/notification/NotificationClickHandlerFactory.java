@@ -16,8 +16,11 @@
 
 package com.android.car.notification;
 
+import static android.app.ComponentOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -106,16 +109,7 @@ public class NotificationClickHandlerFactory {
                 return;
             }
 
-            int result = ActivityManager.START_ABORTED;
-            try {
-                result = intent.sendAndReturnResult(/* context= */ null, /* code= */ 0,
-                        /* intent= */ null, /* onFinished= */ null,
-                        /* handler= */ null, /* requiredPermissions= */ null,
-                        /* options= */ null);
-            } catch (PendingIntent.CanceledException e) {
-                // Do not take down the app over this
-                Log.w(TAG, "Sending contentIntent failed: " + e);
-            }
+            int result = sendPendingIntent(intent, /* context= */ null, /* resultIntent= */ null);
             NotificationVisibility notificationVisibility = NotificationVisibility.obtain(
                     alertEntry.getKey(),
                     /* rank= */ -1, /* count= */ -1, /* visible= */ true);
@@ -401,11 +395,14 @@ public class NotificationClickHandlerFactory {
 
     private int sendPendingIntent(PendingIntent pendingIntent, Context context,
             Intent resultIntent) {
+        // Needed to start activities on clicking the Notification
+        ActivityOptions options = ActivityOptions.makeBasic()
+                .setPendingIntentBackgroundActivityStartMode(
+                        MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
         try {
             return pendingIntent.sendAndReturnResult(/* context= */ context, /* code= */ 0,
                     /* intent= */ resultIntent, /* onFinished= */null,
-                    /* handler= */ null, /* requiredPermissions= */ null,
-                    /* options= */ null);
+                    /* handler= */ null, /* requiredPermissions= */ null, options.toBundle());
         } catch (PendingIntent.CanceledException e) {
             // Do not take down the app over this
             Log.w(TAG, "Sending contentIntent failed: " + e);
