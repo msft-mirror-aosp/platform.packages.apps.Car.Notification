@@ -26,7 +26,7 @@
     <string name="action_canned_reply" msgid="4045960823021872834">"\"ಡ್ರೈವ್ ಮಾಡುತ್ತಿದ್ದೇನೆ.\""</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"ಡ್ರೈವ್ ಮಾಡುತ್ತಿದ್ದೇನೆ."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"ಸಂದೇಶವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ."</string>
-    <string name="notification_service_label" msgid="7512186049723777468">"ಕಾರ್‌ ಅಧಿಸೂಚನೆ ಕೇಳುವ ಸೇವೆ"</string>
+    <string name="notification_service_label" msgid="7512186049723777468">"ಕಾರ್‌ ನೋಟಿಫಿಕೇಶನ್ ಕೇಳುವ ಸೇವೆ"</string>
     <string name="notifications" msgid="2865534625906329283">"ಅಧಿಸೂಚನೆಯ ಕೇಂದ್ರ"</string>
     <string name="clear_all" msgid="1845314281571237722">"ತೆರವುಗೊಳಿಸಿ"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
