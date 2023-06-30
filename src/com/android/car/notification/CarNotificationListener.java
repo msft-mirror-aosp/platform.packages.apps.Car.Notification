@@ -261,6 +261,17 @@ public class CarNotificationListener extends NotificationListenerService impleme
     }
 
     /**
+     * Clears all local cached variables.
+     * Note: This is a blocking call so should not execute any long-running or time-consuming tasks
+     * like storing cache.
+     */
+    public void clearCache() {
+        mHeadsUpManager.clearCache();
+        mNotificationDataManager.clearAll();
+        mActiveNotifications.clear();
+    }
+
+    /**
      * Called when Notification Panel's visibility changes.
      */
     public void onVisibilityChanged(boolean isVisible) {
