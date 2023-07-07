@@ -54,7 +54,8 @@
                   android:launchMode="singleInstance"
                   android:noHistory="true"
                   android:exported="true"
-                  android:stateNotNeeded="true">
+                  android:stateNotNeeded="true"
+                  android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized"
                        android:value="true"/>
         </activity>
