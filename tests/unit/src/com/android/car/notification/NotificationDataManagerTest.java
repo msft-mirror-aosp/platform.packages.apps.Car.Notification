@@ -327,7 +327,8 @@ public class NotificationDataManagerTest {
                     /* isConversation= */ false,
                     /* shortcutInfo= */ null,
                     /* rankingAdjustment= */ 0,
-                    /* isBubble= */ false
+                    /* isBubble= */ false,
+                    /* proposedImportance= */ 0
             );
             rankings[i] = ranking;
         }
