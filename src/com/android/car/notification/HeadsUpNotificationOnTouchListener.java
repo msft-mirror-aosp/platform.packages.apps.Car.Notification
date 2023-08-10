@@ -18,44 +18,76 @@ package com.android.car.notification;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.res.Resources;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
+
+import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * OnTouchListener that enables swipe-to-dismiss gesture on heads-up notifications.
  */
 class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
+    // todo(b/301474982): converge common logic in this and CarNotificationItemTouchListener class.
+    private static final int INITIAL_TRANSLATION_X = 0;
+    private static final int INITIAL_TRANSLATION_Y = 0;
+    private static final float MAXIMUM_ALPHA = 1f;
+    private static final float MINIMUM_ALPHA = 0f;
     /**
-     * Minimum velocity to initiate a fling, as measured in pixels per second.
+     * Factor by which view's alpha decreases based on the translation in the direction of dismiss.
+     * Example: If set to 1f, the view will be invisible when it has translated the maximum possible
+     * translation, similarly for 2f, view will be invisible halfway.
      */
-    private static final int MINIMUM_FLING_VELOCITY = 2000;
-
-    /**
-     * Distance a touch can wander before we think the user is scrolling in pixels.
-     */
-    private static final int TOUCH_SLOP = 20;
-
-    /**
-     * The proportion which view has to be swiped before it dismisses.
-     */
-    private static final float THRESHOLD = 0.3f;
+    private static final float ALPHA_FADE_FACTOR_MULTIPLIER = 2f;
 
     /**
      * The unit of velocity in milliseconds. A value of 1 means "pixels per millisecond",
      * 1000 means "pixels per 1000 milliseconds (1 second)".
      */
-    private static final int VELOCITY_UNITS = 1000;
-
+    private static final int PIXELS_PER_SECOND = (int) TimeUnit.SECONDS.toMillis(1);
     private final View mView;
     private final DismissCallbacks mCallbacks;
-
+    private final Axis mDismissAxis;
+    /**
+     * Distance a touch can wander before we think the user is scrolling in pixels.
+     */
+    private final int mTouchSlop;
+    private final boolean mDismissOnSwipe;
+    /**
+     * The proportion which view has to be swiped before it dismisses.
+     */
+    private final float mPercentageOfMaxTransaltionToDismiss;
+    /**
+     * The minimum velocity in pixel per second the swipe gesture to initiate a dismiss action.
+     */
+    private final int mMinimumFlingVelocity;
+    /**
+     * The cap on velocity in pixel per second a swipe gesture is calculated to have.
+     */
+    private final int mMaximumFlingVelocity;
+    /**
+     * The transaltion that a view can have. To set change value of
+     * {@code R.dimen.max_translation_headsup} to a non zero value. If set to zero, the view's
+     * dimensions(height/width) will be used instead.
+     */
+    private float mMaxTranslation;
+    /**
+     * Distance by which a view should be translated by to be considered dismissed. Can be
+     * configured by setting {@code R.dimen.percentage_of_max_translation_to_dismiss}
+     */
+    private float mDismissDelta;
     private VelocityTracker mVelocityTracker;
     private float mDownX;
+    private float mDownY;
     private boolean mSwiping;
     private int mSwipingSlop;
-    private float mTranslationX;
-    private boolean mDismissOnSwipe = true;
+    private float mTranslation;
 
     /**
      * The callback indicating the supplied view has been dismissed.
@@ -64,24 +96,68 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
         void onDismiss();
     }
 
+    private enum Axis {
+        HORIZONTAL, VERTICAL;
+
+        public Axis getOppositeAxis() {
+            switch (this) {
+                case VERTICAL:
+                    return HORIZONTAL;
+                default:
+                    return VERTICAL;
+            }
+        }
+    }
+
     HeadsUpNotificationOnTouchListener(View view, boolean dismissOnSwipe,
             DismissCallbacks callbacks) {
         mView = view;
         mCallbacks = callbacks;
         mDismissOnSwipe = dismissOnSwipe;
+        Resources res = view.getContext().getResources();
+        mDismissAxis = res.getBoolean(R.bool.config_isHeadsUpNotificationDismissibleVertically)
+                ? Axis.VERTICAL : Axis.HORIZONTAL;
+        mTouchSlop = res.getDimensionPixelSize(R.dimen.touch_slop);
+        mPercentageOfMaxTransaltionToDismiss =
+                res.getFloat(R.dimen.percentage_of_max_translation_to_dismiss);
+        mMaxTranslation = res.getDimension(R.dimen.max_translation_headsup);
+        if (mMaxTranslation != 0) {
+            mDismissDelta = mMaxTranslation * mPercentageOfMaxTransaltionToDismiss;
+        } else {
+            mView.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            mView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            if (mDismissAxis == Axis.VERTICAL) {
+                                mMaxTranslation = view.getHeight();
+                            } else {
+                                mMaxTranslation = view.getWidth();
+                            }
+                            mDismissDelta = mMaxTranslation * mPercentageOfMaxTransaltionToDismiss;
+                        }
+                    });
+        }
+        ViewConfiguration viewConfiguration = ViewConfiguration.get(view.getContext());
+        mMaximumFlingVelocity = viewConfiguration.getScaledMaximumFlingVelocity();
+        mMinimumFlingVelocity = viewConfiguration.getScaledMinimumFlingVelocity();
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        motionEvent.offsetLocation(mTranslationX, /* deltaY= */ 0);
-        int viewWidth = mView.getWidth();
+        if (mDismissAxis == Axis.VERTICAL) {
+            motionEvent.offsetLocation(INITIAL_TRANSLATION_X, /* deltaY= */ mTranslation);
+        } else {
+            motionEvent.offsetLocation(/* deltaX= */ mTranslation, INITIAL_TRANSLATION_Y);
+        }
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 mDownX = motionEvent.getRawX();
-                mVelocityTracker = VelocityTracker.obtain();
+                mDownY = motionEvent.getRawY();
+                mVelocityTracker = obtainVelocityTracker();
                 mVelocityTracker.addMovement(motionEvent);
-                return false;
+                break;
             }
 
             case MotionEvent.ACTION_UP: {
@@ -89,38 +165,29 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                     return false;
                 }
 
-                float deltaX = motionEvent.getRawX() - mDownX;
                 mVelocityTracker.addMovement(motionEvent);
-                mVelocityTracker.computeCurrentVelocity(VELOCITY_UNITS);
-                float velocityX = mVelocityTracker.getXVelocity();
-                float absVelocityX = Math.abs(velocityX);
-                float absVelocityY = Math.abs(mVelocityTracker.getYVelocity());
-                boolean dismiss = false;
-                boolean dismissRight = false;
-                if (Math.abs(deltaX) > viewWidth * THRESHOLD) {
+                mVelocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, mMaximumFlingVelocity);
+                float deltaInDismissAxis =
+                        getDeltaInAxis(mDownX, mDownY, motionEvent, mDismissAxis);
+                boolean shouldBeDismissed = false;
+                boolean dismissInPositiveDirection = false;
+                if (Math.abs(deltaInDismissAxis) > mDismissDelta) {
                     // dismiss when the movement is more than the defined threshold.
-                    dismiss = true;
-                    dismissRight = deltaX > 0;
-                } else if (MINIMUM_FLING_VELOCITY <= absVelocityX
-                        && absVelocityY < absVelocityX
-                        && mSwiping) {
+                    shouldBeDismissed = true;
+                    dismissInPositiveDirection = deltaInDismissAxis > 0;
+                } else if (mSwiping && isFlingEnoughForDismiss(mVelocityTracker, mDismissAxis)
+                        && isFlingInSameDirectionAsDelta(
+                                deltaInDismissAxis, mVelocityTracker, mDismissAxis)) {
                     // dismiss when the velocity is more than the defined threshold.
                     // dismiss only if flinging in the same direction as dragging.
-                    dismiss = (velocityX < 0) == (deltaX < 0);
-                    dismissRight = mVelocityTracker.getXVelocity() > 0;
+                    shouldBeDismissed = true;
+                    dismissInPositiveDirection =
+                            getVelocityInAxis(mVelocityTracker, mDismissAxis) > 0;
                 }
-                if (dismiss && mDismissOnSwipe) {
+
+                if (shouldBeDismissed && mDismissOnSwipe) {
                     mCallbacks.onDismiss();
-                    mView.animate()
-                            .translationX(dismissRight ? viewWidth : -viewWidth)
-                            .alpha(0)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    mView.setAlpha(1f);
-                                    mView.setTranslationX(0);
-                                }
-                            });
+                    animateDismissInAxis(mView, mDismissAxis, dismissInPositiveDirection);
                 } else if (mSwiping) {
                     animateToCenter();
                 }
@@ -143,35 +210,23 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                 }
 
                 mVelocityTracker.addMovement(motionEvent);
-                float deltaX = motionEvent.getRawX() - mDownX;
-                if (Math.abs(deltaX) > TOUCH_SLOP) {
+                float deltaInDismissAxis =
+                        getDeltaInAxis(mDownX, mDownY, motionEvent, mDismissAxis);
+                if (Math.abs(deltaInDismissAxis) > mTouchSlop) {
                     mSwiping = true;
-                    mSwipingSlop = (deltaX > 0 ? TOUCH_SLOP : -TOUCH_SLOP);
-                    mView.getParent().requestDisallowInterceptTouchEvent(true);
-
-                    // prevent onClickListener being triggered when moving.
-                    MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
-                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
-                            (motionEvent.getActionIndex() <<
-                                    MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-                    mView.onTouchEvent(cancelEvent);
-                    cancelEvent.recycle();
+                    mSwipingSlop = (deltaInDismissAxis > 0 ? mTouchSlop : -mTouchSlop);
+                    disallowAndCancelTouchEvents(mView, motionEvent);
                 }
 
                 if (mSwiping) {
-                    mTranslationX = deltaX;
-                    mView.setTranslationX(deltaX - mSwipingSlop);
-                    if (!mDismissOnSwipe) {
-                        return true;
+                    mTranslation = deltaInDismissAxis;
+                    moveView(mView,
+                            /* translation= */ deltaInDismissAxis - mSwipingSlop, mDismissAxis);
+                    if (mDismissOnSwipe) {
+                        mView.setAlpha(getAlphaForDismissingView(mTranslation, mMaxTranslation));
                     }
-                    mView.setAlpha(Math.max(0f, Math.min(1f,
-                            1f - 2f * Math.abs(deltaX) / viewWidth)));
                     return true;
                 }
-            }
-
-            default: {
-                return false;
             }
         }
         return false;
@@ -179,8 +234,9 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
 
     private void animateToCenter() {
         mView.animate()
-                .translationX(0)
-                .alpha(1)
+                .translationX(INITIAL_TRANSLATION_X)
+                .translationY(INITIAL_TRANSLATION_Y)
+                .alpha(MAXIMUM_ALPHA)
                 .setListener(null);
     }
 
@@ -189,8 +245,128 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
             mVelocityTracker.recycle();
         }
         mVelocityTracker = null;
-        mTranslationX = 0;
+        mTranslation = 0;
         mDownX = 0;
+        mDownY = 0;
         mSwiping = false;
+    }
+
+    private void resetView(View view) {
+        view.setTranslationX(INITIAL_TRANSLATION_X);
+        view.setTranslationY(INITIAL_TRANSLATION_Y);
+        view.setAlpha(MAXIMUM_ALPHA);
+    }
+
+    private float getDeltaInAxis(
+            float downX, float downY, MotionEvent motionEvent, Axis dismissAxis) {
+        switch (dismissAxis) {
+            case VERTICAL:
+                return motionEvent.getRawY() - downY;
+            default:
+                return motionEvent.getRawX() - downX;
+        }
+    }
+
+    private void disallowAndCancelTouchEvents(View view, MotionEvent motionEvent) {
+        view.getParent().requestDisallowInterceptTouchEvent(true);
+
+        // prevent onClickListener being triggered when moving.
+        MotionEvent cancelEvent = obtainMotionEvent(motionEvent);
+        cancelEvent.setAction(MotionEvent.ACTION_CANCEL
+                | (motionEvent.getActionIndex()
+                << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+        view.onTouchEvent(cancelEvent);
+        cancelEvent.recycle();
+    }
+
+    private void moveView(View view, float translation, Axis dismissAxis) {
+        if (dismissAxis == Axis.VERTICAL) {
+            view.setTranslationY(translation);
+        } else {
+            view.setTranslationX(translation);
+        }
+    }
+
+    private float getAlphaForDismissingView(float translation, float maxTranslation) {
+        float fractionMoved = Math.abs(translation) / Math.abs(maxTranslation);
+        // min is required to avoid value greater than MAXIMUM_ALPHA
+        float alphaBasedOnTranslation = Math.min(MAXIMUM_ALPHA,
+                MAXIMUM_ALPHA - (ALPHA_FADE_FACTOR_MULTIPLIER * fractionMoved));
+        // max is required to avoid alpha values less than min
+        return Math.max(MINIMUM_ALPHA, alphaBasedOnTranslation);
+    }
+
+    private boolean isFlingEnoughForDismiss(VelocityTracker velocityTracker, Axis axis) {
+        float velocityInDismissingDirection = getVelocityInAxis(velocityTracker, axis);
+        float velocityInOppositeDirection =
+                getVelocityInAxis(velocityTracker, axis.getOppositeAxis());
+        boolean isMoreFlingInDismissAxis =
+                Math.abs(velocityInDismissingDirection) > Math.abs(velocityInOppositeDirection);
+        return mMinimumFlingVelocity <= Math.abs(velocityInDismissingDirection)
+                && isMoreFlingInDismissAxis;
+    }
+
+    private float getVelocityInAxis(VelocityTracker velocityTracker, Axis axis) {
+        switch (axis) {
+            case VERTICAL:
+                return velocityTracker.getYVelocity();
+            default:
+                return velocityTracker.getXVelocity();
+        }
+    }
+
+    private boolean isFlingInSameDirectionAsDelta(float delta, VelocityTracker velocityTracker,
+            Axis axis) {
+        float velocityInDismissingDirection = getVelocityInAxis(velocityTracker, axis);
+        boolean isVelocityInPositiveDirection = velocityInDismissingDirection > 0;
+        boolean isDeltaInPositiveDirection = delta > 0;
+        return isVelocityInPositiveDirection == isDeltaInPositiveDirection;
+    }
+
+    private void animateDismissInAxis(View view, Axis axis, boolean dismissInPositiveDirection) {
+        float dismissTranslation = dismissInPositiveDirection ? mMaxTranslation : -mMaxTranslation;
+        ViewPropertyAnimator animator = view.animate();
+        if (axis == Axis.VERTICAL) {
+            animator.translationY(dismissTranslation);
+        } else {
+            animator.translationX(dismissTranslation);
+        }
+        animator.alpha(MINIMUM_ALPHA).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                resetView(mView);
+            }
+        }).start();
+    }
+
+    /**
+     * Should be overridden in test to not access static obtain method.
+     */
+    @VisibleForTesting
+    MotionEvent obtainMotionEvent(MotionEvent motionEvent) {
+        return MotionEvent.obtain(motionEvent);
+    }
+
+    /**
+     * Should be overridden in test to not access static obtain method.
+     */
+    @VisibleForTesting
+    VelocityTracker obtainVelocityTracker() {
+        return VelocityTracker.obtain();
+    }
+
+    @VisibleForTesting
+    int getMinimumFlingVelocity() {
+        return mMinimumFlingVelocity;
+    }
+
+    @VisibleForTesting
+    int getTouchSlop() {
+        return mTouchSlop;
+    }
+
+    @VisibleForTesting
+    float getPercentageOfMaxTransaltionToDismiss() {
+        return mPercentageOfMaxTransaltionToDismiss;
     }
 }
