@@ -104,10 +104,8 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     {
-        mDefaultPrimaryTextColor =
-                NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorPrimary);
-        mDefaultSecondaryTextColor =
-                NotificationUtils.getAttrColor(getContext(), android.R.attr.textColorSecondary);
+        mDefaultPrimaryTextColor = getContext().getColor(R.color.primary_text_color);
+        mDefaultSecondaryTextColor = getContext().getColor(R.color.secondary_text_color);
         mDefaultUseLauncherIcon = getResources().getBoolean(R.bool.config_useLauncherIcon);
     }
 
@@ -255,6 +253,15 @@ public class CarNotificationBodyView extends RelativeLayout {
     public void setCountTextColor(@ColorInt int color) {
         if (mCountView != null) {
             mCountView.setTextColor(color);
+        }
+    }
+
+    /**
+     * Sets the alpha for the count field.
+     */
+    public void setCountTextAlpha(float alpha) {
+        if (mCountView != null) {
+            mCountView.setAlpha(alpha);
         }
     }
 
