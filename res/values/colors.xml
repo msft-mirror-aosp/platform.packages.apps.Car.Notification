@@ -15,6 +15,7 @@
     limitations under the License.
 -->
 <resources>
+    <color name="ic_launcher_background">#2563E7</color>
     <color name="notification_background_color">#ff282a2d</color>
     <color name="group_notification_background_color">@*android:color/car_grey_900</color>
     <color name="action_button_background_color">#1EFFFFFF</color>
