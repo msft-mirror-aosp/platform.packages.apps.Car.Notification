@@ -26,12 +26,10 @@ import com.android.car.assist.client.CarAssistUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Keeps track of the additional state of notifications. This class is not thread safe and should
@@ -63,17 +61,20 @@ public class NotificationDataManager {
      * button on their notification and should trigger the HUN. Both should update the notification
      * in the Notification Center.
      */
-    private final Map<String, Boolean> mMessageNotificationToMuteStateMap = new HashMap<>();
+    private final ConcurrentHashMap<String, Boolean> mMessageNotificationToMuteStateMap =
+            new ConcurrentHashMap<>();
 
     /**
      * Map that contains the key of all unseen notifications.
      */
-    private final Map<String, Boolean> mUnseenNotificationMap = new HashMap<>();
+    private final ConcurrentHashMap<String, Boolean> mUnseenNotificationMap =
+            new ConcurrentHashMap<>();
 
     /**
      * List of notifications that are visible to the user.
      */
-    private final Set<AlertEntry> mVisibleNotifications = new HashSet<>();
+    private final ConcurrentHashMap.KeySetView<AlertEntry, Boolean> mVisibleNotifications =
+            ConcurrentHashMap.newKeySet();
 
     private OnUnseenCountUpdateListener mOnUnseenCountUpdateListener;
 
@@ -174,6 +175,7 @@ public class NotificationDataManager {
         if (!mMessageNotificationToMuteStateMap.containsKey(alertEntry.getKey())) {
             addNewMessageNotification(alertEntry);
         }
+
         return mMessageNotificationToMuteStateMap.getOrDefault(alertEntry.getKey(), false);
     }
 
@@ -203,7 +205,6 @@ public class NotificationDataManager {
         mMessageNotificationToMuteStateMap.clear();
         mUnseenNotificationMap.clear();
         mVisibleNotifications.clear();
-
         notifyUnseenCountUpdateListeners();
     }
 
@@ -257,7 +258,7 @@ public class NotificationDataManager {
      * Returns a collection containing all notifications the user should be seeing right now.
      */
     public List<AlertEntry> getVisibleNotifications() {
-        return mVisibleNotifications.stream().collect(Collectors.toList());
+        return new ArrayList<>(mVisibleNotifications);
     }
 
     /**
