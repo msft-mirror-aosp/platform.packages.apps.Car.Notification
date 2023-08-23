@@ -134,10 +134,10 @@ public class CarNotificationActionsView extends LinearLayout implements
         mUnmuteButtonBackground.setColorFilter(
                 new PorterDuffColorFilter(mContext.getColor(R.color.unmute_button),
                         PorterDuff.Mode.SRC_IN));
-        mPlayButtonText =  mContext.getString(R.string.assist_action_play_label);
+        mPlayButtonText = mContext.getString(R.string.assist_action_play_label);
         mReplyButtonText = mContext.getString(R.string.assist_action_reply_label);
-        mMuteText =  mContext.getString(R.string.action_mute_short);
-        mUnmuteText =  mContext.getString(R.string.action_unmute_short);
+        mMuteText = mContext.getString(R.string.action_mute_short);
+        mUnmuteText = mContext.getString(R.string.action_unmute_short);
         mPlayButtonDrawable = mContext.getDrawable(R.drawable.ic_play_arrow);
         mReplyButtonDrawable = mContext.getDrawable(R.drawable.ic_reply);
         mMuteButtonDrawable = mContext.getDrawable(R.drawable.ic_mute);
@@ -205,6 +205,10 @@ public class CarNotificationActionsView extends LinearLayout implements
             return;
         }
 
+        // getPackageContext defaults to the context set in the parameter. Sending null to ensure
+        // that the result is null if the package context is not obtainable.
+        Context packageContext =
+                alertEntry.getStatusBarNotification().getPackageContext(/* context= */ null);
         int length = Math.min(actions.length, MAX_NUM_ACTIONS);
         for (int i = 0; i < length; i++) {
             Notification.Action action = actions[i];
@@ -212,14 +216,14 @@ public class CarNotificationActionsView extends LinearLayout implements
             button.setVisibility(View.VISIBLE);
             // clear spannables and only use the text
             button.setText(action.title.toString());
-            Icon icon = action.getIcon();
-            if (icon != null) {
-                icon.loadDrawableAsync(mContext, drawable -> button.setImageDrawable(drawable),
-                        Handler.createAsync(Looper.myLooper()));
-            }
 
             if (action.actionIntent != null) {
                 button.setOnClickListener(clickHandlerFactory.getActionClickHandler(alertEntry, i));
+            }
+
+            Icon icon = action.getIcon();
+            if (icon != null && packageContext != null) {
+                icon.loadDrawableAsync(packageContext, button::setImageDrawable, getAsyncHandler());
             }
         }
 
@@ -320,7 +324,7 @@ public class CarNotificationActionsView extends LinearLayout implements
         button.setText(isMuted ? mUnmuteText : mMuteText);
         button.setTextColor(isMuted ? mUnmuteTextColor : button.getDefaultTextColor());
         button.setImageDrawable(isMuted ? mUnmuteButtonDrawable : mMuteButtonDrawable);
-        button.setBackground(isMuted ? mUnmuteButtonBackground :  mActionButtonBackground);
+        button.setBackground(isMuted ? mUnmuteButtonBackground : mActionButtonBackground);
     }
 
     /** Implementation of {@link PreprocessingManager.CallStateListener} **/
@@ -370,5 +374,11 @@ public class CarNotificationActionsView extends LinearLayout implements
             }
         }
         return -1;
+    }
+
+    /** Will be overwritten by test to return a mock Handler **/
+    @VisibleForTesting
+    Handler getAsyncHandler() {
+        return Handler.createAsync(Looper.myLooper());
     }
 }
