@@ -22,12 +22,20 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
+import android.os.Handler;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
@@ -69,7 +77,8 @@ public class CarNotificationActionsViewTest {
     private CarNotificationActionsView mCarNotificationActionsView;
     private Notification.Action mAction;
     private Context mContext;
-    private AlertEntry mAlertEntryMessageHeadsUp;
+    private AlertEntry mMessageCategoryAlertEntry;
+    private Icon mIcon;
     @Mock
     private StatusBarNotification mStatusBarNotification;
     @Mock
@@ -78,29 +87,36 @@ public class CarNotificationActionsViewTest {
     private NotificationDataManager mNotificationDataManager;
     @Mock
     private CarAssistUtils mCarAssistUtils;
+    @Mock
+    private Context mMockContext;
+    @Mock
+    private Handler mHandler;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
         mContext = ApplicationProvider.getApplicationContext();
-        PendingIntent pendingIntent = PendingIntent.getForegroundService(
-                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
-        mAction = new Notification.Action
-                .Builder(/* icon= */ null, ACTION_TITLE, pendingIntent).build();
-        MockMessageNotificationBuilder builder = new MockMessageNotificationBuilder(mContext,
-                CHANNEL_ID, android.R.drawable.sym_def_app_icon)
-                .setContentTitle(CONTENT_TITLE)
-                .setCategory(Notification.CATEGORY_MESSAGE)
-                .setHasMessagingStyle(true)
-                .setHasReplyAction(true)
-                .setHasMuteAction(true)
-                .setHasMarkAsRead(true);
-        Notification mNotificationMessageHeadsUp = builder.build();
-        mAlertEntryMessageHeadsUp = new AlertEntry(
+        mIcon = spy(Icon.createWithResource(mContext, R.drawable.icon));
+        doNothing().when(mIcon).loadDrawableAsync(any(Context.class),
+                nullable(Icon.OnDrawableLoadedListener.class), nullable(Handler.class));
+        initAction(/* icon= */ null);
+
+        MockMessageNotificationBuilder messageNotificationBuilder =
+                new MockMessageNotificationBuilder(mContext,
+                        CHANNEL_ID, android.R.drawable.sym_def_app_icon)
+                        .setContentTitle(CONTENT_TITLE)
+                        .setCategory(Notification.CATEGORY_MESSAGE)
+                        .setHasMessagingStyle(true)
+                        .setHasReplyAction(true)
+                        .setHasMuteAction(true)
+                        .setHasMarkAsRead(true);
+        mMessageCategoryAlertEntry = new AlertEntry(
                 new StatusBarNotification(PKG, OP_PKG, ID, TAG, UID, INITIAL_PID,
-                        mNotificationMessageHeadsUp, USER_HANDLE, OVERRIDE_GROUP_KEY, POST_TIME));
+                        messageNotificationBuilder.build(), USER_HANDLE, OVERRIDE_GROUP_KEY,
+                        POST_TIME));
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
+
         when(mNotificationClickHandlerFactory
                 .getPlayClickHandler(any(AlertEntry.class)))
                 .thenReturn(CLICK_LISTENER);
@@ -115,7 +131,7 @@ public class CarNotificationActionsViewTest {
                 .getActionClickHandler(any(AlertEntry.class), anyInt()))
                 .thenReturn(CLICK_LISTENER);
         when(mNotificationClickHandlerFactory.getReplyAction(any(Notification.class)))
-                .thenReturn(builder.getReplyAction());
+                .thenReturn(messageNotificationBuilder.getReplyAction());
 
         when(mCarAssistUtils.hasActiveAssistant()).thenReturn(true);
         when(mCarAssistUtils.isFallbackAssistantEnabled()).thenReturn(false);
@@ -150,7 +166,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -162,7 +178,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -174,7 +190,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -187,7 +203,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -203,7 +219,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(
-                mNotificationClickHandlerFactory, mAlertEntryMessageHeadsUp);
+                mNotificationClickHandlerFactory, mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -218,7 +234,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(
-                mNotificationClickHandlerFactory, mAlertEntryMessageHeadsUp);
+                mNotificationClickHandlerFactory, mMessageCategoryAlertEntry);
         CarNotificationActionButton playButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.FIRST_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -233,7 +249,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton replyButton = mCarNotificationActionsView.getActionButtons()
                 .get(CarNotificationActionsView.SECOND_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -245,7 +261,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton replyButton = mCarNotificationActionsView.getActionButtons()
                 .get(CarNotificationActionsView.SECOND_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -257,7 +273,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton replyButton = mCarNotificationActionsView.getActionButtons()
                 .get(CarNotificationActionsView.SECOND_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -270,7 +286,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton replyButton = mCarNotificationActionsView.getActionButtons()
                 .get(CarNotificationActionsView.SECOND_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -283,7 +299,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton muteButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.THIRD_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -295,7 +311,7 @@ public class CarNotificationActionsViewTest {
         finishInflateWithIsCall(/* isCall= */ false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton muteButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.THIRD_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -308,7 +324,7 @@ public class CarNotificationActionsViewTest {
         messageIsMuted(true);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton muteButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.THIRD_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -322,7 +338,7 @@ public class CarNotificationActionsViewTest {
         messageIsMuted(false);
 
         mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                mAlertEntryMessageHeadsUp);
+                mMessageCategoryAlertEntry);
         CarNotificationActionButton muteButton = mCarNotificationActionsView.getActionButtons().get(
                 CarNotificationActionsView.THIRD_MESSAGE_ACTION_BUTTON_INDEX);
 
@@ -426,16 +442,57 @@ public class CarNotificationActionsViewTest {
         assertThat(secondButton.getBackground()).isNotNull();
     }
 
+    @Test
+    public void onBind_actionExists_customIcon_senderPackageContextNotObtainable_iconNotLoaded() {
+        initAction(mIcon);
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+        when(mStatusBarNotification.getPackageContext(nullable(Context.class))).thenReturn(null);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+
+        verify(mIcon, never()).loadDrawableAsync(any(Context.class),
+                nullable(Icon.OnDrawableLoadedListener.class), nullable(Handler.class));
+    }
+
+    @Test
+    public void onBind_actionExists_customIcon_senderPackageContextObtainable_iconLoaded() {
+        initAction(mIcon);
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+        when(mStatusBarNotification.getPackageContext(nullable(Context.class))).thenReturn(
+                mMockContext);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+
+        verify(mIcon).loadDrawableAsync(eq(mMockContext),
+                nullable(Icon.OnDrawableLoadedListener.class), nullable(Handler.class));
+    }
+
     private void finishInflateWithIsCall(boolean isCall) {
         mCarNotificationActionsView = new CarNotificationActionsView(
                 mContext,
                 /* attributeSet= */ null,
                 /* defStyleAttr= */ 0,
                 /* defStyleRes= */ 0,
-                mCarAssistUtils);
+                mCarAssistUtils) {
+            @Override
+            Handler getAsyncHandler() {
+                return mHandler;
+            }
+        };
         mCarNotificationActionsView.setCategoryIsCall(isCall);
         mCarNotificationActionsView.onFinishInflate();
         mCarNotificationActionsView.setNotificationDataManager(mNotificationDataManager);
+    }
+
+    private void initAction(Icon icon) {
+        PendingIntent pendingIntent = PendingIntent.getForegroundService(
+                mContext, /* requestCode= */ 0, new Intent(), FLAG_IMMUTABLE);
+        mAction = new Notification.Action
+                .Builder(icon, ACTION_TITLE, pendingIntent).build();
     }
 
     private void statusBarNotificationHasActions(boolean hasActions) {
