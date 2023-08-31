@@ -17,8 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (5911862216123243843) -->
-    <skip />
+    <string name="app_label" msgid="5911862216123243843">"Motorkennisgewingbestuurder"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"Speel"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"Antwoord"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Demp"</string>
