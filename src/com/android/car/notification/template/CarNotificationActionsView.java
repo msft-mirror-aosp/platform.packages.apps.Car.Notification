@@ -205,10 +205,7 @@ public class CarNotificationActionsView extends LinearLayout implements
             return;
         }
 
-        // getPackageContext defaults to the context set in the parameter. Sending null to ensure
-        // that the result is null if the package context is not obtainable.
-        Context packageContext =
-                alertEntry.getStatusBarNotification().getPackageContext(/* context= */ null);
+        Context packageContext = alertEntry.getStatusBarNotification().getPackageContext(mContext);
         int length = Math.min(actions.length, MAX_NUM_ACTIONS);
         for (int i = 0; i < length; i++) {
             Notification.Action action = actions[i];
@@ -222,7 +219,7 @@ public class CarNotificationActionsView extends LinearLayout implements
             }
 
             Icon icon = action.getIcon();
-            if (icon != null && packageContext != null) {
+            if (icon != null) {
                 icon.loadDrawableAsync(packageContext, button::setImageDrawable, getAsyncHandler());
             }
         }
