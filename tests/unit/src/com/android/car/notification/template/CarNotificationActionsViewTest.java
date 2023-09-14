@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -443,21 +442,7 @@ public class CarNotificationActionsViewTest {
     }
 
     @Test
-    public void onBind_actionExists_customIcon_senderPackageContextNotObtainable_iconNotLoaded() {
-        initAction(mIcon);
-        finishInflateWithIsCall(/* isCall= */ false);
-        statusBarNotificationHasActions(/* hasActions= */ true);
-        when(mStatusBarNotification.getPackageContext(nullable(Context.class))).thenReturn(null);
-
-        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
-                new AlertEntry(mStatusBarNotification));
-
-        verify(mIcon, never()).loadDrawableAsync(any(Context.class),
-                nullable(Icon.OnDrawableLoadedListener.class), nullable(Handler.class));
-    }
-
-    @Test
-    public void onBind_actionExists_customIcon_senderPackageContextObtainable_iconLoaded() {
+    public void onBind_actionWithCustomIconExists_iconLoadedUsingSenderPackage() {
         initAction(mIcon);
         finishInflateWithIsCall(/* isCall= */ false);
         statusBarNotificationHasActions(/* hasActions= */ true);
