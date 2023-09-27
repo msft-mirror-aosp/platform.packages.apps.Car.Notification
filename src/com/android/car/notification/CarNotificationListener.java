@@ -15,7 +15,6 @@
  */
 package com.android.car.notification;
 
-import android.annotation.Nullable;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,6 +30,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
@@ -61,6 +61,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private CarHeadsUpNotificationManager mHeadsUpManager;
     private NotificationDataManager mNotificationDataManager;
     private boolean mIsNotificationPanelVisible;
+    private boolean mIsListenerConnected;
 
     /**
      * Map that contains all the active notifications that are not currently HUN. These
@@ -250,10 +251,12 @@ public class CarNotificationListener extends NotificationListenerService impleme
         mActiveNotifications = Stream.of(getActiveNotifications()).collect(
                 Collectors.toConcurrentMap(StatusBarNotification::getKey, AlertEntry::new));
         mRankingMap = super.getCurrentRanking();
+        mIsListenerConnected = true;
     }
 
     @Override
     public void onListenerDisconnected() {
+        mIsListenerConnected = false;
     }
 
     public void setHandler(Handler handler) {
@@ -311,7 +314,6 @@ public class CarNotificationListener extends NotificationListenerService impleme
                 || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
     }
 
-
     @Override
     public void onStateChange(AlertEntry alertEntry,
             CarHeadsUpNotificationManager.HeadsUpState headsUpState) {
@@ -352,5 +354,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
         Ranking ranking = new NotificationListenerService.Ranking();
         mRankingMap.getRanking(alertEntry.getKey(), ranking);
         return ranking.getImportance() > NotificationManager.IMPORTANCE_LOW;
+    }
+
+    @VisibleForTesting
+    boolean getIsListenerConnected() {
+        return mIsListenerConnected;
     }
 }
