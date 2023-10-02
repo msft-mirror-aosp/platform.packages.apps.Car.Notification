@@ -65,7 +65,7 @@
         <item name="android:gravity">center</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxWidth">@dimen/notification_text_max_width</item>
-        <item name="android:textColor">@*android:color/white</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAlignment">gravity</item>
         <item name="android:textDirection">locale</item>
