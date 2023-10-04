@@ -50,12 +50,6 @@ android_app {
 
     manifest: "AndroidManifest.xml",
 
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-
     required: ["allowed_privapp_com.android.car.notification"],
 }
 
@@ -94,12 +88,6 @@ android_app {
     ],
 
     libs: ["android.car-system-stubs"],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 // As Lib
@@ -132,12 +120,6 @@ android_library {
     ],
 
     libs: ["android.car-system-stubs"],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 // Testing lib
@@ -177,12 +159,6 @@ android_library {
     ],
 
     libs: ["android.car-system-stubs"],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 
     dxflags: ["--multi-dex"],
 
