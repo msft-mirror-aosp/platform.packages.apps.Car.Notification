@@ -25,15 +25,6 @@
         android:layout_marginStart="@dimen/body_big_icon_margin"
         style="@style/NotificationBodyImageIcon"/>
 
-    <DateTimeView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/notification_body_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/time_margin"
-        style="@style/NotificationHeaderText"/>
-
     <TextView
         android:id="@+id/notification_body_title"
         android:layout_width="wrap_content"
@@ -57,6 +48,17 @@
         android:clickable="false"
         android:focusable="false"
         android:scaleType="fitXY"/>
+
+    <DateTimeView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/notification_body_title_icon"
+        android:layout_alignTop="@id/notification_body_title"
+        android:layout_alignBottom="@id/notification_body_title"
+        android:layout_marginEnd="@dimen/notification_body_title_margin"
+        android:gravity="center_vertical"
+        style="@style/NotificationHeaderText"/>
 
     <TextView
         android:id="@+id/notification_body_content"
