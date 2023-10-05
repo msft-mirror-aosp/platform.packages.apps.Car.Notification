@@ -25,6 +25,9 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Process;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -154,6 +157,20 @@ public class NotificationUtils {
      */
     public static boolean isColorLight(int backgroundColor) {
         return Color.luminance(backgroundColor) > LIGHT_COLOR_LUMINANCE_THRESHOLD;
+    }
+
+    /**
+     * Returns the current user id for this instance of the notification app/library.
+     */
+    public static int getCurrentUser(Context context) {
+        UserManager userManager = context.getSystemService(UserManager.class);
+        UserHandle processUser = Process.myUserHandle();
+        boolean isSecondaryUserNotifications =
+                userManager.isVisibleBackgroundUsersSupported()
+                        && !processUser.isSystem()
+                        && processUser.getIdentifier() != ActivityManager.getCurrentUser();
+        return isSecondaryUserNotifications ? processUser.getIdentifier()
+                : ActivityManager.getCurrentUser();
     }
 
     private static boolean isSystemPrivilegedOrPlatformKeyInner(Context context,

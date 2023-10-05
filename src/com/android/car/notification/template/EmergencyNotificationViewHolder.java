@@ -36,6 +36,10 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
     private final CarNotificationBodyView mBodyView;
     @ColorInt
     private final int mEmergencyBackgroundColor;
+    @ColorInt
+    private final int mEmergencyPrimaryColor;
+    @ColorInt
+    private final int mEmergencySecondaryColor;
 
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
@@ -47,6 +51,9 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mEmergencyBackgroundColor = view.getContext().getColor(R.color.emergency_background_color);
+        mEmergencyPrimaryColor = view.getContext().getColor(R.color.emergency_primary_text_color);
+        mEmergencySecondaryColor = view.getContext().getColor(
+                R.color.emergency_secondary_text_color);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -60,8 +67,8 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
      */
     @Override
     public void bind(AlertEntry alertEntry, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+            boolean isHeadsUp, boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
 
         Notification notification = alertEntry.getNotification();
 
@@ -77,5 +84,7 @@ public class EmergencyNotificationViewHolder extends CarNotificationBaseViewHold
                 alertEntry.getStatusBarNotification(),
                 notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
                 notification.showsTime() ? notification.when : null);
+        mBodyView.setPrimaryTextColor(mEmergencyPrimaryColor);
+        mBodyView.setSecondaryTextColor(mEmergencySecondaryColor);
     }
 }
