@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
 import androidx.core.app.NotificationCompat.MessagingStyle;
 
 import com.android.car.notification.AlertEntry;
@@ -60,6 +61,10 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
     private final int mMaxLineCount;
     private final int mAdditionalCharCountAfterExpansion;
     private final Drawable mGroupIcon;
+    private final boolean mUseCustomColorForMessageNotificationCountTextButton;
+    private final float mDisabledCountTextButtonAlpha;
+    @ColorInt
+    private final int mCountTextColor;
 
     private final NotificationClickHandlerFactory mClickHandlerFactory;
 
@@ -80,6 +85,12 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
         mAdditionalCharCountAfterExpansion = getContext().getResources().getInteger(
                 R.integer.config_additionalCharactersToShowInSingleMessageExpandedNotification);
         mGroupIcon = getContext().getDrawable(R.drawable.ic_group);
+        mUseCustomColorForMessageNotificationCountTextButton =
+                getContext().getResources().getBoolean(
+                        R.bool.config_useCustomColorForMessageNotificationCountTextButton);
+        mCountTextColor = getContext().getResources().getColor(R.color.count_text);
+        mDisabledCountTextButtonAlpha = getContext().getResources().getFloat(
+                R.dimen.config_disabledCountTextButtonAlpha);
 
         mClickHandlerFactory = clickHandlerFactory;
         mPreprocessingManager = PreprocessingManager.getInstance(getContext());
@@ -91,8 +102,8 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      */
     @Override
     public void bind(AlertEntry alertEntry, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+            boolean isHeadsUp, boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
         bindBody(alertEntry, isInGroup, /* isRestricted= */ false, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
         mActionsView.bind(mClickHandlerFactory, alertEntry);
@@ -102,8 +113,9 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
      * Binds a {@link AlertEntry} to a messaging car notification template with
      * UX restriction.
      */
-    public void bindRestricted(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+    public void bindRestricted(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp,
+            boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
         bindBody(alertEntry, isInGroup, /* isRestricted= */ true, isHeadsUp);
         mHeaderView.bind(alertEntry, isInGroup);
 
@@ -133,7 +145,14 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
             }
         }
 
-        mBodyView.setCountTextColor(getAccentColor());
+        if (mUseCustomColorForMessageNotificationCountTextButton) {
+            mBodyView.setCountTextColor(mCountTextColor);
+        } else {
+            mBodyView.setCountTextColor(getAccentColor());
+        }
+
+        mBodyView.setCountTextAlpha(isRestricted ? mDisabledCountTextButtonAlpha : /* alpha= */ 1);
+
         Notification notification = alertEntry.getNotification();
         StatusBarNotification sbn = alertEntry.getStatusBarNotification();
         Bundle extras = notification.extras;
@@ -400,6 +419,7 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                     unshownCountText, when);
             mBodyView.setContentMaxLines(mMaxLineCount);
             mBodyView.setCountOnClickListener(null);
+            mBodyView.setCountTextAlpha(mDisabledCountTextButtonAlpha);
         };
     }
 }

@@ -157,8 +157,8 @@ public enum CarNotificationTypeItem {
      * Binds a {@link AlertEntry} to a notification template.
      */
     public void bind(AlertEntry alertEntry, boolean isHeadsUp,
-            CarNotificationBaseViewHolder holder) {
-        holder.bind(alertEntry, mIsInGroup, isHeadsUp);
+            CarNotificationBaseViewHolder holder, boolean isSeen) {
+        holder.bind(alertEntry, mIsInGroup, isHeadsUp, isSeen);
     }
 
     /**

@@ -38,6 +38,10 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
     private final ProgressBar mProgressBarView;
     @ColorInt
     private final int mCardBackgroundColor;
+    @ColorInt
+    private final int mProgressBarColor;
+    @ColorInt
+    private final int mProgressBarBackgroundColor;
     private NotificationClickHandlerFactory mClickHandlerFactory;
 
     public ProgressNotificationViewHolder(View view,
@@ -47,8 +51,9 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mBodyView = view.findViewById(R.id.notification_body);
         mActionsView = view.findViewById(R.id.notification_actions);
         mProgressBarView = view.findViewById(R.id.progress_bar);
-        mCardBackgroundColor = NotificationUtils.getAttrColor(view.getContext(),
-                android.R.attr.colorPrimary);
+        mCardBackgroundColor = getContext().getColor(R.color.notification_background_color);
+        mProgressBarColor = getContext().getColor(R.color.progress_bar_color);
+        mProgressBarBackgroundColor = getContext().getColor(R.color.progress_bar_bg_color);
         mClickHandlerFactory = clickHandlerFactory;
     }
 
@@ -57,8 +62,8 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
      */
     @Override
     public void bind(AlertEntry alertEntry, boolean isInGroup,
-            boolean isHeadsUp) {
-        super.bind(alertEntry, isInGroup, isHeadsUp);
+            boolean isHeadsUp, boolean isSeen) {
+        super.bind(alertEntry, isInGroup, isHeadsUp, isSeen);
         bindBody(alertEntry);
         mHeaderView.bind(alertEntry, isInGroup);
         mActionsView.bind(mClickHandlerFactory, alertEntry);
@@ -86,13 +91,16 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mProgressBarView.setIndeterminate(isIndeterminate);
         mProgressBarView.setMax(progressMax);
         mProgressBarView.setProgress(progress);
+        mProgressBarView.setProgressTintList(ColorStateList.valueOf(mProgressBarColor));
+        mProgressBarView.setProgressBackgroundTintList(
+                ColorStateList.valueOf(mProgressBarBackgroundColor));
 
         // optional color
         if (notification.color != Notification.COLOR_DEFAULT) {
             int calculatedColor = NotificationUtils.resolveContrastColor(
                     notification.color, mCardBackgroundColor);
-            ColorStateList colorStateList = ColorStateList.valueOf(calculatedColor);
-            mProgressBarView.setProgressTintList(colorStateList);
+            ColorStateList progressBarColorStateList = ColorStateList.valueOf(calculatedColor);
+            mProgressBarView.setProgressTintList(progressBarColorStateList);
         }
     }
 
