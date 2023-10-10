@@ -36,7 +36,8 @@
     <string name="notification_recents" msgid="5855769440781958546">"শেহতীয়া"</string>
     <string name="notification_older" msgid="8162161020296499690">"পুৰণি জাননী"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"কোনো জাননী নাই"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"গোট সংকোচন কৰক"</string>
+    <!-- no translation found for collapse_group (3487426973871208501) -->
+    <skip />
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g>ৰ পৰা আৰু <xliff:g id="COUNT">%1$d</xliff:g> টা"</string>
     <string name="show_count_more" msgid="480555295700318609">"আৰু <xliff:g id="COUNT">%d</xliff:g>টা দেখুৱাওক"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
