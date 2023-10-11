@@ -36,7 +36,8 @@
     <string name="notification_recents" msgid="5855769440781958546">"ବର୍ତ୍ତମାନର"</string>
     <string name="notification_older" msgid="8162161020296499690">"ପୁରୁଣା ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"କୌଣସି ବିଜ୍ଞପ୍ତି ନାହିଁ"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"ଗୋଷ୍ଠୀ ସଙ୍କୁଚିତ କର"</string>
+    <!-- no translation found for collapse_group (3487426973871208501) -->
+    <skip />
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g>ରୁ <xliff:g id="COUNT">%1$d</xliff:g>ଟି ଅଧିକ"</string>
     <string name="show_count_more" msgid="480555295700318609">"ଅଧିକ <xliff:g id="COUNT">%d</xliff:g>ଟି ଦେଖାନ୍ତୁ"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
