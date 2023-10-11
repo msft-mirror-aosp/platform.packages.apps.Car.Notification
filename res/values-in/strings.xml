@@ -36,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"Terbaru"</string>
     <string name="notification_older" msgid="8162161020296499690">"Notifikasi lama"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Tidak ada notifikasi"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"Ciutkan grup"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"Tampilkan sedikit"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="COUNT">%1$d</xliff:g> lainnya dari <xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"Tampilkan <xliff:g id="COUNT">%d</xliff:g> lainnya"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
