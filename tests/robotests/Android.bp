@@ -27,7 +27,7 @@ android_robolectric_test {
         "robolectric_android-all-stub",
         "androidx.test.rules",
         "androidx.test.core",
-        "truth-prebuilt",
+        "truth",
         "testng",
         "android.car-system-stubs",
     ],
