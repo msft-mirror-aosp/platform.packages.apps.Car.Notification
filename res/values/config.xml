@@ -79,6 +79,9 @@
          com.android.car.notification.headsup.animationhelper.
          CarHeadsUpNotificationBottomAnimationHelper. -->
     <bool name="config_showHeadsUpNotificationOnBottom">false</bool>
+    <!-- Whether heads-up notifications is dismissible in vertical directions. If set to false
+         the notification would be dismissible in horizontal directions. -->
+    <bool name="config_isHeadsUpNotificationDismissibleVertically">false</bool>
     <!-- Whether to always show Notification's dismiss button even without the need to have rotary focus. -->
     <bool name="config_alwaysShowNotificationDismissButton">false</bool>
     <!-- Whether to show action icons inside action buttons. -->
