@@ -144,5 +144,19 @@
     <style name="ManageButton" parent="ClearAllButton">
     </style>
 
+    <style name="NotificationCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginEnd">@dimen/notification_card_margin_horizontal</item>
+        <item name="android:layout_marginStart">@dimen/notification_card_margin_horizontal</item>
+    </style>
+
+    <style name="HeadsUpNotificationCard" parent="NotificationCard">
+        <item name="android:layout_marginEnd">@dimen/notification_headsup_card_margin_horizontal
+        </item>
+        <item name="android:layout_marginStart">@dimen/notification_headsup_card_margin_horizontal
+        </item>
+    </style>
 </resources>
 
