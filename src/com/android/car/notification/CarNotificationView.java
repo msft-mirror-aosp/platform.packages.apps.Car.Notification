@@ -5,7 +5,6 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.ActivityManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
@@ -52,6 +51,8 @@ public class CarNotificationView extends ConstraintLayout
     public static final boolean DEBUG = Build.IS_DEBUGGABLE;
     public static final String TAG = "CarNotificationView";
 
+    private final boolean mCollapsePanelAfterManageButton;
+
     private CarNotificationViewAdapter mAdapter;
     private Context mContext;
     private LinearLayoutManager mLayoutManager;
@@ -69,6 +70,8 @@ public class CarNotificationView extends ConstraintLayout
         super(context, attrs);
         mContext = context;
         mNotificationDataManager = NotificationDataManager.getInstance();
+        mCollapsePanelAfterManageButton = context.getResources().getBoolean(
+                R.bool.config_collapseShadePanelAfterManageButtonPress);
     }
 
     /**
@@ -433,9 +436,12 @@ public class CarNotificationView extends ConstraintLayout
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        mContext.startActivityAsUser(intent, UserHandle.of(ActivityManager.getCurrentUser()));
+        mContext.startActivityAsUser(intent,
+                UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
 
-        if (mClickHandlerFactory != null) mClickHandlerFactory.collapsePanel();
+        if (mClickHandlerFactory != null && mCollapsePanelAfterManageButton) {
+            mClickHandlerFactory.collapsePanel();
+        }
     }
 
     /** An interface to help interact with the notification panel. */
