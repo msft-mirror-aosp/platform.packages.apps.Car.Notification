@@ -22,7 +22,7 @@ android_app {
 
     srcs: ["src/**/*.java"],
 
-    resource_dirs: ["res", "res-overlayable",],
+    resource_dirs: ["res",],
 
     platform_apis: true,
     certificate: "platform",
@@ -41,7 +41,7 @@ android_app {
         "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib"
     ],
@@ -82,7 +82,7 @@ android_app {
         "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib",
     ],
@@ -114,7 +114,7 @@ android_library {
         "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib",
     ],
@@ -153,7 +153,7 @@ android_library {
         "androidx.recyclerview_recyclerview",
         "androidx.palette_palette",
         "car-assist-client-lib",
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib",
     ],
