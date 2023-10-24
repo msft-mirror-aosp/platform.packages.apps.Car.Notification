@@ -36,8 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"ล่าสุด"</string>
     <string name="notification_older" msgid="8162161020296499690">"การแจ้งเตือนที่เก่ากว่า"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"ไม่มีการแจ้งเตือน"</string>
-    <!-- no translation found for collapse_group (3487426973871208501) -->
-    <skip />
+    <string name="collapse_group" msgid="3487426973871208501">"แสดงน้อยลง"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"เพิ่มเติม <xliff:g id="COUNT">%1$d</xliff:g> รายการจาก <xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"แสดง <xliff:g id="COUNT">%d</xliff:g> เพิ่มเติม"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
