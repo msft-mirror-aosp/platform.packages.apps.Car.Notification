@@ -59,7 +59,7 @@
                 android:layout_marginTop="@dimen/card_body_margin_top"
                 android:layout_marginBottom="@dimen/card_body_margin_bottom"
                 app:maxLines="@integer/config_headsUpNotificationMaxBodyLines"
-                app:showBigIcon="false"
+                app:showBigIcon="true"
                 app:isHeadsUp="true"/>
 
             <com.android.car.notification.template.CarNotificationActionsView
@@ -68,7 +68,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/notification_body"
-                android:layout_marginBottom="@dimen/card_body_margin_bottom"/>
+                android:layout_marginBottom="@dimen/card_body_margin_bottom"
+                app:categoryCall="true"/>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </com.android.car.ui.FocusArea>
