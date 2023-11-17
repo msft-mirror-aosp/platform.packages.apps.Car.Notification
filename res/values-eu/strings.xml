@@ -33,7 +33,7 @@
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"Erakutsi gehiago"</string>
     <string name="notification_header" msgid="324550431063568049">"Jakinarazpenak"</string>
-    <string name="notification_recents" msgid="5855769440781958546">"Azkenak"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"Azkenaldikoak"</string>
     <string name="notification_older" msgid="8162161020296499690">"Jakinarazpen zaharragoak"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Ez dago jakinarazpenik"</string>
     <string name="collapse_group" msgid="3487426973871208501">"Erakutsi gutxiago"</string>
