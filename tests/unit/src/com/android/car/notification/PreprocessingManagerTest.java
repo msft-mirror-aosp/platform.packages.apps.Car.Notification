@@ -69,6 +69,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
@@ -836,6 +837,126 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onAdditionalGroupAndRank_updateToNotificationInSeenGroup_newUnseenGroupCreated() {
+        when(mStatusBarNotification6.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification7.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification8.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification9.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification10.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification11.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification12.getGroupKey()).thenReturn(GROUP_KEY_C);
+        initTestData(/* includeAdditionalNotifs= */ true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground2)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground3)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground4)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground5)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground6)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground7)).thenReturn(true);
+        PreprocessingManager.refreshInstance();
+        mPreprocessingManager = PreprocessingManager.getInstance(mContext);
+        mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        List<NotificationGroup> processedGroupsWithGroupKeyC = getGroupsWithGroupKey(GROUP_KEY_C,
+                        mPreprocessingManager.getOldProcessedNotifications());
+        // assert notifications with GROUP_KEY_C are grouped into one seen NotificationGroup.
+        assertThat(processedGroupsWithGroupKeyC).hasSize(1);
+        assertThat(processedGroupsWithGroupKeyC.get(0).isSeen()).isTrue();
+        // Create a notification with same key and group key to be sent as an update
+        String key = mImportantForeground.getKey();
+        Notification newNotification = generateNotification(/* isForeground= */ true,
+                /* isNavigation= */ false, /* isGroupSummary= */ false);
+        StatusBarNotification newSbn = mock(StatusBarNotification.class);
+        when(newSbn.getNotification()).thenReturn(newNotification);
+        when(newSbn.getKey()).thenReturn(key);
+        when(newSbn.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(newSbn.getId()).thenReturn(123);
+        AlertEntry newEntry = new AlertEntry(newSbn);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries), /* isUpdate= */ true);
+
+        List<NotificationGroup> unSeenGroupsWithGroupKeyC = getGroupsWithSeenState(
+                /* isSeen= */ false, getGroupsWithGroupKey(GROUP_KEY_C, result));
+        assertThat(unSeenGroupsWithGroupKeyC).hasSize(1);
+        assertThat(unSeenGroupsWithGroupKeyC.get(0).getSingleNotification()).isEqualTo(newEntry);
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_updateToNotificationInSeenGroup_oldGroupNotDeleted() {
+        // If the old group size is more than zero, it should not be deleted
+        when(mStatusBarNotification6.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification7.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification8.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification9.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification10.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification11.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification12.getGroupKey()).thenReturn(GROUP_KEY_C);
+        initTestData(/* includeAdditionalNotifs= */ true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground2)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground3)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground4)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground5)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground6)).thenReturn(true);
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground7)).thenReturn(true);
+        PreprocessingManager.refreshInstance();
+        mPreprocessingManager = PreprocessingManager.getInstance(mContext);
+        mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        List<NotificationGroup> processedGroupsWithGroupKeyC = getGroupsWithGroupKey(GROUP_KEY_C,
+                        mPreprocessingManager.getOldProcessedNotifications());
+        assertThat(processedGroupsWithGroupKeyC).hasSize(1);
+        assertThat(processedGroupsWithGroupKeyC.get(0).getChildNotifications()).hasSize(7);
+        // Create a notification with same key and group key to be sent as an update
+        String key = mImportantForeground.getKey();
+        Notification newNotification = generateNotification(/* isForeground= */ true,
+                /* isNavigation= */ false, /* isGroupSummary= */ false);
+        StatusBarNotification newSbn = mock(StatusBarNotification.class);
+        when(newSbn.getNotification()).thenReturn(newNotification);
+        when(newSbn.getKey()).thenReturn(key);
+        when(newSbn.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(newSbn.getId()).thenReturn(123);
+        AlertEntry newEntry = new AlertEntry(newSbn);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries), /* isUpdate= */ true);
+
+        List<NotificationGroup> seenGroupsWithGroupKeyC = getGroupsWithSeenState(
+                /* isSeen= */ true, getGroupsWithGroupKey(GROUP_KEY_C, result));
+        assertThat(seenGroupsWithGroupKeyC).hasSize(1);
+        assertThat(seenGroupsWithGroupKeyC.get(0).getChildNotifications()).hasSize(6);
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_updateToNotificationInSeenGroup_oldGroupDeleted() {
+        // If the old group size is zero, it should not be deleted
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground)).thenReturn(true);
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        List<NotificationGroup> processedGroupsWithGroupKeyC = getGroupsWithGroupKey(GROUP_KEY_C,
+                        mPreprocessingManager.getOldProcessedNotifications());
+        assertThat(processedGroupsWithGroupKeyC).hasSize(1);
+        assertThat(processedGroupsWithGroupKeyC.get(0).getChildNotifications()).hasSize(1);
+        // Create a notification with same key and group key to be sent as an update
+        String key = mImportantForeground.getKey();
+        Notification newNotification = generateNotification(/* isForeground= */ true,
+                /* isNavigation= */ false, /* isGroupSummary= */ false);
+        StatusBarNotification newSbn = mock(StatusBarNotification.class);
+        when(newSbn.getNotification()).thenReturn(newNotification);
+        when(newSbn.getKey()).thenReturn(key);
+        when(newSbn.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(newSbn.getId()).thenReturn(123);
+        AlertEntry newEntry = new AlertEntry(newSbn);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries), /* isUpdate= */ true);
+
+        List<NotificationGroup> seenGroupsWithGroupKeyC = getGroupsWithSeenState(
+                /* isSeen= */ true, getGroupsWithGroupKey(GROUP_KEY_C, result));
+        assertThat(seenGroupsWithGroupKeyC).hasSize(0);
+    }
+
+    @Test
     public void onAdditionalGroupAndRank_newNotification_setAsSeenInDataManger() {
         String key = "TEST_KEY";
         mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
@@ -1313,6 +1434,21 @@ public class PreprocessingManagerTest {
             choices.add("choice_" + key + "_" + i);
         }
         return choices;
+    }
+
+    private List<NotificationGroup> getGroupsWithGroupKey(String groupKey,
+            List<NotificationGroup> notificationGroups) {
+        return filterGroups(ng -> TextUtils.equals(groupKey, ng.getGroupKey()), notificationGroups);
+    }
+
+    private List<NotificationGroup> getGroupsWithSeenState(boolean isSeen,
+            List<NotificationGroup> notificationGroups) {
+        return filterGroups(ng -> ng.isSeen() == isSeen, notificationGroups);
+    }
+
+    private List<NotificationGroup> filterGroups(Function<NotificationGroup, Boolean> filter,
+            List<NotificationGroup> notificationGroups) {
+        return notificationGroups.stream().filter(filter::apply).toList();
     }
 
     private boolean canBubble(int index) {
