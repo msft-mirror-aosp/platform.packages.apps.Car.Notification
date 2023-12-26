@@ -35,7 +35,7 @@
     <string name="notification_header" msgid="324550431063568049">"အကြောင်းကြားချက်များ"</string>
     <string name="notification_recents" msgid="5855769440781958546">"လတ်တလောများ"</string>
     <string name="notification_older" msgid="8162161020296499690">"အကြောင်းကြားချက်ဟောင်းများ"</string>
-    <string name="empty_notification_header" msgid="4928379791607839720">"အကြောင်းကြားချက် မရှိ"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"အကြောင်းကြားချက် မရှိပါ"</string>
     <string name="collapse_group" msgid="4923097735600949715">"အုပ်စုကို ခေါက်ရန်"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> မှ နောက်ထပ် <xliff:g id="COUNT">%1$d</xliff:g> ခု"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> ခု ထပ်ပြရန်"</string>
