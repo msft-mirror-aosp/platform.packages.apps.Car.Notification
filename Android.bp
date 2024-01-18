@@ -22,7 +22,7 @@ android_app {
 
     srcs: ["src/**/*.java"],
 
-    resource_dirs: ["res",],
+    resource_dirs: ["res"],
 
     platform_apis: true,
     certificate: "platform",
@@ -44,7 +44,7 @@ android_app {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib"
+        "car-uxr-client-lib",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -123,6 +123,8 @@ android_library {
     ],
 
     libs: ["android.car-system-stubs"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
 }
 
 // Testing lib
@@ -167,4 +169,6 @@ android_library {
     dxflags: ["--multi-dex"],
 
     aaptflags: ["--extra-packages com.android.car.notification"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
 }
