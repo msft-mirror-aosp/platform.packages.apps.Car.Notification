@@ -54,7 +54,10 @@ android_test {
 
     aaptflags: ["--extra-packages com.android.car.notification"],
 
-    test_suites: ["automotive-general-tests"],
+    test_suites: [
+        "automotive-general-tests",
+        "general-tests",
+    ],
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
 }
