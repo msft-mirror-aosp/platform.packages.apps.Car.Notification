@@ -79,6 +79,9 @@
          com.android.car.notification.headsup.animationhelper.
          CarHeadsUpNotificationBottomAnimationHelper. -->
     <bool name="config_showHeadsUpNotificationOnBottom">false</bool>
+    <!-- Whether heads-up notifications is dismissible in vertical directions. If set to false
+         the notification would be dismissible in horizontal directions. -->
+    <bool name="config_isHeadsUpNotificationDismissibleVertically">false</bool>
     <!-- Whether to always show Notification's dismiss button even without the need to have rotary focus. -->
     <bool name="config_alwaysShowNotificationDismissButton">false</bool>
     <!-- Whether to show action icons inside action buttons. -->
@@ -94,7 +97,7 @@
     <!-- Whether to show expansion header in group notifications.  -->
     <bool name="config_showExpansionHeader">true</bool>
     <!-- Whether to use custom colors for message notification count text button. -->
-    <bool name="config_useCustomColorForMessageNotificationCountTextButton">false</bool>
+    <bool name="config_useCustomColorForMessageNotificationCountTextButton">true</bool>
     <!-- Alpha for disabled count text button in message notifications. -->
     <item name="config_disabledCountTextButtonAlpha" format="float" type="dimen">1</item>
     <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->

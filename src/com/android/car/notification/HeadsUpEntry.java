@@ -33,9 +33,16 @@ public class HeadsUpEntry extends AlertEntry {
     private View mNotificationView;
     private CarNotificationBaseViewHolder mCarNotificationBaseViewHolder;
 
+    // Signifies that this notification was NOT flagged with Notification.FLAG_ONLY_ALERT_ONCE
     boolean mIsAlertAgain;
+
+    // Signifies that this notification is to be shown as Heads Up Notification for the first time
     boolean mIsNewHeadsUp;
+
+    // Signifies that this notification is in process of being dismissed
     boolean mIsDismissing;
+
+    // Signifies that the sender marked this notification to be removed
     boolean mShouldRemove;
 
     HeadsUpEntry(StatusBarNotification statusBarNotification) {

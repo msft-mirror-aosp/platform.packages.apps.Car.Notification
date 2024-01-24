@@ -58,11 +58,11 @@ class DismissAnimationHelper {
     }
 
     /**
-     * The percentage of the view holder's width a non-dismissible view holder is allow to translate
+     * The percentage of the max translation a non-dismissible view holder is allow to translate
      * during a swipe gesture. As gesture's delta x distance grows the view holder should translate
      * asymptotically to this amount.
      */
-    private final float mMaxPercentageOfWidthWithResistance;
+    private final float mMaxPercentageOfMaxTranslationWithResistance;
 
     /**
      * The callback indicating the supplied view has been dismissed.
@@ -78,8 +78,8 @@ class DismissAnimationHelper {
     DismissAnimationHelper(Context context, DismissCallback callbacks) {
         mCallBacks = callbacks;
 
-        mMaxPercentageOfWidthWithResistance =
-                context.getResources().getFloat(R.dimen.max_percentage_of_width_with_resistance);
+        mMaxPercentageOfMaxTranslationWithResistance = context.getResources().getFloat(
+                R.dimen.max_percentage_of_max_translation_with_resistance);
     }
 
     /** Animate the dismissal of the given item. The velocityX is assumed to be 0. */
@@ -150,7 +150,7 @@ class DismissAnimationHelper {
         int swipeDirection = moveDeltaX > 0 ? Direction.RIGHT : Direction.LEFT;
 
         int width = viewHolder.itemView.getWidth();
-        float maxSwipeDistanceWithResistance = mMaxPercentageOfWidthWithResistance * width;
+        float maxSwipeDistanceWithResistance = mMaxPercentageOfMaxTranslationWithResistance * width;
         if (Math.abs(moveDeltaX) >= width) {
             // If deltaX is too large, constrain to
             // maxScrollDistanceWithResistance.
