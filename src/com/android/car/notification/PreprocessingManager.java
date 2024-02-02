@@ -385,6 +385,11 @@ public class PreprocessingManager {
                 groupKey = alertEntry.getStatusBarNotification().getGroupKey();
             }
 
+            if (groupKey == null) {
+                // set a random group key since a TreeMap does not allow null keys
+                groupKey = UUID.randomUUID().toString();
+            }
+
             if (!groupedNotifications.containsKey(groupKey)) {
                 NotificationGroup notificationGroup = new NotificationGroup();
                 groupedNotifications.put(groupKey, notificationGroup);
@@ -568,8 +573,9 @@ public class PreprocessingManager {
         Notification notification = newNotification.getNotification();
         NotificationGroup newGroup = new NotificationGroup();
 
-        // The newGroup should appear in the recent section and marked as seen
-        // because the panel is open.
+        // The newGroup should appear in the recent section so mark the group as not seen. Since the
+        // panel is open, mark the notification as seen in the data manager so when panel is closed
+        // and reopened, it is set as seen.
         newGroup.setSeen(false);
         mNotificationDataManager.setNotificationAsSeen(newNotification);
 
@@ -585,77 +591,102 @@ public class PreprocessingManager {
             newGroup.setGroupSummaryNotification(newNotification);
             insertRankedNotification(newGroup, newRankingMap);
             return mOldProcessedNotifications;
-        } else {
-            // To keep track of indexes of unseen Notifications with the same group key
-            Set<Integer> indexOfUnseenGroupsWithSameGroupKey = new HashSet<>();
-            for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
-                NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
-
-                // If an unseen group already exists with the same group key
-                if (TextUtils.equals(oldGroup.getGroupKey(),
-                        newNotification.getStatusBarNotification().getGroupKey())
-                        && (!mShowRecentsAndOlderHeaders || !oldGroup.isSeen())) {
-                    indexOfUnseenGroupsWithSameGroupKey.add(i);
-
-                    // If a group already exist with no children
-                    if (oldGroup.getChildCount() == 0) {
-                        // A group with no children is a standalone group summary
-                        NotificationGroup group = oldGroup;
-                        if (isUpdate) {
-                            // Replace the standalone group summary
-                            group = newGroup;
-                        }
-                        group.addNotification(newNotification);
-                        mOldProcessedNotifications.set(i, group);
-                        return mOldProcessedNotifications;
-                    }
-
-                    // Group with same group key exist with multiple children
-                    // For update, replace the old notification with the updated notification
-                    // else add the new notification to the existing group if it's notification
-                    // count is greater than the minimum threshold.
-                    if (isUpdate) {
-                        oldGroup.removeNotification(newNotification);
-                    }
-                    if (isUpdate || oldGroup.getChildCount() >= mMinimumGroupingThreshold) {
-                        oldGroup.addNotification(newNotification);
-                        mOldProcessedNotifications.set(i, oldGroup);
-                        return mOldProcessedNotifications;
-                    }
-                }
-            }
-
-            // Not an update to an existing group and no groups with same group key and
-            // child count > minimum grouping threshold or child count == 0 exist in the list.
-            AlertEntry groupSummaryNotification = findGroupSummaryNotification(
-                    newNotification.getStatusBarNotification().getGroupKey());
-            // If the number of unseen notifications (+1 to account for new notification being
-            // added) with same group key is greater than the minimum grouping threshold
-            if (((indexOfUnseenGroupsWithSameGroupKey.size() + 1) >= mMinimumGroupingThreshold)
-                    && groupSummaryNotification != null) {
-                // Remove all individual groups and add all notifications with the same group key
-                // to the new group
-                List<NotificationGroup> otherProcessedNotifications = new ArrayList<>();
-                for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
-                    NotificationGroup notificationGroup = mOldProcessedNotifications.get(i);
-                    if (indexOfUnseenGroupsWithSameGroupKey.contains(i)) {
-                        // Group has the same group key
-                        for (AlertEntry alertEntry : notificationGroup.getChildNotifications()) {
-                            newGroup.addNotification(alertEntry);
-                        }
-                    } else {
-                        otherProcessedNotifications.add(notificationGroup);
-                    }
-                }
-                mOldProcessedNotifications = otherProcessedNotifications;
-                mNotificationDataManager.setNotificationAsSeen(groupSummaryNotification);
-                newGroup.setGroupSummaryNotification(groupSummaryNotification);
-            }
-
-            newGroup.addNotification(newNotification);
-            insertRankedNotification(newGroup, newRankingMap);
-            return mOldProcessedNotifications;
         }
+
+        // To keep track of indexes of unseen Notifications with the same group key
+        Set<Integer> indexOfUnseenGroupsWithSameGroupKey = new HashSet<>();
+        Set<NotificationGroup> emptySeenGroupsToBeRemoved = new HashSet<>();
+
+        // Check if notification with same group key exists. The notification could be:
+        // 1. present in a seen group and is an update:
+        //      remove the notification from the seen group.
+        //      next step will add this notification to the newGroup which is unseen.
+        //      Also remove the seen group if there are no more children
+        // 2. present in an unseen group with no children (i.e. group summary).
+        // 3. present in an unseen group.
+        for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
+            NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
+
+            if (!TextUtils.equals(oldGroup.getGroupKey(),
+                    newNotification.getStatusBarNotification().getGroupKey())) {
+                continue;
+            }
+
+            if (mShowRecentsAndOlderHeaders && oldGroup.isSeen()) {
+                if (isUpdate) {
+                    boolean isRemoved = oldGroup.removeNotification(newNotification);
+                    if (isRemoved) {
+                        mOldProcessedNotifications.set(i, oldGroup);
+                        if (oldGroup.getChildCount() == 0) {
+                            emptySeenGroupsToBeRemoved.add(oldGroup);
+                        }
+                    }
+                }
+                continue;
+            }
+
+            indexOfUnseenGroupsWithSameGroupKey.add(i);
+
+            // If a group already exist with no children
+            if (oldGroup.getChildCount() == 0) {
+                // A group with no children is a standalone group summary
+                NotificationGroup group = oldGroup;
+                if (isUpdate) {
+                    // Replace the standalone group summary
+                    group = newGroup;
+                }
+                group.addNotification(newNotification);
+                mOldProcessedNotifications.set(i, group);
+                return mOldProcessedNotifications;
+            }
+
+            // Group with same group key exist with multiple children
+            // For update, replace the old notification with the updated notification
+            // else add the new notification to the existing group if it's notification
+            // count is greater than the minimum threshold.
+            if (isUpdate) {
+                oldGroup.removeNotification(newNotification);
+            }
+            if (isUpdate || oldGroup.getChildCount() >= mMinimumGroupingThreshold) {
+                oldGroup.addNotification(newNotification);
+                mOldProcessedNotifications.set(i, oldGroup);
+                return mOldProcessedNotifications;
+            }
+        }
+
+        mOldProcessedNotifications.removeAll(emptySeenGroupsToBeRemoved);
+
+        // Not an update to an existing group and no groups with same group key and
+        // child count > minimum grouping threshold or child count == 0 exist in the list.
+        AlertEntry groupSummaryNotification = findGroupSummaryNotification(
+                newNotification.getStatusBarNotification().getGroupKey());
+        // If the number of unseen notifications (+1 to account for new notification being
+        // added) with same group key is greater than the minimum grouping threshold
+        if (((indexOfUnseenGroupsWithSameGroupKey.size() + 1) >= mMinimumGroupingThreshold)
+                && groupSummaryNotification != null) {
+            // Remove all individual groups and add all notifications with the same group key
+            // to the new group
+            List<NotificationGroup> otherProcessedNotifications = new ArrayList<>();
+            for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
+                NotificationGroup notificationGroup = mOldProcessedNotifications.get(i);
+                if (indexOfUnseenGroupsWithSameGroupKey.contains(i)) {
+                    // Group has the same group key
+                    for (AlertEntry alertEntry : notificationGroup.getChildNotifications()) {
+                        newGroup.addNotification(alertEntry);
+                    }
+                } else {
+                    otherProcessedNotifications.add(notificationGroup);
+                }
+            }
+            mOldProcessedNotifications = otherProcessedNotifications;
+            mNotificationDataManager.setNotificationAsSeen(groupSummaryNotification);
+            newGroup.setGroupSummaryNotification(groupSummaryNotification);
+        }
+
+        // notification should be added to the new unseen group
+        newGroup.addNotification(newNotification);
+        insertRankedNotification(newGroup, newRankingMap);
+        return mOldProcessedNotifications;
     }
 
     /**
@@ -724,7 +755,7 @@ public class PreprocessingManager {
     }
 
     @VisibleForTesting
-    protected Map getOldNotifications() {
+    protected Map<String, AlertEntry> getOldNotifications() {
         return mOldNotifications;
     }
 
@@ -739,6 +770,11 @@ public class PreprocessingManager {
             mMaxStringLength = Integer.MAX_VALUE;
             Log.e(TAG, "Failed to get UxRestrictions thus running unrestricted", e);
         }
+    }
+
+    @VisibleForTesting
+    List<NotificationGroup> getOldProcessedNotifications() {
+        return mOldProcessedNotifications;
     }
 
     /**
