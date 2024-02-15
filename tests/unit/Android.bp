@@ -42,12 +42,22 @@ android_test {
         "androidx.test.ext.truth",
         "mockito-target-extended-minus-junit4",
         "platform-test-annotations",
-        "truth-prebuilt",
+        "truth",
         "testables",
         "testng",
     ],
 
-    jni_libs: ["libdexmakerjvmtiagent", "libstaticjvmtiagent"],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
 
     aaptflags: ["--extra-packages com.android.car.notification"],
+
+    test_suites: [
+        "automotive-general-tests",
+        "general-tests",
+    ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
 }

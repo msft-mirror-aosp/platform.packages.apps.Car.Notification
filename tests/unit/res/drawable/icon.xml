@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:autoMirrored="true"
-        android:viewportWidth="960"
-        android:viewportHeight="960"
-        android:width="@dimen/car_action_button_icon_width"
-        android:height="@dimen/car_action_button_icon_height">
+    android:viewportWidth="14"
+    android:viewportHeight="18"
+    android:width="14dp"
+    android:height="14dp">
     <path
-        android:fillColor="@color/icon_tint"
-        android:pathData="M760,760L760,600Q760,550 725,515Q690,480 640,480L273,480L417,624L360,680L120,440L360,200L417,256L273,400L640,400Q723,400 781.5,458.5Q840,517 840,600L840,760L760,760Z"/>
+        android:fillColor="#000000"
+        android:pathData="M14,9L0,18V0L14,9Z"/>
 </vector>

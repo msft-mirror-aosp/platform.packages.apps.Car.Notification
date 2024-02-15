@@ -233,7 +233,7 @@ public class NotificationUtilsTest {
     @Test
     public void onGetNotificationViewType_notificationHasBigTextAndSummaryText_returnsInbox() {
         Bundle extras = new Bundle();
-        extras.putBoolean(Notification.EXTRA_BIG_TEXT, true);
+        extras.putBoolean(Notification.EXTRA_TITLE_BIG, true);
         extras.putBoolean(Notification.EXTRA_SUMMARY_TEXT, true);
 
         Notification notification = new Notification();

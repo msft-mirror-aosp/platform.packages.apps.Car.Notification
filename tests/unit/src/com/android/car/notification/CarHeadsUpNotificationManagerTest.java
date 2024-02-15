@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +38,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -54,6 +57,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -106,7 +111,9 @@ public class CarHeadsUpNotificationManagerTest {
     @Mock
     KeyguardManager mKeyguardManager;
     @Mock
-    HeadsUpEntry mHeadsUpEntry;
+    Handler mHandlerMock;
+    @Captor
+    ArgumentCaptor<View> mViewCaptor;
     private CarHeadsUpNotificationManager mManager;
     private AlertEntry mAlertEntryMessageHeadsUp;
     private AlertEntry mAlertEntryNavigationHeadsUp;
@@ -460,6 +467,22 @@ public class CarHeadsUpNotificationManagerTest {
                 CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE);
     }
 
+    @Test
+    public void clearCache_viewsRemovedFromCarHeadsUpNotificationContainer() {
+        CarHeadsUpNotificationContainer container = mManager.mHunContainer;
+        HeadsUpEntry notification1 = createMockHeadsUpEntry("key1");
+        HeadsUpEntry notification2 = createMockHeadsUpEntry("key2");
+        mManager.addActiveHeadsUpNotification(notification1);
+        mManager.addActiveHeadsUpNotification(notification2);
+
+        mManager.clearCache();
+
+        verify(container, times(2)).removeNotification(mViewCaptor.capture());
+        assertThat(mViewCaptor.getAllValues().containsAll(List.of(new View[]{
+                notification1.getNotificationView(), notification2.getNotificationView()})))
+                .isTrue();
+    }
+
     private void createCarHeadsUpNotificationManager() {
         createCarHeadsUpNotificationManager(mCarHeadsUpNotificationQueue);
     }
@@ -490,5 +513,14 @@ public class CarHeadsUpNotificationManagerTest {
         packageInfo.applicationInfo = applicationInfo;
         when(mPackageManager.getPackageInfoAsUser(eq(packageName), anyInt(), anyInt())).thenReturn(
                 packageInfo);
+    }
+
+    private HeadsUpEntry createMockHeadsUpEntry(String key) {
+        HeadsUpEntry headsUpEntry = mock(HeadsUpEntry.class);
+        when(headsUpEntry.getKey()).thenReturn(key);
+        when(headsUpEntry.getHandler()).thenReturn(mHandlerMock);
+        View headsUpNotificationView = mock(View.class);
+        when(headsUpEntry.getNotificationView()).thenReturn(headsUpNotificationView);
+        return headsUpEntry;
     }
 }

@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"കാർ അറിയിപ്പ് മാനേജർ"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"പ്ലേ ചെയ്യുക"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"മറുപടി നൽകുക"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"മ്യൂട്ട് ചെയ്യുക"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"അടുത്തിടെയുള്ളവ"</string>
     <string name="notification_older" msgid="8162161020296499690">"പഴയ അറിയിപ്പുകൾ"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"അറിയിപ്പുകൾ ഒന്നുമില്ല"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"ഗ്രൂപ്പ് ചുരുക്കുക"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"കുറച്ച് കാണിക്കുക"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> ആപ്പിൽ നിന്ന് <xliff:g id="COUNT">%1$d</xliff:g> എണ്ണം കൂടി"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> കൂടുതൽ കാണിക്കുക"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
