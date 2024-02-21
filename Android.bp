@@ -101,8 +101,6 @@ android_library {
 
     manifest: "AndroidManifest-withoutActivity.xml",
 
-    platform_apis: true,
-
     optimize: {
         enabled: false,
     },
@@ -140,8 +138,6 @@ android_library {
     ],
 
     manifest: "tests/unit/AndroidManifest.xml",
-
-    platform_apis: true,
 
     optimize: {
         enabled: false,
