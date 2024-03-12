@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"מנהל ההתראות של הרכב"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"הפעלה"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"תשובה"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"השתקה"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"התראות אחרונות"</string>
     <string name="notification_older" msgid="8162161020296499690">"התראות ישנות יותר"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"אין התראות"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"כיווץ הקבוצה"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"פחות"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"עוד <xliff:g id="COUNT">%1$d</xliff:g> מ-<xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"הצגת עוד <xliff:g id="COUNT">%d</xliff:g> פריטים"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">

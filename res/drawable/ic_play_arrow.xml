@@ -16,12 +16,11 @@
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:autoMirrored="true"
-        android:viewportWidth="14"
-        android:viewportHeight="18"
-        android:width="@dimen/play_arrow_width"
-        android:height="@dimen/play_arrow_height">
+        android:viewportWidth="960"
+        android:viewportHeight="960"
+        android:width="@dimen/car_action_button_icon_width"
+        android:height="@dimen/car_action_button_icon_height">
     <path
-        android:fillColor="@color/icon_tint"
-        android:fillType="evenOdd"
-        android:pathData="M14,9L0,18V0L14,9Z"/>
+        android:fillColor="@color/play_icon_tint"
+        android:pathData="M320,760L320,200L760,480L320,760ZM400,480L400,480L400,480L400,480ZM400,614L610,480L400,346L400,614Z"/>
 </vector>
