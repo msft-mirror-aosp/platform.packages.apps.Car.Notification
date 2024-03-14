@@ -103,6 +103,7 @@ public class CarNotificationViewTest {
 
     @Test
     public void onClickClearAllButton_callsFactoryClearNotificationsWithDismissibleNotifications() {
+        mCarNotificationView.onAttachedToWindow();
         Button clearAllButton = mCarNotificationView.findViewById(R.id.clear_all_button);
         NotificationGroup dismissible = getNotificationGroup(/* isDismissible= */ true);
         NotificationGroup notDismissible = getNotificationGroup(/* isDismissible= */ false);
@@ -120,6 +121,7 @@ public class CarNotificationViewTest {
 
     @Test
     public void onClickManageButton_actionNotificationSettings() {
+        mCarNotificationView.onAttachedToWindow();
         Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
 
         manageButton.callOnClick();
@@ -131,6 +133,7 @@ public class CarNotificationViewTest {
 
     @Test
     public void onClickManageButton_categoryDefault() {
+        mCarNotificationView.onAttachedToWindow();
         Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
 
         manageButton.callOnClick();
@@ -142,6 +145,7 @@ public class CarNotificationViewTest {
 
     @Test
     public void onClickManageButton_flagsNewTaskAndMultipleTask() {
+        mCarNotificationView.onAttachedToWindow();
         Button manageButton = mCarNotificationView.findViewById(R.id.manage_button);
 
         manageButton.callOnClick();
