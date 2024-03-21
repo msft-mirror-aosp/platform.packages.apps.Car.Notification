@@ -125,6 +125,18 @@ android_library {
     use_resource_processor: false,
 }
 
+// Resource lib
+// To be used ONLY for RROs of CarNotification and CarSystemUI
+android_library {
+    name: "CarNotification-res",
+    sdk_version: "system_current",
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest-res.xml",
+    use_resource_processor: true,
+    static_libs: ["car-resource-common", "car-ui-lib-no-overlayable", "car-uxr-client-lib",],
+    lint: { disabled_checks: ["MissingClass"] }
+}
+
 // Testing lib
 android_library {
     name: "CarNotificationLibForUnitTesting",
