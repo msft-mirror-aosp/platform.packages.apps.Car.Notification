@@ -44,7 +44,7 @@ android_app {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -86,7 +86,7 @@ android_app {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -117,7 +117,7 @@ android_library {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -133,8 +133,14 @@ android_library {
     resource_dirs: ["res"],
     manifest: "AndroidManifest-res.xml",
     use_resource_processor: true,
-    static_libs: ["car-resource-common", "car-ui-lib-no-overlayable", "car-uxr-client-lib",],
-    lint: { disabled_checks: ["MissingClass"] }
+    static_libs: [
+        "car-resource-common",
+        "car-ui-lib-no-overlayable",
+        "car-uxr-client-lib-no-overlayable",
+    ],
+    lint: {
+        disabled_checks: ["MissingClass"],
+    },
 }
 
 // Testing lib
@@ -169,7 +175,7 @@ android_library {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
