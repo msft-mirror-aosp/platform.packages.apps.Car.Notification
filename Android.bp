@@ -43,7 +43,7 @@ android_app {
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib"
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -90,7 +90,7 @@ android_app {
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -128,7 +128,7 @@ android_library {
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -173,7 +173,7 @@ android_library {
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
