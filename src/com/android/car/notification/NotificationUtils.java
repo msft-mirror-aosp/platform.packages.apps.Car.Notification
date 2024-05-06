@@ -131,7 +131,7 @@ public class NotificationUtils {
             }
         }
         Bundle extras = alertEntry.getNotification().extras;
-        if (extras.containsKey(Notification.EXTRA_BIG_TEXT)
+        if (extras.containsKey(Notification.EXTRA_TITLE_BIG)
                 && extras.containsKey(Notification.EXTRA_SUMMARY_TEXT)) {
             return CarNotificationTypeItem.INBOX;
         }
