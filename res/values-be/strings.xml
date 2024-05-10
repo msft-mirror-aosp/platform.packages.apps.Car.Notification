@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"Менеджар апавяшчэнняў у аўто"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"Прайграць"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"Адказаць"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Выключыць гук"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"Нядаўнія"</string>
     <string name="notification_older" msgid="8162161020296499690">"Старыя апавяшчэнні"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Апавяшчэнняў няма"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"Згарнуць групу"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"Згарнуць"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"Яшчэ <xliff:g id="COUNT">%1$d</xliff:g> ад праграмы \"<xliff:g id="APP">%2$s</xliff:g>\""</string>
     <string name="show_count_more" msgid="480555295700318609">"Паказаць яшчэ <xliff:g id="COUNT">%d</xliff:g>"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
@@ -53,4 +54,11 @@
     <string name="see_more_message" msgid="6343183827924395955">"Разгарнуць"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Новае паведамленне"</string>
     <string name="manage_text" msgid="4225197445283791757">"Кіраваць"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"navigation"</string>
+    <string name="category_call" msgid="2249490790700877973">"call"</string>
+    <string name="category_message" msgid="451360226248504859">"msg"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"Забарона паказу большасці папярэджанняў"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Сачыце за навінамі"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Засяродзьцеся на кіраванні аўтамабілем"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Некаторыя новыя апавяшчэнні захаваны ў Цэнтры апавяшчэнняў"</string>
 </resources>

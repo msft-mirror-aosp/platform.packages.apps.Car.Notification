@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"汽車通知管理工具"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"播放"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"回覆"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"忽略"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"最近"</string>
     <string name="notification_older" msgid="8162161020296499690">"較早的通知"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"沒有通知"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"收合群組"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"顯示較少"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"「<xliff:g id="APP">%2$s</xliff:g>」還有另外 <xliff:g id="COUNT">%1$d</xliff:g> 則通知"</string>
     <string name="show_count_more" msgid="480555295700318609">"顯示另外 <xliff:g id="COUNT">%d</xliff:g> 項通知"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
@@ -49,4 +50,11 @@
     <string name="see_more_message" msgid="6343183827924395955">"顯示更多"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"新訊息"</string>
     <string name="manage_text" msgid="4225197445283791757">"管理"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"導航"</string>
+    <string name="category_call" msgid="2249490790700877973">"通話"</string>
+    <string name="category_message" msgid="451360226248504859">"訊息"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"「專心走路」抑制"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"緊貼最新資訊"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"專心駕駛"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"部分新通知會儲存至「通知中心」"</string>
 </resources>

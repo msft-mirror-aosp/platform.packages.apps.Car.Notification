@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"കാർ അറിയിപ്പ് മാനേജർ"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"പ്ലേ ചെയ്യുക"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"മറുപടി നൽകുക"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"മ്യൂട്ട് ചെയ്യുക"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"അടുത്തിടെയുള്ളവ"</string>
     <string name="notification_older" msgid="8162161020296499690">"പഴയ അറിയിപ്പുകൾ"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"അറിയിപ്പുകൾ ഒന്നുമില്ല"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"ഗ്രൂപ്പ് ചുരുക്കുക"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"കുറച്ച് കാണിക്കുക"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> ആപ്പിൽ നിന്ന് <xliff:g id="COUNT">%1$d</xliff:g> എണ്ണം കൂടി"</string>
     <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> കൂടുതൽ കാണിക്കുക"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
@@ -49,4 +50,11 @@
     <string name="see_more_message" msgid="6343183827924395955">"കൂടുതൽ കാണുക"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"പുതിയ സന്ദേശം"</string>
     <string name="manage_text" msgid="4225197445283791757">"മാനേജ് ചെയ്യുക"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"നാവിഗേഷൻ"</string>
+    <string name="category_call" msgid="2249490790700877973">"കോൾ ചെയ്യുക"</string>
+    <string name="category_message" msgid="451360226248504859">"സന്ദേശം"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"മുന്നറിയിപ്പ് പ്രവർത്തനരഹിതമാക്കൽ"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"ഏറ്റവും പുതിയ വിവരങ്ങൾ അപ്പപ്പോൾ അറിയൂ"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"ഡ്രൈവിംഗിൽ ശ്രദ്ധിക്കുക"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"അറിയിപ്പ് കേന്ദ്രത്തിൽ ചില പുതിയ അറിയിപ്പുകൾ സംരക്ഷിച്ചിരിക്കുന്നു"</string>
 </resources>

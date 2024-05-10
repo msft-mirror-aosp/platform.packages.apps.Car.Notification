@@ -15,23 +15,42 @@
     limitations under the License.
 -->
 <resources>
+    <color name="ic_launcher_background">@color/car_primary</color>
+    <color name="notification_background_color">@color/car_surface_1</color>
     <color name="group_notification_background_color">@*android:color/car_grey_900</color>
-    <color name="action_button_background_color">#1EFFFFFF</color>
-    <color name="emergency_background_color">#B41B1A</color>
-    <color name="call_accept_button">#208746</color>
-    <color name="call_decline_button">#D33B30</color>
-    <color name="unmute_button">#66B5FF</color>
-    <color name="primary_text_color">@*android:color/car_body1</color>
-    <color name="secondary_text_color">@*android:color/car_body3</color>
-    <color name="notification_accent_color">@*android:color/car_body1</color>
+    <color name="action_button_background_color">@color/car_secondary_container</color>
+    <color name="emergency_background_color">@color/car_error_container</color>
+    <color name="emergency_primary_text_color">@color/car_on_error_container</color>
+    <color name="emergency_secondary_text_color">@color/car_error</color>
+    <color name="information_background_color">@color/car_surface_2</color>
+    <color name="information_primary_text_color">@color/car_on_surface</color>
+    <color name="information_secondary_text_color">@color/car_on_surface_variant</color>
+    <color name="warning_background_color">@color/car_yellow_color</color>
+    <color name="warning_primary_text_color">@color/car_yellow_on_color</color>
+    <color name="warning_secondary_text_color">@color/car_yellow_color_container</color>
+    <color name="call_accept_button">@color/car_confirm_green</color>
+    <color name="call_decline_button">@color/car_decline_red</color>
+    <color name="call_accept_button_text">@color/car_on_confirm_green</color>
+    <color name="call_decline_button_text">@color/car_on_decline_red</color>
+    <color name="unmute_button">@color/car_primary</color>
+    <color name="primary_text_color">@color/car_on_surface</color>
+    <color name="secondary_text_color">@color/car_on_surface_variant</color>
+    <color name="notification_accent_color">@color/car_on_secondary_container</color>
+    <color name="progress_bar_color">@color/car_primary</color>
+    <color name="progress_bar_bg_color">@color/car_surface_variant</color>
 
     <!-- The color of the clear all button for notifications -->
-    <color name="clear_all_button_background_color">@*android:color/car_grey_868</color>
+    <color name="clear_all_button_background_color">@color/car_secondary_container</color>
 
     <!-- The color of the ripples on the untinted notifications -->
-    <color name="notification_ripple_untinted_color">?android:attr/colorControlHighlight</color>
+    <color name="notification_ripple_untinted_color">@color/car_control_highlight</color>
 
-    <color name="notification_list_divider_color">@*android:color/car_list_divider</color>
-    <color name="icon_tint">@*android:color/car_tint</color>
-    <color name="dark_icon_tint">@*android:color/car_tint_dark</color>
+    <color name="notification_list_divider_color">@color/car_secondary</color>
+    <color name="icon_tint">@color/car_on_secondary_container</color>
+    <color name="dark_icon_tint">@color/car_on_primary</color>
+    <color name="first_action_button_text_color">@color/car_on_primary</color>
+    <color name="play_icon_tint">@color/first_action_button_text_color</color>
+    <color name="count_text">@color/car_primary</color>
+
+    <color name="card_background">@color/car_surface_1</color>
 </resources>

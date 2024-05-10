@@ -26,6 +26,7 @@
     <dimen name="notification_card_footer_height">@*android:dimen/car_card_action_bar_height</dimen>
 
     <!-- Card View -->
+    <dimen name="button_height">64dp</dimen>
     <dimen name="card_start_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="card_end_margin">@*android:dimen/car_keyline_1</dimen>
     <dimen name="card_min_top_padding">@*android:dimen/car_padding_3</dimen>
@@ -45,7 +46,7 @@
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="time_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="expanded_package_name_margin">@*android:dimen/car_padding_4</dimen>
-    <dimen name="notification_card_radius">@*android:dimen/car_radius_2</dimen>
+    <dimen name="notification_card_radius">32dp</dimen>
     <dimen name="notification_body_title_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="notification_body_content_top_margin">8dp</dimen>
     <dimen name="message_count_top_margin">12dp</dimen>
@@ -57,26 +58,18 @@
     <dimen name="notification_text_max_width">950dp</dimen>
 
     <!-- Action View -->
-    <dimen name="action_view_left_margin">@*android:dimen/car_padding_4</dimen>
-    <dimen name="action_button_radius">28dp</dimen>
-    <dimen name="action_button_min_width">@*android:dimen/car_button_min_width</dimen>
-    <dimen name="action_button_height">@*android:dimen/car_button_height</dimen>
+    <dimen name="action_button_height">@dimen/button_height</dimen>
+    <dimen name="action_button_radius">32dp</dimen>
+    <dimen name="action_view_left_margin">16dp</dimen>
+    <dimen name="action_view_right_margin">16dp</dimen>
     <dimen name="action_button_padding">@*android:dimen/car_padding_2</dimen>
-    <dimen name="action_button_spacing_start">@*android:dimen/car_padding_4</dimen>
     <dimen name="action_button_padding_top">10dp</dimen>
-    <dimen name="action_button_padding_bottom">10dp</dimen>
-    <dimen name="action_view_right_margin">@*android:dimen/car_padding_4</dimen>
-    <dimen name="car_action_button_icon_width">18dp</dimen>
-    <dimen name="car_action_button_icon_height">18dp</dimen>
-    <dimen name="car_action_button_icon_margin">12px</dimen>
-    <dimen name="play_arrow_height">18dp</dimen>
-    <dimen name="play_arrow_width">14dp</dimen>
-    <dimen name="reply_icon_height">14dp</dimen>
-    <dimen name="reply_icon_width">18dp</dimen>
-    <dimen name="mute_icon_height">20dp</dimen>
-    <dimen name="mute_icon_width">17dp</dimen>
-    <dimen name="unmute_icon_height">20dp</dimen>
-    <dimen name="unmute_icon_width">18dp</dimen>
+    <dimen name="action_button_padding_bottom">8dp</dimen>
+    <dimen name="action_button_spacing_start">16dp</dimen>
+    <dimen name="action_button_min_width">@*android:dimen/car_button_min_width</dimen>
+    <dimen name="car_action_button_icon_height">28dp</dimen>
+    <dimen name="car_action_button_icon_margin">8dp</dimen>
+    <dimen name="car_action_button_icon_width">28dp</dimen>
 
     <!-- Icons -->
     <dimen name="notification_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
@@ -85,15 +78,31 @@
     <dimen name="notification_heads_up_icon_size">@*android:dimen/car_touch_target_size</dimen>
     <dimen name="media_action_icon_size">@*android:dimen/car_primary_icon_size</dimen>
 
+    <!-- Height and width to be used for the headsup container window.
+           - LayoutParams.MATCH_PARENT = -1
+           - LayoutParams.WRAP_CONTENT = -2 -->
+    <dimen name="headsup_container_height">-2dp</dimen>
+    <dimen name="headsup_container_width">-1dp</dimen>
+
     <!-- HUN Scrim -->
     <dimen name="headsup_scrim_height">464dp</dimen>
 
+    <!-- Y position for HUN window. With the default gravity it is ignored.
+         When using {@link Gravity#TOP} or {@link Gravity#BOTTOM} when implementing
+         CarHeadsUpNotificationContainer#getWindowManagerLayoutParams it provides an offset from
+         the given edge. -->
+    <dimen name="headsup_notification_window_y_offset">160dp</dimen>
+
     <!-- Swipe Animation -->
     <item name="error_factor_multiplier" format="float" type="dimen">1.2</item>
-    <item name="fling_percentage_of_width_to_dismiss" format="float" type="dimen">0.05</item>
-    <item name="percentage_of_width_to_dismiss" format="float" type="dimen">0.40</item>
-    <item name="max_percentage_of_width_with_resistance" format="float" type="dimen">0.4</item>
+    <item name="fling_percentage_of_max_translation_to_dismiss" format="float" type="dimen">0.05</item>
+    <item name="percentage_of_max_translation_to_dismiss" format="float" type="dimen">0.40</item>
+    <item name="max_percentage_of_max_translation_with_resistance" format="float" type="dimen">0.4</item>
     <dimen name="touch_slop">20dp</dimen>
+    <!-- The maximum translation that a HUN can have when being swiped away. When set to zero the
+    view's height/width is used for this value -->
+    <!-- todo(b/302038229): support translation per direction -->
+    <dimen name="max_translation_headsup">0dp</dimen>
 
     <!-- Dismiss button -->
     <dimen name="dismiss_button_diameter">@*android:dimen/car_button_height</dimen>
@@ -101,9 +110,9 @@
 
     <!-- Clear all button -->
     <dimen name="clear_all_button_padding">@*android:dimen/car_padding_4</dimen>
-    <dimen name="clear_all_button_height">@*android:dimen/car_button_height</dimen>
-    <dimen name="clear_all_button_radius">28dp</dimen>
+    <dimen name="clear_all_button_height">@dimen/button_height</dimen>
     <dimen name="clear_all_button_min_width">156dp</dimen>
+    <dimen name="clear_all_button_radius">44dp</dimen>
 
     <!-- Manage button -->
     <dimen name="manage_button_height">@*android:dimen/car_button_height</dimen>

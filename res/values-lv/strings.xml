@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"Automašīnas paziņojumu pārvaldnieks"</string>
     <string name="assist_action_play_label" msgid="6278705468288338172">"Atskaņot"</string>
     <string name="assist_action_reply_label" msgid="6946087036560525072">"Atbildēšana"</string>
     <string name="action_mute_short" msgid="5239851786101022633">"Slēpt"</string>
@@ -35,7 +36,7 @@
     <string name="notification_recents" msgid="5855769440781958546">"Nesenie"</string>
     <string name="notification_older" msgid="8162161020296499690">"Vecāki paziņojumi"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"Nav paziņojumu"</string>
-    <string name="collapse_group" msgid="4923097735600949715">"Sakļaut grupu"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"Rādīt mazāk"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"Vēl <xliff:g id="COUNT">%1$d</xliff:g> no lietotnes <xliff:g id="APP">%2$s</xliff:g>"</string>
     <string name="show_count_more" msgid="480555295700318609">"Rādīt vēl <xliff:g id="COUNT">%d</xliff:g>"</string>
     <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
@@ -51,4 +52,11 @@
     <string name="see_more_message" msgid="6343183827924395955">"Skatīt vairāk"</string>
     <string name="restricted_hun_message_content" msgid="631111937988857716">"Jauns ziņojums"</string>
     <string name="manage_text" msgid="4225197445283791757">"Pārvaldīt"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"navigation"</string>
+    <string name="category_call" msgid="2249490790700877973">"call"</string>
+    <string name="category_message" msgid="451360226248504859">"msg"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"Brīdinājumu “Uzmanību!” atspējošana"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Nepalaidiet garām jaunumus"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Koncentrējieties uz braukšanu"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Paziņojumu centrā ir saglabāti daži jauni paziņojumi."</string>
 </resources>

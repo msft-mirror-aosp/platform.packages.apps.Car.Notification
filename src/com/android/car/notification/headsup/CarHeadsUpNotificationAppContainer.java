@@ -17,9 +17,12 @@
 package com.android.car.notification.headsup;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
 import android.view.WindowManager;
+
+import com.android.car.notification.R;
 
 /**
  * A controller for Notification application's HUN display.
@@ -27,7 +30,6 @@ import android.view.WindowManager;
  * Used to attach HUNs views to window.
  */
 public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationContainer {
-    private static final String TAG = "CarHUNContainerApp";
 
     public CarHeadsUpNotificationAppContainer(Context context) {
         super(context, context.getSystemService(WindowManager.class));
@@ -35,15 +37,18 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
 
     @Override
     protected WindowManager.LayoutParams getWindowManagerLayoutParams() {
+        Resources resources = getContext().getResources();
         WindowManager.LayoutParams wrapperParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                resources.getDimensionPixelSize(R.dimen.headsup_container_width),
+                resources.getDimensionPixelSize(R.dimen.headsup_container_height),
                 // This type allows covering status bar and receiving touch input
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         wrapperParams.gravity = getShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
+        wrapperParams.y = resources.getDimensionPixelSize(
+                R.dimen.headsup_notification_window_y_offset);
         return wrapperParams;
     }
 }

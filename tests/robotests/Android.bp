@@ -14,6 +14,7 @@
 
 // Car Notifications Robolectric test target.
 package {
+    default_team: "trendy_team_system_experience",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -24,12 +25,9 @@ android_robolectric_test {
     ],
 
     libs: [
-        "Robolectric_all-target",
-        "robolectric_android-all-stub",
         "androidx.test.rules",
         "androidx.test.core",
-        "mockito-robolectric-prebuilt",
-        "truth-prebuilt",
+        "truth",
         "testng",
         "android.car-system-stubs",
     ],
@@ -41,4 +39,5 @@ android_robolectric_test {
     test_options: {
         timeout: 36000,
     },
+    upstream: true,
 }
