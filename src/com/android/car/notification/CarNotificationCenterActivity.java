@@ -54,6 +54,11 @@ public class CarNotificationCenterActivity extends Activity {
                             mNotificationListener,
                             app.getCarUxRestrictionWrapper());
             mNotificationViewController.enable();
+            mNotificationDataManager.setOnUnseenCountUpdateListener(() -> {
+                mNotificationListener.setNotificationsShown(
+                        NotificationDataManager.getInstance().getSeenNotifications());
+                mNotificationVisibilityLogger.notifyVisibilityChanged(isResumed());
+            });
             getApplicationContext().getMainExecutor().execute(() -> {
                 if (isResumed()) {
                     notifyVisibilityChanged(/* isVisible= */ true);
@@ -65,6 +70,7 @@ public class CarNotificationCenterActivity extends Activity {
         public void onServiceDisconnected(ComponentName className) {
             Log.d(TAG, "onServiceDisconnected");
             mNotificationViewController.disable();
+            mNotificationDataManager.setOnUnseenCountUpdateListener(null);
             mNotificationViewController = null;
             mNotificationListener = null;
         }
@@ -84,12 +90,6 @@ public class CarNotificationCenterActivity extends Activity {
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
         mNotificationVisibilityLogger = new CarNotificationVisibilityLogger(mStatusBarService,
                 mNotificationDataManager);
-
-        mNotificationDataManager.setOnUnseenCountUpdateListener(() -> {
-            mNotificationListener.setNotificationsShown(
-                    NotificationDataManager.getInstance().getSeenNotifications());
-            mNotificationVisibilityLogger.notifyVisibilityChanged(isResumed());
-        });
     }
 
     @Override
@@ -117,7 +117,6 @@ public class CarNotificationCenterActivity extends Activity {
 
         if (mNotificationListenerConnectionListener != null) {
             unbindService(mNotificationListenerConnectionListener);
-            mNotificationListener = null;
         }
     }
 
