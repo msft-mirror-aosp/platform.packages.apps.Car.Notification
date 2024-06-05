@@ -15,6 +15,7 @@
     limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Car notification manager</string>
 
     <!-- The assistant action label to read aloud a message notification and optionally prompt user to respond [CHAR_LIMIT=20]-->
     <string name="assist_action_play_label">Play</string>
@@ -74,7 +75,7 @@
     <string name="empty_notification_header">No notifications</string>
 
     <!-- The label for the button that collapses a grouped notification [CHAR_LIMIT=20] -->
-    <string name="collapse_group">Collapse group</string>
+    <string name="collapse_group">Show less</string>
 
     <!-- The label for the button that redirects to application that has more notifications to show. [CHAR_LIMIT=30] -->
     <string name="show_more_from_app"><xliff:g id="count">%1$d</xliff:g>&#160;more&#160;from&#160;<xliff:g id="app">%2$s</xliff:g></string>

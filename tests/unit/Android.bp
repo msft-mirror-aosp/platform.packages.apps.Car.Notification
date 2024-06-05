@@ -14,6 +14,7 @@
 //
 
 package {
+    default_team: "trendy_team_system_experience",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -42,12 +43,23 @@ android_test {
         "androidx.test.ext.truth",
         "mockito-target-extended-minus-junit4",
         "platform-test-annotations",
-        "truth-prebuilt",
+        "truth",
         "testables",
         "testng",
     ],
 
-    jni_libs: ["libdexmakerjvmtiagent", "libstaticjvmtiagent"],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
 
     aaptflags: ["--extra-packages com.android.car.notification"],
+
+    // TODO(b/343738857): Renable this after the test is fixed.
+    // test_suites: [
+    //     "automotive-general-tests",
+    //     "general-tests",
+    // ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
 }
