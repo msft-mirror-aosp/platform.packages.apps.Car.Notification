@@ -147,8 +147,11 @@ public class CarHeadsUpNotificationManager
         mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         mPreprocessingManager = PreprocessingManager.getInstance(context);
         mInflater = LayoutInflater.from(mContext);
-        mClickHandlerFactory.registerClickListener(
-                (launchResult, alertEntry) -> dismissHun(alertEntry));
+        mClickHandlerFactory.registerClickListener((launchResult, alertEntry) -> {
+            if (isActiveHun(alertEntry)) {
+                dismissHun(alertEntry);
+            }
+        });
         mClickHandlerFactory.setHunDismissCallback(
                 (launchResult, alertEntry) -> dismissHun(alertEntry));
         mHunContainer = hunContainer;
