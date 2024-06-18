@@ -44,7 +44,7 @@ android_app {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -86,7 +86,7 @@ android_app {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
@@ -117,12 +117,30 @@ android_library {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
+}
+
+// Resource lib
+// To be used ONLY for RROs of CarNotification and CarSystemUI
+android_library {
+    name: "CarNotification-res",
+    sdk_version: "system_current",
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest-res.xml",
+    use_resource_processor: true,
+    static_libs: [
+        "car-resource-common",
+        "car-ui-lib-no-overlayable",
+        "car-uxr-client-lib-no-overlayable",
+    ],
+    lint: {
+        disabled_checks: ["MissingClass"],
+    },
 }
 
 // Testing lib
@@ -157,7 +175,7 @@ android_library {
         "car-ui-lib-no-overlayable",
         "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
-        "car-uxr-client-lib",
+        "car-uxr-client-lib-no-overlayable",
     ],
 
     libs: ["android.car-system-stubs"],
