@@ -16,7 +16,7 @@
 
 package com.android.car.notification;
 
-import static android.app.ComponentOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED;
+import static android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
