@@ -160,16 +160,22 @@ public class NotificationUtils {
     }
 
     /**
+     * Returns true if the current notification process is running for a visible background user.
+     */
+    public static boolean isVisibleBackgroundUser(Context context) {
+        UserManager userManager = context.getSystemService(UserManager.class);
+        UserHandle processUser = Process.myUserHandle();
+        return userManager.isVisibleBackgroundUsersSupported()
+                && !processUser.isSystem()
+                && processUser.getIdentifier() != ActivityManager.getCurrentUser();
+    }
+
+    /**
      * Returns the current user id for this instance of the notification app/library.
      */
     public static int getCurrentUser(Context context) {
-        UserManager userManager = context.getSystemService(UserManager.class);
         UserHandle processUser = Process.myUserHandle();
-        boolean isSecondaryUserNotifications =
-                userManager.isVisibleBackgroundUsersSupported()
-                        && !processUser.isSystem()
-                        && processUser.getIdentifier() != ActivityManager.getCurrentUser();
-        return isSecondaryUserNotifications ? processUser.getIdentifier()
+        return isVisibleBackgroundUser(context) ? processUser.getIdentifier()
                 : ActivityManager.getCurrentUser();
     }
 

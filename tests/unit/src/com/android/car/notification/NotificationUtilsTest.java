@@ -256,6 +256,40 @@ public class NotificationUtilsTest {
     }
 
     @Test
+    public void isVisibleBackgroundUser_whenVisibleBackgroundUsersNotSupported_returnsFalse() {
+        UserHandle myUserHandle = UserHandle.of(1000);
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(false);
+        when(Process.myUserHandle()).thenReturn(myUserHandle);
+
+        assertThat(NotificationUtils.isVisibleBackgroundUser(mContext)).isEqualTo(false);
+    }
+
+    @Test
+    public void isVisibleBackgroundUser_whenSystemUser_returnsFalse() {
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
+        when(Process.myUserHandle()).thenReturn(UserHandle.SYSTEM);
+
+        assertThat(NotificationUtils.isVisibleBackgroundUser(mContext)).isEqualTo(false);
+    }
+
+    @Test
+    public void isVisibleBackgroundUser_whenPrimaryUser_returnsFalse() {
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
+        when(Process.myUserHandle()).thenReturn(UserHandle.of(ActivityManager.getCurrentUser()));
+
+        assertThat(NotificationUtils.isVisibleBackgroundUser(mContext)).isEqualTo(false);
+    }
+
+    @Test
+    public void isVisibleBackgroundUser_whenVisibleBackgroundUser_returnsTrue() {
+        UserHandle myUserHandle = UserHandle.of(1000);
+        when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(true);
+        when(Process.myUserHandle()).thenReturn(myUserHandle);
+
+        assertThat(NotificationUtils.isVisibleBackgroundUser(mContext)).isEqualTo(true);
+    }
+
+    @Test
     public void getCurrentUser_visibleBackgroundUsersNotSupported_returnsPrimaryUser() {
         when(mUserManager.isVisibleBackgroundUsersSupported()).thenReturn(false);
 
