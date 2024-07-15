@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.service.notification.NotificationStats;
 import android.util.Log;
 import android.view.View;
@@ -355,7 +356,17 @@ public class NotificationClickHandlerFactory {
     /**
      * Collapses the notification shade panel.
      */
-    public void collapsePanel() {
+    public void collapsePanel(Context context) {
+        if (NotificationUtils.isVisibleBackgroundUser(context)) {
+            // TODO: b/341604160 - Support visible background users properly.
+            Log.d(TAG, "IStatusBarService is unavailable for visible background users");
+            // Use backup method of closing panel by sending intent to close system dialogs -
+            // this should only be used if the bar service is not available for a user
+            Intent intent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            context.sendBroadcastAsUser(intent,
+                    UserHandle.of(NotificationUtils.getCurrentUser(context)));
+            return;
+        }
         try {
             mBarService.collapsePanels();
         } catch (RemoteException e) {
