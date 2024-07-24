@@ -331,6 +331,18 @@ public class CarHeadsUpNotificationQueue implements
     }
 
     /**
+     * Clears all local cached variables and cancels scheduled executor tasks.
+     */
+    public void clearCache() {
+        mPriorityQueue.clear();
+        mKeyToAlertEntryMap.clear();
+        mThrottledDisplays.clear();
+        if (mScheduledFuture != null) {
+            mScheduledFuture.cancel(/* mayInterruptIfRunning= */ true);
+        }
+    }
+
+    /**
      * Callback to communicate status of HUN.
      */
     public interface CarHeadsUpNotificationQueueCallback {

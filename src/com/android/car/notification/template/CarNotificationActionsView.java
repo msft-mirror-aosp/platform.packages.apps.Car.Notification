@@ -70,6 +70,10 @@ public class CarNotificationActionsView extends LinearLayout implements
     private final Drawable mActionButtonBackground;
     private final Drawable mCallButtonBackground;
     private final Drawable mDeclineButtonBackground;
+    @ColorInt
+    private final int mCallButtonTextColor;
+    @ColorInt
+    private final int mDeclineButtonTextColor;
     private final Drawable mUnmuteButtonBackground;
     private final String mReplyButtonText;
     private final String mPlayButtonText;
@@ -130,6 +134,8 @@ public class CarNotificationActionsView extends LinearLayout implements
         mDeclineButtonBackground.setColorFilter(
                 new PorterDuffColorFilter(mContext.getColor(R.color.call_decline_button),
                         PorterDuff.Mode.SRC_IN));
+        mCallButtonTextColor = mContext.getColor(R.color.call_accept_button_text);
+        mDeclineButtonTextColor = mContext.getColor(R.color.call_decline_button_text);
         mUnmuteButtonBackground = mContext.getDrawable(R.drawable.call_action_button_background);
         mUnmuteButtonBackground.setColorFilter(
                 new PorterDuffColorFilter(mContext.getColor(R.color.unmute_button),
@@ -227,6 +233,8 @@ public class CarNotificationActionsView extends LinearLayout implements
         if (mIsCategoryCall) {
             mActionButtons.get(0).setBackground(mCallButtonBackground);
             mActionButtons.get(1).setBackground(mDeclineButtonBackground);
+            mActionButtons.get(0).setTextColor(mCallButtonTextColor);
+            mActionButtons.get(1).setTextColor(mDeclineButtonTextColor);
         }
     }
 

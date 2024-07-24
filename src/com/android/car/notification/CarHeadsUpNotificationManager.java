@@ -25,8 +25,6 @@ import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessag
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.ActivityTaskManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
@@ -43,6 +41,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 
@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -108,12 +109,13 @@ public class CarHeadsUpNotificationManager
     private final KeyguardManager mKeyguardManager;
     private final PreprocessingManager mPreprocessingManager;
     private final LayoutInflater mInflater;
-    private final CarHeadsUpNotificationContainer mHunContainer;
+    @VisibleForTesting
+    final CarHeadsUpNotificationContainer mHunContainer;
     private final CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback
             mCarHeadsUpNotificationQueueCallback;
 
     // key for the map is the statusbarnotification key
-    private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications = new HashMap<>();
+    private final Map<String, HeadsUpEntry> mActiveHeadsUpNotifications = new ConcurrentHashMap<>();
     private final List<OnHeadsUpNotificationStateChange> mNotificationStateChangeListeners =
             new ArrayList<>();
     private final Map<HeadsUpEntry,
@@ -145,8 +147,11 @@ public class CarHeadsUpNotificationManager
         mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         mPreprocessingManager = PreprocessingManager.getInstance(context);
         mInflater = LayoutInflater.from(mContext);
-        mClickHandlerFactory.registerClickListener(
-                (launchResult, alertEntry) -> dismissHun(alertEntry));
+        mClickHandlerFactory.registerClickListener((launchResult, alertEntry) -> {
+            if (isActiveHun(alertEntry)) {
+                dismissHun(alertEntry);
+            }
+        });
         mClickHandlerFactory.setHunDismissCallback(
                 (launchResult, alertEntry) -> dismissHun(alertEntry));
         mHunContainer = hunContainer;
@@ -280,6 +285,18 @@ public class CarHeadsUpNotificationManager
      */
     public void releaseQueue() {
         mCarHeadsUpNotificationQueue.releaseQueue();
+    }
+
+    /**
+     * Clears all local cached variables and gracefully removes any heads up notification views if
+     * present.
+     */
+    public void clearCache() {
+        mCarHeadsUpNotificationQueue.clearCache();
+        for (AlertEntry alertEntry : mActiveHeadsUpNotifications.values()) {
+            resetHeadsUpEntry(alertEntry);
+            removeHeadsUpEntry(alertEntry, getHeadsUpView(alertEntry));
+        }
     }
 
     private void scheduleRemoveHeadsUp(AlertEntry alertEntry) {
@@ -477,7 +494,11 @@ public class CarHeadsUpNotificationManager
         // Add swipe gesture
         View cardView = notificationView.findViewById(R.id.card_view);
         cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
-                isHeadsUpDismissible(alertEntry), () -> resetView(alertEntry)));
+                isHeadsUpDismissible(alertEntry), () -> {
+            resetHeadsUpEntry(alertEntry);
+            removeHeadsUpEntry(alertEntry, getHeadsUpView(alertEntry));
+            handleHeadsUpNotificationStateChanged(alertEntry, HeadsUpState.DISMISSED);
+        }));
 
         // Add dismiss button listener
         View dismissButton = notificationView.findViewById(
@@ -574,12 +595,32 @@ public class CarHeadsUpNotificationManager
      */
     private void dismissHun(AlertEntry alertEntry) {
         Log.d(TAG, "clearViews for Heads Up Notification: ");
+        resetHeadsUpEntry(alertEntry);
+        boolean isTaggedToBeRemoved = isActiveHun(alertEntry)
+                && getActiveHeadsUpEntry(alertEntry).mShouldRemove;
+        View view = getHeadsUpView(alertEntry);
+
+        AnimatorSet animatorSet = mAnimationHelper.getAnimateOutAnimator(mContext, view);
+        animatorSet.setTarget(view);
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // Remove HUN after the animation ends to prevent accidental touch on the card
+                // triggering another remove call.
+                removeHeadsUpEntry(alertEntry, view);
+
+                handleHeadsUpNotificationStateChanged(alertEntry,
+                        isTaggedToBeRemoved ? HeadsUpState.REMOVED_BY_SENDER
+                                : HeadsUpState.DISMISSED);
+            }
+        });
+        animatorSet.start();
+    }
+
+    private void resetHeadsUpEntry(@NonNull AlertEntry alertEntry) {
         if (!isActiveHun(alertEntry)) {
-            // View can also be removed when swiped away.
             return;
         }
-        // Get the current notification to perform animations and remove it immediately from the
-        // active notification maps and cancel all other call backs if any.
         HeadsUpEntry currentHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
         // view could already be in the process of being dismissed
         if (currentHeadsUpNotification.mIsDismissing) {
@@ -588,41 +629,21 @@ public class CarHeadsUpNotificationManager
         currentHeadsUpNotification.mIsDismissing = true;
         currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
         resetViewTreeListenersEntry(currentHeadsUpNotification);
-        View view = currentHeadsUpNotification.getNotificationView();
-
-        AnimatorSet animatorSet = mAnimationHelper.getAnimateOutAnimator(mContext, view);
-        animatorSet.setTarget(view);
-        animatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mHunContainer.removeNotification(view);
-
-                // Remove HUN after the animation ends to prevent accidental touch on the card
-                // triggering another remove call.
-                mActiveHeadsUpNotifications.remove(alertEntry.getKey());
-
-                handleHeadsUpNotificationStateChanged(alertEntry,
-                        currentHeadsUpNotification.mShouldRemove ? HeadsUpState.REMOVED_BY_SENDER
-                                : HeadsUpState.DISMISSED);
-            }
-        });
-        animatorSet.start();
     }
 
-    /**
-     * Removes the view for the active heads up notification and also removes the HUN from the map
-     * of active Notifications.
-     */
-    private void resetView(AlertEntry alertEntry) {
+    @Nullable
+    private View getHeadsUpView(@NonNull AlertEntry alertEntry) {
         if (!isActiveHun(alertEntry)) {
-            return;
+            return null;
         }
-        HeadsUpEntry currentHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
-        currentHeadsUpNotification.getHandler().removeCallbacksAndMessages(null);
-        mHunContainer.removeNotification(currentHeadsUpNotification.getNotificationView());
+        return getActiveHeadsUpEntry(alertEntry).getNotificationView();
+    }
+
+    private void removeHeadsUpEntry(@NonNull AlertEntry alertEntry, @Nullable View view) {
+        if (view != null) {
+            mHunContainer.removeNotification(view);
+        }
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
-        handleHeadsUpNotificationStateChanged(alertEntry, HeadsUpState.DISMISSED);
-        resetViewTreeListenersEntry(currentHeadsUpNotification);
     }
 
     /**
@@ -773,5 +794,10 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     void setCarHeadsUpNotificationQueue(CarHeadsUpNotificationQueue carHeadsUpNotificationQueue) {
         mCarHeadsUpNotificationQueue = carHeadsUpNotificationQueue;
+    }
+
+    @VisibleForTesting
+    void addActiveHeadsUpNotification(HeadsUpEntry headsUpEntry) {
+        mActiveHeadsUpNotifications.put(headsUpEntry.getKey(), headsUpEntry);
     }
 }

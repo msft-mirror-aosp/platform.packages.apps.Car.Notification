@@ -50,6 +50,11 @@ import java.util.concurrent.TimeUnit;
  * and resistant swiping for undismissible notifications.
  */
 public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemTouchListener {
+    /**
+     * The unit of velocity in milliseconds. A value of 1 means "pixels per millisecond",
+     * 1000 means "pixels per 1000 milliseconds (1 second)".
+     */
+    private static final int PIXELS_PER_SECOND = (int) TimeUnit.SECONDS.toMillis(1);
 
     private static final String TAG = "CarNotificationItemTouchListener";
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
@@ -145,9 +150,10 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
         mErrorFactorMultiplier = res.getFloat(R.dimen.error_factor_multiplier);
 
         mFlingPercentageOfWidthToDismiss =
-                res.getFloat(R.dimen.fling_percentage_of_width_to_dismiss);
+                res.getFloat(R.dimen.fling_percentage_of_max_translation_to_dismiss);
 
-        mPercentageOfWidthToDismiss = res.getFloat(R.dimen.percentage_of_width_to_dismiss);
+        mPercentageOfWidthToDismiss =
+                res.getFloat(R.dimen.percentage_of_max_translation_to_dismiss);
 
         mMinVelocityForSwipeDirection =
                 res.getInteger(R.integer.min_velocity_for_swipe_direction_detection);
@@ -291,8 +297,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
             return false;
         }
 
-        View innerNotificationList = mViewHolder.itemView
-                .requireViewById(R.id.notification_list);
+        View innerNotificationList = mViewHolder.itemView.requireViewById(R.id.notification_list);
         int[] screenXY = {0, 0};
         innerNotificationList.getLocationOnScreen(screenXY);
         int top = screenXY[1];
@@ -337,9 +342,7 @@ public class CarNotificationItemTouchListener extends RecyclerView.SimpleOnItemT
                     break;
                 }
 
-                mVelocityTracker.computeCurrentVelocity(
-                        (int) TimeUnit.SECONDS.toMillis(1) /* pixels/second */,
-                        mMaximumFlingVelocity);
+                mVelocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, mMaximumFlingVelocity);
                 float velocityX = getLastComputedXVelocity();
 
                 float translationX = mViewHolder.getSwipeTranslationX();
