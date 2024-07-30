@@ -110,7 +110,7 @@ public class CarNotificationHeaderViewHolder extends RecyclerView.ViewHolder {
                 UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
 
         if (mClickHandlerFactory != null && mCollapsePanelAfterManageButton) {
-            mClickHandlerFactory.collapsePanel();
+            mClickHandlerFactory.collapsePanel(mContext);
         }
     }
 }
