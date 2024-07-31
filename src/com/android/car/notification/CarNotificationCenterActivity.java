@@ -124,6 +124,11 @@ public class CarNotificationCenterActivity extends Activity {
         if (mNotificationViewController != null) {
             mNotificationViewController.onVisibilityChanged(isVisible);
         }
+        if (NotificationUtils.isVisibleBackgroundUser(this)) {
+            // TODO: b/341604160 - Supports visible background users properly.
+            Log.d(TAG, "IStatusBarService is unavailable for visible background users");
+            return;
+        }
         try {
             if (isVisible) {
                 mStatusBarService.onPanelRevealed(/* clearNotificationEffects= */ true,
