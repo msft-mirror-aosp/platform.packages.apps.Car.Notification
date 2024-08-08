@@ -174,9 +174,12 @@ public class CarNotificationBodyView extends RelativeLayout {
                 } else {
                     Log.w(TAG, "Notification with title=" + title
                             + " did not specify a large icon");
+                    mLargeIconView.setVisibility(View.GONE);
+                    mLargeIconView.setImageDrawable(null);
                 }
             } else {
                 mLargeIconView.setVisibility(View.GONE);
+                mLargeIconView.setImageDrawable(null);
             }
         }
 
@@ -297,9 +300,6 @@ public class CarNotificationBodyView extends RelativeLayout {
         if (mContentView != null) {
             setContentMaxLines(mMaxLines);
             mContentView.setVisibility(View.GONE);
-        }
-        if (mLargeIconView != null) {
-            mLargeIconView.setVisibility(View.GONE);
         }
         setPrimaryTextColor(mDefaultPrimaryTextColor);
         setSecondaryTextColor(mDefaultSecondaryTextColor);

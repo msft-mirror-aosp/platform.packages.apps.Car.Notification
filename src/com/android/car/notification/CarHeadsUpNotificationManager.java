@@ -388,7 +388,7 @@ public class CarHeadsUpNotificationManager
      * Returns the active headsUpEntry or creates a new one while adding it to the list of
      * mActiveHeadsUpNotifications.
      */
-    private HeadsUpEntry addNewHeadsUpEntry(AlertEntry alertEntry) {
+    private HeadsUpEntry getOrCreateHeadsUpEntry(AlertEntry alertEntry) {
         if (!isActiveHun(alertEntry)) {
             HeadsUpEntry newActiveHeadsUpNotification = new HeadsUpEntry(
                     alertEntry.getStatusBarNotification());
@@ -432,7 +432,7 @@ public class CarHeadsUpNotificationManager
         // needs to be done here because after this the new notification will be added to the map
         // holding ongoing notifications.
         boolean shouldShowAnimation = !isUpdate(alertEntry);
-        HeadsUpEntry currentNotification = addNewHeadsUpEntry(alertEntry);
+        HeadsUpEntry currentNotification = getOrCreateHeadsUpEntry(alertEntry);
         if (currentNotification.mIsNewHeadsUp) {
             playSound(alertEntry, rankingMap);
             setAutoDismissViews(currentNotification, alertEntry);
@@ -643,7 +643,6 @@ public class CarHeadsUpNotificationManager
             }
         });
         animatorSet.start();
-
     }
 
     /**
