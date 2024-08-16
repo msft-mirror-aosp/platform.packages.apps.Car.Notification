@@ -227,6 +227,8 @@ public class CarNotificationActionsView extends LinearLayout implements
             Icon icon = action.getIcon();
             if (icon != null) {
                 icon.loadDrawableAsync(packageContext, button::setImageDrawable, getAsyncHandler());
+            } else {
+                button.setImageDrawable(null);
             }
         }
 
@@ -252,7 +254,6 @@ public class CarNotificationActionsView extends LinearLayout implements
         for (CarNotificationActionButton button : mActionButtons) {
             button.setVisibility(View.GONE);
             button.setText(null);
-            button.setImageDrawable(null);
             button.setOnClickListener(null);
         }
     }
