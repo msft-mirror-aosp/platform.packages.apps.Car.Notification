@@ -419,7 +419,7 @@ public class CarNotificationView extends ConstraintLayout
             Handler handler = getHandler();
             if (handler != null) {
                 handler.postDelayed(() -> {
-                    mClickHandlerFactory.collapsePanel();
+                    mClickHandlerFactory.collapsePanel(getContext());
                 }, collapsePanelDelay);
             }
         }
@@ -475,7 +475,7 @@ public class CarNotificationView extends ConstraintLayout
                 UserHandle.of(NotificationUtils.getCurrentUser(getContext())));
 
         if (mClickHandlerFactory != null && mCollapsePanelAfterManageButton) {
-            mClickHandlerFactory.collapsePanel();
+            mClickHandlerFactory.collapsePanel(getContext());
         }
     }
 
