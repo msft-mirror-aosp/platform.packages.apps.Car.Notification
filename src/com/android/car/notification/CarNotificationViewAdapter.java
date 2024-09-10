@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.car.notification.PreprocessingManager.CallStateListener;
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
 import com.android.car.notification.template.CarNotificationFooterViewHolder;
 import com.android.car.notification.template.CarNotificationHeaderViewHolder;
@@ -68,6 +69,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
     // book keeping expanded notification groups
     private final List<ExpandedNotification> mExpandedNotifications = new ArrayList<>();
     private final CarNotificationItemController mNotificationItemController;
+    private final CallStateListener mCallStateListener = this::onCallStateChanged;
 
     private List<NotificationGroup> mNotifications = new ArrayList<>();
     private Map<String, Integer> mGroupKeyToCountMap = new HashMap<>();
@@ -105,20 +107,20 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
         if (!mIsGroupNotificationAdapter) {
             mViewPool = new RecyclerView.RecycledViewPool();
         }
-
-        PreprocessingManager.getInstance(context).addCallStateListener(this::onCallStateChanged);
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        PreprocessingManager.getInstance(mContext).addCallStateListener(mCallStateListener);
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         mLayoutManager = null;
+        PreprocessingManager.getInstance(mContext).removeCallStateListener(mCallStateListener);
     }
 
     @Override
