@@ -26,7 +26,7 @@
     <string name="action_unmute_long" msgid="22482625837159466">"વાતચીત અનમ્યૂટ કરો"</string>
     <string name="action_canned_reply" msgid="4045960823021872834">"\"હાલમાં ડ્રાઇવ કરું છું.\""</string>
     <string name="canned_reply_message" msgid="7959257272917598063">"હાલમાં ડ્રાઇવ કરું છું."</string>
-    <string name="toast_message_sent_success" msgid="1159956191974273064">"સંદેશ સફળતાપૂર્વક મોકલ્યો."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"મેસેજ સફળતાપૂર્વક મોકલ્યો."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"કાર નોટિફિકેશન સાંભળનાર સેવા"</string>
     <string name="notifications" msgid="2865534625906329283">"નોટિફિકેશન કેન્દ્ર"</string>
     <string name="clear_all" msgid="1845314281571237722">"બધું સાફ કરો"</string>
@@ -48,7 +48,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> નવા મેસેજ</item>
     </plurals>
     <string name="see_more_message" msgid="6343183827924395955">"વધુ જુઓ"</string>
-    <string name="restricted_hun_message_content" msgid="631111937988857716">"નવો સંદેશ"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"નવો મેસેજ"</string>
     <string name="manage_text" msgid="4225197445283791757">"મેનેજ કરો"</string>
     <string name="category_navigation" msgid="4406139232918521087">"નૅવિગેશન"</string>
     <string name="category_call" msgid="2249490790700877973">"કૉલ"</string>
