@@ -39,12 +39,6 @@ public class HeadsUpEntry extends AlertEntry {
     // Signifies that this notification is to be shown as Heads Up Notification for the first time
     boolean mIsNewHeadsUp;
 
-    // Signifies that this notification is in process of being dismissed
-    boolean mIsDismissing;
-
-    // Signifies that the sender marked this notification to be removed
-    boolean mShouldRemove;
-
     HeadsUpEntry(StatusBarNotification statusBarNotification) {
         super(statusBarNotification);
         mHandler = new Handler();
