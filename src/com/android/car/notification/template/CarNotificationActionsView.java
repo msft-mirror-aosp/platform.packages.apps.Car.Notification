@@ -80,6 +80,8 @@ public class CarNotificationActionsView extends LinearLayout implements
     private final String mMuteText;
     private final String mUnmuteText;
     @ColorInt
+    private final int mMuteTextColor;
+    @ColorInt
     private final int mUnmuteTextColor;
     private final boolean mEnableDirectReply;
     private final boolean mEnablePlay;
@@ -152,6 +154,7 @@ public class CarNotificationActionsView extends LinearLayout implements
                 mContext.getResources().getBoolean(R.bool.config_enableMessageNotificationPlay);
         mEnableDirectReply = mContext.getResources()
                 .getBoolean(R.bool.config_enableMessageNotificationDirectReply);
+        mMuteTextColor = mContext.getColor(R.color.icon_tint);
         mUnmuteTextColor = mContext.getColor(R.color.dark_icon_tint);
         init(attrs);
     }
@@ -328,7 +331,7 @@ public class CarNotificationActionsView extends LinearLayout implements
 
     private void setMuteStatus(CarNotificationActionButton button, boolean isMuted) {
         button.setText(isMuted ? mUnmuteText : mMuteText);
-        button.setTextColor(isMuted ? mUnmuteTextColor : button.getDefaultTextColor());
+        button.setTextColor(isMuted ? mUnmuteTextColor : mMuteTextColor);
         button.setImageDrawable(isMuted ? mUnmuteButtonDrawable : mMuteButtonDrawable);
         button.setBackground(isMuted ? mUnmuteButtonBackground : mActionButtonBackground);
     }
