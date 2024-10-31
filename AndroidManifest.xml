@@ -25,7 +25,7 @@
     <!-- Permission to get the current user id to cancel all notifications -->
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
     <!-- Permission to get status if a user in on call -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

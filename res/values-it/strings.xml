@@ -56,5 +56,5 @@
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"Notifiche di avviso disattivate"</string>
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Non perderti le ultime novità"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Concentrati sulla guida"</string>
-    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Alcune nuove notifiche vengono salvate nel centro notifiche"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Alcune nuove notifiche vengono salvate nel Centro notifiche"</string>
 </resources>
