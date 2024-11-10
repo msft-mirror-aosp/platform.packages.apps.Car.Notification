@@ -184,7 +184,7 @@ public class CarNotificationBodyView extends RelativeLayout {
         }
 
         if (mTitleView != null) {
-            if (!TextUtils.isEmpty(content)) {
+            if (!TextUtils.isEmpty(title)) {
                 mTitleView.setVisibility(View.VISIBLE);
                 mTitleView.setText(title);
             } else {
