@@ -34,7 +34,7 @@
     <string name="show_more" msgid="7291378544926443344">"कम देखाउनुहोस्"</string>
     <string name="notification_header" msgid="324550431063568049">"सूचनाहरू"</string>
     <string name="notification_recents" msgid="5855769440781958546">"हालैका"</string>
-    <string name="notification_older" msgid="8162161020296499690">"अझ पुराना सूचनाहरू"</string>
+    <string name="notification_older" msgid="8162161020296499690">"अझ पुराना नोटिफिकेसनहरू"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"कुनै पनि सूचना छैन"</string>
     <string name="collapse_group" msgid="3487426973871208501">"कम देखाउनुहोस्"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> बाट प्राप्त थप <xliff:g id="COUNT">%1$d</xliff:g> सूचनाहरू"</string>
