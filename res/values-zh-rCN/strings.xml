@@ -34,7 +34,7 @@
     <string name="show_more" msgid="7291378544926443344">"显示更多"</string>
     <string name="notification_header" msgid="324550431063568049">"通知"</string>
     <string name="notification_recents" msgid="5855769440781958546">"近期通知"</string>
-    <string name="notification_older" msgid="8162161020296499690">"时间较早的通知"</string>
+    <string name="notification_older" msgid="8162161020296499690">"较早的通知"</string>
     <string name="empty_notification_header" msgid="4928379791607839720">"没有通知"</string>
     <string name="collapse_group" msgid="3487426973871208501">"收起"</string>
     <string name="show_more_from_app" msgid="4270626118092846628">"“<xliff:g id="APP">%2$s</xliff:g>”还有 <xliff:g id="COUNT">%1$d</xliff:g> 条通知"</string>
