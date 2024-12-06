@@ -184,13 +184,21 @@ public class CarNotificationBodyView extends RelativeLayout {
         }
 
         if (mTitleView != null) {
-            mTitleView.setVisibility(View.VISIBLE);
-            mTitleView.setText(title);
+            if (!TextUtils.isEmpty(title)) {
+                mTitleView.setVisibility(View.VISIBLE);
+                mTitleView.setText(title);
+            } else {
+                mTitleView.setVisibility(View.GONE);
+            }
         }
 
-        if (mTitleIconView != null && titleIcon != null) {
-            mTitleIconView.setVisibility(View.VISIBLE);
-            mTitleIconView.setImageDrawable(titleIcon);
+        if (mTitleIconView != null) {
+            if (titleIcon != null) {
+                mTitleIconView.setVisibility(View.VISIBLE);
+                mTitleIconView.setImageDrawable(titleIcon);
+            } else {
+                mTitleIconView.setVisibility(View.GONE);
+            }
         }
 
         if (mContentView != null) {
