@@ -23,8 +23,10 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.service.notification.StatusBarNotification;
 import android.text.BidiFormatter;
 import android.text.TextDirectionHeuristics;
@@ -129,13 +131,22 @@ public class CarNotificationHeaderView extends LinearLayout {
         Notification notification = alertEntry.getNotification();
         StatusBarNotification sbn = alertEntry.getStatusBarNotification();
 
-        Context packageContext = sbn.getPackageContext(getContext());
 
         // App icon
         if (mIconView != null) {
-            mIconView.setVisibility(View.VISIBLE);
-            Drawable drawable = notification.getSmallIcon().loadDrawable(packageContext);
-            mIconView.setImageDrawable(drawable);
+            if (notification.getSmallIcon() != null) {
+                Context packageContext = sbn.getPackageContext(getContext());
+                Icon.OnDrawableLoadedListener loadedListener = drawable -> {
+                    mIconView.setVisibility(View.VISIBLE);
+                    mIconView.setImageDrawable(drawable);
+                };
+                Handler handler = Handler.createAsync(Looper.myLooper());
+                notification.getSmallIcon().loadDrawableAsync(packageContext, loadedListener,
+                        handler);
+            } else {
+                mIconView.setVisibility(View.GONE);
+                mIconView.setImageDrawable(null);
+            }
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -216,8 +227,6 @@ public class CarNotificationHeaderView extends LinearLayout {
      */
     public void reset() {
         if (mIconView != null) {
-            mIconView.setVisibility(View.GONE);
-            mIconView.setImageDrawable(null);
             setSmallIconColor(mDefaultTextColor);
         }
 

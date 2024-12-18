@@ -54,7 +54,6 @@ public class CarNotificationView extends ConstraintLayout
     private final boolean mCollapsePanelAfterManageButton;
 
     private CarNotificationViewAdapter mAdapter;
-    private Context mContext;
     private LinearLayoutManager mLayoutManager;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
@@ -65,10 +64,12 @@ public class CarNotificationView extends ConstraintLayout
     private RecyclerView mListView;
     private Button mManageButton;
     private TextView mEmptyNotificationHeaderText;
+    private Button mClearAllButton;
+    private CarNotificationItemTouchListener mItemTouchListener;
+    private OnScrollListener mScrollListener;
 
     public CarNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
         mNotificationDataManager = NotificationDataManager.getInstance();
         mCollapsePanelAfterManageButton = context.getResources().getBoolean(
                 R.bool.config_collapseShadePanelAfterManageButtonPress);
@@ -84,23 +85,36 @@ public class CarNotificationView extends ConstraintLayout
         mListView = findViewById(R.id.notifications);
 
         mListView.setClipChildren(false);
-        mLayoutManager = new LinearLayoutManager(mContext);
+        Context context = getContext();
+        mLayoutManager = new LinearLayoutManager(context);
         mListView.setLayoutManager(mLayoutManager);
         mListView.addItemDecoration(new TopAndBottomOffsetDecoration(
-                mContext.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+                context.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
         mListView.addItemDecoration(new ItemSpacingDecoration(
-                mContext.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
-        mAdapter = new CarNotificationViewAdapter(mContext, /* isGroupNotificationAdapter= */
+                context.getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+        mAdapter = new CarNotificationViewAdapter(context, /* isGroupNotificationAdapter= */
                 false, this::startClearAllNotifications);
-        mListView.setAdapter(mAdapter);
 
-        mUxrContentLimiter = new UxrContentLimiterImpl(mContext, R.xml.uxr_config);
+        mUxrContentLimiter = new UxrContentLimiterImpl(context, R.xml.uxr_config);
+
+        mEmptyNotificationHeaderText = findViewById(R.id.empty_notification_text);
+        mManageButton = findViewById(R.id.manage_button);
+
+        mClearAllButton = findViewById(R.id.clear_all_button);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
         mUxrContentLimiter.setAdapter(mAdapter);
         mUxrContentLimiter.start();
+        mListView.setAdapter(mAdapter);
 
-        mListView.addOnItemTouchListener(new CarNotificationItemTouchListener(mContext, mAdapter));
+        mItemTouchListener = new CarNotificationItemTouchListener(getContext(), mAdapter);
+        mListView.addOnItemTouchListener(mItemTouchListener);
 
-        mListView.addOnScrollListener(new OnScrollListener() {
+        mScrollListener = new OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -109,7 +123,9 @@ public class CarNotificationView extends ConstraintLayout
                     setVisibleNotificationsAsSeen();
                 }
             }
-        });
+        };
+        mListView.addOnScrollListener(mScrollListener);
+
         mListView.setItemAnimator(new DefaultItemAnimator(){
             @Override
             public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder
@@ -124,13 +140,32 @@ public class CarNotificationView extends ConstraintLayout
             }
         });
 
-        Button clearAllButton = findViewById(R.id.clear_all_button);
-        mEmptyNotificationHeaderText = findViewById(R.id.empty_notification_text);
-        mManageButton = findViewById(R.id.manage_button);
         mManageButton.setOnClickListener(this::manageButtonOnClickListener);
+        if (mClearAllButton != null) {
+            mClearAllButton.setOnClickListener(v -> startClearAllNotifications());
+        }
+    }
 
-        if (clearAllButton != null) {
-            clearAllButton.setOnClickListener(v -> startClearAllNotifications());
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        // TODO b/301492797 also set the adapter in the UxrContentLimiter to null
+        mUxrContentLimiter.stop();
+
+        mListView.setAdapter(null);
+
+        if (mItemTouchListener != null) {
+            mListView.removeOnItemTouchListener(mItemTouchListener);
+        }
+        if (mScrollListener != null) {
+            mListView.removeOnScrollListener(mScrollListener);
+        }
+        mListView.setItemAnimator(null);
+        mManageButton.setOnClickListener(null);
+
+        if (mClearAllButton != null) {
+            mClearAllButton.setOnClickListener(null);
         }
     }
 
@@ -344,7 +379,7 @@ public class CarNotificationView extends ConstraintLayout
                 R.integer.clear_all_notifications_animation_delay_interval_ms);
         for (int i = 0; i < dismissibleNotificationViews.size(); i++) {
             View currentView = dismissibleNotificationViews.get(i);
-            ObjectAnimator animator = (ObjectAnimator) AnimatorInflater.loadAnimator(mContext,
+            ObjectAnimator animator = (ObjectAnimator) AnimatorInflater.loadAnimator(getContext(),
                     R.animator.clear_all_animate_out);
             animator.setTarget(currentView);
 
@@ -384,7 +419,7 @@ public class CarNotificationView extends ConstraintLayout
             Handler handler = getHandler();
             if (handler != null) {
                 handler.postDelayed(() -> {
-                    mClickHandlerFactory.collapsePanel();
+                    mClickHandlerFactory.collapsePanel(getContext());
                 }, collapsePanelDelay);
             }
         }
@@ -436,11 +471,11 @@ public class CarNotificationView extends ConstraintLayout
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        mContext.startActivityAsUser(intent,
-                UserHandle.of(NotificationUtils.getCurrentUser(mContext)));
+        getContext().startActivityAsUser(intent,
+                UserHandle.of(NotificationUtils.getCurrentUser(getContext())));
 
         if (mClickHandlerFactory != null && mCollapsePanelAfterManageButton) {
-            mClickHandlerFactory.collapsePanel();
+            mClickHandlerFactory.collapsePanel(getContext());
         }
     }
 
