@@ -138,25 +138,22 @@ public class PreprocessingManager {
     public void init(Map<String, AlertEntry> notifications, RankingMap rankingMap) {
         mOldNotifications = notifications;
         mOldRankingMap = rankingMap;
-        mOldProcessedNotifications =
-                process(/* showLessImportantNotifications = */ false, notifications, rankingMap);
+        mOldProcessedNotifications = process(notifications, rankingMap);
     }
 
     /**
      * Process the given notifications. In order for DiffUtil to work, the adapter needs a new
      * data object each time it updates, therefore wrapping the return value in a new list.
      *
-     * @param showLessImportantNotifications whether less important notifications should be shown.
      * @param notifications the list of notifications to be processed.
      * @param rankingMap the ranking map for the notifications.
      * @return the processed notifications in a new list.
      */
-    public List<NotificationGroup> process(boolean showLessImportantNotifications,
-            Map<String, AlertEntry> notifications, RankingMap rankingMap) {
+    public List<NotificationGroup> process(Map<String, AlertEntry> notifications,
+            RankingMap rankingMap) {
         return new ArrayList<>(
                 rank(group(optimizeForDriving(
-                                filter(showLessImportantNotifications,
-                                        new ArrayList<>(notifications.values()),
+                                filter(new ArrayList<>(notifications.values()),
                                         rankingMap))),
                         rankingMap));
     }
@@ -164,12 +161,10 @@ public class PreprocessingManager {
     /**
      * Create a new list of notifications based on existing list.
      *
-     * @param showLessImportantNotifications whether less important notifications should be shown.
      * @param newRankingMap the latest ranking map for the notifications.
      * @return the new notification group list that should be shown to the user.
      */
     public List<NotificationGroup> updateNotifications(
-            boolean showLessImportantNotifications,
             AlertEntry alertEntry,
             int updateType,
             RankingMap newRankingMap) {
@@ -179,7 +174,7 @@ public class PreprocessingManager {
                 // removal of a notification is the same as a normal preprocessing
                 mOldNotifications.remove(alertEntry.getKey());
                 mOldProcessedNotifications =
-                        process(showLessImportantNotifications, mOldNotifications, mOldRankingMap);
+                        process(mOldNotifications, mOldRankingMap);
                 break;
             case CarNotificationListener.NOTIFY_NOTIFICATION_POSTED:
                 AlertEntry notification = optimizeForDriving(alertEntry);
@@ -220,14 +215,8 @@ public class PreprocessingManager {
      */
     @VisibleForTesting
     protected List<AlertEntry> filter(
-            boolean showLessImportantNotifications,
             List<AlertEntry> notifications,
             RankingMap rankingMap) {
-        // remove notifications that should be filtered.
-        if (!showLessImportantNotifications) {
-            notifications.removeIf(alertEntry -> shouldFilter(alertEntry, rankingMap));
-        }
-
         // Call notifications should not be shown in the panel.
         // Since they're shown as persistent HUNs, and notifications are not added to the panel
         // until after they're dismissed as HUNs, it does not make sense to have them in the panel,
@@ -323,6 +312,10 @@ public class PreprocessingManager {
         }
 
         Bundle extras = alertEntry.getNotification().extras;
+        if (extras == null) {
+            return alertEntry;
+        }
+
         for (String key : extras.keySet()) {
             switch (key) {
                 case Notification.EXTRA_TITLE:
@@ -331,8 +324,6 @@ public class PreprocessingManager {
                 case Notification.EXTRA_SUMMARY_TEXT:
                     CharSequence value = extras.getCharSequence(key);
                     extras.putCharSequence(key, trimText(value));
-                default:
-                    continue;
             }
         }
         return alertEntry;
