@@ -1242,7 +1242,8 @@ public class PreprocessingManagerTest {
                     getRankingAdjustment(i),
                     isBubble(i),
                     /* proposedImportance= */ 0,
-                    /* sensitiveContent= */ false
+                    /* sensitiveContent= */ false,
+                    /* summarization = */ null
             );
             rankings[i] = ranking;
         }
