@@ -266,78 +266,6 @@ public class PreprocessingManagerTest {
     }
 
     @Test
-    public void onFilter_showLessImportantNotifications_doesNotFilterNotifications() {
-        List<AlertEntry> unfiltered = mAlertEntries.stream().collect(Collectors.toList());
-        mPreprocessingManager
-                .filter(/* showLessImportantNotifications= */ true, mAlertEntries, mRankingMap);
-
-        assertThat(mAlertEntries.equals(unfiltered)).isTrue();
-    }
-
-    @Test
-    public void onFilter_dontShowLessImportantNotifications_filtersLessImportantForeground()
-            throws PackageManager.NameNotFoundException {
-        mPreprocessingManager
-                .filter( /* showLessImportantNotifications= */ false, mAlertEntries, mRankingMap);
-
-        assertThat(mAlertEntries.contains(mLessImportantBackground)).isTrue();
-        assertThat(mAlertEntries.contains(mLessImportantForeground)).isFalse();
-    }
-
-    @Test
-    public void onFilter_dontShowLessImportantNotifications_doesNotFilterMoreImportant() {
-        mPreprocessingManager
-                .filter(/* showLessImportantNotifications= */ false, mAlertEntries, mRankingMap);
-
-        assertThat(mAlertEntries.contains(mImportantBackground)).isTrue();
-        assertThat(mAlertEntries.contains(mImportantForeground)).isTrue();
-    }
-
-    @Test
-    public void onFilter_dontShowLessImportantNotifications_filtersMediaAndNavigation() {
-        mPreprocessingManager
-                .filter(/* showLessImportantNotifications= */ false, mAlertEntries, mRankingMap);
-
-        assertThat(mAlertEntries.contains(mMedia)).isFalse();
-        assertThat(mAlertEntries.contains(mNavigation)).isFalse();
-    }
-
-    @Test
-    public void onFilter_doShowLessImportantNotifications_doesNotFilterMediaOrNavigation() {
-        mPreprocessingManager
-                .filter(/* showLessImportantNotifications= */ true, mAlertEntries, mRankingMap);
-
-        assertThat(mAlertEntries.contains(mMedia)).isTrue();
-        assertThat(mAlertEntries.contains(mNavigation)).isTrue();
-    }
-
-    @Test
-    public void onFilter_doShowLessImportantNotifications_filtersCalls() {
-        StatusBarNotification callSBN = mock(StatusBarNotification.class);
-        Notification callNotification = new Notification();
-        callNotification.category = Notification.CATEGORY_CALL;
-        when(callSBN.getNotification()).thenReturn(callNotification);
-        List<AlertEntry> entries = new ArrayList<>();
-        entries.add(new AlertEntry(callSBN));
-
-        mPreprocessingManager.filter(true, entries, mRankingMap);
-        assertThat(entries).isEmpty();
-    }
-
-    @Test
-    public void onFilter_dontShowLessImportantNotifications_filtersCalls() {
-        StatusBarNotification callSBN = mock(StatusBarNotification.class);
-        Notification callNotification = new Notification();
-        callNotification.category = Notification.CATEGORY_CALL;
-        when(callSBN.getNotification()).thenReturn(callNotification);
-        List<AlertEntry> entries = new ArrayList<>();
-        entries.add(new AlertEntry(callSBN));
-
-        mPreprocessingManager.filter(false, entries, mRankingMap);
-        assertThat(entries).isEmpty();
-    }
-
-    @Test
     public void onOptimizeForDriving_alertEntryHasNonMessageNotification_trimsNotificationTexts() {
         when(mCarUxRestrictions.getMaxRestrictedStringLength()).thenReturn(MAX_STRING_LENGTH);
         when(mCarUxRestrictionManagerWrapper.getCurrentCarUxRestrictions())
@@ -727,8 +655,8 @@ public class PreprocessingManagerTest {
         AlertEntry additionalAlertEntry = new AlertEntry(mAdditionalStatusBarNotification);
 
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
-        List<AlertEntry> copy = mPreprocessingManager.filter(/* showLessImportantNotifications= */
-                false, new ArrayList<>(mAlertEntries), mRankingMap);
+        List<AlertEntry> copy = mPreprocessingManager.filter(
+                new ArrayList<>(mAlertEntries), mRankingMap);
         copy.add(additionalAlertEntry);
         copy.add(new AlertEntry(mSummaryCStatusBarNotification));
         List<NotificationGroup> expected = mPreprocessingManager.group(copy);
@@ -780,8 +708,7 @@ public class PreprocessingManagerTest {
                 .collect(Collectors.toList());
 
         List<NotificationGroup> standardRanked = mPreprocessingManager.rank(
-                mPreprocessingManager.process(/* showLessImportantNotifications = */ false,
-                        testCopy, mRankingMap), mRankingMap);
+                mPreprocessingManager.process(testCopy, mRankingMap), mRankingMap);
 
         assertThat(additionalRanked.size()).isEqualTo(standardRanked.size());
 
@@ -1109,7 +1036,6 @@ public class PreprocessingManagerTest {
 
         List<NotificationGroup> newList =
                 mPreprocessingManager.updateNotifications(
-                        /* showLessImportantNotifications= */ false,
                         mImportantForeground,
                         CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED,
                         mRankingMap);
@@ -1132,7 +1058,6 @@ public class PreprocessingManagerTest {
                 .thenReturn(newNotification);
         List<NotificationGroup> newList =
                 mPreprocessingManager.updateNotifications(
-                        /* showLessImportantNotifications= */ false,
                         mImportantForeground,
                         CarNotificationListener.NOTIFY_NOTIFICATION_POSTED,
                         mRankingMap);
@@ -1159,7 +1084,6 @@ public class PreprocessingManagerTest {
 
         List<NotificationGroup> newList =
                 mPreprocessingManager.updateNotifications(
-                        /* showLessImportantNotifications= */ false,
                         additionalAlertEntry,
                         CarNotificationListener.NOTIFY_NOTIFICATION_POSTED,
                         mRankingMap);
@@ -1318,7 +1242,8 @@ public class PreprocessingManagerTest {
                     getRankingAdjustment(i),
                     isBubble(i),
                     /* proposedImportance= */ 0,
-                    /* sensitiveContent= */ false
+                    /* sensitiveContent= */ false,
+                    /* summarization = */ null
             );
             rankings[i] = ranking;
         }
