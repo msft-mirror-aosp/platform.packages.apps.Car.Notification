@@ -244,6 +244,33 @@ public class NotificationGroup {
     }
 
     /**
+     * Returns a notification with matching key or else returns {@code null}.
+     */
+    public AlertEntry getChildNotification(String key) {
+        for (int i = 0; i < mNotifications.size(); i++) {
+            AlertEntry alertEntry = mNotifications.get(i);
+            if (alertEntry.getKey().equals(key)) {
+                return alertEntry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns {@code true} if old notification is set to new notification.
+     */
+    public boolean updateNotification(AlertEntry oldValue, AlertEntry newValue) {
+        for (int i = 0; i < mNotifications.size(); i++) {
+            AlertEntry alertEntry = mNotifications.get(i);
+            if (alertEntry.getKey().equals(oldValue.getKey())) {
+                mNotifications.set(i, newValue);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the group summary notification.
      */
     @Nullable
@@ -352,6 +379,6 @@ public class NotificationGroup {
 
     @Override
     public String toString() {
-        return mGroupKey + ": " + mNotifications.toString();
+        return mGroupKey + ": " + mNotifications;
     }
 }
