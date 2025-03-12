@@ -179,6 +179,21 @@ public class NotificationUtils {
                 : ActivityManager.getCurrentUser();
     }
 
+    /**
+     * @return {@code true} if notification is a valid progress notification.
+     */
+    public static boolean isProgress(Notification notification) {
+        Bundle extras = notification.extras;
+        int progressMax = extras.getInt(Notification.EXTRA_PROGRESS_MAX);
+        boolean isIndeterminate = extras.getBoolean(
+                Notification.EXTRA_PROGRESS_INDETERMINATE);
+        boolean hasValidProgress = isIndeterminate || progressMax != 0;
+        return extras.containsKey(Notification.EXTRA_PROGRESS)
+                && extras.containsKey(Notification.EXTRA_PROGRESS_MAX)
+                && hasValidProgress
+                && !notification.hasCompletedProgress();
+    }
+
     private static boolean isSystemPrivilegedOrPlatformKeyInner(Context context,
             AlertEntry alertEntry, boolean checkForPrivilegedApp) {
         PackageInfo packageInfo = getPackageInfo(context, alertEntry.getStatusBarNotification());

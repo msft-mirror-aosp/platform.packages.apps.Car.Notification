@@ -51,7 +51,8 @@ public class NotificationGroupTest {
     private static final int INITIAL_PID = 3;
     private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final String CONTENT_TITLE = "CONTENT_TITLE";
-    private static final String OVERRIDE_GROUP_KEY = "OVERRIDE_GROUP_KEY";
+    private static final String OVERRIDE_GROUP_KEY_1 = "OVERRIDE_GROUP_KEY_1";
+    private static final String OVERRIDE_GROUP_KEY_2 = "OVERRIDE_GROUP_KEY_2";
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
     @Rule
@@ -73,10 +74,10 @@ public class NotificationGroupTest {
                 .setSmallIcon(android.R.drawable.sym_def_app_icon);
         mNotification1 = new AlertEntry(new StatusBarNotification(PKG_1, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME));
+                OVERRIDE_GROUP_KEY_1, POST_TIME));
         mNotification2 = new AlertEntry(new StatusBarNotification(PKG_2, OP_PKG,
                 ID, TAG, UID, INITIAL_PID, mNotificationBuilder.build(), USER_HANDLE,
-                OVERRIDE_GROUP_KEY, POST_TIME));
+                OVERRIDE_GROUP_KEY_2, POST_TIME));
     }
 
     /**
@@ -232,4 +233,45 @@ public class NotificationGroupTest {
         assertThat(mNotificationGroup.isDismissible()).isTrue();
     }
 
+    @Test
+    public void  getChildNotification_exists() {
+        mNotificationGroup.addNotification(mNotification1);
+
+        AlertEntry actual = mNotificationGroup.getChildNotification(mNotification1.getKey());
+
+        assertThat(actual).isEqualTo(mNotification1);
+    }
+
+    @Test
+    public void  getChildNotification_doesNotExist_returnNull() {
+        mNotificationGroup.addNotification(mNotification1);
+
+        AlertEntry actual = mNotificationGroup.getChildNotification(mNotification2.getKey());
+
+        assertThat(actual).isNull();
+    }
+
+    @Test
+    public void updateNotification_doesNotExist_returnFalse() {
+        mNotificationGroup.addNotification(mNotification1);
+
+        assertThat(mNotificationGroup.updateNotification(mNotification2, mNotification1)).isFalse();
+    }
+
+    @Test
+    public void updateNotification_doesExist_returnTrue() {
+        mNotificationGroup.addNotification(mNotification1);
+
+        assertThat(mNotificationGroup.updateNotification(mNotification1, mNotification2)).isTrue();
+    }
+
+    @Test
+    public void updateNotification_doesExist_isUpdated() {
+        mNotificationGroup.addNotification(mNotification1);
+
+        mNotificationGroup.updateNotification(mNotification1, mNotification2);
+
+        assertThat(mNotificationGroup.getChildNotification(mNotification2.getKey()))
+                .isEqualTo(mNotification2);
+    }
 }
