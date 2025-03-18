@@ -164,7 +164,6 @@ public class CarHeadsUpNotificationQueue implements
             NotificationListenerService.RankingMap rankingMap) {
         mRankingMap = rankingMap;
         if (isCategoryImmediateShow(alertEntry.getNotification().category)) {
-            mQueueCallback.getActiveHeadsUpNotifications().forEach(mQueueCallback::dismissHeadsUp);
             mQueueCallback.showAsHeadsUp(alertEntry, rankingMap);
             return;
         }
@@ -192,9 +191,7 @@ public class CarHeadsUpNotificationQueue implements
         mIsOngoingHeadsUpFlush = true;
 
         if (mDismissHeadsUpWhenNotificationCenterOpens) {
-            mQueueCallback.getActiveHeadsUpNotifications().stream()
-                    .filter(CarHeadsUpNotificationManager::isHeadsUpDismissible)
-                    .forEach(mQueueCallback::dismissHeadsUp);
+            mQueueCallback.getActiveHeadsUpNotifications().forEach(mQueueCallback::dismissHeadsUp);
         }
         while (!mPriorityQueue.isEmpty()) {
             String key = mPriorityQueue.poll();

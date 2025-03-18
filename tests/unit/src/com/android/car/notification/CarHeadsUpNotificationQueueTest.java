@@ -260,7 +260,6 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
         mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
 
-        verify(mCarHeadsUpNotificationQueueCallback).dismissHeadsUp(alertEntry3);
         verify(mCarHeadsUpNotificationQueueCallback)
                 .showAsHeadsUp(mAlertEntryArg.capture(),
                         any(NotificationListenerService.RankingMap.class));

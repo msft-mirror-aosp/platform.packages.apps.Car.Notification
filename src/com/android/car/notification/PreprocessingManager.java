@@ -17,6 +17,8 @@ package com.android.car.notification;
 
 import static android.app.Notification.FLAG_AUTOGROUP_SUMMARY;
 
+import static com.android.car.notification.NotificationUtils.isCategoryCall;
+
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -218,13 +220,6 @@ public class PreprocessingManager {
     protected List<AlertEntry> filter(
             List<AlertEntry> notifications,
             RankingMap rankingMap) {
-        // Call notifications should not be shown in the panel.
-        // Since they're shown as persistent HUNs, and notifications are not added to the panel
-        // until after they're dismissed as HUNs, it does not make sense to have them in the panel,
-        // and sequencing could cause them to be removed before being added here.
-        notifications.removeIf(alertEntry -> Notification.CATEGORY_CALL.equals(
-                alertEntry.getNotification().category));
-
         // HUN suppression notifications should not be shown in the panel.
         notifications.removeIf(alertEntry -> CarHeadsUpNotificationQueue.CATEGORY_HUN_QUEUE_INTERNAL
                 .equals(alertEntry.getNotification().category));
@@ -372,7 +367,7 @@ public class PreprocessingManager {
             Notification notification = alertEntry.getNotification();
 
             String groupKey;
-            if (Notification.CATEGORY_CALL.equals(notification.category)) {
+            if (isCategoryCall(alertEntry)) {
                 // DO NOT group CATEGORY_CALL.
                 groupKey = UUID.randomUUID().toString();
             } else {
@@ -388,10 +383,13 @@ public class PreprocessingManager {
                 NotificationGroup notificationGroup = new NotificationGroup();
                 groupedNotifications.put(groupKey, notificationGroup);
             }
-            if (notification.isGroupSummary()) {
+
+            if (notification.isGroupSummary() && !isCategoryCall(alertEntry)) {
                 groupedNotifications.get(groupKey)
                         .setGroupSummaryNotification(alertEntry);
             } else {
+                // CATEGORY_CALL notifications are NOT grouped and contains no child AlertEntry, so
+                // they should be added as a singleton notification.
                 groupedNotifications.get(groupKey).addNotification(alertEntry);
             }
         }

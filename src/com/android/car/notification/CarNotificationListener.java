@@ -292,19 +292,22 @@ public class CarNotificationListener extends NotificationListenerService impleme
             mNotificationDataManager.untrackUnseenNotification(alertEntry);
         }
 
-        boolean isShowingHeadsUp = false;
-        if (!mIsNotificationPanelVisible
-                || !CarHeadsUpNotificationManager.isHeadsUpDismissible(alertEntry)) {
-            isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
-                    mActiveNotifications);
+        boolean isHunShownOrScheduled = false;
+        if (!mIsNotificationPanelVisible) {
+            isHunShownOrScheduled = mHeadsUpManager.maybeShowOrScheduleHun(alertEntry,
+                    getCurrentRanking(), mActiveNotifications);
         }
         if (DEBUG) {
-            Log.d(TAG, "Is " + alertEntry + " shown as HUN?: " + isShowingHeadsUp);
+            Log.d(TAG, "Is " + alertEntry + " added to HUN manager?: " + isHunShownOrScheduled);
         }
-        if (!isShowingHeadsUp) {
-            updateOverrideGroupKey(alertEntry);
-            postNewNotification(alertEntry);
+        if (isHunShownOrScheduled) {
+            // if a notification is shown as heads-up notification, delay posting it to notification
+            // view until it is dismissed / swiped away by the user.
+            return;
         }
+        // notification is not shown as a hun and should be immediately posted.
+        updateOverrideGroupKey(alertEntry);
+        postNewNotification(alertEntry);
     }
 
     private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {
