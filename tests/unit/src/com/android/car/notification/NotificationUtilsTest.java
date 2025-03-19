@@ -57,11 +57,15 @@ public class NotificationUtilsTest {
     public final TestableContext mContext = new TestableContext(
             InstrumentationRegistry.getInstrumentation().getTargetContext());
 
+    private static final String CHANNEL_ID = "CHANNEL_ID";
+    private static final String CONTENT_TITLE = "CONTENT_TITLE";
+
     private MockitoSession mSession;
     private AlertEntry mAlertEntry;
 
     @Mock
     private StatusBarNotification mStatusBarNotification;
+    private Notification mNotification;
     @Mock
     private PackageManager mPackageManager;
     @Mock
@@ -323,6 +327,39 @@ public class NotificationUtilsTest {
 
         assertThat(NotificationUtils.getCurrentUser(mContext)).isEqualTo(
                 myUserHandle.getIdentifier());
+    }
+
+    @Test
+    public void isProgress_isValid_returnTrue() {
+        mNotification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setContentTitle(CONTENT_TITLE)
+                .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                .setProgress(100,  50, true)
+                .build();
+
+        assertThat(NotificationUtils.isProgress(mNotification)).isTrue();
+    }
+
+    @Test
+    public void isProgress_invalidProgress_returnFalse() {
+        mNotification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setContentTitle(CONTENT_TITLE)
+                .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                .setProgress(0,  50, false)
+                .build();
+
+        assertThat(NotificationUtils.isProgress(mNotification)).isFalse();
+    }
+
+    @Test
+    public void isProgress_hasCompletedProgress_returnFalse() {
+        mNotification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setContentTitle(CONTENT_TITLE)
+                .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                .setProgress(100,  100, true)
+                .build();
+
+        assertThat(NotificationUtils.isProgress(mNotification)).isFalse();
     }
 
     private void setApplicationInfo(boolean signedWithPlatformKey, boolean isSystemApp,

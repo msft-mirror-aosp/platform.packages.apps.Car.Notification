@@ -262,14 +262,7 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
         }
 
         // progress
-        int progressMax = extras.getInt(Notification.EXTRA_PROGRESS_MAX);
-        boolean isIndeterminate = extras.getBoolean(
-                Notification.EXTRA_PROGRESS_INDETERMINATE);
-        boolean hasValidProgress = isIndeterminate || progressMax != 0;
-        boolean isProgress = extras.containsKey(Notification.EXTRA_PROGRESS)
-                && extras.containsKey(Notification.EXTRA_PROGRESS_MAX)
-                && hasValidProgress
-                && !notification.hasCompletedProgress();
+        boolean isProgress = NotificationUtils.isProgress(notification);
         if (isProgress) {
             return mIsGroupNotificationAdapter
                     ? NotificationViewType.PROGRESS_IN_GROUP : NotificationViewType.PROGRESS;
