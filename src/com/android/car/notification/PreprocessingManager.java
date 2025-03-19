@@ -79,7 +79,7 @@ public class PreprocessingManager {
     private int mMaxStringLength = Integer.MAX_VALUE;
     private Map<String, AlertEntry> mOldNotifications;
     private List<NotificationGroup> mOldProcessedNotifications;
-    private NotificationListenerService.RankingMap mOldRankingMap;
+    private RankingMap mOldRankingMap;
     private NotificationDataManager mNotificationDataManager;
 
     private boolean mIsInCall;
@@ -159,7 +159,8 @@ public class PreprocessingManager {
     }
 
     /**
-     * Create a new list of notifications based on existing list.
+     * Create a new list of notifications based adding/removing a notification to/from
+     * an existing list.
      *
      * @param newRankingMap the latest ranking map for the notifications.
      * @return the new notification group list that should be shown to the user.
@@ -564,6 +565,7 @@ public class PreprocessingManager {
     protected List<NotificationGroup> additionalGroupAndRank(AlertEntry newNotification,
             RankingMap newRankingMap, boolean isUpdate) {
         Notification notification = newNotification.getNotification();
+        boolean isProgress = NotificationUtils.isProgress(notification);
         NotificationGroup newGroup = new NotificationGroup();
 
         // The newGroup should appear in the recent section so mark the group as not seen. Since the
@@ -603,21 +605,51 @@ public class PreprocessingManager {
         // 3. present in an unseen group.
         for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
             NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
+            AlertEntry oldNotification = null;
 
-            if (!TextUtils.equals(oldGroup.getGroupKey(),
-                    newNotification.getStatusBarNotification().getGroupKey())) {
-                continue;
+            boolean isGroupKeySame = TextUtils.equals(oldGroup.getGroupKey(),
+                    newNotification.getStatusBarNotification().getGroupKey());
+
+            if (isUpdate) {
+                // If this is an update, existing notification in group must have the same key
+                oldNotification =
+                        oldGroup.getChildNotification(newNotification.getKey());
+                if (oldNotification == null) {
+                    continue;
+                }
+            } else {
+                // If not an update, group key must be the same
+                if (!isGroupKeySame) {
+                    continue;
+                }
             }
 
-            if (mShowRecentsAndOlderHeaders && oldGroup.isSeen()) {
-                if (isUpdate) {
-                    boolean isRemoved = oldGroup.removeNotification(newNotification);
-                    if (isRemoved) {
-                        mOldProcessedNotifications.set(i, oldGroup);
-                        if (oldGroup.getChildCount() == 0) {
-                            emptySeenGroupsToBeRemoved.add(oldGroup);
-                        }
+            // If updating a progress notification with another progress notification, then update
+            // while maintaining order
+            if (isUpdate && isProgress
+                    && NotificationUtils.isProgress(oldNotification.getNotification())
+                    && oldGroup.updateNotification(oldNotification, newNotification)) {
+                mOldProcessedNotifications.set(i, oldGroup);
+                return mOldProcessedNotifications;
+            }
+
+            // If updating:
+            // 1) progress notification with non-progress notification
+            // 2) non-progress notification with non-progress notification
+            // 2) non-progress notification with progress notification
+            if (isUpdate && oldGroup.removeNotification(newNotification)) {
+                if (mShowRecentsAndOlderHeaders && oldGroup.isSeen()) {
+                    // and old group is seen, then remove old notification from group to make
+                    // space for new notification group that is unseen.
+                    mOldProcessedNotifications.set(i, oldGroup);
+                    if (oldGroup.getChildCount() == 0) {
+                        emptySeenGroupsToBeRemoved.add(oldGroup);
                     }
+                } else {
+                    // If seen/unseen isn't enabled, just add new notification to the old group.
+                    oldGroup.addNotification(newNotification);
+                    mOldProcessedNotifications.set(i, oldGroup);
+                    return mOldProcessedNotifications;
                 }
                 continue;
             }
@@ -638,13 +670,9 @@ public class PreprocessingManager {
             }
 
             // Group with same group key exist with multiple children
-            // For update, replace the old notification with the updated notification
-            // else add the new notification to the existing group if it's notification
+            // Add the new notification to the existing group if it's notification
             // count is greater than the minimum threshold.
-            if (isUpdate) {
-                oldGroup.removeNotification(newNotification);
-            }
-            if (isUpdate || oldGroup.getChildCount() >= mMinimumGroupingThreshold) {
+            if (oldGroup.getChildCount() >= mMinimumGroupingThreshold) {
                 oldGroup.addNotification(newNotification);
                 mOldProcessedNotifications.set(i, oldGroup);
                 return mOldProcessedNotifications;
@@ -809,9 +837,9 @@ public class PreprocessingManager {
      * Comparator that sorts the notification groups by their representative notification's rank.
      */
     private class NotificationComparator implements Comparator<NotificationGroup> {
-        private final NotificationListenerService.RankingMap mRankingMap;
+        private final RankingMap mRankingMap;
 
-        NotificationComparator(NotificationListenerService.RankingMap rankingMap) {
+        NotificationComparator(RankingMap rankingMap) {
             mRankingMap = rankingMap;
         }
 

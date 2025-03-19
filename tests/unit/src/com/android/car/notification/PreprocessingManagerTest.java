@@ -89,6 +89,7 @@ public class PreprocessingManagerTest {
     private static final String GROUP_KEY_A = "GROUP_KEY_A";
     private static final String GROUP_KEY_B = "GROUP_KEY_B";
     private static final String GROUP_KEY_C = "GROUP_KEY_C";
+    private static final String GROUP_KEY_D = "GROUP_KEY_D";
     private static final int MAX_STRING_LENGTH = 10;
     private static final int DEFAULT_MIN_GROUPING_THRESHOLD = 4;
     @Rule
@@ -119,6 +120,8 @@ public class PreprocessingManagerTest {
     @Mock
     private StatusBarNotification mStatusBarNotification12;
     @Mock
+    private StatusBarNotification mStatusBarNotification13;
+    @Mock
     private StatusBarNotification mAdditionalStatusBarNotification;
     @Mock
     private StatusBarNotification mSummaryAStatusBarNotification;
@@ -148,12 +151,14 @@ public class PreprocessingManagerTest {
     private Notification mForegroundNotification;
     private Notification mBackgroundNotification;
     private Notification mNavigationNotification;
+    private Notification mProgressNotification;
 
     // Following AlertEntry var names describe the type of notifications they wrap.
     private AlertEntry mLessImportantBackground;
     private AlertEntry mLessImportantForeground;
     private AlertEntry mMedia;
     private AlertEntry mNavigation;
+    private AlertEntry mProgress;
     private AlertEntry mImportantBackground;
     private AlertEntry mImportantForeground;
     private AlertEntry mImportantForeground2;
@@ -188,11 +193,13 @@ public class PreprocessingManagerTest {
         mPreprocessingManager = PreprocessingManager.getInstance(mContext);
 
         mForegroundNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         mBackgroundNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         mNavigationNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ true, /* isGroupSummary= */ true);
+                /* isNavigation= */ true, /* isGroupSummary= */ true, /* isProgress= */ false);
+        mProgressNotification = generateNotification(/* isForeground= */ false,
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ true);
 
         when(mMediaNotification.isMediaNotification()).thenReturn(true);
 
@@ -209,6 +216,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification10.getKey()).thenReturn("KEY_IMPORTANT_FOREGROUND_5");
         when(mStatusBarNotification11.getKey()).thenReturn("KEY_IMPORTANT_FOREGROUND_6");
         when(mStatusBarNotification12.getKey()).thenReturn("KEY_IMPORTANT_FOREGROUND_7");
+        when(mStatusBarNotification13.getKey()).thenReturn("KEY_PROGRESS");
         when(mSummaryAStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_A");
         when(mSummaryBStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_B");
         when(mSummaryCStatusBarNotification.getKey()).thenReturn("KEY_SUMMARY_C");
@@ -219,6 +227,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification4.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification5.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mStatusBarNotification6.getGroupKey()).thenReturn(GROUP_KEY_C);
+        when(mStatusBarNotification13.getGroupKey()).thenReturn(GROUP_KEY_D);
         when(mSummaryAStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mSummaryBStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_B);
         when(mSummaryCStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
@@ -235,6 +244,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification10.getNotification()).thenReturn(mForegroundNotification);
         when(mStatusBarNotification11.getNotification()).thenReturn(mForegroundNotification);
         when(mStatusBarNotification12.getNotification()).thenReturn(mForegroundNotification);
+        when(mStatusBarNotification13.getNotification()).thenReturn(mProgressNotification);
         when(mSummaryAStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
         when(mSummaryBStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
         when(mSummaryCStatusBarNotification.getNotification()).thenReturn(mSummaryNotification);
@@ -251,6 +261,7 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification10.getPackageName()).thenReturn(PKG);
         when(mStatusBarNotification11.getPackageName()).thenReturn(PKG);
         when(mStatusBarNotification12.getPackageName()).thenReturn(PKG);
+        when(mStatusBarNotification13.getPackageName()).thenReturn(PKG);
         when(mSummaryAStatusBarNotification.getPackageName()).thenReturn(PKG);
         when(mSummaryBStatusBarNotification.getPackageName()).thenReturn(PKG);
         when(mSummaryCStatusBarNotification.getPackageName()).thenReturn(PKG);
@@ -273,7 +284,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager.setCarUxRestrictionManagerWrapper(mCarUxRestrictionManagerWrapper);
 
         Notification nonMessageNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ true, /* isGroupSummary= */ true);
+                /* isNavigation= */ true, /* isGroupSummary= */ true, /* isProgress= */ false);
         nonMessageNotification.extras
                 .putString(Notification.EXTRA_TITLE, generateStringOfLength(100));
         nonMessageNotification.extras
@@ -310,7 +321,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager.setCarUxRestrictionManagerWrapper(mCarUxRestrictionManagerWrapper);
 
         Notification messageNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ true, /* isGroupSummary= */ true);
+                /* isNavigation= */ true, /* isGroupSummary= */ true, /* isProgress= */ false);
         messageNotification.extras
                 .putString(Notification.EXTRA_TITLE, generateStringOfLength(100));
         messageNotification.extras
@@ -347,7 +358,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager = PreprocessingManager.getInstance(mContext);
         List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
         String[] actualGroupKeys = new String[groupResult.size()];
-        String[] expectedGroupKeys = {GROUP_KEY_A, GROUP_KEY_B, GROUP_KEY_C};
+        String[] expectedGroupKeys = {GROUP_KEY_A, GROUP_KEY_B, GROUP_KEY_C, GROUP_KEY_D};
 
         for (int i = 0; i < groupResult.size(); i++) {
             actualGroupKeys[i] = groupResult.get(i).getGroupKey();
@@ -366,7 +377,8 @@ public class PreprocessingManagerTest {
         mPreprocessingManager = PreprocessingManager.getInstance(mContext);
         List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
         String[] actualGroupKeys = new String[groupResult.size()];
-        String[] expectedGroupKeys = {GROUP_KEY_A, GROUP_KEY_B, GROUP_KEY_B, GROUP_KEY_C};
+        String[] expectedGroupKeys =
+                {GROUP_KEY_A, GROUP_KEY_B, GROUP_KEY_B, GROUP_KEY_C, GROUP_KEY_D};
 
         for (int i = 0; i < groupResult.size(); i++) {
             actualGroupKeys[i] = groupResult.get(i).getGroupKey();
@@ -398,6 +410,7 @@ public class PreprocessingManagerTest {
         when(mNotificationDataManager.isNotificationSeen(mImportantForeground6)).thenReturn(false);
         when(mNotificationDataManager.isNotificationSeen(mImportantForeground7)).thenReturn(false);
         when(mNotificationDataManager.isNotificationSeen(mNavigation)).thenReturn(false);
+        when(mNotificationDataManager.isNotificationSeen(mProgress)).thenReturn(false);
         when(mStatusBarNotification1.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification2.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification3.getGroupKey()).thenReturn(GROUP_KEY_A);
@@ -410,12 +423,14 @@ public class PreprocessingManagerTest {
         when(mStatusBarNotification10.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification11.getGroupKey()).thenReturn(GROUP_KEY_A);
         when(mStatusBarNotification12.getGroupKey()).thenReturn(GROUP_KEY_A);
+        when(mStatusBarNotification13.getGroupKey()).thenReturn(GROUP_KEY_A);
 
         mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
 
         Set expectedResultUnseen = new HashSet();
         expectedResultUnseen.add(mImportantBackground.getKey());
         expectedResultUnseen.add(mNavigation.getKey());
+        expectedResultUnseen.add(mProgress.getKey());
         expectedResultUnseen.add(mImportantForeground4.getKey());
         expectedResultUnseen.add(mImportantForeground5.getKey());
         expectedResultUnseen.add(mImportantForeground6.getKey());
@@ -605,6 +620,7 @@ public class PreprocessingManagerTest {
 
         // generateRankingMap ranked the notifications in the reverse order.
         String[] expectedOrder = {
+                GROUP_KEY_D,
                 GROUP_KEY_C,
                 GROUP_KEY_B,
                 GROUP_KEY_A
@@ -625,7 +641,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager = PreprocessingManager.getInstance(mContext);
         List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
         List<NotificationGroup> rankResult = mPreprocessingManager.rank(groupResult, mRankingMap);
-        NotificationGroup groupB = rankResult.get(1);
+        NotificationGroup groupB = rankResult.get(2);
 
         // first make sure that we have Group B
         assertThat(groupB.getGroupKey()).isEqualTo(GROUP_KEY_B);
@@ -647,7 +663,7 @@ public class PreprocessingManagerTest {
     @Test
     public void onAdditionalGroupAndRank_isGroupSummary_returnsTheSameGroupsAsStandardGroup() {
         Notification additionalNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         additionalNotification.category = Notification.CATEGORY_MESSAGE;
         when(mAdditionalStatusBarNotification.getKey()).thenReturn("ADDITIONAL");
         when(mAdditionalStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
@@ -687,7 +703,7 @@ public class PreprocessingManagerTest {
         String key = "NEW_KEY";
         String groupKey = "NEW_GROUP_KEY";
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -726,7 +742,7 @@ public class PreprocessingManagerTest {
         String key = "NEW_KEY";
         String groupKey = "NEW_GROUP_KEY";
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -761,7 +777,30 @@ public class PreprocessingManagerTest {
         String key = mImportantForeground.getKey();
         String groupKey = mImportantForeground.getStatusBarNotification().getGroupKey();
         Notification newNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
+        StatusBarNotification newSbn = mock(StatusBarNotification.class);
+        when(newSbn.getNotification()).thenReturn(newNotification);
+        when(newSbn.getKey()).thenReturn(key);
+        when(newSbn.getGroupKey()).thenReturn(groupKey);
+        when(newSbn.getId()).thenReturn(123);
+        AlertEntry newEntry = new AlertEntry(newSbn);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries), /* isUpdate= */ true);
+
+        assertThat(result.get(1).getSingleNotification().getStatusBarNotification().getId())
+                .isEqualTo(123);
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_progressUpdate_notificationUpdatedInOrder() {
+        when(mNotificationDataManager.isNotificationSeen(mProgress)).thenReturn(true);
+        // Seed the list
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        String key = mProgress.getKey();
+        String groupKey = mProgress.getStatusBarNotification().getGroupKey();
+        Notification newNotification = generateNotification(/* isForeground= */ true,
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ true);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -773,6 +812,29 @@ public class PreprocessingManagerTest {
                 generateRankingMap(mAlertEntries), /* isUpdate= */ true);
 
         assertThat(result.get(0).getSingleNotification().getStatusBarNotification().getId())
+                .isEqualTo(123);
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_progressUpdatesNonProgress_notificationUpdatedNewGroup() {
+        when(mNotificationDataManager.isNotificationSeen(mImportantForeground)).thenReturn(true);
+        // Seed the list
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+        String key = mImportantForeground.getKey();
+        String groupKey = mImportantForeground.getStatusBarNotification().getGroupKey();
+        Notification newNotification = generateNotification(/* isForeground= */ true,
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ true);
+        StatusBarNotification newSbn = mock(StatusBarNotification.class);
+        when(newSbn.getNotification()).thenReturn(newNotification);
+        when(newSbn.getKey()).thenReturn(key);
+        when(newSbn.getGroupKey()).thenReturn(groupKey);
+        when(newSbn.getId()).thenReturn(123);
+        AlertEntry newEntry = new AlertEntry(newSbn);
+
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(newEntry,
+                generateRankingMap(mAlertEntries), /* isUpdate= */ true);
+
+        assertThat(result.get(1).getSingleNotification().getStatusBarNotification().getId())
                 .isEqualTo(123);
     }
 
@@ -805,7 +867,7 @@ public class PreprocessingManagerTest {
         // Create a notification with same key and group key to be sent as an update
         String key = mImportantForeground.getKey();
         Notification newNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -851,7 +913,7 @@ public class PreprocessingManagerTest {
         // Create a notification with same key and group key to be sent as an update
         String key = mImportantForeground.getKey();
         Notification newNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -880,7 +942,7 @@ public class PreprocessingManagerTest {
         // Create a notification with same key and group key to be sent as an update
         String key = mImportantForeground.getKey();
         Notification newNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -902,7 +964,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager.setNotificationDataManager(mNotificationDataManager);
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -928,7 +990,7 @@ public class PreprocessingManagerTest {
         generateGroupSummaryNotification(groupKey);
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -959,7 +1021,7 @@ public class PreprocessingManagerTest {
         generateGroupSummaryNotification(groupKey);
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -986,7 +1048,7 @@ public class PreprocessingManagerTest {
         generateGroupSummaryNotification(groupKey);
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -1014,7 +1076,7 @@ public class PreprocessingManagerTest {
         generateNotificationsWithSameGroupKey(numberOfGroupNotifications, groupKey);
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         Notification newNotification = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ false);
+                /* isNavigation= */ false, /* isGroupSummary= */ false, /* isProgress= */ false);
         StatusBarNotification newSbn = mock(StatusBarNotification.class);
         when(newSbn.getNotification()).thenReturn(newNotification);
         when(newSbn.getKey()).thenReturn(key);
@@ -1075,7 +1137,7 @@ public class PreprocessingManagerTest {
         mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
         int beforeSize = mPreprocessingManager.getOldNotifications().size();
         Notification additionalNotification = generateNotification(/* isForeground= */ true,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         additionalNotification.category = Notification.CATEGORY_MESSAGE;
         when(mAdditionalStatusBarNotification.getKey()).thenReturn("ADDITIONAL");
         when(mAdditionalStatusBarNotification.getGroupKey()).thenReturn(GROUP_KEY_C);
@@ -1116,6 +1178,7 @@ public class PreprocessingManagerTest {
         mLessImportantForeground = new AlertEntry(mStatusBarNotification2);
         mMedia = new AlertEntry(mStatusBarNotification3);
         mNavigation = new AlertEntry(mStatusBarNotification4);
+        mProgress = new AlertEntry(mStatusBarNotification13);
         mImportantBackground = new AlertEntry(mStatusBarNotification5);
         mImportantForeground = new AlertEntry(mStatusBarNotification6);
         if (includeAdditionalNotifs) {
@@ -1140,6 +1203,7 @@ public class PreprocessingManagerTest {
             mAlertEntries.add(mImportantForeground6);
             mAlertEntries.add(mImportantForeground7);
         }
+        mAlertEntries.add(mProgress);
         mAlertEntriesMap = new HashMap<>();
         mAlertEntriesMap.put(mLessImportantBackground.getKey(), mLessImportantBackground);
         mAlertEntriesMap.put(mLessImportantForeground.getKey(), mLessImportantForeground);
@@ -1155,6 +1219,7 @@ public class PreprocessingManagerTest {
             mAlertEntriesMap.put(mImportantForeground6.getKey(), mImportantForeground6);
             mAlertEntriesMap.put(mImportantForeground7.getKey(), mImportantForeground7);
         }
+        mAlertEntriesMap.put(mProgress.getKey(), mProgress);
         mRankingMap = generateRankingMap(mAlertEntries);
     }
 
@@ -1174,13 +1239,18 @@ public class PreprocessingManagerTest {
     }
 
     private Notification generateNotification(boolean isForeground, boolean isNavigation,
-            boolean isGroupSummary) {
-        Notification notification = new Notification.Builder(mContext, CHANNEL_ID)
+            boolean isGroupSummary, boolean isProgress) {
+        Notification.Builder builder = new Notification.Builder(mContext, CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
                 .setSmallIcon(android.R.drawable.sym_def_app_icon)
                 .setGroup(OVERRIDE_GROUP_KEY)
-                .setGroupSummary(isGroupSummary)
-                .build();
+                .setGroupSummary(isGroupSummary);
+
+        if (isProgress) {
+            builder.setProgress(100, 0, false);
+        }
+
+        Notification notification = builder.build();
 
         if (isForeground) {
             // this will reset flags previously set like FLAG_GROUP_SUMMARY
@@ -1257,8 +1327,9 @@ public class PreprocessingManagerTest {
     private void generateNotificationsWithSameGroupKey(int numberOfNotifications, String groupKey) {
         for (int i = 0; i < numberOfNotifications; i++) {
             String key = "BASE_KEY_" + i;
-            Notification notification = generateNotification(/* isForeground= */ false,
-                    /* isNavigation= */ false, /* isGroupSummary= */ false);
+            Notification notification =
+                    generateNotification(/* isForeground= */ false, /* isNavigation= */ false,
+                            /* isGroupSummary= */ false, /* isProgress= */ false);
             StatusBarNotification sbn = mock(StatusBarNotification.class);
             when(sbn.getNotification()).thenReturn(notification);
             when(sbn.getKey()).thenReturn(key);
@@ -1271,7 +1342,7 @@ public class PreprocessingManagerTest {
 
     private void generateGroupSummaryNotification(String groupKey) {
         Notification groupSummary = generateNotification(/* isForeground= */ false,
-                /* isNavigation= */ false, /* isGroupSummary= */ true);
+                /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
         StatusBarNotification sbn = mock(StatusBarNotification.class);
         when(sbn.getNotification()).thenReturn(groupSummary);
         when(sbn.getKey()).thenReturn("KEY_GROUP_SUMMARY");
