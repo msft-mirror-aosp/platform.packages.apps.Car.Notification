@@ -388,7 +388,7 @@ public class CarNotificationListenerTest {
         if (isHeadsUpNotification) {
             // Messages are always heads-up notifications.
             notification.category = Notification.CATEGORY_MESSAGE;
-            when(mCarHeadsUpNotificationManager.maybeShowOrScheduleHun(any(), any(), any()))
+            when(mCarHeadsUpNotificationManager.maybeShowOrScheduleHun(any(), any()))
                     .thenReturn(true);
         }
 

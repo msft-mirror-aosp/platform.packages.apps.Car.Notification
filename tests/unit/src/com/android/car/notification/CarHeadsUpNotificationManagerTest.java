@@ -104,6 +104,8 @@ public class CarHeadsUpNotificationManagerTest {
     @Mock
     PackageManager mPackageManager;
     @Mock
+    CarNotificationListener mCarNotificationListener;
+    @Mock
     CarHeadsUpNotificationContainer mCarHeadsUpNotificationContainer;
     @Mock
     CarHeadsUpNotificationQueue mCarHeadsUpNotificationQueue;
@@ -119,8 +121,6 @@ public class CarHeadsUpNotificationManagerTest {
     private AlertEntry mAlertEntryCallHeadsUp;
     private AlertEntry mAlertEntryCallHeadsUp2;
     private AlertEntry mAlertEntryInboxHeadsUp;
-    private AlertEntry mAlertEntryWarningHeadsUp;
-    private AlertEntry mAlertEntryEmergencyHeadsUp;
     private AlertEntry mAlertEntryCarInformationHeadsUp;
     private Map<String, AlertEntry> mActiveNotifications;
     private List<CarHeadsUpNotificationManager.HeadsUpState> mHeadsUpStates;
@@ -147,12 +147,12 @@ public class CarHeadsUpNotificationManagerTest {
         when(mKeyguardManager.isKeyguardLocked()).thenReturn(false);
         mContext.addMockSystemService(Context.KEYGUARD_SERVICE, mKeyguardManager);
 
-        when(mClickHandlerFactory.getClickHandler(any())).thenReturn(v -> {
-        });
+        when(mClickHandlerFactory.getClickHandler(any())).thenReturn(v -> {});
 
         when(mRankingMock.getChannel()).thenReturn(CHANNEL);
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
+        when(mCarNotificationListener.getCurrentRanking()).thenReturn(mRankingMapMock);
 
         Notification mNotificationMessageHeadsUp = new MockMessageNotificationBuilder(mContext,
                 CHANNEL_ID, android.R.drawable.sym_def_app_icon)
@@ -223,13 +223,6 @@ public class CarHeadsUpNotificationManagerTest {
                 new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
                         mNotificationBuilderInboxHeadsUp, USER_HANDLE, OVERRIDE_GROUP_KEY,
                         POST_TIME));
-        mAlertEntryWarningHeadsUp = new AlertEntry(
-                new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
-                        mNotificationWarningHeadsUp, USER_HANDLE, OVERRIDE_GROUP_KEY, POST_TIME));
-        mAlertEntryEmergencyHeadsUp = new AlertEntry(
-                new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
-                        mNotificationEmergencyHeadsUp, USER_HANDLE, OVERRIDE_GROUP_KEY,
-                        POST_TIME));
         mAlertEntryCarInformationHeadsUp = new AlertEntry(
                 new StatusBarNotification(PKG_1, OP_PKG, ID, TAG, UID, INITIAL_PID,
                         mNotificationCarInformationHeadsUp, USER_HANDLE, OVERRIDE_GROUP_KEY,
@@ -248,10 +241,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_2, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isFalse();
-        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any(), any());
+        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any());
     }
 
     @Test
@@ -260,11 +253,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_2, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryNavigationHeadsUp,
-                mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryNavigationHeadsUp);
     }
 
     @Test
@@ -273,10 +265,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCarInformationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isFalse();
-        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any(), any());
+        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any());
     }
 
     @Test
@@ -284,11 +276,11 @@ public class CarHeadsUpNotificationManagerTest {
             throws PackageManager.NameNotFoundException {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryMessageHeadsUp, mRankingMapMock,
+        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryMessageHeadsUp,
                 mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryMessageHeadsUp, mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryMessageHeadsUp);
     }
 
     @Test
@@ -296,11 +288,11 @@ public class CarHeadsUpNotificationManagerTest {
             throws PackageManager.NameNotFoundException {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
+        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp,
                 mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCallHeadsUp, mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCallHeadsUp);
     }
 
     @Test
@@ -309,11 +301,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryNavigationHeadsUp,
-                mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryNavigationHeadsUp);
     }
 
     @Test
@@ -321,11 +312,11 @@ public class CarHeadsUpNotificationManagerTest {
             throws PackageManager.NameNotFoundException {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryInboxHeadsUp, mRankingMapMock,
+        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryInboxHeadsUp,
                 mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryInboxHeadsUp, mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryInboxHeadsUp);
     }
 
     @Test
@@ -334,11 +325,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ true);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCarInformationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCarInformationHeadsUp,
-                mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCarInformationHeadsUp);
     }
 
     @Test
@@ -347,11 +337,10 @@ public class CarHeadsUpNotificationManagerTest {
         setPackageInfo(PKG_1, /* isSystem= */ true, /* isSignedWithPlatformKey= */ false);
 
         boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCarInformationHeadsUp,
-                mRankingMapMock, mActiveNotifications);
+                mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCarInformationHeadsUp,
-                mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryCarInformationHeadsUp);
     }
 
     @Test
@@ -360,11 +349,11 @@ public class CarHeadsUpNotificationManagerTest {
         when(mNotificationDataManager.isMessageNotificationMuted(any())).thenReturn(false);
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryInboxHeadsUp, mRankingMapMock,
+        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryInboxHeadsUp,
                 mActiveNotifications);
 
         assertThat(result).isTrue();
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryInboxHeadsUp, mRankingMapMock);
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryInboxHeadsUp);
     }
 
     @Test
@@ -373,11 +362,11 @@ public class CarHeadsUpNotificationManagerTest {
         when(mNotificationDataManager.isMessageNotificationMuted(any())).thenReturn(true);
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
+        boolean result = mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp,
                 mActiveNotifications);
 
         assertThat(result).isFalse();
-        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any(), any());
+        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any());
     }
 
     @Test
@@ -392,8 +381,7 @@ public class CarHeadsUpNotificationManagerTest {
 
         Looper.prepare();
 
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
         assertThat(NotificationUtils.isCategoryCall(mAlertEntryCallHeadsUp)).isTrue();
         assertThat(mManager.getPendingCalls().size()).isEqualTo(0);
 
@@ -402,8 +390,7 @@ public class CarHeadsUpNotificationManagerTest {
         assertThat(NotificationUtils.isCategoryCall(headsUpEntry)).isTrue();
 
         mManager.addActiveHeadsUpNotification(headsUpEntry);
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp2, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp2, mActiveNotifications);
         assertThat(mManager.getPendingCalls().size()).isEqualTo(1);
     }
 
@@ -418,8 +405,7 @@ public class CarHeadsUpNotificationManagerTest {
         // HeadsUpEntry}.
         Looper.prepare();
         setPackageInfo(PKG_2, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
-        mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp, mActiveNotifications);
 
         Map<String, HeadsUpEntry> activeHeadsUpNotifications =
                 mManager.getActiveHeadsUpNotifications();
@@ -439,10 +425,8 @@ public class CarHeadsUpNotificationManagerTest {
         Looper.prepare();
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
         setPackageInfo(PKG_2, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
-                mActiveNotifications);
-        mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryNavigationHeadsUp, mActiveNotifications);
 
         Map<String, HeadsUpEntry> activeHeadsUpNotifications =
                 mManager.getActiveHeadsUpNotifications();
@@ -461,10 +445,8 @@ public class CarHeadsUpNotificationManagerTest {
         // HeadsUpEntry}.
         Looper.prepare();
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
-                mActiveNotifications);
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
 
         Map<String, HeadsUpEntry> activeHeadsUpNotifications =
                 mManager.getActiveHeadsUpNotifications();
@@ -517,8 +499,7 @@ public class CarHeadsUpNotificationManagerTest {
 
         Looper.prepare();
 
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
         assertThat(NotificationUtils.isCategoryCall(mAlertEntryCallHeadsUp)).isTrue();
         assertThat(mManager.getPendingCalls().size()).isEqualTo(0);
 
@@ -527,8 +508,7 @@ public class CarHeadsUpNotificationManagerTest {
         assertThat(NotificationUtils.isCategoryCall(headsUpEntry)).isTrue();
 
         mManager.addActiveHeadsUpNotification(headsUpEntry);
-        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp2, mRankingMapMock,
-                mActiveNotifications);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp2, mActiveNotifications);
         assertThat(mManager.getPendingCalls().size()).isEqualTo(1);
 
         mManager.maybeRemoveHeadsUp(mAlertEntryCallHeadsUp2);
@@ -552,6 +532,7 @@ public class CarHeadsUpNotificationManagerTest {
             mManager.setCarHeadsUpNotificationQueue(carHeadsUpNotificationQueue);
         }
         mManager.setNotificationDataManager(mNotificationDataManager);
+        mManager.setRankingMapProvider(mCarNotificationListener);
     }
 
     private void setPackageInfo(String packageName, boolean isSystem,
