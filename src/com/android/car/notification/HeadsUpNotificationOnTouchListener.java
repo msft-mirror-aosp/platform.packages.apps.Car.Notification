@@ -58,7 +58,6 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
      * Distance a touch can wander before we think the user is scrolling in pixels.
      */
     private final int mTouchSlop;
-    private final boolean mDismissOnSwipe;
     /**
      * The proportion which view has to be swiped before it dismisses.
      */
@@ -109,11 +108,9 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
         }
     }
 
-    HeadsUpNotificationOnTouchListener(View view, boolean dismissOnSwipe,
-            DismissCallbacks callbacks) {
+    HeadsUpNotificationOnTouchListener(View view, DismissCallbacks callbacks) {
         mView = view;
         mCallbacks = callbacks;
-        mDismissOnSwipe = dismissOnSwipe;
         Resources res = view.getContext().getResources();
         mDismissAxis = res.getBoolean(R.bool.config_isHeadsUpNotificationDismissibleVertically)
                 ? Axis.VERTICAL : Axis.HORIZONTAL;
@@ -185,7 +182,7 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                             getVelocityInAxis(mVelocityTracker, mDismissAxis) > 0;
                 }
 
-                if (shouldBeDismissed && mDismissOnSwipe) {
+                if (shouldBeDismissed) {
                     mCallbacks.onDismiss();
                     animateDismissInAxis(mView, mDismissAxis, dismissInPositiveDirection);
                 } else if (mSwiping) {
@@ -222,9 +219,7 @@ class HeadsUpNotificationOnTouchListener implements View.OnTouchListener {
                     mTranslation = deltaInDismissAxis;
                     moveView(mView,
                             /* translation= */ deltaInDismissAxis - mSwipingSlop, mDismissAxis);
-                    if (mDismissOnSwipe) {
-                        mView.setAlpha(getAlphaForDismissingView(mTranslation, mMaxTranslation));
-                    }
+                    mView.setAlpha(getAlphaForDismissingView(mTranslation, mMaxTranslation));
                     return true;
                 }
             }

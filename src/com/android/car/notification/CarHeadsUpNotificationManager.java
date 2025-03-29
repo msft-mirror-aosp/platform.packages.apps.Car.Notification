@@ -21,6 +21,8 @@ import static android.view.ViewTreeObserver.OnGlobalFocusChangeListener;
 import static android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessagingNotification;
+import static com.android.car.notification.CarNotificationDiff.sameNotificationKey;
+import static com.android.car.notification.NotificationUtils.isCategoryCall;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -35,6 +37,8 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
 import android.os.Build;
 import android.service.notification.NotificationListenerService;
+import android.service.notification.NotificationListenerService.Ranking;
+import android.service.notification.NotificationListenerService.RankingMap;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -55,7 +59,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -75,6 +78,17 @@ public class CarHeadsUpNotificationManager
          * notification.
          */
         void onStateChange(AlertEntry alertEntry, HeadsUpState headsUpState);
+    }
+
+    /**
+     * Provider class for the latest updated {@link RankingMap} retrievable from
+     * {@link NotificationListenerService}.
+     */
+    public interface RankingMapProvider {
+        /**
+         * @return latest cached {@link RankingMap} from the provider class.
+         */
+        RankingMap getCurrentRanking();
     }
 
     /**
@@ -135,12 +149,14 @@ public class CarHeadsUpNotificationManager
     private final Map<HeadsUpEntry,
             Pair<OnComputeInternalInsetsListener, OnGlobalFocusChangeListener>>
             mRegisteredViewTreeListeners = new HashMap<>();
+    private final ArrayList<AlertEntry> mPendingCalls = new ArrayList<>();
 
     private boolean mShouldRestrictMessagePreview;
     private NotificationClickHandlerFactory mClickHandlerFactory;
     private NotificationDataManager mNotificationDataManager;
     private CarHeadsUpNotificationQueue mCarHeadsUpNotificationQueue;
     private Clock mClock;
+    private RankingMapProvider mRankingMapProvider;
 
     public CarHeadsUpNotificationManager(Context context,
             NotificationClickHandlerFactory clickHandlerFactory,
@@ -175,11 +191,14 @@ public class CarHeadsUpNotificationManager
         mCarHeadsUpNotificationQueueCallback =
                 new CarHeadsUpNotificationQueue.CarHeadsUpNotificationQueueCallback() {
                     @Override
-                    public void showAsHeadsUp(AlertEntry alertEntry,
-                            NotificationListenerService.RankingMap rankingMap) {
-                        mContext.getMainExecutor().execute(() -> showHeadsUp(
-                                mPreprocessingManager.optimizeForDriving(alertEntry),
-                                rankingMap)
+                    public void showAsHeadsUp(AlertEntry alertEntry) {
+                        mContext.getMainExecutor().execute(() -> {
+                            if (isCategoryCall(alertEntry)) {
+                                showOrScheduleCallHun(alertEntry);
+                            } else {
+                                showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry));
+                            }
+                        }
                         );
                     }
 
@@ -228,15 +247,20 @@ public class CarHeadsUpNotificationManager
     }
 
     /**
-     * Show the notification as a heads-up if it meets the criteria.
+     * Show the notification as a heads-up if the {@link AlertEntry} metadata meets the criteria,
+     * and the current condition is reasonable to immediately display it to the user.
      *
-     * <p>Return's true if the notification will be shown as a heads up, false otherwise.
+     * <p> If the {@link AlertEntry} meets the criteria, but the current condition is not reasonable
+     * to immediately display it, the entry should be immediately added to
+     * {@link CarHeadsUpNotificationQueue} or another list in {@link CarHeadsUpNotificationManager}
+     * to eventually display it.
+     *
+     * <p> Return {@code true} if the notification will eventually be shown unless cancelled by
+     * notification sender, and return {@code false} otherwise.
      */
-    public boolean maybeShowHeadsUp(
-            AlertEntry alertEntry,
-            NotificationListenerService.RankingMap rankingMap,
+    public boolean maybeShowOrScheduleHun(AlertEntry alertEntry,
             Map<String, AlertEntry> activeNotifications) {
-        if (!shouldShowHeadsUp(alertEntry, rankingMap)) {
+        if (!canShowOrScheduleHeadsUp(alertEntry)) {
             if (!isActiveHun(alertEntry)) {
                 if (DEBUG) {
                     Log.d(TAG, alertEntry + " is not an active heads up notification");
@@ -246,35 +270,54 @@ public class CarHeadsUpNotificationManager
             // Check if this is an update to the existing notification and if it should still show
             // as a heads up or not.
             HeadsUpEntry currentActiveHeadsUpNotification = getActiveHeadsUpEntry(alertEntry);
-            if (CarNotificationDiff.sameNotificationKey(currentActiveHeadsUpNotification,
-                    alertEntry)
+            if (sameNotificationKey(currentActiveHeadsUpNotification, alertEntry)
                     && currentActiveHeadsUpNotification.getHandler().hasMessagesOrCallbacks()) {
                 dismissHun(alertEntry, /* shouldAnimate= */ true);
             }
             return false;
         }
-        boolean containsKeyFlag = !activeNotifications.containsKey(alertEntry.getKey());
-        boolean canUpdateFlag = canUpdate(alertEntry);
-        boolean alertAgainFlag = alertAgain(alertEntry.getNotification());
+
+        boolean isActiveNotification = activeNotifications.containsKey(alertEntry.getKey());
+        boolean isActiveHunUpdate = canUpdate(alertEntry);
+        boolean canAlertAgain = alertAgain(alertEntry.getNotification());
+
         if (DEBUG) {
-            Log.d(TAG, alertEntry + " is an active notification: " + containsKeyFlag);
-            Log.d(TAG, alertEntry + " is an updatable notification: " + canUpdateFlag);
-            Log.d(TAG, alertEntry + " is not an alert once notification: " + alertAgainFlag);
+            Log.d(TAG, alertEntry + " is not an active hun: " + !isActiveNotification);
+            Log.d(TAG, alertEntry + " is an update to active hun: " + isActiveHunUpdate);
+            Log.d(TAG, alertEntry + " is not an FLAG_ONLY_ALERT_ONCE hun: " + canAlertAgain);
         }
-        if (canUpdateFlag) {
-            showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
-                    rankingMap);
-            return true;
-        } else if (containsKeyFlag || alertAgainFlag) {
-            if (!mIsSuppressAndThrottleHeadsUp) {
-                showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry),
-                        rankingMap);
-            } else {
-                mCarHeadsUpNotificationQueue.addToQueue(alertEntry, rankingMap);
+
+        if (isActiveNotification && !isActiveHunUpdate && !canAlertAgain) {
+            return false;
+        }
+
+        if (mIsSuppressAndThrottleHeadsUp && !isActiveHunUpdate) {
+            // never throttle an update to an active HUN already shown to user
+            mCarHeadsUpNotificationQueue.addToQueue(alertEntry);
+        } else if (isCategoryCall(alertEntry)) {
+            showOrScheduleCallHun(alertEntry);
+        } else {
+            showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry));
+        }
+        return true;
+    }
+
+    private void showOrScheduleCallHun(AlertEntry alertEntry) {
+        boolean hasActiveCallShown = mActiveHeadsUpNotifications.values().stream().anyMatch(
+                NotificationUtils::isCategoryCall);
+        if (!hasActiveCallShown || isUpdate(alertEntry)) {
+            showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry));
+            return;
+        }
+        for (int i = 0; i < mPendingCalls.size(); i++) {
+            if (sameNotificationKey(mPendingCalls.get(i), alertEntry)) {
+                // substitute the first pending AlertEntry with a new entry if an update is posted
+                // before the first has been shown yet
+                mPendingCalls.set(i, alertEntry);
+                return;
             }
-            return true;
         }
-        return false;
+        mPendingCalls.add(alertEntry);
     }
 
     /**
@@ -285,10 +328,17 @@ public class CarHeadsUpNotificationManager
             return;
         }
 
+        if (isCategoryCall(alertEntry)) {
+            mPendingCalls.removeIf(pendingEntry ->
+                    sameNotificationKey(alertEntry, pendingEntry));
+            return;
+        }
+
         if (!isActiveHun(alertEntry)) {
             // If the heads up notification is already removed do nothing.
             return;
         }
+
         tagCurrentActiveHunToBeRemoved(alertEntry);
 
         scheduleRemoveHeadsUp(alertEntry);
@@ -307,6 +357,7 @@ public class CarHeadsUpNotificationManager
      */
     public void clearCache() {
         mCarHeadsUpNotificationQueue.clearCache();
+        mPendingCalls.clear();
         for (AlertEntry alertEntry : mActiveHeadsUpNotifications.values()) {
             dismissHun(alertEntry, /* shouldAnimate= */ false);
         }
@@ -337,6 +388,13 @@ public class CarHeadsUpNotificationManager
         if (!mNotificationStateChangeListeners.contains(listener)) {
             mNotificationStateChangeListeners.add(listener);
         }
+    }
+
+    /**
+     * Sets the {@link RankingMapProvider} for retrieving the latest {@link RankingMap}.
+     */
+    public void setRankingMapProvider(RankingMapProvider provider) {
+        mRankingMapProvider = provider;
     }
 
     /**
@@ -372,7 +430,7 @@ public class CarHeadsUpNotificationManager
      * notification.
      */
     private boolean isUpdate(AlertEntry alertEntry) {
-        return isActiveHun(alertEntry) && CarNotificationDiff.sameNotificationKey(
+        return isActiveHun(alertEntry) && sameNotificationKey(
                 getActiveHeadsUpEntry(alertEntry), alertEntry);
     }
 
@@ -426,15 +484,14 @@ public class CarHeadsUpNotificationManager
      * </ol>
      */
     @UiThread
-    private void showHeadsUp(AlertEntry alertEntry,
-            NotificationListenerService.RankingMap rankingMap) {
+    private void showHeadsUp(AlertEntry alertEntry) {
         // Show animations only when there is no active HUN and notification is new. This check
         // needs to be done here because after this the new notification will be added to the map
         // holding ongoing notifications.
         boolean shouldShowAnimation = !isUpdate(alertEntry);
         HeadsUpEntry currentNotification = getOrCreateHeadsUpEntry(alertEntry);
         if (currentNotification.mIsNewHeadsUp) {
-            playSound(alertEntry, rankingMap);
+            playSound(alertEntry);
             setAutoDismissViews(currentNotification, alertEntry);
         } else if (currentNotification.mIsAlertAgain) {
             setAutoDismissViews(currentNotification, alertEntry);
@@ -454,7 +511,7 @@ public class CarHeadsUpNotificationManager
                             mClickHandlerFactory));
         }
 
-        currentNotification.getViewHolder().setHideDismissButton(!isHeadsUpDismissible(alertEntry));
+        currentNotification.getViewHolder().setHideDismissButton(/* hideDismissButton= */ false);
 
         if (mShouldRestrictMessagePreview && notificationTypeItem.getNotificationType()
                 == NotificationViewType.MESSAGE) {
@@ -507,7 +564,6 @@ public class CarHeadsUpNotificationManager
         // Add swipe gesture
         View cardView = notificationView.findViewById(R.id.card_view);
         cardView.setOnTouchListener(new HeadsUpNotificationOnTouchListener(cardView,
-                isHeadsUpDismissible(alertEntry),
                 () -> dismissHun(alertEntry, /* shouldAnimate= */ false)));
 
         // Add dismiss button listener
@@ -556,10 +612,9 @@ public class CarHeadsUpNotificationManager
         info.touchableRegion.set(minX, minY, maxX, maxY);
     }
 
-    private void playSound(AlertEntry alertEntry,
-            NotificationListenerService.RankingMap rankingMap) {
+    private void playSound(@NonNull AlertEntry alertEntry) {
         NotificationListenerService.Ranking ranking = getRanking();
-        if (rankingMap.getRanking(alertEntry.getKey(), ranking)) {
+        if (mRankingMapProvider.getCurrentRanking().getRanking(alertEntry.getKey(), ranking)) {
             NotificationChannel notificationChannel = ranking.getChannel();
             // If sound is not set on the notification channel and default is not chosen it
             // can be null.
@@ -571,18 +626,9 @@ public class CarHeadsUpNotificationManager
         }
     }
 
-    /**
-     * @return true if the {@code alertEntry} can be dismissed/swiped away.
-     */
-    public static boolean isHeadsUpDismissible(@NonNull AlertEntry alertEntry) {
-        return !(hasFullScreenIntent(alertEntry)
-                && Objects.equals(alertEntry.getNotification().category, Notification.CATEGORY_CALL)
-                && alertEntry.getStatusBarNotification().isOngoing());
-    }
-
     @VisibleForTesting
-    protected Map<String, HeadsUpEntry> getActiveHeadsUpNotifications() {
-        return mActiveHeadsUpNotifications;
+    protected NotificationListenerService.Ranking getRanking() {
+        return new Ranking();
     }
 
     private void setAutoDismissViews(HeadsUpEntry currentNotification, AlertEntry alertEntry) {
@@ -629,26 +675,26 @@ public class CarHeadsUpNotificationManager
         }
 
         if (!shouldAnimate) {
-            postDismiss(alertEntry, headsUpView);
+            postDismissHunFinished(alertEntry, headsUpView);
             return;
         }
-
 
         AnimatorSet animatorSet = mAnimationHelper.getAnimateOutAnimator(mContext, headsUpView);
         animatorSet.setTarget(headsUpView);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                postDismiss(alertEntry, headsUpView);
+                postDismissHunFinished(alertEntry, headsUpView);
             }
         });
         animatorSet.start();
     }
 
     /**
-     * Method to be called after HUN is dismissed.
+     * Method to be called after HUN dismissal animation is finished. If no animation is played, it
+     * should be called immediately.
      */
-    private void postDismiss(AlertEntry alertEntry, View headsUpView) {
+    private void postDismissHunFinished(AlertEntry alertEntry, View headsUpView) {
         removeHeadsUpEntry(alertEntry, headsUpView);
 
         boolean isRemovedBySender =
@@ -659,6 +705,12 @@ public class CarHeadsUpNotificationManager
 
         mHeadsUpNotificationsToBeRemoved.remove(alertEntry.getKey());
         mDismissingHeadsUpNotifications.remove(alertEntry.getKey());
+        mBeeper.stopBeeping();
+
+        if (isCategoryCall(alertEntry) && !mPendingCalls.isEmpty()) {
+            // CATEGORY_CALL notifications are to be shown sequentially and one at a time
+            showHeadsUp(mPendingCalls.removeFirst());
+        }
     }
 
     private void resetHeadsUpEntry(@NonNull AlertEntry alertEntry) {
@@ -686,7 +738,8 @@ public class CarHeadsUpNotificationManager
     }
 
     /**
-     * Helper method that determines whether a notification should show as a heads-up.
+     * Helper method that determines whether the {@link AlertEntry} should be shown based on the
+     * meta-data provided the current device configuration and lock screen status.
      *
      * <p> A notification will never be shown as a heads-up if:
      * <ul>
@@ -709,9 +762,7 @@ public class CarHeadsUpNotificationManager
      *
      * @return true if a notification should be shown as a heads-up
      */
-    private boolean shouldShowHeadsUp(
-            AlertEntry alertEntry,
-            NotificationListenerService.RankingMap rankingMap) {
+    private boolean canShowOrScheduleHeadsUp(AlertEntry alertEntry) {
         if (mKeyguardManager.isKeyguardLocked()) {
             if (DEBUG) {
                 Log.d(TAG, "Unable to show as HUN: Keyguard is locked");
@@ -744,8 +795,8 @@ public class CarHeadsUpNotificationManager
         }
 
         // Do not show if importance < HIGH
-        NotificationListenerService.Ranking ranking = getRanking();
-        if (rankingMap.getRanking(alertEntry.getKey(), ranking)) {
+        Ranking ranking = getRanking();
+        if (mRankingMapProvider.getCurrentRanking().getRanking(alertEntry.getKey(), ranking)) {
             if (ranking.getImportance() < NotificationManager.IMPORTANCE_HIGH) {
                 if (DEBUG) {
                     Log.d(TAG, "Unable to show as HUN: importance is not sufficient");
@@ -780,7 +831,7 @@ public class CarHeadsUpNotificationManager
         }
 
         // Allow for Call, and nav TBT categories.
-        return Notification.CATEGORY_CALL.equals(notification.category)
+        return isCategoryCall(alertEntry)
                 || Notification.CATEGORY_NAVIGATION.equals(notification.category);
     }
 
@@ -800,11 +851,6 @@ public class CarHeadsUpNotificationManager
         mHeadsUpNotificationsToBeRemoved.add(alertEntry.getKey());
     }
 
-    @VisibleForTesting
-    protected NotificationListenerService.Ranking getRanking() {
-        return new NotificationListenerService.Ranking();
-    }
-
     @Override
     public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(
@@ -812,6 +858,11 @@ public class CarHeadsUpNotificationManager
         mShouldRestrictMessagePreview =
                 (restrictions.getActiveRestrictions()
                         & CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE) != 0;
+    }
+
+    @VisibleForTesting
+    protected Map<String, HeadsUpEntry> getActiveHeadsUpNotifications() {
+        return mActiveHeadsUpNotifications;
     }
 
     /**
@@ -838,5 +889,10 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     void addActiveHeadsUpNotification(HeadsUpEntry headsUpEntry) {
         mActiveHeadsUpNotifications.put(headsUpEntry.getKey(), headsUpEntry);
+    }
+
+    @VisibleForTesting
+    List<AlertEntry> getPendingCalls() {
+        return mPendingCalls;
     }
 }

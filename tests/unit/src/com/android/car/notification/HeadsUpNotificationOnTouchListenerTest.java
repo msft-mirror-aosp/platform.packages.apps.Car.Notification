@@ -383,7 +383,7 @@ public class HeadsUpNotificationOnTouchListenerTest {
 
     private void createHeadsUpNotificationOnTouchListener() {
         mHeadsUpNotificationOnTouchListener = new HeadsUpNotificationOnTouchListener(mView,
-                /* dismissOnSwipe= */ true, mDismissCallbacks) {
+                mDismissCallbacks) {
             @Override
             MotionEvent obtainMotionEvent(MotionEvent motionEvent) {
                 return mNewMotionEvent;

@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -144,11 +143,11 @@ public class CarHeadsUpNotificationQueueTest {
         AlertEntry alertEntry5 = new AlertEntry(generateMockStatusBarNotification(
                 "key5", "msg"), 1000);
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry5, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry5);
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         assertThat(result.size()).isEqualTo(5);
@@ -178,11 +177,11 @@ public class CarHeadsUpNotificationQueueTest {
         AlertEntry alertEntry5 = new AlertEntry(generateMockStatusBarNotification(
                 "key5", "msg"), 1000);
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry5, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry5);
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         assertThat(result.size()).isEqualTo(5);
@@ -209,10 +208,10 @@ public class CarHeadsUpNotificationQueueTest {
         AlertEntry alertEntry4 = new AlertEntry(generateMockStatusBarNotification(
                 "key4", "msg"), 1000);
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry4);
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         assertThat(result.size()).isEqualTo(4);
@@ -232,9 +231,9 @@ public class CarHeadsUpNotificationQueueTest {
         AlertEntry alertEntry3 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", "msg"), 3000);
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry3);
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         assertThat(result.size()).isEqualTo(2);
@@ -257,13 +256,11 @@ public class CarHeadsUpNotificationQueueTest {
         when(mCarHeadsUpNotificationQueueCallback.getActiveHeadsUpNotifications()).thenReturn(
                 new ArrayList<>(Collections.singletonList(alertEntry3)));
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry2);
 
-        verify(mCarHeadsUpNotificationQueueCallback).dismissHeadsUp(alertEntry3);
         verify(mCarHeadsUpNotificationQueueCallback)
-                .showAsHeadsUp(mAlertEntryArg.capture(),
-                        any(NotificationListenerService.RankingMap.class));
+                .showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key2");
     }
 
@@ -273,7 +270,7 @@ public class CarHeadsUpNotificationQueueTest {
         AlertEntry alertEntry1 = new AlertEntry(generateMockStatusBarNotification(
                 "key1", /* category= */ null), 4000);
 
-        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1, mRankingMap);
+        mCarHeadsUpNotificationQueue.addToQueue(alertEntry1);
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         assertThat(result.size()).isEqualTo(1);
@@ -309,8 +306,7 @@ public class CarHeadsUpNotificationQueueTest {
                 .removedFromHeadsUpQueue(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
         verify(mCarHeadsUpNotificationQueueCallback)
-                .showAsHeadsUp(mAlertEntryArg.capture(),
-                        nullable(NotificationListenerService.RankingMap.class));
+                .showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key2");
         assertThat(result.contains("key3")).isTrue();
     }
@@ -341,8 +337,7 @@ public class CarHeadsUpNotificationQueueTest {
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         verify(mCarHeadsUpNotificationQueueCallback)
-                .showAsHeadsUp(mAlertEntryArg.capture(),
-                        nullable(NotificationListenerService.RankingMap.class));
+                .showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
         assertThat(result.contains("key2")).isTrue();
         assertThat(result.contains("key3")).isTrue();
@@ -377,8 +372,7 @@ public class CarHeadsUpNotificationQueueTest {
                 .removedFromHeadsUpQueue(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
         verify(mCarHeadsUpNotificationQueueCallback)
-                .showAsHeadsUp(mAlertEntryArg.capture(),
-                        nullable(NotificationListenerService.RankingMap.class));
+                .showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key2");
         assertThat(result.contains("key3")).isTrue();
     }
@@ -515,8 +509,7 @@ public class CarHeadsUpNotificationQueueTest {
 
         PriorityQueue<String> result = mCarHeadsUpNotificationQueue.getPriorityQueue();
         verify(mCarHeadsUpNotificationQueueCallback)
-                .showAsHeadsUp(mAlertEntryArg.capture(),
-                        nullable(NotificationListenerService.RankingMap.class));
+                .showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
         assertThat(result.contains("key2")).isTrue();
         assertThat(result.contains("key3")).isTrue();
@@ -542,8 +535,7 @@ public class CarHeadsUpNotificationQueueTest {
         mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo);
         mCarHeadsUpNotificationQueue.triggerCallback();
 
-        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(
-                any(AlertEntry.class), nullable(NotificationListenerService.RankingMap.class));
+        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(any(AlertEntry.class));
     }
 
     @Test
@@ -566,8 +558,7 @@ public class CarHeadsUpNotificationQueueTest {
         mTaskStackListenerArg.getValue().onTaskMovedToFront(mockRunningTaskInfo);
         mCarHeadsUpNotificationQueue.triggerCallback();
 
-        verify(mCarHeadsUpNotificationQueueCallback).showAsHeadsUp(
-                mAlertEntryArg.capture(), nullable(NotificationListenerService.RankingMap.class));
+        verify(mCarHeadsUpNotificationQueueCallback).showAsHeadsUp(mAlertEntryArg.capture());
         assertThat(mAlertEntryArg.getValue().getKey()).isEqualTo("key1");
     }
 
@@ -830,8 +821,7 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.SHOWN);
 
-        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(any(AlertEntry.class),
-                nullable(NotificationListenerService.RankingMap.class));
+        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(any(AlertEntry.class));
     }
 
     @Test
@@ -850,8 +840,7 @@ public class CarHeadsUpNotificationQueueTest {
         mCarHeadsUpNotificationQueue.onStateChange(alertEntry,
                 CarHeadsUpNotificationManager.HeadsUpState.REMOVED_FROM_QUEUE);
 
-        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(any(AlertEntry.class),
-                nullable(NotificationListenerService.RankingMap.class));
+        verify(mCarHeadsUpNotificationQueueCallback, never()).showAsHeadsUp(any(AlertEntry.class));
     }
 
 
