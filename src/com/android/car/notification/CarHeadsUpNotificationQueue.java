@@ -27,7 +27,6 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.Context;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.service.notification.NotificationListenerService;
 import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
@@ -76,7 +75,6 @@ public class CarHeadsUpNotificationQueue implements
     private final Set<String> mPackagesToThrottleHeadsUp;
     private final Map<String, AlertEntry> mKeyToAlertEntryMap;
     private final Set<Integer> mThrottledDisplays;
-    private NotificationListenerService.RankingMap mRankingMap;
     private Clock mClock;
     @VisibleForTesting
     ScheduledFuture<?> mScheduledFuture;
@@ -160,12 +158,9 @@ public class CarHeadsUpNotificationQueue implements
     /**
      * Adds an {@link AlertEntry} into the queue.
      */
-    public void addToQueue(AlertEntry alertEntry,
-            NotificationListenerService.RankingMap rankingMap) {
-        mRankingMap = rankingMap;
+    public void addToQueue(AlertEntry alertEntry) {
         if (isCategoryImmediateShow(alertEntry.getNotification().category)) {
-            mQueueCallback.getActiveHeadsUpNotifications().forEach(mQueueCallback::dismissHeadsUp);
-            mQueueCallback.showAsHeadsUp(alertEntry, rankingMap);
+            mQueueCallback.showAsHeadsUp(alertEntry);
             return;
         }
         boolean headsUpExistsInQueue = mKeyToAlertEntryMap.containsKey(alertEntry.getKey());
@@ -192,9 +187,7 @@ public class CarHeadsUpNotificationQueue implements
         mIsOngoingHeadsUpFlush = true;
 
         if (mDismissHeadsUpWhenNotificationCenterOpens) {
-            mQueueCallback.getActiveHeadsUpNotifications().stream()
-                    .filter(CarHeadsUpNotificationManager::isHeadsUpDismissible)
-                    .forEach(mQueueCallback::dismissHeadsUp);
+            mQueueCallback.getActiveHeadsUpNotifications().forEach(mQueueCallback::dismissHeadsUp);
         }
         while (!mPriorityQueue.isEmpty()) {
             String key = mPriorityQueue.poll();
@@ -268,7 +261,7 @@ public class CarHeadsUpNotificationQueue implements
                 alertEntry = null;
             }
         } while (alertEntry == null);
-        mQueueCallback.showAsHeadsUp(alertEntry, mRankingMap);
+        mQueueCallback.showAsHeadsUp(alertEntry);
     }
 
     private boolean canShowHeadsUp() {
@@ -350,8 +343,7 @@ public class CarHeadsUpNotificationQueue implements
          * Show the AlertEntry as HUN.
          */
         @AnyThread
-        void showAsHeadsUp(AlertEntry alertEntry,
-                NotificationListenerService.RankingMap rankingMap);
+        void showAsHeadsUp(AlertEntry alertEntry);
 
         /**
          * AlertEntry removed from the queue without being shown as HUN.

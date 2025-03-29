@@ -46,7 +46,8 @@ import java.util.stream.Stream;
  * NotificationListenerService that fetches all notifications from system.
  */
 public class CarNotificationListener extends NotificationListenerService implements
-        CarHeadsUpNotificationManager.OnHeadsUpNotificationStateChange {
+        CarHeadsUpNotificationManager.OnHeadsUpNotificationStateChange,
+        CarHeadsUpNotificationManager.RankingMapProvider {
     private static final String TAG = "CarNotificationListener";
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     static final String ACTION_LOCAL_BINDING = "local_binding";
@@ -66,7 +67,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     /**
      * Map that contains all the active notifications that are not currently HUN. These
      * notifications may or may not be visible to the user if they get filtered out. The only time
-     * these will be removed from the map is when the {@llink NotificationListenerService} calls the
+     * these will be removed from the map is when the {@link NotificationListenerService} calls the
      * onNotificationRemoved method. New notifications will be added to this map if the notification
      * is posted as a non-HUN or when a HUN's state is changed to non-HUN.
      */
@@ -91,6 +92,8 @@ public class CarNotificationListener extends NotificationListenerService impleme
                     NotificationUtils.getCurrentUser(context));
             mHeadsUpManager = carHeadsUpNotificationManager;
             mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
+            mHeadsUpManager.setRankingMapProvider(this);
+
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
                     carHeadsUpNotificationManager);
         } catch (RemoteException e) {
@@ -292,19 +295,22 @@ public class CarNotificationListener extends NotificationListenerService impleme
             mNotificationDataManager.untrackUnseenNotification(alertEntry);
         }
 
-        boolean isShowingHeadsUp = false;
-        if (!mIsNotificationPanelVisible
-                || !CarHeadsUpNotificationManager.isHeadsUpDismissible(alertEntry)) {
-            isShowingHeadsUp = mHeadsUpManager.maybeShowHeadsUp(alertEntry, getCurrentRanking(),
+        boolean isHunShownOrScheduled = false;
+        if (!mIsNotificationPanelVisible) {
+            isHunShownOrScheduled = mHeadsUpManager.maybeShowOrScheduleHun(alertEntry,
                     mActiveNotifications);
         }
         if (DEBUG) {
-            Log.d(TAG, "Is " + alertEntry + " shown as HUN?: " + isShowingHeadsUp);
+            Log.d(TAG, "Is " + alertEntry + " added to HUN manager?: " + isHunShownOrScheduled);
         }
-        if (!isShowingHeadsUp) {
-            updateOverrideGroupKey(alertEntry);
-            postNewNotification(alertEntry);
+        if (isHunShownOrScheduled) {
+            // if a notification is shown as heads-up notification, delay posting it to notification
+            // view until it is dismissed / swiped away by the user.
+            return;
         }
+        // notification is not shown as a hun and should be immediately posted.
+        updateOverrideGroupKey(alertEntry);
+        postNewNotification(alertEntry);
     }
 
     private boolean isNotificationForCurrentUser(StatusBarNotification sbn) {

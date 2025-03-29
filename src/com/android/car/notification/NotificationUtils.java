@@ -17,6 +17,7 @@
 package com.android.car.notification;
 
 import android.annotation.ColorInt;
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
@@ -309,5 +310,14 @@ public class NotificationUtils {
                 foregroundColor, backgroundColor, minContrastRatio)
                 : findContrastColorAgainstLightBackground(
                         foregroundColor, backgroundColor, minContrastRatio);
+    }
+
+    /**
+     * @return {@code true} if this {@link AlertEntry} is {@link Notification.CATEGORY_CALL} and
+     * {@code false} otherwise.
+     */
+    public static boolean isCategoryCall(@NonNull AlertEntry alertEntry) {
+        if (alertEntry.getNotification() == null) return false;
+        return Notification.CATEGORY_CALL.equals(alertEntry.getNotification().category);
     }
 }
