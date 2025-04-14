@@ -487,8 +487,41 @@ public class CarHeadsUpNotificationManagerTest {
                 .isTrue();
     }
 
+
     @Test
-    public void maybeRemoveHeadsUp_pendingCalls_removesEntry()
+    public void maybeRemoveHeadsUp_categoryCall_removesActiveEntry()
+            throws PackageManager.NameNotFoundException {
+        mContext.getOrCreateTestableResources().addOverride(
+                R.bool.config_suppressAndThrottleHeadsUp, /* value= */ false);
+        createCarHeadsUpNotificationManager();
+
+        setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
+        setPackageInfo(PKG_2, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
+
+        Looper.prepare();
+
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp, mActiveNotifications);
+        assertThat(NotificationUtils.isCategoryCall(mAlertEntryCallHeadsUp)).isTrue();
+        assertThat(mManager.getPendingCalls().size()).isEqualTo(0);
+
+        HeadsUpEntry headsUpEntry = createMockHeadsUpEntry(mAlertEntryCallHeadsUp.getKey());
+        when(headsUpEntry.getNotification()).thenReturn(mAlertEntryCallHeadsUp.getNotification());
+        assertThat(NotificationUtils.isCategoryCall(headsUpEntry)).isTrue();
+
+        mManager.addActiveHeadsUpNotification(headsUpEntry);
+        mManager.maybeShowOrScheduleHun(mAlertEntryCallHeadsUp2, mActiveNotifications);
+        assertThat(mManager.getPendingCalls().size()).isEqualTo(1);
+        assertThat(headsUpEntry.getHandler().hasMessagesOrCallbacks()).isFalse();
+
+        mManager.maybeRemoveHeadsUp(mAlertEntryCallHeadsUp);
+        assertThat(mManager.getPendingCalls().size()).isEqualTo(1);
+        // verify that headsUpEntry was reset before removed
+        verify(headsUpEntry.getHandler(), times(1))
+                .removeCallbacksAndMessages(any());
+    }
+
+    @Test
+    public void maybeRemoveHeadsUp_categoryCall_removesPendingEntry()
             throws PackageManager.NameNotFoundException {
         mContext.getOrCreateTestableResources().addOverride(
                 R.bool.config_suppressAndThrottleHeadsUp, /* value= */ false);
@@ -512,7 +545,9 @@ public class CarHeadsUpNotificationManagerTest {
         assertThat(mManager.getPendingCalls().size()).isEqualTo(1);
 
         mManager.maybeRemoveHeadsUp(mAlertEntryCallHeadsUp2);
-        assertThat(mManager.getPendingCalls().size()).isEqualTo(0);
+        // verify that headsUpEntry was NOT reset and therefore remains displayed to user
+        verify(headsUpEntry.getHandler(), times(0))
+                .removeCallbacksAndMessages(any());
     }
 
     private void createCarHeadsUpNotificationManager() {

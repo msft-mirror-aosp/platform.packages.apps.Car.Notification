@@ -329,9 +329,9 @@ public class CarHeadsUpNotificationManager
         }
 
         if (isCategoryCall(alertEntry)) {
-            mPendingCalls.removeIf(pendingEntry ->
+            boolean removed = mPendingCalls.removeIf(pendingEntry ->
                     sameNotificationKey(alertEntry, pendingEntry));
-            return;
+            if (removed) return;
         }
 
         if (!isActiveHun(alertEntry)) {
