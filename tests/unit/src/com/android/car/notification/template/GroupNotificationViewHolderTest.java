@@ -32,8 +32,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.notification.AlertEntry;
 import com.android.car.notification.CarNotificationViewAdapter;
@@ -43,7 +43,6 @@ import com.android.car.notification.R;
 import com.android.car.notification.utils.MockMessageNotificationBuilder;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -63,9 +62,8 @@ public class GroupNotificationViewHolderTest {
     private static final String OVERRIDE_GROUP_KEY = "OVERRIDE_GROUP_KEY";
     private static final long POST_TIME = 12345L;
     private static final UserHandle USER_HANDLE = new UserHandle(/* userId= */ 12);
-    @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext());
+            ApplicationProvider.getApplicationContext());
     private GroupNotificationViewHolder mGroupNotificationViewHolder;
     private RecyclerView mNotificationListView;
     private View mExpansionFooterView;

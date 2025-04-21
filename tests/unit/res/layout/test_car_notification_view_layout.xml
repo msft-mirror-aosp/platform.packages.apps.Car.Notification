@@ -69,7 +69,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         android:text="@string/empty_notification_header"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textAppearance="?oemTextAppearanceDisplayLarge"
         android:visibility="gone"/>
 
     <Button

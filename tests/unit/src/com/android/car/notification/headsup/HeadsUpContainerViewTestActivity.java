@@ -21,17 +21,14 @@ import android.os.Bundle;
 import android.testing.TestableContext;
 
 import androidx.annotation.Nullable;
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.notification.R;
 
-import org.junit.Rule;
-
 public class HeadsUpContainerViewTestActivity extends Activity {
     private HeadsUpContainerView mHeadsUpContainerView;
-    @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext());
+            ApplicationProvider.getApplicationContext());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
