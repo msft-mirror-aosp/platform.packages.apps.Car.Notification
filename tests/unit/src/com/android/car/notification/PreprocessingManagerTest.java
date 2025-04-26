@@ -277,6 +277,33 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onFilter_filtersLessImportantForeground() {
+        mPreprocessingManager
+                .filter(mAlertEntries, mRankingMap);
+
+        assertThat(mAlertEntries.contains(mLessImportantBackground)).isTrue();
+        assertThat(mAlertEntries.contains(mLessImportantForeground)).isFalse();
+    }
+
+    @Test
+    public void onFilter_doesNotFilterMoreImportantForeground() {
+        mPreprocessingManager
+                .filter(mAlertEntries, mRankingMap);
+
+        assertThat(mAlertEntries.contains(mImportantBackground)).isTrue();
+        assertThat(mAlertEntries.contains(mImportantForeground)).isTrue();
+    }
+
+    @Test
+    public void onFilter_filtersMediaAndNavigation() {
+        mPreprocessingManager
+                .filter(mAlertEntries, mRankingMap);
+
+        assertThat(mAlertEntries.contains(mMedia)).isFalse();
+        assertThat(mAlertEntries.contains(mNavigation)).isFalse();
+    }
+
+    @Test
     public void onOptimizeForDriving_alertEntryHasNonMessageNotification_trimsNotificationTexts() {
         when(mCarUxRestrictions.getMaxRestrictedStringLength()).thenReturn(MAX_STRING_LENGTH);
         when(mCarUxRestrictionManagerWrapper.getCurrentCarUxRestrictions())

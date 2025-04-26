@@ -220,6 +220,9 @@ public class PreprocessingManager {
     protected List<AlertEntry> filter(
             List<AlertEntry> notifications,
             RankingMap rankingMap) {
+        // remove notifications that should be filtered.
+        notifications.removeIf(alertEntry -> shouldFilter(alertEntry, rankingMap));
+
         // HUN suppression notifications should not be shown in the panel.
         notifications.removeIf(alertEntry -> CarHeadsUpNotificationQueue.CATEGORY_HUN_QUEUE_INTERNAL
                 .equals(alertEntry.getNotification().category));
