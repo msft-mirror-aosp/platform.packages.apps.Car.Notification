@@ -230,7 +230,8 @@ public class NotificationClickHandlerFactoryTest {
                     mAlertEntry1.getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException ex) {
             // ignore
         }
@@ -389,7 +390,8 @@ public class NotificationClickHandlerFactoryTest {
                     mAlertEntryMessageWithMuteAction.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException e) {
             // ignore.
         }
@@ -538,7 +540,8 @@ public class NotificationClickHandlerFactoryTest {
                     mAlertEntry1.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException e) {
             // ignore.
         }
@@ -568,7 +571,8 @@ public class NotificationClickHandlerFactoryTest {
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException e) {
             // ignore.
         }
@@ -597,7 +601,8 @@ public class NotificationClickHandlerFactoryTest {
                     mAlertEntry2.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException e) {
             // ignore.
         }
