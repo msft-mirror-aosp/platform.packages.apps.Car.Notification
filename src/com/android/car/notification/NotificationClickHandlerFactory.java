@@ -398,7 +398,8 @@ public class NotificationClickHandlerFactory {
                     alertEntry.getStatusBarNotification().getKey(),
                     NotificationStats.DISMISSAL_SHADE,
                     NotificationStats.DISMISS_SENTIMENT_NEUTRAL,
-                    notificationVisibility);
+                    notificationVisibility,
+                    /* fromBundle= */ false);
         } catch (RemoteException e) {
             Log.e(TAG, "clearNotifications: ", e);
         }
