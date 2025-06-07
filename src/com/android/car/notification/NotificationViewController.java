@@ -132,7 +132,8 @@ public class NotificationViewController {
             boolean showLessImportantNotifications, int what, AlertEntry alertEntry) {
 
         if (mPreprocessingManager.shouldFilter(alertEntry,
-                mCarNotificationListener.getCurrentRanking())) {
+                mCarNotificationListener.getCurrentRanking())
+                && what != CarNotificationListener.NOTIFY_NOTIFICATION_REMOVED) {
             // if the new notification should be filtered out, return early
             return;
         }
