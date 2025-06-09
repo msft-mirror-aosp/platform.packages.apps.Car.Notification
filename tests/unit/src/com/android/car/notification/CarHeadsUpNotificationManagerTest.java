@@ -46,14 +46,13 @@ import android.testing.TestableContext;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationContainer;
 import com.android.car.notification.utils.MockMessageNotificationBuilder;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -85,14 +84,9 @@ public class CarHeadsUpNotificationManagerTest {
     private static final UserHandle USER_HANDLE = new UserHandle(/* userId= */ 12);
     private static final NotificationChannel CHANNEL = new NotificationChannel(CHANNEL_ID,
             CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
-    @Rule
+
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
-        @Override
-        public Context createApplicationContext(ApplicationInfo application, int flags) {
-            return this;
-        }
-    };
+            ApplicationProvider.getApplicationContext());
     @Mock
     NotificationListenerService.RankingMap mRankingMapMock;
     @Mock

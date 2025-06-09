@@ -34,14 +34,13 @@ import android.os.UserManager;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -53,9 +52,8 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class NotificationUtilsTest {
-    @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext());
+            ApplicationProvider.getApplicationContext());
 
     private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final String CONTENT_TITLE = "CONTENT_TITLE";

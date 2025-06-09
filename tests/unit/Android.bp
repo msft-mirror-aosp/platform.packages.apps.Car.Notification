@@ -30,7 +30,9 @@ android_test {
         "android.test.runner.stubs.system",
         "android.test.base.stubs.system",
         "android.test.mock.stubs.system",
+        "token-shared-lib-prebuilt",
     ],
+    enforce_uses_libs: false,
 
     static_libs: [
         "CarNotificationLibForUnitTesting",

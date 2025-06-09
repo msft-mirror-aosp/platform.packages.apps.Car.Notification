@@ -28,7 +28,6 @@ import static org.testng.Assert.assertThrows;
 
 import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
-import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
@@ -39,8 +38,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
 import com.android.car.notification.template.CarNotificationBaseViewHolder;
@@ -51,7 +50,6 @@ import com.android.car.notification.template.MessageNotificationViewHolder;
 import com.android.car.notification.template.ProgressNotificationViewHolder;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -75,14 +73,8 @@ public class CarNotificationViewAdapterTest {
     private static final long POST_TIME = 12345l;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
-        @Override
-        public Context createApplicationContext(ApplicationInfo application, int flags) {
-            return this;
-        }
-    };
+            ApplicationProvider.getApplicationContext());
 
     @Mock
     NotificationClickHandlerFactory mClickHandlerFactoryMock;

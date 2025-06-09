@@ -42,12 +42,17 @@ android_app {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
-        "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib-no-overlayable",
+        "oem-token-lib",
     ],
 
-    libs: ["android.car-system-stubs"],
+    libs: [
+        "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
+    ],
+
+    enforce_uses_libs: false,
 
     manifest: "AndroidManifest.xml",
 
@@ -84,12 +89,17 @@ android_app {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
-        "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib-no-overlayable",
+        "oem-token-lib",
     ],
 
-    libs: ["android.car-system-stubs"],
+    libs: [
+        "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
+    ],
+
+    enforce_uses_libs: false,
 }
 
 // As Lib
@@ -115,12 +125,18 @@ android_library {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
-        "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib-no-overlayable",
+        "oem-token-lib",
     ],
 
-    libs: ["android.car-system-stubs"],
+    libs: [
+        "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
+    ],
+
+    enforce_uses_libs: false,
+
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
 }
@@ -134,10 +150,17 @@ android_library {
     manifest: "AndroidManifest-res.xml",
     use_resource_processor: true,
     static_libs: [
-        "car-resource-common",
         "car-ui-lib-no-overlayable",
         "car-uxr-client-lib-no-overlayable",
+        "oem-token-lib",
     ],
+
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+
+    enforce_uses_libs: false,
+
     lint: {
         disabled_checks: ["MissingClass"],
     },
@@ -173,12 +196,17 @@ android_library {
         "androidx.palette_palette",
         "car-assist-client-lib",
         "car-ui-lib-no-overlayable",
-        "car-resource-common",
         "androidx-constraintlayout_constraintlayout",
         "car-uxr-client-lib-no-overlayable",
+        "oem-token-lib",
     ],
 
-    libs: ["android.car-system-stubs"],
+    libs: [
+        "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
+    ],
+
+    enforce_uses_libs: false,
 
     dxflags: ["--multi-dex"],
 

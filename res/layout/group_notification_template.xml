@@ -59,7 +59,7 @@
         android:layout_marginEnd="@dimen/notification_card_margin_horizontal"
         android:layout_marginStart="@dimen/notification_card_margin_horizontal"
         app:cardBackgroundColor="@color/notification_background_color"
-        app:cardCornerRadius="@dimen/notification_card_radius">
+        app:cardCornerRadius="?oemShapeCornerLarge">
 
         <RelativeLayout
             android:layout_width="match_parent"
