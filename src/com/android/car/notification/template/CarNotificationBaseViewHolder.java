@@ -161,9 +161,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
                 mContext.getResources().getBoolean(R.bool.config_enableSmallIconAccentColor);
         mIsSeenAlpha = mContext.getResources().getFloat(R.dimen.config_olderNotificationsAlpha);
         mUseCustomColorForWarningNotification = mContext.getResources().getBoolean(
-                R.color.warning_background_color);
+                R.bool.config_useCustomColorsForWarningNotification);
         mUseCustomColorForInformationNotification = mContext.getResources().getBoolean(
-                R.color.information_background_color);
+                R.bool.config_useCustomColorsForInformationNotification);
     }
 
     /**

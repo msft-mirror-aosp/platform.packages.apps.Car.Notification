@@ -46,7 +46,6 @@
     <dimen name="body_big_icon_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="time_margin">@*android:dimen/car_padding_4</dimen>
     <dimen name="expanded_package_name_margin">@*android:dimen/car_padding_4</dimen>
-    <dimen name="notification_card_radius">32dp</dimen>
     <dimen name="notification_body_title_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="notification_body_content_top_margin">8dp</dimen>
     <dimen name="message_count_top_margin">12dp</dimen>
@@ -54,12 +53,10 @@
     <dimen name="group_icon_fill_alpha">0.72</dimen>
 
     <!-- Text -->
-    <dimen name="time_stamp_text_size_in_group">@*android:dimen/car_body3_size</dimen>
     <dimen name="notification_text_max_width">950dp</dimen>
 
     <!-- Action View -->
     <dimen name="action_button_height">@dimen/button_height</dimen>
-    <dimen name="action_button_radius">32dp</dimen>
     <dimen name="action_view_left_margin">16dp</dimen>
     <dimen name="action_view_right_margin">16dp</dimen>
     <dimen name="action_button_padding">@*android:dimen/car_padding_2</dimen>
@@ -112,7 +109,6 @@
     <dimen name="clear_all_button_padding">@*android:dimen/car_padding_4</dimen>
     <dimen name="clear_all_button_height">@dimen/button_height</dimen>
     <dimen name="clear_all_button_min_width">156dp</dimen>
-    <dimen name="clear_all_button_radius">44dp</dimen>
 
     <!-- Manage button -->
     <dimen name="manage_button_height">@*android:dimen/car_button_height</dimen>

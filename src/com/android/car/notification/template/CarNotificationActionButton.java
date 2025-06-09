@@ -67,11 +67,13 @@ public class CarNotificationActionButton extends LinearLayout {
                     context.obtainStyledAttributes(attrs, R.styleable.CarNotificationActionButton);
             int color = attributes.getColor(
                     R.styleable.CarNotificationActionButton_textColor, /* defaultValue= */
-                    context.getResources().getColor(R.color.notification_accent_color));
+                    context.getResources().getColor(
+                            R.color.notification_accent_color, context.getTheme()));
             attributes.recycle();
             mDefaultTextColor = color;
         } else {
-            mDefaultTextColor = context.getResources().getColor(R.color.notification_accent_color);
+            mDefaultTextColor = context.getResources().getColor(
+                    R.color.notification_accent_color, context.getTheme());
         }
         mTextView.setTextColor(mDefaultTextColor);
     }

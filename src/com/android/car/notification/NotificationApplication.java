@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Log;
 
+import com.android.car.oem.tokens.Token;
 import com.android.internal.statusbar.IStatusBarService;
 
 /**
@@ -96,5 +97,11 @@ public class NotificationApplication extends Application {
      */
     public NotificationClickHandlerFactory getClickHandlerFactory() {
         return mClickHandlerFactory;
+    }
+
+    @Override
+    public void attachBaseContext(Context base) {
+        Token.applyOemTokenStyle(base);
+        super.attachBaseContext(base);
     }
 }
