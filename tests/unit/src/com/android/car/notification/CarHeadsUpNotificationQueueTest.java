@@ -42,8 +42,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
@@ -96,7 +96,7 @@ public class CarHeadsUpNotificationQueueTest {
 
     @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext());
+            ApplicationProvider.getApplicationContext());
 
     private static final String PKG_1 = "PKG_1";
     private static final String PKG_2 = "PKG_2";

@@ -49,11 +49,10 @@ import android.testing.TestableContext;
 import android.testing.TestableResources;
 import android.text.TextUtils;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -92,9 +91,8 @@ public class PreprocessingManagerTest {
     private static final String GROUP_KEY_D = "GROUP_KEY_D";
     private static final int MAX_STRING_LENGTH = 10;
     private static final int DEFAULT_MIN_GROUPING_THRESHOLD = 4;
-    @Rule
     public final TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext());
+            ApplicationProvider.getApplicationContext());
     @Mock
     private StatusBarNotification mStatusBarNotification1;
     @Mock

@@ -51,6 +51,7 @@
     <application android:name=".NotificationApplication"
                  android:label="@string/app_label"
                  android:icon="@mipmap/ic_launcher">
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
         <activity android:name=".CarNotificationCenterActivity"
                   android:theme="@style/Theme.DeviceDefault.NoActionBar.Notification"
                   android:launchMode="singleInstance"

@@ -26,9 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
@@ -39,13 +37,12 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.notification.template.GroupNotificationViewHolder;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -73,14 +70,8 @@ public class CarNotificationViewTest {
 
     private CarNotificationView mCarNotificationView;
 
-    @Rule
     public TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
-        @Override
-        public Context createApplicationContext(ApplicationInfo application, int flags) {
-            return this;
-        }
-    };
+            ApplicationProvider.getApplicationContext());
 
     @Mock
     private NotificationClickHandlerFactory mClickHandlerFactory;

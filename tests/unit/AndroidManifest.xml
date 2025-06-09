@@ -17,7 +17,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.car.notification.tests.unit">
+    package="com.android.car.notification">
 
     <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
@@ -26,8 +26,10 @@
     <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE"/>
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
 
-    <application android:debuggable="true">
+    <application android:name="com.android.car.notification.tests.unit.NotificationTestApplication"
+        android:debuggable="true">
         <uses-library android:name="android.test.runner"/>
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
 
         <activity
             android:name="com.android.car.notification.headsup.HeadsUpContainerViewTestActivity"/>

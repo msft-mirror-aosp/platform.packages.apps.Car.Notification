@@ -24,21 +24,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -62,14 +59,8 @@ public class CarNotificationVisibilityLoggerTest {
     private static final long POST_TIME = 12345L;
     private static final UserHandle USER_HANDLE = new UserHandle(12);
 
-    @Rule
-    public TestableContext mContext = new TestableContext(
-            InstrumentationRegistry.getInstrumentation().getTargetContext()) {
-        @Override
-        public Context createApplicationContext(ApplicationInfo application, int flags) {
-            return this;
-        }
-    };
+    public final TestableContext mContext = new TestableContext(
+            ApplicationProvider.getApplicationContext());
 
     @Mock
     private IStatusBarService mBarService;
