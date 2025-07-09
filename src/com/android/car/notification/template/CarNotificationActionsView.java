@@ -236,10 +236,13 @@ public class CarNotificationActionsView extends LinearLayout implements
         }
 
         if (mIsCategoryCall) {
-            mActionButtons.get(0).setBackground(mCallButtonBackground);
-            mActionButtons.get(1).setBackground(mDeclineButtonBackground);
-            mActionButtons.get(0).setTextColor(mCallButtonTextColor);
-            mActionButtons.get(1).setTextColor(mDeclineButtonTextColor);
+            // Notification framework is hardcoded to provide first action button as negative
+            // action and second action button as answer action.
+            // See {@link android.app.Notification.CallStyle#getActionsListWithSystemActions()}
+            mActionButtons.get(0).setTextColor(mDeclineButtonTextColor);
+            mActionButtons.get(0).setBackground(mDeclineButtonBackground);
+            mActionButtons.get(1).setTextColor(mCallButtonTextColor);
+            mActionButtons.get(1).setBackground(mCallButtonBackground);
         }
     }
 
