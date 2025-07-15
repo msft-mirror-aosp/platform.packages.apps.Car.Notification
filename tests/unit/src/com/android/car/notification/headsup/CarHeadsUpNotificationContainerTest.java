@@ -18,11 +18,8 @@ package com.android.car.notification.headsup;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.verify;
-
 import android.content.Context;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,7 +29,6 @@ import com.android.car.notification.CarNotificationTypeItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
@@ -43,8 +39,6 @@ public class CarHeadsUpNotificationContainerTest {
     private static final String TAG4 = "TAG2";
     private static final String TAG5 = "TAG2";
     private static final String TAG6 = "TAG2";
-    @Mock
-    WindowManager mWindowManager;
     private CarHeadsUpNotificationContainer mCarHeadsUpNotificationContainer;
     private View mNotificationView1;
     private View mNotificationView2;
@@ -59,17 +53,9 @@ public class CarHeadsUpNotificationContainerTest {
 
         Context context = ApplicationProvider.getApplicationContext();
         mCarHeadsUpNotificationContainer = new CarHeadsUpNotificationContainer(
-                context, mWindowManager) {
-            @Override
-            protected WindowManager.LayoutParams getWindowManagerLayoutParams() {
-                return null;
-            }
-        };
+                context);
 
-        verify(mWindowManager).addView(
-                mCarHeadsUpNotificationContainer.getHunWindow(), /* params= */ null);
-
-        mCarHeadsUpNotificationContainer.getHunWindow().setVisibility(View.INVISIBLE);
+        mCarHeadsUpNotificationContainer.getHunRootView().setVisibility(View.INVISIBLE);
 
         mNotificationView1 = new View(context);
         mNotificationView1.setTag(TAG1);
