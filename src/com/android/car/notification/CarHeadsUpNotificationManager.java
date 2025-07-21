@@ -118,7 +118,6 @@ public class CarHeadsUpNotificationManager
     private final long mDuration;
     private final long mMinDisplayDuration;
     private HeadsUpNotificationAnimationHelper mAnimationHelper;
-    private final int mNotificationHeadsUpCardMarginTop;
     private final boolean mIsSuppressAndThrottleHeadsUp;
 
     private final KeyguardManager mKeyguardManager;
@@ -168,8 +167,6 @@ public class CarHeadsUpNotificationManager
         mNotificationDataManager = NotificationDataManager.getInstance();
         mBeeper = new Beeper(mContext);
         mDuration = mContext.getResources().getInteger(R.integer.headsup_notification_duration_ms);
-        mNotificationHeadsUpCardMarginTop = (int) mContext.getResources().getDimension(
-                R.dimen.headsup_notification_top_margin);
         mMinDisplayDuration = mContext.getResources().getInteger(
                 R.integer.heads_up_notification_minimum_time);
         mAnimationHelper = getAnimationHelper();
@@ -592,10 +589,8 @@ public class CarHeadsUpNotificationManager
             HeadsUpEntry currentNotification, boolean panelExpanded) {
         // If the panel is not on screen don't modify the touch region
         if (!mHunContainer.isVisible()) return;
-        int[] mTmpTwoArray = new int[2];
         View cardView = currentNotification.getNotificationView().findViewById(
                 R.id.card_view);
-
         if (cardView == null) return;
 
         if (panelExpanded) {
@@ -603,11 +598,12 @@ public class CarHeadsUpNotificationManager
             return;
         }
 
-        cardView.getLocationInWindow(mTmpTwoArray);
-        int minX = mTmpTwoArray[0];
-        int maxX = mTmpTwoArray[0] + cardView.getWidth();
-        int minY = mTmpTwoArray[1] + mNotificationHeadsUpCardMarginTop;
-        int maxY = mTmpTwoArray[1] + mNotificationHeadsUpCardMarginTop + cardView.getHeight();
+        int[] tmpTwoArray = new int[2];
+        cardView.getLocationInWindow(tmpTwoArray);
+        int minX = tmpTwoArray[0];
+        int maxX = tmpTwoArray[0] + cardView.getWidth();
+        int minY = tmpTwoArray[1];
+        int maxY = tmpTwoArray[1] + cardView.getHeight();
         info.setTouchableInsets(InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
         info.touchableRegion.set(minX, minY, maxX, maxY);
     }
