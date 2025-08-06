@@ -18,6 +18,8 @@ package com.android.car.notification;
 import static android.app.Notification.FLAG_AUTOGROUP_SUMMARY;
 
 import static com.android.car.notification.NotificationUtils.isCategoryCall;
+import static com.android.car.notification.NotificationUtils.isCategoryEmergency;
+import static com.android.car.notification.NotificationUtils.isCategoryWarning;
 
 import android.annotation.Nullable;
 import android.app.Notification;
@@ -370,8 +372,9 @@ public class PreprocessingManager {
             Notification notification = alertEntry.getNotification();
 
             String groupKey;
-            if (isCategoryCall(alertEntry)) {
-                // DO NOT group CATEGORY_CALL.
+            if (isCategoryCall(alertEntry) || isCategoryEmergency(alertEntry)
+                    || isCategoryWarning(alertEntry)) {
+                // DO NOT group call, warning & emergency
                 groupKey = UUID.randomUUID().toString();
             } else {
                 groupKey = alertEntry.getStatusBarNotification().getGroupKey();
@@ -387,12 +390,13 @@ public class PreprocessingManager {
                 groupedNotifications.put(groupKey, notificationGroup);
             }
 
-            if (notification.isGroupSummary() && !isCategoryCall(alertEntry)) {
+            if (notification.isGroupSummary() && !isCategoryCall(alertEntry)
+                    && !isCategoryWarning(alertEntry) && !isCategoryEmergency(alertEntry)) {
                 groupedNotifications.get(groupKey)
                         .setGroupSummaryNotification(alertEntry);
             } else {
-                // CATEGORY_CALL notifications are NOT grouped and contains no child AlertEntry, so
-                // they should be added as a singleton notification.
+                // Call, warning & emergency notifications are NOT grouped and contains no child
+                // AlertEntry, so they should be added as a singleton notification.
                 groupedNotifications.get(groupKey).addNotification(alertEntry);
             }
         }
