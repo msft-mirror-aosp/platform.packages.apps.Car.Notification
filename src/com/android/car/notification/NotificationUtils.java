@@ -320,4 +320,22 @@ public class NotificationUtils {
         if (alertEntry.getNotification() == null) return false;
         return Notification.CATEGORY_CALL.equals(alertEntry.getNotification().category);
     }
+
+    /**
+     * @return {@code true} if this {@link AlertEntry} is
+     * {@link Notification.CATEGORY_CAR_EMERGENCY} and {@code false} otherwise.
+     */
+    public static boolean isCategoryEmergency(@NonNull AlertEntry alertEntry) {
+        if (alertEntry.getNotification() == null) return false;
+        return Notification.CATEGORY_CAR_EMERGENCY.equals(alertEntry.getNotification().category);
+    }
+
+    /**
+     * @return {@code true} if this {@link AlertEntry} is
+     * {@link Notification.CATEGORY_CAR_WARNING} and {@code false} otherwise.
+     */
+    public static boolean isCategoryWarning(@NonNull AlertEntry alertEntry) {
+        if (alertEntry.getNotification() == null) return false;
+        return Notification.CATEGORY_CAR_WARNING.equals(alertEntry.getNotification().category);
+    }
 }
