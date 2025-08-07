@@ -503,6 +503,40 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onGroup_callEmergencyWarning_notGrouped() {
+        PreprocessingManager.refreshInstance();
+        mPreprocessingManager = PreprocessingManager.getInstance(mContext);
+        mAlertEntries.clear();
+        mAlertEntriesMap.clear();
+        for (int i = 1; i <= 12; i++) {
+            String category;
+            if (i % 3 == 0) {
+                category = Notification.CATEGORY_CALL;
+            } else if (i % 3 == 1) {
+                category = Notification.CATEGORY_CAR_WARNING;
+            } else {
+                category = Notification.CATEGORY_CAR_EMERGENCY;
+            }
+            String key = "key" + category;
+            Notification notification = generateNotification(/* isForeground= */ false,
+                    /* isNavigation= */ false, /* isGroupSummary= */ true, /* isProgress= */ false);
+            notification.category = category;
+            StatusBarNotification sbn = mock(StatusBarNotification.class);
+            when(sbn.getNotification()).thenReturn(notification);
+            when(sbn.getKey()).thenReturn(key);
+            when(sbn.getGroupKey()).thenReturn(OVERRIDE_GROUP_KEY);
+            AlertEntry alertEntry = new AlertEntry(sbn);
+            mAlertEntries.add(alertEntry);
+            mAlertEntriesMap.put(alertEntry.getKey(), alertEntry);
+        }
+        mRankingMap = generateRankingMap(mAlertEntries);
+
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
+
+        assertThat(groupResult.size() == 12).isTrue();
+    }
+
+    @Test
     public void addCallStateListener_preCall_triggerChanges() {
         InOrder listenerInOrder = Mockito.inOrder(mCallStateListener1);
         mPreprocessingManager.addCallStateListener(mCallStateListener1);
