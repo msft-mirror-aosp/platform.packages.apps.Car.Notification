@@ -20,7 +20,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -30,33 +29,28 @@ import com.android.car.notification.R;
 import java.util.LinkedList;
 
 /**
- * Container for displaying Heads Up Notifications.
+ * An abstract base class that serves as the foundation for displaying Heads-Up Notifications (HUNs)
+ * in a car environment. It provides the core logic for managing HUNs but does not define the
+ * specifics of how they are displayed on the screen.
  */
-public abstract class CarHeadsUpNotificationContainer {
+public class CarHeadsUpNotificationContainer {
     private static final String TAG = "CarHUNContainer";
     private final LinkedList<HunImportance> mHunImportanceLinkedList = new LinkedList<>();
-    private final ViewGroup mHunWindow;
+    private final ViewGroup mHunRootView;
     private final ViewGroup mHunContent;
     private final boolean mShowHunOnBottom;
     private final Context mContext;
 
-    public CarHeadsUpNotificationContainer(Context context, WindowManager windowManager) {
+    public CarHeadsUpNotificationContainer(Context context) {
         mContext = context;
         mShowHunOnBottom = context.getResources().getBoolean(
                 R.bool.config_showHeadsUpNotificationOnBottom);
-        mHunWindow = (ViewGroup) LayoutInflater.from(context).inflate(
+        mHunRootView = (ViewGroup) LayoutInflater.from(context).inflate(
                 mShowHunOnBottom ? R.layout.headsup_container_bottom
                         : R.layout.headsup_container, /* root= */ null, /* attachToRoot= */ false);
-        mHunContent = mHunWindow.findViewById(R.id.headsup_content);
-        mHunWindow.setVisibility(View.INVISIBLE);
-        windowManager.addView(mHunWindow, getWindowManagerLayoutParams());
+        mHunContent = mHunRootView.findViewById(R.id.headsup_content);
+        mHunRootView.setVisibility(View.INVISIBLE);
     }
-
-    /**
-     * @return {@link WindowManager.LayoutParams} to be used when adding HUN Window to {@link
-     * WindowManager}.
-     */
-    protected abstract WindowManager.LayoutParams getWindowManagerLayoutParams();
 
     protected Context getContext() {
         return mContext;
@@ -73,7 +67,7 @@ public abstract class CarHeadsUpNotificationContainer {
         displayNotificationInner(notificationView, hunImportance);
 
         if (shouldShowHunPanel()) {
-            getHunWindow().setVisibility(View.VISIBLE);
+            getHunRootView().setVisibility(View.VISIBLE);
         }
     }
 
@@ -118,7 +112,7 @@ public abstract class CarHeadsUpNotificationContainer {
         mHunImportanceLinkedList.remove(index);
 
         if (shouldHideHunPanel()) {
-            getHunWindow().setVisibility(View.INVISIBLE);
+            getHunRootView().setVisibility(View.INVISIBLE);
         }
     }
 
@@ -133,14 +127,14 @@ public abstract class CarHeadsUpNotificationContainer {
      * @return Whether or not the container is currently visible.
      */
     public final boolean isVisible() {
-        return getHunWindow().getVisibility() == View.VISIBLE;
+        return getHunRootView().getVisibility() == View.VISIBLE;
     }
 
     /**
-     * @return HUN window.
+     * @return HUN rootview.
      */
-    protected final ViewGroup getHunWindow() {
-        return mHunWindow;
+    public final ViewGroup getHunRootView() {
+        return mHunRootView;
     }
 
     /**
