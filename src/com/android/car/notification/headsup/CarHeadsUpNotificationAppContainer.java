@@ -33,6 +33,7 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
 
     public CarHeadsUpNotificationAppContainer(Context context) {
         super(context);
+        initializeVisibility();
         attachToWindow();
     }
 

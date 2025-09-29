@@ -49,7 +49,13 @@ public class CarHeadsUpNotificationContainer {
                 mShowHunOnBottom ? R.layout.headsup_container_bottom
                         : R.layout.headsup_container, /* root= */ null, /* attachToRoot= */ false);
         mHunContent = mHunRootView.findViewById(R.id.headsup_content);
-        mHunRootView.setVisibility(View.INVISIBLE);
+    }
+    /**
+     * Sets the initial visibility of the container. Can be overridden by subclasses that manage
+     * visibility differently, such as through a state framework.
+     */
+    protected void initializeVisibility() {
+        getHunRootView().setVisibility(View.INVISIBLE);
     }
 
     protected Context getContext() {
@@ -67,7 +73,7 @@ public class CarHeadsUpNotificationContainer {
         displayNotificationInner(notificationView, hunImportance);
 
         if (shouldShowHunPanel()) {
-            getHunRootView().setVisibility(View.VISIBLE);
+            presentContainer();
         }
     }
 
@@ -112,8 +118,22 @@ public class CarHeadsUpNotificationContainer {
         mHunImportanceLinkedList.remove(index);
 
         if (shouldHideHunPanel()) {
-            getHunRootView().setVisibility(View.INVISIBLE);
+            dismissContainer();
         }
+    }
+
+    /**
+     * Makes the HUN container visible. Can be overridden by subclasses to change behavior.
+     */
+    protected void presentContainer() {
+        getHunRootView().setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Makes the HUN container invisible. Can be overridden by subclasses to change behavior.
+     */
+    protected void dismissContainer() {
+        getHunRootView().setVisibility(View.INVISIBLE);
     }
 
     /**
