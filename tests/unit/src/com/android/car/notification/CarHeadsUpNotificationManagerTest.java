@@ -28,6 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.animation.AnimatorSet;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -50,6 +51,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationContainer;
+import com.android.car.notification.headsup.animationhelper.HeadsUpNotificationAnimationHelper;
 import com.android.car.notification.utils.MockMessageNotificationBuilder;
 
 import org.junit.Before;
@@ -107,6 +109,10 @@ public class CarHeadsUpNotificationManagerTest {
     KeyguardManager mKeyguardManager;
     @Mock
     Handler mHandlerMock;
+    @Mock
+    private HeadsUpNotificationAnimationHelper mAnimationHelper;
+    @Mock
+    private AnimatorSet mAnimatorSet;
     @Captor
     ArgumentCaptor<View> mViewCaptor;
     private CarHeadsUpNotificationManager mManager;
@@ -147,6 +153,8 @@ public class CarHeadsUpNotificationManagerTest {
         when(mRankingMapMock.getRanking(any(), any())).thenReturn(true);
         when(mRankingMock.getImportance()).thenReturn(NotificationManager.IMPORTANCE_HIGH);
         when(mCarNotificationListener.getCurrentRanking()).thenReturn(mRankingMapMock);
+        when(mCarHeadsUpNotificationContainer.getAnimationHelper()).thenReturn(mAnimationHelper);
+        when(mAnimationHelper.getAnimateOutAnimator(any(), any())).thenReturn(mAnimatorSet);
 
         Notification mNotificationMessageHeadsUp = new MockMessageNotificationBuilder(mContext,
                 CHANNEL_ID, android.R.drawable.sym_def_app_icon)
@@ -226,6 +234,8 @@ public class CarHeadsUpNotificationManagerTest {
         mHeadsUpStates = new ArrayList<>();
 
         createCarHeadsUpNotificationManager();
+
+        verify(mCarHeadsUpNotificationContainer).getAnimationHelper();
     }
 
     @Test

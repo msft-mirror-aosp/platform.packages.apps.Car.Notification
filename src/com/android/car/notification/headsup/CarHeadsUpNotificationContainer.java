@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.CarNotificationTypeItem;
 import com.android.car.notification.R;
+import com.android.car.notification.headsup.animationhelper.HeadsUpNotificationAnimationHelper;
 
 import java.util.LinkedList;
 
@@ -36,13 +37,23 @@ import java.util.LinkedList;
 public class CarHeadsUpNotificationContainer {
     private static final String TAG = "CarHUNContainer";
     private final LinkedList<HunImportance> mHunImportanceLinkedList = new LinkedList<>();
-    private final ViewGroup mHunRootView;
-    private final ViewGroup mHunContent;
-    private final boolean mShowHunOnBottom;
+    protected ViewGroup mHunRootView;
+    protected ViewGroup mHunContent;
+    protected boolean mShowHunOnBottom;
     private final Context mContext;
 
     public CarHeadsUpNotificationContainer(Context context) {
         mContext = context;
+    }
+
+    /**
+     * Inflates the layout for the HUN container.
+     *
+     * <p>This method determines whether to show the HUN on the bottom based on the configuration
+     * and inflates the appropriate layout. It is called by the constructor and can be overridden
+     * by subclasses to provide custom layout inflation logic.
+     */
+    protected void inflateLayout(Context context) {
         mShowHunOnBottom = context.getResources().getBoolean(
                 R.bool.config_showHeadsUpNotificationOnBottom);
         mHunRootView = (ViewGroup) LayoutInflater.from(context).inflate(
@@ -50,6 +61,23 @@ public class CarHeadsUpNotificationContainer {
                         : R.layout.headsup_container, /* root= */ null, /* attachToRoot= */ false);
         mHunContent = mHunRootView.findViewById(R.id.headsup_content);
     }
+
+    /**
+     * Returns the animation helper for the HUN container. Subclasses can override this to
+     * provide a different animation helper.
+     */
+    public HeadsUpNotificationAnimationHelper getAnimationHelper() {
+        String helperName = mContext.getResources().getString(
+                R.string.config_headsUpNotificationAnimationHelper);
+        try {
+            Class<?> clazz = Class.forName(helperName);
+            return (HeadsUpNotificationAnimationHelper) clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid animation helper: %s", helperName), e);
+        }
+    }
+
     /**
      * Sets the initial visibility of the container. Can be overridden by subclasses that manage
      * visibility differently, such as through a state framework.
@@ -167,7 +195,7 @@ public class CarHeadsUpNotificationContainer {
     /**
      * @return {@code true} if HUN should be shown on bottom.
      */
-    protected final boolean getShowHunOnBottom() {
+    public boolean shouldShowHunOnBottom() {
         return mShowHunOnBottom;
     }
 

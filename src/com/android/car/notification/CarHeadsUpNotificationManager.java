@@ -169,7 +169,8 @@ public class CarHeadsUpNotificationManager
         mDuration = mContext.getResources().getInteger(R.integer.headsup_notification_duration_ms);
         mMinDisplayDuration = mContext.getResources().getInteger(
                 R.integer.heads_up_notification_minimum_time);
-        mAnimationHelper = getAnimationHelper();
+        mHunContainer = hunContainer;
+        mAnimationHelper = mHunContainer.getAnimationHelper();
 
         mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         mPreprocessingManager = PreprocessingManager.getInstance(context);
@@ -181,7 +182,6 @@ public class CarHeadsUpNotificationManager
         });
         mClickHandlerFactory.setHunDismissCallback(
                 (launchResult, alertEntry) -> dismissHun(alertEntry, /* shouldAnimate= */ true));
-        mHunContainer = hunContainer;
         mIsSuppressAndThrottleHeadsUp = context.getResources().getBoolean(
                 R.bool.config_suppressAndThrottleHeadsUp);
         mClock = Clock.systemUTC();
@@ -231,17 +231,7 @@ public class CarHeadsUpNotificationManager
         mNotificationDataManager = notificationDataManager;
     }
 
-    private HeadsUpNotificationAnimationHelper getAnimationHelper() {
-        String helperName = mContext.getResources().getString(
-                R.string.config_headsUpNotificationAnimationHelper);
-        try {
-            Class<?> clazz = Class.forName(helperName);
-            return (HeadsUpNotificationAnimationHelper) clazz.getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    String.format("Invalid animation helper: %s", helperName), e);
-        }
-    }
+
 
     /**
      * Show the notification as a heads-up if the {@link AlertEntry} metadata meets the criteria,

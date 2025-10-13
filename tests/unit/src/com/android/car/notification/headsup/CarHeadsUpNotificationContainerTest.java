@@ -20,18 +20,24 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.notification.CarNotificationTypeItem;
+import com.android.car.notification.R;
+import com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper;
+import com.android.car.notification.headsup.animationhelper.HeadsUpNotificationAnimationHelper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
@@ -50,6 +56,11 @@ public class CarHeadsUpNotificationContainerTest {
     private View mNotificationView5;
     private View mNotificationView6;
 
+    @Mock
+    private Context mMockContext;
+    @Mock
+    private Resources mMockResources;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -57,6 +68,7 @@ public class CarHeadsUpNotificationContainerTest {
         Context context = ApplicationProvider.getApplicationContext();
         mCarHeadsUpNotificationContainer = spy(new CarHeadsUpNotificationContainer(
                 context));
+        mCarHeadsUpNotificationContainer.inflateLayout(context);
 
         mCarHeadsUpNotificationContainer.getHunRootView().setVisibility(View.INVISIBLE);
 
@@ -72,6 +84,21 @@ public class CarHeadsUpNotificationContainerTest {
         mNotificationView5.setTag(TAG5);
         mNotificationView6 = new View(context);
         mNotificationView6.setTag(TAG6);
+
+        when(mMockContext.getResources()).thenReturn(mMockResources);
+    }
+
+    @Test
+    public void getAnimationHelper_withBottomHelper_returnsBottomHelper() {
+        String bottomHelperClass = CarHeadsUpNotificationBottomAnimationHelper.class.getName();
+        when(mMockResources.getString(R.string.config_headsUpNotificationAnimationHelper))
+                .thenReturn(bottomHelperClass);
+        CarHeadsUpNotificationContainer container =
+                new CarHeadsUpNotificationContainer(mMockContext);
+
+        HeadsUpNotificationAnimationHelper helper = container.getAnimationHelper();
+
+        assertThat(helper).isInstanceOf(CarHeadsUpNotificationBottomAnimationHelper.class);
     }
 
     @Test

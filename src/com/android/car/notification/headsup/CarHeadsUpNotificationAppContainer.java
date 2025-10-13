@@ -33,6 +33,7 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
 
     public CarHeadsUpNotificationAppContainer(Context context) {
         super(context);
+        inflateLayout(context);
         initializeVisibility();
         attachToWindow();
     }
@@ -62,7 +63,7 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
-        wrapperParams.gravity = getShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
+        wrapperParams.gravity = shouldShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
         wrapperParams.y = resources.getDimensionPixelSize(
                 R.dimen.headsup_notification_window_y_offset);
         return wrapperParams;
