@@ -25,18 +25,35 @@ import android.view.WindowManager;
 import com.android.car.notification.R;
 
 /**
- * A controller for Notification application's HUN display.
- *
- * Used to attach HUNs views to window.
+ * A concrete implementation of {@link CarHeadsUpNotificationContainer} used by the standalone
+ * CarNotification application. It extends the base class to provide a specific implementation
+ * for displaying HUNs within the context of a standalone app.
  */
 public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationContainer {
 
     public CarHeadsUpNotificationAppContainer(Context context) {
-        super(context, context.getSystemService(WindowManager.class));
+        super(context);
+        inflateLayout(context);
+        initializeVisibility();
+        attachToWindow();
     }
 
-    @Override
-    protected WindowManager.LayoutParams getWindowManagerLayoutParams() {
+    /**
+     * Attaches the Heads-Up Notification (HUN) view to the window. Implementations should handle
+     * adding the view returned by {@link #getHunRootView()} to the {@link WindowManager}.
+     */
+    private void attachToWindow() {
+        WindowManager wm = getContext().getSystemService(WindowManager.class);
+        wm.addView(getHunRootView(), getWindowManagerLayoutParams());
+    }
+
+    /**
+     * Returns the {@link WindowManager.LayoutParams} to be used when adding the HUN Window to the
+     * {@link WindowManager}.
+     *
+     * @return {@link WindowManager.LayoutParams} for the HUN container.
+     */
+    private WindowManager.LayoutParams getWindowManagerLayoutParams() {
         Resources resources = getContext().getResources();
         WindowManager.LayoutParams wrapperParams = new WindowManager.LayoutParams(
                 resources.getDimensionPixelSize(R.dimen.headsup_container_width),
@@ -46,7 +63,7 @@ public class CarHeadsUpNotificationAppContainer extends CarHeadsUpNotificationCo
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
-        wrapperParams.gravity = getShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
+        wrapperParams.gravity = shouldShowHunOnBottom() ? Gravity.BOTTOM : Gravity.TOP;
         wrapperParams.y = resources.getDimensionPixelSize(
                 R.dimen.headsup_notification_window_y_offset);
         return wrapperParams;

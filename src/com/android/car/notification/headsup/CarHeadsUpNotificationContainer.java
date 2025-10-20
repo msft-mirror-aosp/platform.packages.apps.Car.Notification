@@ -20,43 +20,71 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.CarNotificationTypeItem;
 import com.android.car.notification.R;
+import com.android.car.notification.headsup.animationhelper.HeadsUpNotificationAnimationHelper;
 
 import java.util.LinkedList;
 
 /**
- * Container for displaying Heads Up Notifications.
+ * An abstract base class that serves as the foundation for displaying Heads-Up Notifications (HUNs)
+ * in a car environment. It provides the core logic for managing HUNs but does not define the
+ * specifics of how they are displayed on the screen.
  */
-public abstract class CarHeadsUpNotificationContainer {
+public class CarHeadsUpNotificationContainer {
     private static final String TAG = "CarHUNContainer";
     private final LinkedList<HunImportance> mHunImportanceLinkedList = new LinkedList<>();
-    private final ViewGroup mHunWindow;
-    private final ViewGroup mHunContent;
-    private final boolean mShowHunOnBottom;
+    protected ViewGroup mHunRootView;
+    protected ViewGroup mHunContent;
+    protected boolean mShowHunOnBottom;
     private final Context mContext;
 
-    public CarHeadsUpNotificationContainer(Context context, WindowManager windowManager) {
+    public CarHeadsUpNotificationContainer(Context context) {
         mContext = context;
-        mShowHunOnBottom = context.getResources().getBoolean(
-                R.bool.config_showHeadsUpNotificationOnBottom);
-        mHunWindow = (ViewGroup) LayoutInflater.from(context).inflate(
-                mShowHunOnBottom ? R.layout.headsup_container_bottom
-                        : R.layout.headsup_container, /* root= */ null, /* attachToRoot= */ false);
-        mHunContent = mHunWindow.findViewById(R.id.headsup_content);
-        mHunWindow.setVisibility(View.INVISIBLE);
-        windowManager.addView(mHunWindow, getWindowManagerLayoutParams());
     }
 
     /**
-     * @return {@link WindowManager.LayoutParams} to be used when adding HUN Window to {@link
-     * WindowManager}.
+     * Inflates the layout for the HUN container.
+     *
+     * <p>This method determines whether to show the HUN on the bottom based on the configuration
+     * and inflates the appropriate layout. It is called by the constructor and can be overridden
+     * by subclasses to provide custom layout inflation logic.
      */
-    protected abstract WindowManager.LayoutParams getWindowManagerLayoutParams();
+    protected void inflateLayout(Context context) {
+        mShowHunOnBottom = context.getResources().getBoolean(
+                R.bool.config_showHeadsUpNotificationOnBottom);
+        mHunRootView = (ViewGroup) LayoutInflater.from(context).inflate(
+                mShowHunOnBottom ? R.layout.headsup_container_bottom
+                        : R.layout.headsup_container, /* root= */ null, /* attachToRoot= */ false);
+        mHunContent = mHunRootView.findViewById(R.id.headsup_content);
+    }
+
+    /**
+     * Returns the animation helper for the HUN container. Subclasses can override this to
+     * provide a different animation helper.
+     */
+    public HeadsUpNotificationAnimationHelper getAnimationHelper() {
+        String helperName = mContext.getResources().getString(
+                R.string.config_headsUpNotificationAnimationHelper);
+        try {
+            Class<?> clazz = Class.forName(helperName);
+            return (HeadsUpNotificationAnimationHelper) clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid animation helper: %s", helperName), e);
+        }
+    }
+
+    /**
+     * Sets the initial visibility of the container. Can be overridden by subclasses that manage
+     * visibility differently, such as through a state framework.
+     */
+    protected void initializeVisibility() {
+        getHunRootView().setVisibility(View.INVISIBLE);
+    }
 
     protected Context getContext() {
         return mContext;
@@ -73,7 +101,7 @@ public abstract class CarHeadsUpNotificationContainer {
         displayNotificationInner(notificationView, hunImportance);
 
         if (shouldShowHunPanel()) {
-            getHunWindow().setVisibility(View.VISIBLE);
+            presentContainer();
         }
     }
 
@@ -118,8 +146,22 @@ public abstract class CarHeadsUpNotificationContainer {
         mHunImportanceLinkedList.remove(index);
 
         if (shouldHideHunPanel()) {
-            getHunWindow().setVisibility(View.INVISIBLE);
+            dismissContainer();
         }
+    }
+
+    /**
+     * Makes the HUN container visible. Can be overridden by subclasses to change behavior.
+     */
+    protected void presentContainer() {
+        getHunRootView().setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Makes the HUN container invisible. Can be overridden by subclasses to change behavior.
+     */
+    protected void dismissContainer() {
+        getHunRootView().setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -133,14 +175,14 @@ public abstract class CarHeadsUpNotificationContainer {
      * @return Whether or not the container is currently visible.
      */
     public final boolean isVisible() {
-        return getHunWindow().getVisibility() == View.VISIBLE;
+        return getHunRootView().getVisibility() == View.VISIBLE;
     }
 
     /**
-     * @return HUN window.
+     * @return HUN rootview.
      */
-    protected final ViewGroup getHunWindow() {
-        return mHunWindow;
+    public final ViewGroup getHunRootView() {
+        return mHunRootView;
     }
 
     /**
@@ -153,7 +195,7 @@ public abstract class CarHeadsUpNotificationContainer {
     /**
      * @return {@code true} if HUN should be shown on bottom.
      */
-    protected final boolean getShowHunOnBottom() {
+    public boolean shouldShowHunOnBottom() {
         return mShowHunOnBottom;
     }
 
