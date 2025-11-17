@@ -1355,20 +1355,17 @@ public class PreprocessingManagerTest {
                     getExplanation(key),
                     getOverrideGroupKey(key),
                     getChannel(key, i),
-                    getPeople(key, i),
                     getSnoozeCriteria(key, i),
                     getShowBadge(i),
                     getUserSentiment(i),
                     getHidden(i),
                     lastAudiblyAlerted(i),
-                    getNoisy(i),
                     getSmartActions(key, i),
                     getSmartReplies(key, i),
                     canBubble(i),
                     isVisuallyInterruptive(i),
                     isConversation(i),
                     /* shortcutInfo= */ null,
-                    getRankingAdjustment(i),
                     isBubble(i),
                     /* proposedImportance= */ 0,
                     /* sensitiveContent= */ false,
@@ -1463,18 +1460,6 @@ public class PreprocessingManagerTest {
         return index * 2000;
     }
 
-    private boolean getNoisy(int index) {
-        return index < 1;
-    }
-
-    private ArrayList<String> getPeople(String key, int index) {
-        ArrayList<String> people = new ArrayList<>();
-        for (int i = 0; i < index; i++) {
-            people.add(i + key);
-        }
-        return people;
-    }
-
     private ArrayList<SnoozeCriterion> getSnoozeCriteria(String key, int index) {
         ArrayList<SnoozeCriterion> snooze = new ArrayList<>();
         for (int i = 0; i < index; i++) {
@@ -1529,10 +1514,6 @@ public class PreprocessingManagerTest {
 
     private boolean isConversation(int index) {
         return index % 4 == 0;
-    }
-
-    private int getRankingAdjustment(int index) {
-        return index % 3 - 1;
     }
 
     private boolean isBubble(int index) {
