@@ -192,7 +192,7 @@ public class NotificationUtils {
         return extras.containsKey(Notification.EXTRA_PROGRESS)
                 && extras.containsKey(Notification.EXTRA_PROGRESS_MAX)
                 && hasValidProgress
-                && !notification.hasCompletedProgress();
+                && notification.getProgressState() != Notification.PROGRESS_STATE_COMPLETE;
     }
 
     private static boolean isSystemPrivilegedOrPlatformKeyInner(Context context,
