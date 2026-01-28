@@ -44,7 +44,7 @@
             style="@style/NotificationBodyTitleText"/>
 
         <ImageView
-            android:id="@+id/notification_body_title_icon"
+            android:id="@+id/notification_body_small_icon"
             android:layout_width="@dimen/notification_secondary_icon_size"
             android:layout_height="@dimen/notification_secondary_icon_size"
             android:layout_marginEnd="@dimen/notification_body_title_margin"

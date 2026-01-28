@@ -61,9 +61,12 @@ public class BasicNotificationViewHolder extends CarNotificationBaseViewHolder {
         Bundle extraData = notification.extras;
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
-        mBodyView.bind(title, text,
-                alertEntry.getStatusBarNotification(),
-                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
-                notification.showsTime() ? notification.when : null);
+        mBodyView.bind(new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                .setTitle(title)
+                .setContent(text)
+                .setSbn(alertEntry.getStatusBarNotification())
+                .setLargeIcon(notification.getLargeIcon())
+                .setWhen(notification.showsTime() ? notification.when : null)
+                .build());
     }
 }

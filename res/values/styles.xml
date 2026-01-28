@@ -165,5 +165,12 @@
         <item name="android:layout_marginStart">@dimen/notification_headsup_card_margin_horizontal
         </item>
     </style>
+
+    <!-- TODO: b/479578428 - Remove indeterminateDrawable when indeterminate progress bar theming is fixed -->
+    <style name="NotificationProgressBar" parent="@style/Widget.CarUi.Toolbar.ProgressBar">
+        <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal_material_trimmed</item>
+        <item name="android:minHeight">3dp</item>
+        <item name="android:maxHeight">3dp</item>
+    </style>
 </resources>
 

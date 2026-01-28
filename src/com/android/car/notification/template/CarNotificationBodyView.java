@@ -76,11 +76,15 @@ public class CarNotificationBodyView extends RelativeLayout {
     @Nullable
     private ImageView mLargeIconView;
     @Nullable
+    private Icon mLastLargeIcon;
+    @Nullable
     private TextView mCountView;
     @Nullable
     private DateTimeView mTimeView;
     @Nullable
-    private ImageView mTitleIconView;
+    private ImageView mSmallIconView;
+    @Nullable
+    private Icon mLastSmallIcon;
 
     public CarNotificationBodyView(Context context) {
         super(context);
@@ -132,7 +136,7 @@ public class CarNotificationBodyView extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mTitleView = findViewById(R.id.notification_body_title);
-        mTitleIconView = findViewById(R.id.notification_body_title_icon);
+        mSmallIconView = findViewById(R.id.notification_body_small_icon);
         mContentView = findViewById(R.id.notification_body_content);
         mLargeIconView = findViewById(R.id.notification_body_icon);
         mCountView = findViewById(R.id.message_count);
@@ -143,21 +147,18 @@ public class CarNotificationBodyView extends RelativeLayout {
     }
 
     /**
-     * Binds the notification body.
-     *
-     * @param title     the primary text
-     * @param content   the secondary text, if this is null then content view will be hidden
-     * @param launcherIcon  the launcher icon drawable for notification's package.
-     *        If this and largeIcon are null then large icon view will be hidden.
-     * @param largeIcon the large icon, usually used for avatars.
-     *        If this and launcherIcon are null then large icon view will be hidden.
-     * @param countText text signifying the number of messages inside this notification
-     * @param when      wall clock time in milliseconds for the notification
+     * Binds the notification body using {@link NotificationBodyParameters}.
      */
-    public void bind(CharSequence title, @Nullable CharSequence content,
-            StatusBarNotification sbn, @Nullable Icon largeIcon, @Nullable Drawable titleIcon,
-            @Nullable CharSequence countText, @Nullable Long when) {
+    public void bind(NotificationBodyParameters params) {
         setVisibility(View.VISIBLE);
+        CharSequence title = params.getTitle();
+        CharSequence content = params.getContent();
+        StatusBarNotification sbn = params.getSbn();
+        Icon largeIcon = params.getLargeIcon();
+        Icon smallIcon = params.getSmallIcon();
+        Drawable smallDrawable = params.getSmallDrawable();
+        CharSequence countText = params.getCountText();
+        Long when = params.getWhen();
 
         boolean useLauncherIcon = setUseLauncherIcon(sbn);
         Drawable launcherIcon = loadAppLauncherIcon(sbn);
@@ -165,21 +166,28 @@ public class CarNotificationBodyView extends RelativeLayout {
             if (useLauncherIcon && launcherIcon != null) {
                 mLargeIconView.setVisibility(View.VISIBLE);
                 mLargeIconView.setImageDrawable(launcherIcon);
+                mLastLargeIcon = null;
             } else if (!useLauncherIcon && (mShowBigIcon || mDefaultUseLauncherIcon)) {
                 if (largeIcon != null) {
-                    largeIcon.loadDrawableAsync(getContext(), drawable -> {
-                        mLargeIconView.setVisibility(View.VISIBLE);
-                        mLargeIconView.setImageDrawable(drawable);
-                    }, Handler.createAsync(Looper.myLooper()));
+                    if (mLastLargeIcon == null || !largeIcon.sameAs(mLastLargeIcon)) {
+                        mLargeIconView.setImageDrawable(null);
+                        mLastLargeIcon = largeIcon;
+                        largeIcon.loadDrawableAsync(getContext(), drawable -> {
+                            mLargeIconView.setVisibility(View.VISIBLE);
+                            mLargeIconView.setImageDrawable(drawable);
+                        }, Handler.createAsync(Looper.myLooper()));
+                    }
                 } else {
                     Log.w(TAG, "Notification with title=" + title
                             + " did not specify a large icon");
                     mLargeIconView.setVisibility(View.GONE);
                     mLargeIconView.setImageDrawable(null);
+                    mLastLargeIcon = null;
                 }
             } else {
                 mLargeIconView.setVisibility(View.GONE);
                 mLargeIconView.setImageDrawable(null);
+                mLastLargeIcon = null;
             }
         }
 
@@ -192,12 +200,23 @@ public class CarNotificationBodyView extends RelativeLayout {
             }
         }
 
-        if (mTitleIconView != null) {
-            if (titleIcon != null) {
-                mTitleIconView.setVisibility(View.VISIBLE);
-                mTitleIconView.setImageDrawable(titleIcon);
+        if (mSmallIconView != null) {
+            if (smallDrawable != null) {
+                mSmallIconView.setVisibility(View.VISIBLE);
+                mSmallIconView.setImageDrawable(smallDrawable);
+                mLastSmallIcon = null;
+            } else if (smallIcon != null) {
+                if (mLastSmallIcon == null || !smallIcon.sameAs(mLastSmallIcon)) {
+                    mSmallIconView.setImageDrawable(null);
+                    mLastSmallIcon = smallIcon;
+                    smallIcon.loadDrawableAsync(getContext(), drawable -> {
+                        mSmallIconView.setVisibility(View.VISIBLE);
+                        mSmallIconView.setImageDrawable(drawable);
+                    }, Handler.createAsync(Looper.myLooper()));
+                }
             } else {
-                mTitleIconView.setVisibility(View.GONE);
+                mSmallIconView.setVisibility(View.GONE);
+                mLastSmallIcon = null;
             }
         }
 
@@ -227,6 +246,176 @@ public class CarNotificationBodyView extends RelativeLayout {
                 mCountView.setText(countText);
             } else {
                 mCountView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * Parameters for {@link #bind(NotificationBodyParameters)}.
+     */
+    public static class NotificationBodyParameters {
+        private final CharSequence mTitle;
+        private final CharSequence mContent;
+        private final StatusBarNotification mSbn;
+        private final Icon mLargeIcon;
+        private final Drawable mSmallDrawable;
+        private final Icon mSmallIcon;
+        private final CharSequence mCountText;
+        private final Long mWhen;
+
+        private NotificationBodyParameters(Builder builder) {
+            mTitle = builder.mTitle;
+            mContent = builder.mContent;
+            mSbn = builder.mSbn;
+            mLargeIcon = builder.mLargeIcon;
+            mSmallDrawable = builder.mSmallDrawable;
+            mSmallIcon = builder.mSmallIcon;
+            mCountText = builder.mCountText;
+            mWhen = builder.mWhen;
+        }
+
+        /**
+         * Returns the title of the notification.
+         */
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * Returns the content of the notification.
+         */
+        public CharSequence getContent() {
+            return mContent;
+        }
+
+        /**
+         * Returns the status bar notification.
+         */
+        public StatusBarNotification getSbn() {
+            return mSbn;
+        }
+
+        /**
+         * Returns the large icon of the notification.
+         */
+        public Icon getLargeIcon() {
+            return mLargeIcon;
+        }
+
+        /**
+         * Returns the small icon of the notification.
+         */
+        public Icon getSmallIcon() {
+            return mSmallIcon;
+        }
+
+        /**
+         * Returns the small icon drawable of the notification.
+         */
+        public Drawable getSmallDrawable() {
+            return mSmallDrawable;
+        }
+
+        /**
+         * Returns the count text of the notification.
+         */
+        public CharSequence getCountText() {
+            return mCountText;
+        }
+
+        /**
+         * Returns the time of the notification.
+         */
+        public Long getWhen() {
+            return mWhen;
+        }
+
+        /**
+         * Builder for {@link NotificationBodyParameters}.
+         */
+        public static class Builder {
+            private CharSequence mTitle;
+            private CharSequence mContent;
+            private StatusBarNotification mSbn;
+            private Icon mLargeIcon;
+            private Icon mSmallIcon;
+            private Drawable mSmallDrawable;
+            private CharSequence mCountText;
+            private Long mWhen;
+
+            /**
+             * Sets the title of the notification.
+             */
+            public Builder setTitle(CharSequence title) {
+                mTitle = title;
+                return this;
+            }
+
+            /**
+             * Sets the content of the notification.
+             */
+            public Builder setContent(CharSequence content) {
+                mContent = content;
+                return this;
+            }
+
+            /**
+             * Sets the status bar notification.
+             */
+            public Builder setSbn(StatusBarNotification sbn) {
+                mSbn = sbn;
+                return this;
+            }
+
+            /**
+             * Sets the large icon of the notification.
+             */
+            public Builder setLargeIcon(Icon largeIcon) {
+                mLargeIcon = largeIcon;
+                return this;
+            }
+
+            /**
+             * Sets the small icon drawable of the notification.
+             */
+            public Builder setSmallIcon(Drawable smallDrawable) {
+                mSmallDrawable = smallDrawable;
+                return this;
+            }
+
+            /**
+             * Sets the small icon of the notification.
+             */
+            public Builder setSmallIcon(Icon smallIcon) {
+                mSmallIcon = smallIcon;
+                return this;
+            }
+
+            /**
+             * Sets the count text of the notification.
+             */
+            public Builder setCountText(CharSequence countText) {
+                mCountText = countText;
+                return this;
+            }
+
+            /**
+             * Sets the time of the notification.
+             */
+            public Builder setWhen(Long when) {
+                mWhen = when;
+                return this;
+            }
+
+            /**
+             * Builds the {@link NotificationBodyParameters}.
+             */
+            public NotificationBodyParameters build() {
+                if (mSmallIcon != null && mSmallDrawable != null) {
+                    throw new IllegalStateException("Only one out of small icon and small drawable"
+                            + " can be set.");
+                }
+                return new NotificationBodyParameters(this);
             }
         }
     }
@@ -302,8 +491,8 @@ public class CarNotificationBodyView extends RelativeLayout {
         if (mTitleView != null) {
             mTitleView.setVisibility(View.GONE);
         }
-        if (mTitleIconView != null) {
-            mTitleIconView.setVisibility(View.GONE);
+        if (mSmallIconView != null) {
+            mSmallIconView.setVisibility(View.GONE);
         }
         if (mContentView != null) {
             setContentMaxLines(mMaxLines);
@@ -368,5 +557,10 @@ public class CarNotificationBodyView extends RelativeLayout {
     @VisibleForTesting
     DateTimeView getTimeView() {
         return mTimeView;
+    }
+
+    @VisibleForTesting
+    ImageView getSmallIconView() {
+        return mSmallIconView;
     }
 }

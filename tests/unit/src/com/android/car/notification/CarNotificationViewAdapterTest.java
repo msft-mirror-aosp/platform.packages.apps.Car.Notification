@@ -30,6 +30,7 @@ import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Looper;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
@@ -404,6 +405,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_progress_shouldNotThrowError() {
+        Looper.prepare();
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -419,6 +421,7 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_progressInGroup_shouldNotThrowError() {
+        Looper.prepare();
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();

@@ -63,9 +63,12 @@ public class InboxNotificationViewHolder extends CarNotificationBaseViewHolder {
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE_BIG);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_SUMMARY_TEXT);
 
-        mBodyView.bind(title, text,
-                alertEntry.getStatusBarNotification(),
-                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
-                notification.showsTime() ? notification.when : null);
+        mBodyView.bind(new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                .setTitle(title)
+                .setContent(text)
+                .setSbn(alertEntry.getStatusBarNotification())
+                .setLargeIcon(notification.getLargeIcon())
+                .setWhen(notification.showsTime() ? notification.when : null)
+                .build());
     }
 }

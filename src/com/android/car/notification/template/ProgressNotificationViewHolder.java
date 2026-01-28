@@ -79,10 +79,17 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         CharSequence title = extraData.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence text = extraData.getCharSequence(Notification.EXTRA_TEXT);
 
-        mBodyView.bind(title, text,
-                alertEntry.getStatusBarNotification(),
-                notification.getLargeIcon(), /* titleIcon= */ null, /* countText= */ null,
-                notification.showsTime() ? notification.when : null);
+        mBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(title)
+                        .setContent(text)
+                        .setSbn(alertEntry.getStatusBarNotification())
+                        .setLargeIcon(notification.getLargeIcon())
+                        .setSmallIcon(notification.getSmallIcon())
+                        .setWhen(notification.showsTime() ? notification.when : null)
+                        .build()
+        );
+
 
         mProgressBarView.setVisibility(View.VISIBLE);
         boolean isIndeterminate = extraData.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE);
@@ -92,6 +99,7 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mProgressBarView.setMax(progressMax);
         mProgressBarView.setProgress(progress);
         mProgressBarView.setProgressTintList(ColorStateList.valueOf(mProgressBarColor));
+        mProgressBarView.setIndeterminateTintList(ColorStateList.valueOf(mProgressBarColor));
         mProgressBarView.setProgressBackgroundTintList(
                 ColorStateList.valueOf(mProgressBarBackgroundColor));
 
@@ -101,6 +109,7 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
                     notification.color, mCardBackgroundColor);
             ColorStateList progressBarColorStateList = ColorStateList.valueOf(calculatedColor);
             mProgressBarView.setProgressTintList(progressBarColorStateList);
+            mProgressBarView.setIndeterminateTintList(progressBarColorStateList);
         }
     }
 
@@ -113,5 +122,6 @@ public class ProgressNotificationViewHolder extends CarNotificationBaseViewHolde
         mProgressBarView.setProgress(0);
         mProgressBarView.setVisibility(View.GONE);
         mProgressBarView.setProgressTintList(null);
+        mProgressBarView.setIndeterminateTintList(null);
     }
 }
