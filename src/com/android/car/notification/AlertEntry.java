@@ -96,7 +96,7 @@ public class AlertEntry {
      * that this AlertEntry instance wraps.
      */
     public Notification getNotification() {
-        return mStatusBarNotification.getNotification();
+        return getStatusBarNotification().getNotification();
     }
 
     @Override

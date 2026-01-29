@@ -56,6 +56,7 @@ import com.android.car.notification.template.MessageNotificationViewHolder;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -438,8 +439,7 @@ public class CarHeadsUpNotificationManager
             HeadsUpEntry newActiveHeadsUpNotification = new HeadsUpEntry(
                     alertEntry.getStatusBarNotification());
             handleHeadsUpNotificationStateChanged(alertEntry, HeadsUpState.SHOWN);
-            mActiveHeadsUpNotifications.put(alertEntry.getKey(),
-                    newActiveHeadsUpNotification);
+            addActiveHeadsUpNotification(newActiveHeadsUpNotification);
             newActiveHeadsUpNotification.mIsAlertAgain = alertAgain(
                     alertEntry.getNotification());
             newActiveHeadsUpNotification.mIsNewHeadsUp = true;
@@ -721,6 +721,9 @@ public class CarHeadsUpNotificationManager
             mHunContainer.removeNotification(view);
         }
         mActiveHeadsUpNotifications.remove(alertEntry.getKey());
+        // Remove for now as HeadsUp is going away. If this is moving to the notification center,
+        // it will be re-posted there via the state change listener.
+        updatePromotedNotifications(alertEntry, /* remove= */ true);
     }
 
     /**
@@ -837,6 +840,14 @@ public class CarHeadsUpNotificationManager
         mHeadsUpNotificationsToBeRemoved.add(alertEntry.getKey());
     }
 
+    private void updatePromotedNotifications(AlertEntry changedEntry,
+            boolean remove) {
+        PromotedNotificationsRepository pnr =
+                PromotedNotificationsRepository.Companion.getInstance();
+        pnr.updateFromAlertEntries(Collections.singletonList(changedEntry),
+                /* isHeadsUp= */ true, remove);
+    }
+
     @Override
     public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
         mCarHeadsUpNotificationQueue.setActiveUxRestriction(
@@ -875,6 +886,7 @@ public class CarHeadsUpNotificationManager
     @VisibleForTesting
     void addActiveHeadsUpNotification(HeadsUpEntry headsUpEntry) {
         mActiveHeadsUpNotifications.put(headsUpEntry.getKey(), headsUpEntry);
+        updatePromotedNotifications(headsUpEntry, /* remove= */ false);
     }
 
     @VisibleForTesting
