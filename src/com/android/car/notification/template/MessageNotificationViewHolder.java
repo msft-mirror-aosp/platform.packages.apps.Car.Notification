@@ -244,8 +244,15 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                             sbn, conversationTitle, avatar, groupIcon, when);
             mBodyView.setCountOnClickListener(listener);
         }
-        mBodyView.bind(conversationTitle, messageText,
-                sbn, avatar, groupIcon, unshownCountText, when);
+        mBodyView.bind(new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                .setTitle(conversationTitle)
+                .setContent(messageText)
+                .setSbn(sbn)
+                .setLargeIcon(avatar)
+                .setSmallIcon(groupIcon)
+                .setCountText(unshownCountText)
+                .setWhen(when)
+                .build());
     }
 
     private CharSequence getMessageText(Notification.MessagingStyle.Message message,
@@ -415,8 +422,15 @@ public class MessageNotificationViewHolder extends CarNotificationBaseViewHolder
                         R.plurals.message_unshown_count, finalUnshownCount, finalUnshownCount);
             }
 
-            mBodyView.bind(title, finalMessage, sbn, avatar, groupIcon,
-                    unshownCountText, when);
+            mBodyView.bind(new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                    .setTitle(title)
+                    .setContent(finalMessage)
+                    .setSbn(sbn)
+                    .setLargeIcon(avatar)
+                    .setSmallIcon(groupIcon)
+                    .setCountText(unshownCountText)
+                    .setWhen(when)
+                    .build());
             mBodyView.setContentMaxLines(mMaxLineCount);
             mBodyView.setCountOnClickListener(null);
             mBodyView.setCountTextAlpha(mDisabledCountTextButtonAlpha);

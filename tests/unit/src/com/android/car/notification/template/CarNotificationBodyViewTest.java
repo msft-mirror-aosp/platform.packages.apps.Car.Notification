@@ -71,37 +71,78 @@ public class CarNotificationBodyViewTest {
 
     @Test
     public void onBind_launcherIconUsed_titleTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, mMockStatusBarNotification,
-                /* largeIcon= */ null, /* titleIcon= */ null,
-                TEST_COUNT, TEST_WHEN);
+        mCarNotificationBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(TEST_TITLE)
+                        .setContent(TEST_BODY)
+                        .setSbn(mMockStatusBarNotification)
+                        .setCountText(TEST_COUNT)
+                        .setWhen(TEST_WHEN)
+                        .build());
 
         assertThat(mCarNotificationBodyView.getTitleView().getText()).isEqualTo(TEST_TITLE);
     }
 
     @Test
     public void onBind_launcherIconUsed_contentTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, mMockStatusBarNotification,
-                /* largeIcon= */ null, /* titleIcon= */ null,
-                TEST_COUNT, TEST_WHEN);
+        mCarNotificationBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(TEST_TITLE)
+                        .setContent(TEST_BODY)
+                        .setSbn(mMockStatusBarNotification)
+                        .setCountText(TEST_COUNT)
+                        .setWhen(TEST_WHEN)
+                        .build());
 
         assertThat(mCarNotificationBodyView.getContentView().getText()).isEqualTo(TEST_BODY);
     }
 
     @Test
     public void onBind_launcherIconUsed_countTextSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, mMockStatusBarNotification,
-                /* largeIcon= */ null, /* titleIcon= */ null,
-                TEST_COUNT, TEST_WHEN);
+        mCarNotificationBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(TEST_TITLE)
+                        .setContent(TEST_BODY)
+                        .setSbn(mMockStatusBarNotification)
+                        .setCountText(TEST_COUNT)
+                        .setWhen(TEST_WHEN)
+                        .build());
 
         assertThat(mCarNotificationBodyView.getCountView().getText()).isEqualTo(TEST_COUNT);
     }
 
     @Test
     public void onBind_launcherIconUsed_timeSet() {
-        mCarNotificationBodyView.bind(TEST_TITLE, TEST_BODY, mMockStatusBarNotification,
-                /* largeIcon= */ null, /* titleIcon= */ null,
-                TEST_COUNT, TEST_WHEN);
+        mCarNotificationBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(TEST_TITLE)
+                        .setContent(TEST_BODY)
+                        .setSbn(mMockStatusBarNotification)
+                        .setCountText(TEST_COUNT)
+                        .setWhen(TEST_WHEN)
+                        .build());
 
         assertThat(mCarNotificationBodyView.getTimeView().getText()).isEqualTo(EXPECTED_WHEN);
+    }
+
+    @Test
+    public void onBind_smallIconSet_drawable_setsDrawable() {
+        mCarNotificationBodyView.bind(
+                new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                        .setTitle(TEST_TITLE)
+                        .setSbn(mMockStatusBarNotification)
+                        .setSmallIcon(TEST_DRAWABLE)
+                        .build());
+
+        assertThat(mCarNotificationBodyView.getSmallIconView().getDrawable())
+                .isEqualTo(TEST_DRAWABLE);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void build_smallIconSet_throwsError() {
+        new CarNotificationBodyView.NotificationBodyParameters.Builder()
+                .setSmallIcon(TEST_DRAWABLE)
+                .setSmallIcon(mock(android.graphics.drawable.Icon.class))
+                .build();
     }
 }

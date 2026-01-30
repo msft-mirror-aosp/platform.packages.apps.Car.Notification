@@ -354,7 +354,7 @@ public class NotificationUtilsTest {
         mNotification = new Notification.Builder(mContext, CHANNEL_ID)
                 .setContentTitle(CONTENT_TITLE)
                 .setSmallIcon(android.R.drawable.sym_def_app_icon)
-                .setProgress(100,  100, true)
+                .setProgress(100,  100, false)
                 .build();
 
         assertThat(NotificationUtils.isProgress(mNotification)).isFalse();
