@@ -21,6 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.testng.Assert.assertThrows;
 
 import android.content.Context;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -37,7 +41,9 @@ import com.android.car.notification.template.InboxNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 import com.android.car.notification.template.NavigationNotificationViewHolder;
 import com.android.car.notification.template.ProgressNotificationViewHolder;
+import com.android.systemui.car.Flags;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -51,6 +57,9 @@ public class CarNotificationTypeItemTest {
 
     @Mock
     private NotificationClickHandlerFactory mClickHandlerFactory;
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Test
     public void navigationNotificationType_shouldHaveCorrectValues() {
@@ -137,12 +146,25 @@ public class CarNotificationTypeItemTest {
     }
 
     @Test
-    public void progressNotificationType_shouldHaveCorrectValues() {
+    @RequiresFlagsDisabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void progressNotificationType_shouldHaveCorrectValues_flagDisabled() {
         CarNotificationTypeItem progress = CarNotificationTypeItem.of(
                 NotificationViewType.PROGRESS);
         assertThat(progress.getNotificationType()).isEqualTo(NotificationViewType.PROGRESS);
 
         assertProperties(progress, NO_TEMPLATE, R.layout.progress_notification_template,
+                ProgressNotificationViewHolder.class);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void progressNotificationType_shouldHaveCorrectValues_flagEnabled() {
+        CarNotificationTypeItem progress = CarNotificationTypeItem.of(
+                NotificationViewType.PROGRESS);
+        assertThat(progress.getNotificationType()).isEqualTo(NotificationViewType.PROGRESS);
+
+        assertProperties(progress, R.layout.progress_headsup_notification_template,
+                R.layout.progress_notification_template,
                 ProgressNotificationViewHolder.class);
     }
 

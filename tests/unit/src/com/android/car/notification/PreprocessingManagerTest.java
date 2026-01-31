@@ -41,6 +41,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.SnoozeCriterion;
 import android.service.notification.StatusBarNotification;
@@ -52,7 +55,10 @@ import android.text.TextUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.systemui.car.Flags;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -143,6 +149,8 @@ public class PreprocessingManagerTest {
     private PackageManager mPackageManager;
     @Mock
     private NotificationDataManager mNotificationDataManager;
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     private PreprocessingManager mPreprocessingManager;
 
@@ -1215,6 +1223,47 @@ public class PreprocessingManagerTest {
         assertThat(posted).isNotNull();
         assertThat(posted.getKey()).isEqualTo("ADDITIONAL");
         assertThat(afterSize).isEqualTo(beforeSize + 1);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void onGroup_promotedNotificationsEnabled_promotedNotification_notGrouped() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(mImportantForeground.getNotification()).thenReturn(notification);
+
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
+
+        // Verify that the promoted notification is in its own group
+        boolean found = false;
+        for (NotificationGroup group : groupResult) {
+            if (group.getSingleNotification() != null
+                    && group.getSingleNotification().getKey().equals(
+                    mImportantForeground.getKey())) {
+                found = true;
+                break;
+            }
+        }
+        assertThat(found).isTrue();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void onRank_promotedNotificationsEnabled_promotedNotification_rankedHigher() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(mImportantForeground.getNotification()).thenReturn(notification);
+
+        List<NotificationGroup> groupResult = mPreprocessingManager.group(mAlertEntries);
+        List<NotificationGroup> rankResult = mPreprocessingManager.rank(groupResult, mRankingMap);
+
+        // Promoted notification should be ranked first (index 0)
+        assertThat(rankResult.get(0).getSingleNotification().getKey()).isEqualTo(
+                mImportantForeground.getKey());
     }
 
     private void setConfig(boolean recentOld, boolean launcherIcon, int groupThreshold) {

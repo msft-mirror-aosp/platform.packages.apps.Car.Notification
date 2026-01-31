@@ -15,6 +15,9 @@
  */
 package com.android.car.notification;
 
+import static com.android.car.notification.NotificationUtils.hasCarPromotableCharacteristics;
+import static com.android.systemui.car.Flags.promotedNotifications;
+
 import android.annotation.NonNull;
 import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
@@ -442,10 +445,12 @@ public class CarNotificationViewAdapter extends ContentLimitingAdapter<RecyclerV
             List<NotificationGroup> seenNotifications = new ArrayList<>();
             List<NotificationGroup> unseenNotifications = new ArrayList<>();
             notifications.forEach(notificationGroup -> {
-                if (notificationGroup.isSeen()) {
-                    seenNotifications.add(new NotificationGroup(notificationGroup));
-                } else {
+                if (!notificationGroup.isSeen()
+                        || (promotedNotifications() && hasCarPromotableCharacteristics(
+                                notificationGroup.getSingleNotification()))) {
                     unseenNotifications.add(new NotificationGroup(notificationGroup));
+                } else {
+                    seenNotifications.add(new NotificationGroup(notificationGroup));
                 }
             });
             setSeenAndUnseenNotifications(unseenNotifications, seenNotifications,

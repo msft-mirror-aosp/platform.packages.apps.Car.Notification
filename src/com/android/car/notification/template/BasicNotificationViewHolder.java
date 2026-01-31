@@ -66,6 +66,7 @@ public class BasicNotificationViewHolder extends CarNotificationBaseViewHolder {
                 .setContent(text)
                 .setSbn(alertEntry.getStatusBarNotification())
                 .setLargeIcon(notification.getLargeIcon())
+                .setSmallIcon(notification.getSmallIcon())
                 .setWhen(notification.showsTime() ? notification.when : null)
                 .build());
     }

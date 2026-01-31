@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -31,6 +32,9 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 
@@ -38,9 +42,11 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
+import com.android.systemui.car.Flags;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -68,6 +74,8 @@ public class NotificationUtilsTest {
     private PackageManager mPackageManager;
     @Mock
     private UserManager mUserManager;
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Before
     public void setup() {
@@ -358,6 +366,110 @@ public class NotificationUtilsTest {
                 .build();
 
         assertThat(NotificationUtils.isProgress(mNotification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_allConditionsMet_returnsTrue() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(notification.getNotificationStyle()).thenReturn(null);
+        when(notification.isGroupSummary()).thenReturn(false);
+        when(notification.containsCustomViews()).thenReturn(false);
+        when(notification.isColorizedRequested()).thenReturn(false);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isTrue();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_notRequestPromoted_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(false);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_notOngoing_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(false);
+        when(notification.hasTitle()).thenReturn(true);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_noTitle_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(false);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_hasStyle_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(notification.getNotificationStyle()).thenReturn(
+                (Class) Notification.BigTextStyle.class);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_isGroupSummary_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(notification.isGroupSummary()).thenReturn(true);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_hasCustomViews_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(notification.containsCustomViews()).thenReturn(true);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    public void hasCarPromotableCharacteristics_isColorized_returnsFalse() {
+        Notification notification = mock(Notification.class);
+        when(notification.isRequestPromotedOngoing()).thenReturn(true);
+        when(notification.isOngoingEvent()).thenReturn(true);
+        when(notification.hasTitle()).thenReturn(true);
+        when(notification.isColorizedRequested()).thenReturn(true);
+
+        assertThat(NotificationUtils.hasCarPromotableCharacteristics(notification)).isFalse();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void getNotificationViewType_promotedNotificationsEnabled_progress_returnsProgress() {
+        Notification notification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setContentTitle(CONTENT_TITLE)
+                .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                .setProgress(100, 50, true)
+                .build();
+        when(mStatusBarNotification.getNotification()).thenReturn(notification);
+        AlertEntry alertEntry = new AlertEntry(mStatusBarNotification);
+
+        assertThat(NotificationUtils.getNotificationViewType(alertEntry)).isEqualTo(
+                CarNotificationTypeItem.PROGRESS);
     }
 
     private void setApplicationInfo(boolean signedWithPlatformKey, boolean isSystemApp,

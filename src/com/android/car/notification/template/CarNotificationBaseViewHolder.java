@@ -16,6 +16,8 @@
 
 package com.android.car.notification.template;
 
+import static com.android.systemui.car.Flags.promotedNotifications;
+
 import android.annotation.CallSuper;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
@@ -375,6 +377,11 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     public boolean isDismissible() {
         if (mAlertEntry == null) {
             return true;
+        }
+
+        if (promotedNotifications()
+                && getAlertEntry().getStatusBarNotification().isNonDismissable()) {
+            return false;
         }
 
         return (getAlertEntry().getNotification().flags

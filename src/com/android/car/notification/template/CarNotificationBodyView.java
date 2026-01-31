@@ -76,15 +76,11 @@ public class CarNotificationBodyView extends RelativeLayout {
     @Nullable
     private ImageView mLargeIconView;
     @Nullable
-    private Icon mLastLargeIcon;
-    @Nullable
     private TextView mCountView;
     @Nullable
     private DateTimeView mTimeView;
     @Nullable
     private ImageView mSmallIconView;
-    @Nullable
-    private Icon mLastSmallIcon;
 
     public CarNotificationBodyView(Context context) {
         super(context);
@@ -166,28 +162,21 @@ public class CarNotificationBodyView extends RelativeLayout {
             if (useLauncherIcon && launcherIcon != null) {
                 mLargeIconView.setVisibility(View.VISIBLE);
                 mLargeIconView.setImageDrawable(launcherIcon);
-                mLastLargeIcon = null;
             } else if (!useLauncherIcon && (mShowBigIcon || mDefaultUseLauncherIcon)) {
                 if (largeIcon != null) {
-                    if (mLastLargeIcon == null || !largeIcon.sameAs(mLastLargeIcon)) {
-                        mLargeIconView.setImageDrawable(null);
-                        mLastLargeIcon = largeIcon;
-                        largeIcon.loadDrawableAsync(getContext(), drawable -> {
-                            mLargeIconView.setVisibility(View.VISIBLE);
-                            mLargeIconView.setImageDrawable(drawable);
-                        }, Handler.createAsync(Looper.myLooper()));
-                    }
+                    largeIcon.loadDrawableAsync(getContext(), drawable -> {
+                        mLargeIconView.setVisibility(View.VISIBLE);
+                        mLargeIconView.setImageDrawable(drawable);
+                    }, Handler.createAsync(Looper.myLooper()));
                 } else {
                     Log.w(TAG, "Notification with title=" + title
                             + " did not specify a large icon");
                     mLargeIconView.setVisibility(View.GONE);
                     mLargeIconView.setImageDrawable(null);
-                    mLastLargeIcon = null;
                 }
             } else {
                 mLargeIconView.setVisibility(View.GONE);
                 mLargeIconView.setImageDrawable(null);
-                mLastLargeIcon = null;
             }
         }
 
@@ -204,19 +193,14 @@ public class CarNotificationBodyView extends RelativeLayout {
             if (smallDrawable != null) {
                 mSmallIconView.setVisibility(View.VISIBLE);
                 mSmallIconView.setImageDrawable(smallDrawable);
-                mLastSmallIcon = null;
             } else if (smallIcon != null) {
-                if (mLastSmallIcon == null || !smallIcon.sameAs(mLastSmallIcon)) {
-                    mSmallIconView.setImageDrawable(null);
-                    mLastSmallIcon = smallIcon;
-                    smallIcon.loadDrawableAsync(getContext(), drawable -> {
-                        mSmallIconView.setVisibility(View.VISIBLE);
-                        mSmallIconView.setImageDrawable(drawable);
-                    }, Handler.createAsync(Looper.myLooper()));
-                }
+                smallIcon.loadDrawableAsync(getContext(), drawable -> {
+                    mSmallIconView.setVisibility(View.VISIBLE);
+                    mSmallIconView.setImageDrawable(drawable);
+                }, Handler.createAsync(Looper.myLooper()));
             } else {
+                mSmallIconView.setImageDrawable(null);
                 mSmallIconView.setVisibility(View.GONE);
-                mLastSmallIcon = null;
             }
         }
 

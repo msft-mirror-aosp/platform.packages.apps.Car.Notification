@@ -23,10 +23,15 @@ import static org.testng.Assert.assertThrows;
 import android.app.Notification;
 import android.content.Context;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.android.systemui.car.Flags;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -57,6 +62,9 @@ public class NotificationGroupTest {
     private static final UserHandle USER_HANDLE = new UserHandle(12);
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     private Context mContext;
     private Notification.Builder mNotificationBuilder;
     private NotificationGroup mNotificationGroup;
@@ -182,6 +190,8 @@ public class NotificationGroupTest {
     public void isDismissible_containsOngoingNotification_returnsFalse() {
         mNotification1.getNotification().flags =
                 mNotification1.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_NO_DISMISS;
 
         mNotificationGroup.addNotification(mNotification1);
 
@@ -192,6 +202,8 @@ public class NotificationGroupTest {
     public void isDismissible_containsForegroundService_returnsFalse() {
         mNotification1.getNotification().flags =
                 mNotification1.getNotification().flags | Notification.FLAG_FOREGROUND_SERVICE;
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_NO_DISMISS;
 
         mNotificationGroup.addNotification(mNotification1);
 
@@ -273,5 +285,29 @@ public class NotificationGroupTest {
 
         assertThat(mNotificationGroup.getChildNotification(mNotification2.getKey()))
                 .isEqualTo(mNotification2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void isDismissible_promotedNotificationsEnabled_ongoing_returnsTrue() {
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
+
+        mNotificationGroup.addNotification(mNotification1);
+
+        assertThat(mNotificationGroup.isDismissible()).isTrue();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void isDismissible_promotedNotificationsEnabled_ongoingAndNoDismiss_returnsFalse() {
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_NO_DISMISS;
+
+        mNotificationGroup.addNotification(mNotification1);
+
+        assertThat(mNotificationGroup.isDismissible()).isFalse();
     }
 }
