@@ -25,11 +25,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.Notification;
+import android.content.Context;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
@@ -47,6 +49,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class GroupNotificationViewHolderTest {
@@ -67,6 +72,8 @@ public class GroupNotificationViewHolderTest {
     private GroupNotificationViewHolder mGroupNotificationViewHolder;
     private RecyclerView mNotificationListView;
     private View mExpansionFooterView;
+    private TestGroupNotificationView mGroupNotificationView;
+
     @Mock
     private NotificationClickHandlerFactory mNotificationClickHandlerFactory;
     @Mock
@@ -75,16 +82,21 @@ public class GroupNotificationViewHolderTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mContext.getOrCreateTestableResources()
-                .addOverride(R.bool.config_showNavigationHeadsup, GROUP_EXPANSION_INCREMENT_SIZE);
-        mContext.getOrCreateTestableResources()
-                .addOverride(R.bool.config_useLauncherIcon, /* value= */ true);
-        View groupNotificationView = LayoutInflater.from(mContext)
-                .inflate(R.layout.group_notification_template, /* root= */ null);
-        mGroupNotificationViewHolder = new GroupNotificationViewHolder(groupNotificationView,
+        mContext.getOrCreateTestableResources().addOverride(R.bool.config_showNavigationHeadsup,
+                GROUP_EXPANSION_INCREMENT_SIZE);
+        mContext.getOrCreateTestableResources().addOverride(
+                R.bool.config_useLauncherIcon, /* value= */ true);
+        View realGroupView = LayoutInflater.from(mContext).inflate(
+                R.layout.group_notification_template, /* root= */ null);
+
+        mGroupNotificationView = new TestGroupNotificationView(mContext);
+        mGroupNotificationView.addView(realGroupView);
+
+        mGroupNotificationViewHolder = new GroupNotificationViewHolder(mGroupNotificationView,
                 mNotificationClickHandlerFactory);
-        mExpansionFooterView = groupNotificationView.findViewById(R.id.expansion_footer);
-        mNotificationListView = groupNotificationView.findViewById(R.id.notification_list);
+        mExpansionFooterView = mGroupNotificationView.findViewById(R.id.expansion_footer);
+        mNotificationListView = mGroupNotificationView.findViewById(R.id.notification_list);
+        mGroupNotificationView.fakeAttach();
     }
 
     @Test
@@ -152,8 +164,8 @@ public class GroupNotificationViewHolderTest {
     @Test
     public void bind_22notifications_expanded5ThenCollapse_setExpandedFalse() {
         NotificationGroup group = getNotificationGroup(/* size= */ 22);
-        mGroupNotificationViewHolder
-                .bind(group, mCarNotificationViewAdapter, /* isExpanded= */ true);
+        mGroupNotificationViewHolder.bind(group, mCarNotificationViewAdapter, /* isExpanded= */
+                true);
 
         mExpansionFooterView.performClick();
         mExpansionFooterView.performClick();
@@ -161,8 +173,8 @@ public class GroupNotificationViewHolderTest {
         mExpansionFooterView.performClick();
         mExpansionFooterView.performClick();
 
-        verify(mCarNotificationViewAdapter)
-                .setExpanded(group.getGroupKey(), group.isSeen(), /* isExpanded= */ false);
+        verify(mCarNotificationViewAdapter).setExpanded(group.getGroupKey(),
+                group.isSeen(), /* isExpanded= */ false);
     }
 
     @Test
@@ -170,8 +182,8 @@ public class GroupNotificationViewHolderTest {
         CarNotificationViewAdapter mockAdapter = mock(CarNotificationViewAdapter.class);
         NotificationGroup group = getNotificationGroup(/* size= */ 22);
         mGroupNotificationViewHolder.setAdapter(mockAdapter);
-        mGroupNotificationViewHolder
-                .bind(group, mCarNotificationViewAdapter, /* isExpanded= */ true);
+        mGroupNotificationViewHolder.bind(group, mCarNotificationViewAdapter, /* isExpanded= */
+                true);
 
         mGroupNotificationViewHolder.collapseGroup();
 
@@ -182,28 +194,64 @@ public class GroupNotificationViewHolderTest {
                 argThat(notificationGroupList -> notificationGroupList.size() == 1), eq(false));
     }
 
+    @Test
+    public void onViewDetachedFromWindow_setsAdapterToNull() {
+        // Already attached in setup
+        mGroupNotificationView.fakeDetach();
+
+        assertThat(mNotificationListView.getAdapter()).isNull();
+    }
+
     private NotificationGroup getNotificationGroup(int size) {
-        Notification groupSummaryNotification = new MockMessageNotificationBuilder(
-                mContext, CHANNEL_ID, android.R.drawable.sym_def_app_icon)
-                .setContentTitle(CONTENT_TITLE)
-                .setCategory(Notification.CATEGORY_CAR_INFORMATION)
-                .build();
+        Notification groupSummaryNotification = new MockMessageNotificationBuilder(mContext,
+                CHANNEL_ID, android.R.drawable.sym_def_app_icon).setContentTitle(
+                CONTENT_TITLE).setCategory(Notification.CATEGORY_CAR_INFORMATION).build();
         AlertEntry groupSummaryAlertEntry = new AlertEntry(
                 new StatusBarNotification(PKG, OP_PKG, ID, TAG, UID, INITIAL_PID,
                         groupSummaryNotification, USER_HANDLE, OVERRIDE_GROUP_KEY, POST_TIME));
         NotificationGroup group = new NotificationGroup();
         group.setGroupSummaryNotification(groupSummaryAlertEntry);
         for (int i = 0; i < size; i++) {
-            Notification notification = new MockMessageNotificationBuilder(
-                    mContext, CHANNEL_ID, android.R.drawable.sym_def_app_icon)
-                    .setContentTitle(CONTENT_TITLE)
-                    .setCategory(Notification.CATEGORY_CAR_INFORMATION)
-                    .build();
+            Notification notification = new MockMessageNotificationBuilder(mContext, CHANNEL_ID,
+                    android.R.drawable.sym_def_app_icon).setContentTitle(CONTENT_TITLE).setCategory(
+                    Notification.CATEGORY_CAR_INFORMATION).build();
             AlertEntry alertEntry = new AlertEntry(
-                    new StatusBarNotification(PKG, OP_PKG, ID, TAG, UID, INITIAL_PID,
-                            notification, USER_HANDLE, OVERRIDE_GROUP_KEY, POST_TIME));
+                    new StatusBarNotification(PKG, OP_PKG, ID, TAG, UID, INITIAL_PID, notification,
+                            USER_HANDLE, OVERRIDE_GROUP_KEY, POST_TIME));
             group.addNotification(alertEntry);
         }
         return group;
+    }
+
+    private static class TestGroupNotificationView extends FrameLayout {
+        private final List<OnAttachStateChangeListener> mListeners = new ArrayList<>();
+
+        TestGroupNotificationView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void addOnAttachStateChangeListener(OnAttachStateChangeListener listener) {
+            mListeners.add(listener);
+            super.addOnAttachStateChangeListener(listener);
+        }
+
+        @Override
+        public void removeOnAttachStateChangeListener(OnAttachStateChangeListener listener) {
+            mListeners.remove(listener);
+            super.removeOnAttachStateChangeListener(listener);
+        }
+
+        public void fakeAttach() {
+            for (OnAttachStateChangeListener listener : mListeners) {
+                listener.onViewAttachedToWindow(this);
+            }
+        }
+
+        public void fakeDetach() {
+            for (OnAttachStateChangeListener listener : mListeners) {
+                listener.onViewDetachedFromWindow(this);
+            }
+        }
     }
 }

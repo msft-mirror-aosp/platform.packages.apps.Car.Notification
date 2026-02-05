@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -76,6 +77,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private final boolean mShowExpansionHeader;
     private final int mExpandedGroupNotificationIncrementSize;
     private final String mShowLessText;
+    private final CarNotificationItemTouchListener mItemTouchListener;
 
     private CarNotificationViewAdapter mAdapter;
     private CarNotificationViewAdapter mParentAdapter;
@@ -85,6 +87,7 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
     private int mNumberOfShownNotifications;
     private List<NotificationGroup> mNotificationGroupsShown;
     private FocusRequestStates mCurrentFocusRequestState;
+    private boolean mIsAttached;
 
     public GroupNotificationViewHolder(
             View view, NotificationClickHandlerFactory clickHandlerFactory) {
@@ -163,9 +166,31 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mAdapter = new CarNotificationViewAdapter(getContext(), /* isGroupNotificationAdapter= */
                 true, /* notificationItemController= */ null);
         mAdapter.setClickHandlerFactory(clickHandlerFactory);
-        mNotificationListView.addOnItemTouchListener(
-                new CarNotificationItemTouchListener(view.getContext(), mAdapter));
-        mNotificationListView.setAdapter(mAdapter);
+        mItemTouchListener = new CarNotificationItemTouchListener(view.getContext(), mAdapter);
+
+        itemView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(@NonNull View v) {
+                if (mIsAttached) {
+                    return;
+                }
+                mIsAttached = true;
+
+                mNotificationListView.setAdapter(mAdapter);
+                mNotificationListView.addOnItemTouchListener(mItemTouchListener);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(@NonNull View v) {
+                if (!mIsAttached) {
+                    return;
+                }
+                mIsAttached = false;
+
+                mNotificationListView.setAdapter(null);
+                mNotificationListView.removeOnItemTouchListener(mItemTouchListener);
+            }
+        });
     }
 
     /**
