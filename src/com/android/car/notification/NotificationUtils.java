@@ -16,6 +16,8 @@
 
 package com.android.car.notification;
 
+import static com.android.systemui.car.Flags.promotedNotifications;
+
 import android.annotation.ColorInt;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
@@ -131,6 +133,11 @@ public class NotificationUtils {
                     break;
             }
         }
+
+        if (promotedNotifications() && isProgress(alertEntry.getNotification())) {
+            return CarNotificationTypeItem.PROGRESS;
+        }
+
         Bundle extras = alertEntry.getNotification().extras;
         if (extras.containsKey(Notification.EXTRA_TITLE_BIG)
                 && extras.containsKey(Notification.EXTRA_SUMMARY_TEXT)) {
@@ -337,5 +344,33 @@ public class NotificationUtils {
     public static boolean isCategoryWarning(@NonNull AlertEntry alertEntry) {
         if (alertEntry.getNotification() == null) return false;
         return Notification.CATEGORY_CAR_WARNING.equals(alertEntry.getNotification().category);
+    }
+
+    /**
+     * see {@link #hasCarPromotableCharacteristics(Notification)}
+     */
+    public static boolean hasCarPromotableCharacteristics(@NonNull AlertEntry alertEntry) {
+        if (alertEntry.getNotification() == null) return false;
+        return hasCarPromotableCharacteristics(alertEntry.getNotification());
+    }
+
+    /**
+     * Returns whether the notification has all the characteristics that make it eligible for
+     * {@link Notification#FLAG_PROMOTED_ONGOING}. This method does not factor in other criteria
+     * such user preferences for the app or channel. If this returns {@code true}, it does not
+     * guarantee that the notification will be assigned {@link Notification#FLAG_PROMOTED_ONGOING}
+     * by the system, but if this returns {@code false}, it will not.
+     * <p>
+     * We don't directly use {@link Notification#hasPromotableCharacteristics()} since in automotive
+     * we do not support the same styles as phone
+     */
+    public static boolean hasCarPromotableCharacteristics(@NonNull Notification notification) {
+        return notification.isRequestPromotedOngoing()
+                && notification.isOngoingEvent()
+                && notification.hasTitle()
+                && notification.getNotificationStyle() == null
+                && !notification.isGroupSummary()
+                && !notification.containsCustomViews()
+                && !notification.isColorizedRequested();
     }
 }

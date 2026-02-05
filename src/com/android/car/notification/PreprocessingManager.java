@@ -17,9 +17,11 @@ package com.android.car.notification;
 
 import static android.app.Notification.FLAG_AUTOGROUP_SUMMARY;
 
+import static com.android.car.notification.NotificationUtils.hasCarPromotableCharacteristics;
 import static com.android.car.notification.NotificationUtils.isCategoryCall;
 import static com.android.car.notification.NotificationUtils.isCategoryEmergency;
 import static com.android.car.notification.NotificationUtils.isCategoryWarning;
+import static com.android.systemui.car.Flags.promotedNotifications;
 
 import android.annotation.Nullable;
 import android.app.Notification;
@@ -373,8 +375,9 @@ public class PreprocessingManager {
 
             String groupKey;
             if (isCategoryCall(alertEntry) || isCategoryEmergency(alertEntry)
-                    || isCategoryWarning(alertEntry)) {
-                // DO NOT group call, warning & emergency
+                    || isCategoryWarning(alertEntry)
+                    || (promotedNotifications() && hasCarPromotableCharacteristics(alertEntry))) {
+                // DO NOT group call, warning, emergency or promoted ongoing notifications
                 groupKey = UUID.randomUUID().toString();
             } else {
                 groupKey = alertEntry.getStatusBarNotification().getGroupKey();
@@ -391,12 +394,14 @@ public class PreprocessingManager {
             }
 
             if (notification.isGroupSummary() && !isCategoryCall(alertEntry)
-                    && !isCategoryWarning(alertEntry) && !isCategoryEmergency(alertEntry)) {
+                    && !isCategoryWarning(alertEntry) && !isCategoryEmergency(alertEntry)
+                    && (!hasCarPromotableCharacteristics(alertEntry)
+                            || !promotedNotifications())) {
                 groupedNotifications.get(groupKey)
                         .setGroupSummaryNotification(alertEntry);
             } else {
-                // Call, warning & emergency notifications are NOT grouped and contains no child
-                // AlertEntry, so they should be added as a singleton notification.
+                // Call, warning, emergency & promoted ongoing notifications are NOT grouped and
+                // contains no child AlertEntry, they should be added as a singleton notification.
                 groupedNotifications.get(groupKey).addNotification(alertEntry);
             }
         }
@@ -571,6 +576,7 @@ public class PreprocessingManager {
             RankingMap newRankingMap, boolean isUpdate) {
         Notification notification = newNotification.getNotification();
         boolean isProgress = NotificationUtils.isProgress(notification);
+        boolean isPromotable = hasCarPromotableCharacteristics(notification);
         NotificationGroup newGroup = new NotificationGroup();
 
         // The newGroup should appear in the recent section so mark the group as not seen. Since the
@@ -629,10 +635,14 @@ public class PreprocessingManager {
                 }
             }
 
+            boolean shouldUpdateInPlace =
+                    (isProgress && NotificationUtils.isProgress(oldNotification.getNotification()))
+                            || (promotedNotifications() && isPromotable
+                            && hasCarPromotableCharacteristics(oldNotification));
+
             // If updating a progress notification with another progress notification, then update
             // while maintaining order
-            if (isUpdate && isProgress
-                    && NotificationUtils.isProgress(oldNotification.getNotification())
+            if (isUpdate && shouldUpdateInPlace
                     && oldGroup.updateNotification(oldNotification, newNotification)) {
                 mOldProcessedNotifications.set(i, oldGroup);
                 return mOldProcessedNotifications;
@@ -850,6 +860,21 @@ public class PreprocessingManager {
 
         @Override
         public int compare(NotificationGroup left, NotificationGroup right) {
+
+            if (promotedNotifications()) {
+                // Promoted ongoing notifications should be ranked higher than other notifications
+                boolean isLeftPromotedOngoing = left.getSingleNotification() != null
+                        && hasCarPromotableCharacteristics(left.getSingleNotification());
+                boolean isRightPromotedOngoing = right.getSingleNotification() != null
+                        && hasCarPromotableCharacteristics(right.getSingleNotification());
+
+                if (isLeftPromotedOngoing && !isRightPromotedOngoing) {
+                    return -1;
+                } else if (!isLeftPromotedOngoing && isRightPromotedOngoing) {
+                    return 1;
+                }
+            }
+
             if (mShowRecentsAndOlderHeaders) {
                 if (left.isSeen() && !right.isSeen()) {
                     return -1;

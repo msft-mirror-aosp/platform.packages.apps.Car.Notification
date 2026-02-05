@@ -22,7 +22,9 @@ import static android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 import static com.android.car.assist.client.CarAssistUtils.isCarCompatibleMessagingNotification;
 import static com.android.car.notification.CarNotificationDiff.sameNotificationKey;
+import static com.android.car.notification.NotificationUtils.hasCarPromotableCharacteristics;
 import static com.android.car.notification.NotificationUtils.isCategoryCall;
+import static com.android.systemui.car.Flags.promotedNotifications;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -814,6 +816,13 @@ public class CarHeadsUpNotificationManager
 
         if (DEBUG) {
             Log.d(TAG, "Notification category: " + notification.category);
+        }
+
+        if (promotedNotifications()) {
+            // Allow for Call, nav TBT and promotable categories.
+            return isCategoryCall(alertEntry)
+                    || Notification.CATEGORY_NAVIGATION.equals(notification.category)
+                    || hasCarPromotableCharacteristics(alertEntry);
         }
 
         // Allow for Call, and nav TBT categories.

@@ -15,6 +15,8 @@
  */
 package com.android.car.notification;
 
+import static com.android.systemui.car.Flags.promotedNotifications;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Notification;
@@ -226,11 +228,15 @@ public class NotificationGroup {
         }
 
         for (AlertEntry notification : mNotifications) {
-            boolean isForeground =
-                    (notification.getNotification().flags & Notification.FLAG_FOREGROUND_SERVICE)
-                            != 0;
-            if (isForeground || notification.getStatusBarNotification().isOngoing()) {
+            if (promotedNotifications()
+                    && notification.getStatusBarNotification().isNonDismissable()) {
                 return false;
+            } else {
+                boolean isForeground = (notification.getNotification().flags
+                        & Notification.FLAG_FOREGROUND_SERVICE) != 0;
+                if (isForeground || notification.getStatusBarNotification().isOngoing()) {
+                    return false;
+                }
             }
         }
         return true;

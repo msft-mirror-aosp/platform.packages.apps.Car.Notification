@@ -48,6 +48,7 @@ android_test {
         "truth",
         "testables",
         "testng",
+        "flag-junit",
     ],
 
     jni_libs: [

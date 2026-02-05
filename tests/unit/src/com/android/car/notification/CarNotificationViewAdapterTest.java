@@ -289,6 +289,8 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_carWarning_shouldNotThrowError() {
+        Looper.prepare();
+
         initializeWithFactory();
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -300,6 +302,8 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_carInformation_shouldNotThrowError() {
+        Looper.prepare();
+
         initializeWithFactory();
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -311,6 +315,8 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_basic_shouldNotThrowError() {
+        Looper.prepare();
+
         initializeWithFactory();
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -406,6 +412,7 @@ public class CarNotificationViewAdapterTest {
     @Test
     public void onBindViewHolder_progress_shouldNotThrowError() {
         Looper.prepare();
+
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -422,6 +429,7 @@ public class CarNotificationViewAdapterTest {
     @Test
     public void onBindViewHolder_progressInGroup_shouldNotThrowError() {
         Looper.prepare();
+
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();
@@ -482,6 +490,8 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_carInfo_shouldNotThrowError() {
+        Looper.prepare();
+
         initializeWithFactory();
         mCarNotificationViewAdapter.setNotifications(
                 mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
@@ -493,6 +503,8 @@ public class CarNotificationViewAdapterTest {
 
     @Test
     public void onBindViewHolder_basicInGroup_shouldNotThrowError() {
+        Looper.prepare();
+
         initializeWithFactory();
 
         NotificationGroup notificationGroup = new NotificationGroup();

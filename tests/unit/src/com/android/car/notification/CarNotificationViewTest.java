@@ -307,6 +307,8 @@ public class CarNotificationViewTest {
                     notification.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
             notification.getNotification().flags =
                     notification.getNotification().flags | Notification.FLAG_FOREGROUND_SERVICE;
+            notification.getNotification().flags =
+                    notification.getNotification().flags | Notification.FLAG_NO_DISMISS;
         }
 
         NotificationGroup notificationGroup = new NotificationGroup();

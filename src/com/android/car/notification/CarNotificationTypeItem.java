@@ -16,6 +16,8 @@
 
 package com.android.car.notification;
 
+import static com.android.systemui.car.Flags.promotedNotifications;
+
 import android.view.View;
 
 import com.android.car.notification.template.BasicNotificationViewHolder;
@@ -58,7 +60,8 @@ public enum CarNotificationTypeItem {
             R.layout.inbox_notification_template, NotificationViewType.INBOX, false),
     INBOX_IN_GROUP(-1, R.layout.inbox_notification_template_inner,
             NotificationViewType.INBOX_IN_GROUP, true),
-    PROGRESS(-1, R.layout.progress_notification_template, NotificationViewType.PROGRESS, false),
+    PROGRESS(promotedNotifications() ? R.layout.progress_headsup_notification_template : -1,
+            R.layout.progress_notification_template, NotificationViewType.PROGRESS, false),
     PROGRESS_IN_GROUP(-1, R.layout.progress_notification_template_inner,
             NotificationViewType.PROGRESS_IN_GROUP, true),
     BASIC(R.layout.basic_headsup_notification_template,
