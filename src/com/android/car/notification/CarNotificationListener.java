@@ -35,6 +35,8 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.car.notification.headsup.CarHeadsUpNotificationAppContainer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -179,6 +181,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
 
         if (alertEntry != null) {
             mActiveNotifications.remove(alertEntry.getKey());
+            updatePromotedNotifications(List.of(alertEntry), /* removed= */ true);
         } else {
             // HUN notifications are not tracked in mActiveNotifications but still need to be
             // removed
@@ -255,6 +258,8 @@ public class CarNotificationListener extends NotificationListenerService impleme
                 Collectors.toConcurrentMap(StatusBarNotification::getKey, AlertEntry::new));
         mRankingMap = super.getCurrentRanking();
         mIsListenerConnected = true;
+        updatePromotedNotifications(new ArrayList<>(mActiveNotifications.values()),
+                /* removed= */ false);
     }
 
     @Override
@@ -275,6 +280,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
         mHeadsUpManager.clearCache();
         mNotificationDataManager.clearAll();
         mActiveNotifications.clear();
+        PromotedNotificationsRepository.Companion.getInstance().clearPromotedNotifications();
     }
 
     /**
@@ -320,6 +326,13 @@ public class CarNotificationListener extends NotificationListenerService impleme
                 || sbn.getUser().getIdentifier() == UserHandle.USER_ALL);
     }
 
+    private void updatePromotedNotifications(List<AlertEntry> changedEntries,
+            boolean removed) {
+        PromotedNotificationsRepository pnr =
+                PromotedNotificationsRepository.Companion.getInstance();
+        pnr.updateFromAlertEntries(changedEntries, /* isHeadsUp= */ false, removed);
+    }
+
     @Override
     public void onStateChange(AlertEntry alertEntry,
             CarHeadsUpNotificationManager.HeadsUpState headsUpState) {
@@ -339,6 +352,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
     private void postNewNotification(AlertEntry alertEntry) {
         mActiveNotifications.put(alertEntry.getKey(), alertEntry);
         sendNotificationEventToHandler(alertEntry, NOTIFY_NOTIFICATION_POSTED);
+        updatePromotedNotifications(List.of(alertEntry), /* removed= */ false);
     }
 
     private void removeNotification(AlertEntry alertEntry) {

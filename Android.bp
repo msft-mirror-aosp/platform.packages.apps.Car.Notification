@@ -20,7 +20,10 @@ package {
 android_app {
     name: "CarNotification",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     resource_dirs: ["res"],
 
@@ -64,7 +67,10 @@ android_app {
 android_app {
     name: "CarNotificationForRoboTesting",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     // Testing only resources must be applied last so they take precedence.
     resource_dirs: [
@@ -107,7 +113,10 @@ android_app {
 // As Lib
 android_library {
     name: "CarNotificationLib",
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     resource_dirs: ["res"],
 
@@ -175,6 +184,7 @@ android_library {
 
     srcs: [
         "src/**/*.java",
+        "src/**/*.kt",
     ],
 
     // Testing only resources must be applied last so they take precedence.

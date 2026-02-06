@@ -100,6 +100,8 @@ public class CarNotificationListenerTest {
         when(mStatusBarNotification.getKey()).thenReturn(TEST_KEY);
         when(mStatusBarNotification.getOverrideGroupKey()).thenReturn(TEST_OLD_OVERRIDE_GROUP_KEY);
         when(mStatusBarNotification.getUser()).thenReturn(new UserHandle(CURRENT_USER_ID));
+        Notification notification = new Notification();
+        when(mStatusBarNotification.getNotification()).thenReturn(notification);
     }
 
     @After

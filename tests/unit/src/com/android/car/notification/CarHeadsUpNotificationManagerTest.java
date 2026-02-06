@@ -103,6 +103,8 @@ public class CarHeadsUpNotificationManagerTest {
     @Mock
     NotificationDataManager mNotificationDataManager;
     @Mock
+    StatusBarNotification mMockStatusBarNotification;
+    @Mock
     PackageManager mPackageManager;
     @Mock
     CarNotificationListener mCarNotificationListener;
@@ -617,6 +619,9 @@ public class CarHeadsUpNotificationManagerTest {
         HeadsUpEntry headsUpEntry = mock(HeadsUpEntry.class);
         when(headsUpEntry.getKey()).thenReturn(key);
         when(headsUpEntry.getHandler()).thenReturn(mHandlerMock);
+        Notification notification = new Notification();
+        when(mMockStatusBarNotification.getNotification()).thenReturn(notification);
+        when(headsUpEntry.getStatusBarNotification()).thenReturn(mMockStatusBarNotification);
         View headsUpNotificationView = mock(View.class);
         when(headsUpEntry.getNotificationView()).thenReturn(headsUpNotificationView);
         return headsUpEntry;
