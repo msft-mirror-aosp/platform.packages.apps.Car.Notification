@@ -616,36 +616,36 @@ public class PreprocessingManager {
         // 3. present in an unseen group.
         for (int i = 0; i < mOldProcessedNotifications.size(); i++) {
             NotificationGroup oldGroup = mOldProcessedNotifications.get(i);
-            AlertEntry oldNotification = null;
 
             boolean isGroupKeySame = TextUtils.equals(oldGroup.getGroupKey(),
                     newNotification.getStatusBarNotification().getGroupKey());
 
             if (isUpdate) {
                 // If this is an update, existing notification in group must have the same key
-                oldNotification =
+                AlertEntry oldNotification =
                         oldGroup.getChildNotification(newNotification.getKey());
                 if (oldNotification == null) {
                     continue;
+                }
+
+                boolean shouldUpdateInPlace =
+                        (isProgress
+                                && NotificationUtils.isProgress(oldNotification.getNotification()))
+                                || (promotedNotifications() && isPromotable
+                                && hasCarPromotableCharacteristics(oldNotification));
+
+                // If updating a progress notification with another progress notification,
+                // then update while maintaining order
+                if (shouldUpdateInPlace
+                        && oldGroup.updateNotification(oldNotification, newNotification)) {
+                    mOldProcessedNotifications.set(i, oldGroup);
+                    return mOldProcessedNotifications;
                 }
             } else {
                 // If not an update, group key must be the same
                 if (!isGroupKeySame) {
                     continue;
                 }
-            }
-
-            boolean shouldUpdateInPlace =
-                    (isProgress && NotificationUtils.isProgress(oldNotification.getNotification()))
-                            || (promotedNotifications() && isPromotable
-                            && hasCarPromotableCharacteristics(oldNotification));
-
-            // If updating a progress notification with another progress notification, then update
-            // while maintaining order
-            if (isUpdate && shouldUpdateInPlace
-                    && oldGroup.updateNotification(oldNotification, newNotification)) {
-                mOldProcessedNotifications.set(i, oldGroup);
-                return mOldProcessedNotifications;
             }
 
             // If updating:
