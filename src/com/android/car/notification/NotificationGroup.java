@@ -228,9 +228,10 @@ public class NotificationGroup {
         }
 
         for (AlertEntry notification : mNotifications) {
-            if (promotedNotifications()
-                    && notification.getStatusBarNotification().isNonDismissable()) {
-                return false;
+            if (promotedNotifications()) {
+                if (notification.getStatusBarNotification().isNonDismissable()) {
+                    return false;
+                }
             } else {
                 boolean isForeground = (notification.getNotification().flags
                         & Notification.FLAG_FOREGROUND_SERVICE) != 0;

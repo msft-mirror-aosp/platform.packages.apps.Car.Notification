@@ -1226,6 +1226,95 @@ public class PreprocessingManagerTest {
     }
 
     @Test
+    public void onAdditionalGroupAndRank_isUpdateFalse_sameGroupKey_addsToExistingGroup() {
+        // Set threshold to 1 to ensure grouping happens with just 1 existing notification
+        setConfig(/* recentOld= */ true, /* launcherIcon= */ true, /* groupThreshold= */ 1);
+        PreprocessingManager.refreshInstance();
+        mPreprocessingManager = PreprocessingManager.getInstance(mContext);
+
+        String groupKey = "TEST_GROUP_KEY";
+        String key1 = "KEY_1";
+        String key2 = "KEY_2";
+
+        // Setup: existing notification in group
+        Notification notification1 = generateNotification(false, false, false, false);
+        StatusBarNotification sbn1 = mock(StatusBarNotification.class);
+        when(sbn1.getNotification()).thenReturn(notification1);
+        when(sbn1.getKey()).thenReturn(key1);
+        when(sbn1.getGroupKey()).thenReturn(groupKey);
+        AlertEntry entry1 = new AlertEntry(sbn1);
+
+        mAlertEntries.clear();
+        mAlertEntries.add(entry1);
+        mAlertEntriesMap.clear();
+        mAlertEntriesMap.put(key1, entry1);
+        mRankingMap = generateRankingMap(mAlertEntries);
+
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+
+        // New notification: same group key, different key
+        Notification notification2 = generateNotification(false, false, false, false);
+        StatusBarNotification sbn2 = mock(StatusBarNotification.class);
+        when(sbn2.getNotification()).thenReturn(notification2);
+        when(sbn2.getKey()).thenReturn(key2);
+        when(sbn2.getGroupKey()).thenReturn(groupKey);
+        AlertEntry entry2 = new AlertEntry(sbn2);
+
+        // Act
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(
+                entry2, mRankingMap, /* isUpdate= */ false);
+
+        // Assert
+        assertThat(result).isNotNull();
+        List<NotificationGroup> groups = getGroupsWithGroupKey(groupKey, result);
+        assertThat(groups).hasSize(1);
+        assertThat(groups.get(0).getChildCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void onAdditionalGroupAndRank_isUpdateTrue_sameGroupKey_updatesExistingNotification() {
+        String groupKey = "TEST_GROUP_KEY";
+        String key1 = "KEY_1";
+
+        // Setup: existing notification in group
+        Notification notification1 = generateNotification(false, false, false, false);
+        StatusBarNotification sbn1 = mock(StatusBarNotification.class);
+        when(sbn1.getNotification()).thenReturn(notification1);
+        when(sbn1.getKey()).thenReturn(key1);
+        when(sbn1.getGroupKey()).thenReturn(groupKey);
+        AlertEntry entry1 = new AlertEntry(sbn1);
+
+        mAlertEntries.clear();
+        mAlertEntries.add(entry1);
+        mAlertEntriesMap.clear();
+        mAlertEntriesMap.put(key1, entry1);
+        mRankingMap = generateRankingMap(mAlertEntries);
+
+        mPreprocessingManager.init(mAlertEntriesMap, mRankingMap);
+
+        // Update notification: same key and group key
+        Notification notification2 = generateNotification(false, false, false, false);
+        notification2.extras.putString(Notification.EXTRA_TITLE, "UPDATED_TITLE");
+        StatusBarNotification sbn2 = mock(StatusBarNotification.class);
+        when(sbn2.getNotification()).thenReturn(notification2);
+        when(sbn2.getKey()).thenReturn(key1);
+        when(sbn2.getGroupKey()).thenReturn(groupKey);
+        AlertEntry entry2 = new AlertEntry(sbn2);
+
+        // Act
+        List<NotificationGroup> result = mPreprocessingManager.additionalGroupAndRank(
+                entry2, mRankingMap, /* isUpdate= */ true);
+
+        // Assert
+        assertThat(result).isNotNull();
+        List<NotificationGroup> groups = getGroupsWithGroupKey(groupKey, result);
+        assertThat(groups).hasSize(1);
+        assertThat(groups.get(0).getChildCount()).isEqualTo(1);
+        assertThat(groups.get(0).getChildNotifications().get(0).getNotification().extras.getString(
+                Notification.EXTRA_TITLE)).isEqualTo("UPDATED_TITLE");
+    }
+
+    @Test
     @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
     public void onGroup_promotedNotificationsEnabled_promotedNotification_notGrouped() {
         Notification notification = mock(Notification.class);

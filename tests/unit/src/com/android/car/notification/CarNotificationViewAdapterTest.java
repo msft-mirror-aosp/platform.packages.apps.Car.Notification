@@ -32,6 +32,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.service.notification.StatusBarNotification;
 import android.testing.TestableContext;
 import android.testing.TestableResources;
@@ -49,8 +52,10 @@ import com.android.car.notification.template.GroupSummaryNotificationViewHolder;
 import com.android.car.notification.template.InboxNotificationViewHolder;
 import com.android.car.notification.template.MessageNotificationViewHolder;
 import com.android.car.notification.template.ProgressNotificationViewHolder;
+import com.android.systemui.car.Flags;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -61,6 +66,9 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class CarNotificationViewAdapterTest {
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     private static final String PKG_1 = "package_1";
     private static final String OP_PKG = "OpPackage";
@@ -516,6 +524,26 @@ public class CarNotificationViewAdapterTest {
         RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
                 NotificationViewType.BASIC_IN_GROUP);
         mCarNotificationViewAdapter.onBindViewHolder(vh, 2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
+    public void isDismissible_promotedNotificationsEnabled_nonDismissible_returnsFalse() {
+        Looper.prepare();
+
+        initializeWithFactory();
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
+        mNotification1.getNotification().flags =
+                mNotification1.getNotification().flags | Notification.FLAG_NO_DISMISS;
+        mCarNotificationViewAdapter.setNotifications(
+                mNotificationGroupList1, /* setRecyclerViewListHeaderAndFooter= */ false);
+
+        RecyclerView.ViewHolder vh = mCarNotificationViewAdapter.createViewHolder(null,
+                NotificationViewType.BASIC);
+        mCarNotificationViewAdapter.onBindViewHolder(vh, 0);
+
+        assertThat(((CarNotificationBaseViewHolder) vh).isDismissible()).isFalse();
     }
 
     @Test

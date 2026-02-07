@@ -300,7 +300,7 @@ public class NotificationGroupTest {
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_PROMOTED_NOTIFICATIONS)
-    public void isDismissible_promotedNotificationsEnabled_ongoingAndNoDismiss_returnsFalse() {
+    public void isDismissible_promotedNotificationsEnabled_nonDismissible_returnsFalse() {
         mNotification1.getNotification().flags =
                 mNotification1.getNotification().flags | Notification.FLAG_ONGOING_EVENT;
         mNotification1.getNotification().flags =

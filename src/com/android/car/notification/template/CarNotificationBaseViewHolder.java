@@ -379,9 +379,8 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
             return true;
         }
 
-        if (promotedNotifications()
-                && getAlertEntry().getStatusBarNotification().isNonDismissable()) {
-            return false;
+        if (promotedNotifications()) {
+            return !getAlertEntry().getStatusBarNotification().isNonDismissable();
         }
 
         return (getAlertEntry().getNotification().flags
