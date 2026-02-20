@@ -28,7 +28,7 @@
     <string name="canned_reply_message" msgid="7959257272917598063">"اکنون درحال رانندگی هستم."</string>
     <string name="toast_message_sent_success" msgid="1159956191974273064">"پیام باموفقیت ارسال شد."</string>
     <string name="notification_service_label" msgid="7512186049723777468">"سرویس شنونده اعلان خودرو"</string>
-    <string name="notifications" msgid="2865534625906329283">"مرکز اعلان"</string>
+    <string name="notifications" msgid="2865534625906329283">"مرکز اعلان‌ها"</string>
     <string name="clear_all" msgid="1845314281571237722">"پاک کردن همه"</string>
     <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
     <string name="show_more" msgid="7291378544926443344">"بیشتر نشان دادن"</string>
@@ -56,5 +56,5 @@
     <string name="hun_suppression_channel_name" msgid="8298850157350352525">"سرکوب «مراقب باش»"</string>
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"از جدیدترین‌ها مطلع باشید"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"روی رانندگی تمرکز کنید"</string>
-    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"چند اعلان جدید در «مرکز اعلان» ذخیره شده است"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"چند اعلان جدید در «مرکز اعلان‌ها» ذخیره شده است"</string>
 </resources>
