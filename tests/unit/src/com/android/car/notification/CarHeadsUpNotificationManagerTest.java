@@ -626,4 +626,15 @@ public class CarHeadsUpNotificationManagerTest {
         when(headsUpEntry.getNotificationView()).thenReturn(headsUpNotificationView);
         return headsUpEntry;
     }
+
+    @Test
+    public void showHun_activeNotification_addedToQueue()
+            throws PackageManager.NameNotFoundException {
+        createCarHeadsUpNotificationManager();
+        setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
+
+        mManager.showHun(mAlertEntryMessageHeadsUp);
+
+        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryMessageHeadsUp);
+    }
 }

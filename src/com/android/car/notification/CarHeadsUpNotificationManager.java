@@ -281,6 +281,23 @@ public class CarHeadsUpNotificationManager
             return false;
         }
 
+        showOrScheduleHeadsUp(alertEntry);
+        return true;
+    }
+
+    /**
+     * Shows a heads-up notification for the given {@link AlertEntry}.
+     */
+    // TODO (b/485657599): Evaluate how this HUN should be queued against other existing HUNs
+    public void showHun(AlertEntry alertEntry) {
+        if (!canShowOrScheduleHeadsUp(alertEntry)) {
+            return;
+        }
+        showOrScheduleHeadsUp(alertEntry);
+    }
+
+    private void showOrScheduleHeadsUp(AlertEntry alertEntry) {
+        boolean isActiveHunUpdate = canUpdate(alertEntry);
         if (mIsSuppressAndThrottleHeadsUp && !isActiveHunUpdate) {
             // never throttle an update to an active HUN already shown to user
             mCarHeadsUpNotificationQueue.addToQueue(alertEntry);
@@ -289,7 +306,6 @@ public class CarHeadsUpNotificationManager
         } else {
             showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry));
         }
-        return true;
     }
 
     private void showOrScheduleCallHun(AlertEntry alertEntry) {

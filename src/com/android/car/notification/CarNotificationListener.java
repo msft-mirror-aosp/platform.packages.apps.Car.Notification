@@ -247,6 +247,16 @@ public class CarNotificationListener extends NotificationListenerService impleme
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * Shows the notification with the given key as a heads-up notification.
+     */
+    public void showHun(String key) {
+        AlertEntry alertEntry = mActiveNotifications.get(key);
+        if (alertEntry != null) {
+            mHeadsUpManager.showHun(alertEntry);
+        }
+    }
+
     @Override
     public RankingMap getCurrentRanking() {
         return mRankingMap;

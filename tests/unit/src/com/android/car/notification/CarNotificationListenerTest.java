@@ -428,4 +428,16 @@ public class CarNotificationListenerTest {
         mRankingMap = new NotificationListenerService.RankingMap(
                 new NotificationListenerService.Ranking[]{ranking});
     }
+
+    @Test
+    public void showHun_notifiesHeadsUpManager() {
+        testingHeadsUpNotification(false);
+        UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
+        when(mStatusBarNotification.getUser()).thenReturn(userHandle);
+        mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
+
+        mCarNotificationListener.showHun(TEST_KEY);
+
+        verify(mCarHeadsUpNotificationManager).showHun(any(AlertEntry.class));
+    }
 }
