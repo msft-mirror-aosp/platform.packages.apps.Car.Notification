@@ -15,20 +15,11 @@
  */
 package com.android.car.notification.template;
 
-import static android.app.Notification.EXTRA_SUBSTITUTE_APP_NAME;
-
-import android.annotation.Nullable;
-import android.app.Notification;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -45,6 +36,7 @@ import com.android.car.notification.CarNotificationItemTouchListener;
 import com.android.car.notification.CarNotificationViewAdapter;
 import com.android.car.notification.NotificationClickHandlerFactory;
 import com.android.car.notification.NotificationGroup;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -224,7 +216,8 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
         mNotificationGroup = group;
         mParentAdapter = parentAdapter;
         mSummaryNotification = mNotificationGroup.getGroupSummaryNotification();
-        mHeaderName = loadHeaderAppName(mSummaryNotification.getStatusBarNotification());
+        mHeaderName = NotificationUtils.getAppName(getContext(),
+                mSummaryNotification.getStatusBarNotification());
         mExpandedGroupHeaderTextView.setText(mHeaderName);
 
         // Bind the notification's data to the headerView.
@@ -464,46 +457,6 @@ public class GroupNotificationViewHolder extends CarNotificationBaseViewHolder
 
             c.drawRect(left, top, right, bottom, mPaint);
         }
-    }
-
-    /**
-     * Fetches the application label given the notification. If the notification is a system
-     * generated message notification that is posting on behalf of another application, that
-     * application's name is used.
-     *
-     * The system permission {@link android.Manifest.permission#SUBSTITUTE_NOTIFICATION_APP_NAME}
-     * is required to post on behalf of another application. The notification extra should also
-     * contain a key {@link Notification#EXTRA_SUBSTITUTE_APP_NAME} with the value of
-     * the appropriate application name.
-     *
-     * @return application label. Returns {@code null} when application name is not found.
-     */
-    @Nullable
-    private String loadHeaderAppName(StatusBarNotification sbn) {
-        Context packageContext = sbn.getPackageContext(getContext());
-        PackageManager pm = packageContext.getPackageManager();
-        Notification notification = sbn.getNotification();
-        CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
-        String subName = notification.extras.getString(EXTRA_SUBSTITUTE_APP_NAME);
-        if (subName != null) {
-            // Only system packages which lump together a bunch of unrelated stuff may substitute a
-            // different name to make the purpose of the notification more clear.
-            // The correct package label should always be accessible via SystemUI.
-            String pkg = sbn.getPackageName();
-            if (PackageManager.PERMISSION_GRANTED == pm.checkPermission(
-                    android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME, pkg)) {
-                name = subName;
-            } else {
-                Log.w(TAG, "warning: pkg "
-                        + pkg + " attempting to substitute app name '" + subName
-                        + "' without holding perm "
-                        + android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME);
-            }
-        }
-        if (TextUtils.isEmpty(name)) {
-            return null;
-        }
-        return String.valueOf(name);
     }
 
     private enum FocusRequestStates {

@@ -869,7 +869,7 @@ public class CarHeadsUpNotificationManager
             boolean remove) {
         PromotedNotificationsRepository pnr =
                 PromotedNotificationsRepository.Companion.getInstance();
-        pnr.updateFromAlertEntries(Collections.singletonList(changedEntry),
+        pnr.updateFromAlertEntries(mContext, Collections.singletonList(changedEntry),
                 /* isHeadsUp= */ true, remove);
     }
 
