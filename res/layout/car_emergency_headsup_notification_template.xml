@@ -51,12 +51,6 @@
                     android:layout_marginStart="@dimen/card_start_margin"
                     app:isHeadsUp="true"/>
 
-                <include
-                    layout="@layout/dismiss_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"/>
 
                 <com.android.car.notification.template.CarNotificationBodyView
                     android:id="@+id/notification_body"

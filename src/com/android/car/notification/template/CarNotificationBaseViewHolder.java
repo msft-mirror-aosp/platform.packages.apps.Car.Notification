@@ -25,7 +25,6 @@ import android.app.Notification;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ImageButton;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.cardview.widget.CardView;
@@ -42,6 +41,7 @@ import com.android.car.notification.R;
 public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHolder {
     private final Context mContext;
     private final NotificationClickHandlerFactory mClickHandlerFactory;
+    private boolean mIsRebinding;
 
     @Nullable
     private final CardView mCardView; // can be null for group child or group summary notification
@@ -54,7 +54,7 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
     @Nullable
     private final CarNotificationActionsView mActionsView;
     @Nullable
-    private final ImageButton mDismissButton;
+    private final CarNotificationActionButton mDismissButton;
     private final float mIsSeenAlpha;
     private final boolean mUseCustomColorForWarningNotification;
     private final boolean mUseCustomColorForInformationNotification;
@@ -136,9 +136,13 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         mFocusChangeListener = (oldFocus, newFocus) -> {
             if (mDismissButton != null && !mAlwaysShowDismissButton) {
                 // The dismiss button should only be visible when the focus is on this notification
-                // or within it. Use alpha rather than visibility so that focus can move up to the
-                // previous notification's dismiss button when action buttons are not present.
-                mDismissButton.setImageAlpha(itemView.hasFocus() ? 255 : 0);
+                // or within it.
+                boolean hasFocus = itemView.hasFocus();
+                mDismissButton.setAlpha(hasFocus ? 1.0f : 0.0f);
+                mDismissButton.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
+                if (mActionsView != null) {
+                    mActionsView.updateVisibility();
+                }
             }
         };
         mDefaultBackgroundColor = mContext.getColor(R.color.notification_background_color);
@@ -177,7 +181,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      */
     @CallSuper
     public void bind(AlertEntry alertEntry, boolean isInGroup, boolean isHeadsUp, boolean isSeen) {
+        mIsRebinding = mAlertEntry != null && mAlertEntry.getKey().equals(alertEntry.getKey());
         reset();
+        mIsRebinding = false;
         mIsSeen = isSeen;
         mAlertEntry = alertEntry;
 
@@ -333,7 +339,9 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
      */
     @CallSuper
     void reset() {
-        mAlertEntry = null;
+        if (!mIsRebinding) {
+            mAlertEntry = null;
+        }
         mBackgroundColor = mDefaultBackgroundColor;
         mInitializedColors = false;
         mIsSeen = false;
@@ -355,12 +363,15 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
         }
 
         itemView.getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusChangeListener);
-        if (mDismissButton != null) {
-            if (!mAlwaysShowDismissButton) {
-                mDismissButton.setImageAlpha(0);
-            }
-            mDismissButton.setVisibility(View.GONE);
+
+        if (mDismissButton == null || mIsRebinding) {
+            return;
         }
+
+        if (!mAlwaysShowDismissButton) {
+            mDismissButton.setAlpha(0.0f);
+        }
+        mDismissButton.setVisibility(View.GONE);
     }
 
     /**
@@ -396,10 +407,10 @@ public abstract class CarNotificationBaseViewHolder extends RecyclerView.ViewHol
             hideDismissButton();
             return;
         }
-        if (!mAlwaysShowDismissButton) {
-            mDismissButton.setImageAlpha(0);
-        }
-        mDismissButton.setVisibility(View.VISIBLE);
+        boolean hasFocus = itemView.hasFocus();
+        mDismissButton.setAlpha(mAlwaysShowDismissButton || hasFocus ? 1.0f : 0.0f);
+        mDismissButton.setVisibility(
+                mAlwaysShowDismissButton || hasFocus ? View.VISIBLE : View.GONE);
         if (!isHeadsUp) {
             // Only set the click listener here for panel notifications - HUNs already have one
             // provided from the CarHeadsUpNotificationManager
