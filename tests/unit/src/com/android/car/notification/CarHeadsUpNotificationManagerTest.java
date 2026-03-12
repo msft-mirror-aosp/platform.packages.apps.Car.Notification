@@ -628,13 +628,26 @@ public class CarHeadsUpNotificationManagerTest {
     }
 
     @Test
-    public void showHun_activeNotification_addedToQueue()
+    public void showHunImmediately_showsWithoutDismissingActiveHuns()
             throws PackageManager.NameNotFoundException {
+        Looper.prepare();
         createCarHeadsUpNotificationManager();
         setPackageInfo(PKG_1, /* isSystem= */ false, /* isSignedWithPlatformKey= */ false);
 
-        mManager.showHun(mAlertEntryMessageHeadsUp);
+        HeadsUpEntry headsUpEntry = createMockHeadsUpEntry(
+                mAlertEntryNavigationHeadsUp.getKey());
+        when(headsUpEntry.getNotification()).thenReturn(
+                mAlertEntryNavigationHeadsUp.getNotification());
+        when(headsUpEntry.getNotificationView()).thenReturn(mock(View.class));
 
-        verify(mCarHeadsUpNotificationQueue).addToQueue(mAlertEntryMessageHeadsUp);
+        mManager.addActiveHeadsUpNotification(headsUpEntry);
+
+        mManager.showHunImmediately(mAlertEntryMessageHeadsUp);
+
+        verify(mCarHeadsUpNotificationQueue, never()).addToQueue(any());
+        assertThat(mManager.getActiveHeadsUpNotifications().containsKey(
+                mAlertEntryNavigationHeadsUp.getKey())).isTrue();
+        assertThat(mManager.getActiveHeadsUpNotifications().containsKey(
+                mAlertEntryMessageHeadsUp.getKey())).isTrue();
     }
 }

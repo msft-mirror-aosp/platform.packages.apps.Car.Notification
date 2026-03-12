@@ -288,12 +288,12 @@ public class CarHeadsUpNotificationManager
     /**
      * Shows a heads-up notification for the given {@link AlertEntry}.
      */
-    // TODO (b/485657599): Evaluate how this HUN should be queued against other existing HUNs
-    public void showHun(AlertEntry alertEntry) {
+    public void showHunImmediately(AlertEntry alertEntry) {
         if (!canShowOrScheduleHeadsUp(alertEntry)) {
             return;
         }
-        showOrScheduleHeadsUp(alertEntry);
+
+        showHeadsUp(mPreprocessingManager.optimizeForDriving(alertEntry));
     }
 
     private void showOrScheduleHeadsUp(AlertEntry alertEntry) {
@@ -509,8 +509,10 @@ public class CarHeadsUpNotificationManager
             currentNotification.setNotificationView(mInflater.inflate(
                     notificationTypeItem.getHeadsUpTemplate(),
                     null));
+            boolean isPromoted = promotedNotifications()
+                    && hasCarPromotableCharacteristics(alertEntry);
             mHunContainer.displayNotification(currentNotification.getNotificationView(),
-                    notificationTypeItem);
+                    notificationTypeItem, isPromoted);
             currentNotification.setViewHolder(
                     notificationTypeItem.getViewHolder(currentNotification.getNotificationView(),
                             mClickHandlerFactory));
