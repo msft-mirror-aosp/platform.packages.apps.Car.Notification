@@ -16,10 +16,13 @@
 
 package com.android.car.notification;
 
+import static android.text.TextUtils.isEmpty;
+
 import static com.android.systemui.car.Flags.promotedNotifications;
 
 import android.annotation.ColorInt;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
@@ -372,5 +375,53 @@ public class NotificationUtils {
                 && !notification.isGroupSummary()
                 && !notification.containsCustomViews()
                 && !notification.isColorizedRequested();
+    }
+
+    /**
+     * Fetches the application label given the notification. If the notification is
+     * a system
+     * generated message notification that is posting on behalf of another
+     * application, that
+     * application's name is used.
+     *
+     * The system permission
+     * {@link android.Manifest.permission#SUBSTITUTE_NOTIFICATION_APP_NAME}
+     * is required to post on behalf of another application. The notification extra
+     * should also
+     * contain a key {@link Notification#EXTRA_SUBSTITUTE_APP_NAME} with the value
+     * of
+     * the appropriate application name.
+     *
+     * @return application label. Returns {@code null} when application name is not
+     *         found.
+     */
+    @Nullable
+    public static String getAppName(Context context, StatusBarNotification sbn) {
+        final Context packageContext = sbn.getPackageContext(context);
+        final PackageManager pm = packageContext.getPackageManager();
+        final Notification notification = sbn.getNotification();
+        CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
+        if (notification.extras.containsKey(Notification.EXTRA_SUBSTITUTE_APP_NAME)) {
+            // Only system packages which lump together a bunch of unrelated stuff may
+            // substitute a
+            // different name to make the purpose of the notification more clear
+            // The correct package label should always be accessible via SystemUI
+            final String subName = notification.extras.getString(
+                    Notification.EXTRA_SUBSTITUTE_APP_NAME);
+            final String pkg = sbn.getPackageName();
+            if (PackageManager.PERMISSION_GRANTED == pm.checkPermission(
+                    android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME, pkg)) {
+                name = subName;
+            } else {
+                Log.w(TAG, "warning: pkg "
+                        + pkg + " attempting to substitute app name '" + subName
+                        + "' without holding perm "
+                        + android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME);
+            }
+        }
+        if (isEmpty(name)) {
+            return null;
+        }
+        return String.valueOf(name);
     }
 }

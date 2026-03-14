@@ -16,6 +16,7 @@
 
 package com.android.car.notification
 
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,6 +68,7 @@ class PromotedNotificationsRepository private constructor() {
      * in parameters and whether or not the notification is considered promoted.
      */
     fun updateFromAlertEntries(
+        context: Context,
         alertEntries: List<AlertEntry>,
         isHeadsUp: Boolean,
         remove: Boolean
@@ -81,7 +83,8 @@ class PromotedNotificationsRepository private constructor() {
                         isHeadsUp,
                         entry.postTime,
                         entry.notification.shortCriticalText,
-                        entry.notification.smallIcon
+                        entry.notification.smallIcon,
+                        NotificationUtils.getAppName(context, entry.statusBarNotification)
                     )
                 )
             }

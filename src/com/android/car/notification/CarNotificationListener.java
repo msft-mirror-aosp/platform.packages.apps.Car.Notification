@@ -340,7 +340,7 @@ public class CarNotificationListener extends NotificationListenerService impleme
             boolean removed) {
         PromotedNotificationsRepository pnr =
                 PromotedNotificationsRepository.Companion.getInstance();
-        pnr.updateFromAlertEntries(changedEntries, /* isHeadsUp= */ false, removed);
+        pnr.updateFromAlertEntries(getContext(), changedEntries, /* isHeadsUp= */ false, removed);
     }
 
     @Override

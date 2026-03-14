@@ -15,13 +15,10 @@
  */
 package com.android.car.notification.template;
 
-import static android.app.Notification.EXTRA_SUBSTITUTE_APP_NAME;
-
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
@@ -32,15 +29,14 @@ import android.text.BidiFormatter;
 import android.text.TextDirectionHeuristics;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.DateTimeView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import com.android.car.notification.AlertEntry;
+import com.android.car.notification.NotificationUtils;
 import com.android.car.notification.R;
 
 /**
@@ -155,7 +151,7 @@ public class CarNotificationHeaderView extends LinearLayout {
         if (mHeaderTextView != null) {
             mHeaderTextView.setVisibility(View.VISIBLE);
         }
-        String appName = loadHeaderAppName(sbn);
+        String appName = NotificationUtils.getAppName(mContext, sbn);
 
         if (mIsHeadsUp) {
             if (mHeaderTextView != null) {
@@ -241,45 +237,5 @@ public class CarNotificationHeaderView extends LinearLayout {
             mTimeView.setTime(0);
             setTimeTextColor(mDefaultTextColor);
         }
-    }
-
-    /**
-     * Fetches the application label given the notification. If the notification is a system
-     * generated message notification that is posting on behalf of another application, that
-     * application's name is used.
-     *
-     * The system permission {@link android.Manifest.permission#SUBSTITUTE_NOTIFICATION_APP_NAME}
-     * is required to post on behalf of another application. The notification extra should also
-     * contain a key {@link Notification#EXTRA_SUBSTITUTE_APP_NAME} with the value of
-     * the appropriate application name.
-     *
-     * @return application label. Returns {@code null} when application name is not found.
-     */
-    @Nullable
-    private String loadHeaderAppName(StatusBarNotification sbn) {
-        final Context packageContext = sbn.getPackageContext(mContext);
-        final PackageManager pm = packageContext.getPackageManager();
-        final Notification notification = sbn.getNotification();
-        CharSequence name = pm.getApplicationLabel(packageContext.getApplicationInfo());
-        if (notification.extras.containsKey(EXTRA_SUBSTITUTE_APP_NAME)) {
-            // Only system packages which lump together a bunch of unrelated stuff may substitute a
-            // different name to make the purpose of the notification more clear
-            // The correct package label should always be accessible via SystemUI
-            final String subName = notification.extras.getString(EXTRA_SUBSTITUTE_APP_NAME);
-            final String pkg = sbn.getPackageName();
-            if (PackageManager.PERMISSION_GRANTED == pm.checkPermission(
-                    android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME, pkg)) {
-                name = subName;
-            } else {
-                Log.w(TAG, "warning: pkg "
-                        + pkg + " attempting to substitute app name '" + subName
-                        + "' without holding perm "
-                        + android.Manifest.permission.SUBSTITUTE_NOTIFICATION_APP_NAME);
-            }
-        }
-        if (TextUtils.isEmpty(name)) {
-            return null;
-        }
-        return String.valueOf(name);
     }
 }

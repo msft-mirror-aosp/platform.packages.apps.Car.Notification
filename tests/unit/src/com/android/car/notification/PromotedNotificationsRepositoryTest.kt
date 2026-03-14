@@ -38,6 +38,11 @@ class PromotedNotificationsRepositoryTest {
     private lateinit var mockAlertEntry: AlertEntry
     @Mock
     private lateinit var mockNotification: Notification
+    @Mock
+    private lateinit var mockContext: android.content.Context
+    @Mock
+    private lateinit var mockStatusBarNotification:
+        android.service.notification.StatusBarNotification
 
     @Before
     fun setUp() {
@@ -59,7 +64,8 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null
+                smallIcon = null,
+                appName = "app"
             )
 
             repository.addPromotedNotification(model)
@@ -77,7 +83,8 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null
+                smallIcon = null,
+                appName = "app"
             )
             repository.addPromotedNotification(model)
 
@@ -94,10 +101,18 @@ class PromotedNotificationsRepositoryTest {
             `when`(mockAlertEntry.key).thenReturn("key1")
             `when`(mockAlertEntry.postTime).thenReturn(123L)
             `when`(mockAlertEntry.notification).thenReturn(mockNotification)
+            `when`(mockAlertEntry.statusBarNotification).thenReturn(mockStatusBarNotification)
+            `when`(mockStatusBarNotification.getPackageContext(mockContext)).thenReturn(mockContext)
+            `when`(
+                mockContext.packageManager
+            ).thenReturn(org.mockito.Mockito.mock(android.content.pm.PackageManager::class.java))
+            `when`(mockStatusBarNotification.notification).thenReturn(mockNotification)
             `when`(mockNotification.isPromotedOngoing).thenReturn(true)
             `when`(mockNotification.smallIcon).thenReturn(null)
+            mockNotification.extras = android.os.Bundle()
 
             repository.updateFromAlertEntries(
+                mockContext,
                 listOf(mockAlertEntry),
                     isHeadsUp = false,
                 remove = false
@@ -117,7 +132,8 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null
+                smallIcon = null,
+                appName = "app"
             )
             repository.addPromotedNotification(model)
 
@@ -126,6 +142,7 @@ class PromotedNotificationsRepositoryTest {
             `when`(mockNotification.isPromotedOngoing).thenReturn(false)
 
             repository.updateFromAlertEntries(
+                mockContext,
                 listOf(mockAlertEntry),
                     isHeadsUp = false,
                 remove = false
@@ -144,7 +161,8 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null
+                smallIcon = null,
+                appName = "app"
             )
             repository.addPromotedNotification(model)
 
@@ -152,6 +170,7 @@ class PromotedNotificationsRepositoryTest {
             `when`(mockAlertEntry.notification).thenReturn(mockNotification)
 
             repository.updateFromAlertEntries(
+                mockContext,
                 listOf(mockAlertEntry),
                     isHeadsUp = false,
                 remove = true

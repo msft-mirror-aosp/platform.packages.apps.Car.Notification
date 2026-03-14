@@ -26,7 +26,8 @@ data class PromotedNotificationModel(
     val isHeadsUp: Boolean,
     val postTime: Long,
     val shortCriticalText: String?,
-    val smallIcon: Icon?
+    val smallIcon: Icon?,
+    val appName: String?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -36,6 +37,7 @@ data class PromotedNotificationModel(
         if (isHeadsUp != other.isHeadsUp) return false
         if (postTime != other.postTime) return false
         if (shortCriticalText != other.shortCriticalText) return false
+        if (appName != other.appName) return false
 
         return areIconsEqual(other)
     }
