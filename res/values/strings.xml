@@ -121,4 +121,6 @@
     <string name="hun_suppression_notification_title_drive">Focus on driving</string>
     <!-- Text indicating the description for notification sent to indicate HUN suppression [CHAR_LIMIT=148] -->
     <string name="hun_suppression_notification_description">Some new notifications are saved in the Notification Center</string>
+    <!-- Text indicating the description of the button to dismiss a notification [CHAR_LIMIT=40] -->
+    <string name="dismiss_button_close">Dismiss</string>
 </resources>

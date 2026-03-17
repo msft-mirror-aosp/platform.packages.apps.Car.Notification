@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
@@ -178,6 +179,44 @@ public class CarNotificationActionsView extends LinearLayout implements
     }
 
     /**
+     * Re-evaluates whether the ActionsView should be visible based on the presence of actions
+     * or a visible dismiss button.
+     */
+    public void updateVisibility() {
+        View dismissButton = findViewById(R.id.dismiss_button);
+        boolean hasDismiss = dismissButton != null && dismissButton.getVisibility() == View.VISIBLE;
+        setVisibility((hasActions() || hasDismiss) ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateLayoutParams() {
+        CarNotificationActionButton dismissButton = findViewById(R.id.dismiss_button);
+        View dismissButtonContainer = findViewById(R.id.dismiss_button_container);
+        if (dismissButtonContainer == null || dismissButton == null) {
+            return;
+        }
+        LinearLayout.LayoutParams containerParams =
+                (LinearLayout.LayoutParams) dismissButtonContainer.getLayoutParams();
+        ViewGroup.LayoutParams buttonParams = dismissButton.getLayoutParams();
+
+        if (hasActions()) {
+            containerParams.width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            containerParams.weight = 0f;
+            buttonParams.width = mContext.getResources().getDimensionPixelSize(
+                    R.dimen.action_button_height);
+            dismissButton.setText(null);
+            dismissButton.setImageDrawable(mContext.getDrawable(R.drawable.ic_clear));
+        } else {
+            containerParams.width = 0;
+            containerParams.weight = 1f;
+            buttonParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            dismissButton.setImageDrawable(null);
+            dismissButton.setText(mContext.getString(R.string.dismiss_button_close));
+        }
+        dismissButtonContainer.setLayoutParams(containerParams);
+        dismissButton.setLayoutParams(buttonParams);
+    }
+
+    /**
      * Binds the notification action buttons.
      *
      * @param clickHandlerFactory factory class used to generate {@link OnClickListener}s.
@@ -186,10 +225,6 @@ public class CarNotificationActionsView extends LinearLayout implements
     public void bind(NotificationClickHandlerFactory clickHandlerFactory, AlertEntry alertEntry) {
         Notification notification = alertEntry.getNotification();
         Notification.Action[] actions = notification.actions;
-        if (actions == null || actions.length == 0) {
-            setVisibility(View.GONE);
-            return;
-        }
 
         PreprocessingManager.getInstance(mContext).addCallStateListener(this);
 
@@ -211,11 +246,13 @@ public class CarNotificationActionsView extends LinearLayout implements
                 createReplyButton(clickHandlerFactory, alertEntry);
             }
             createMuteButton(clickHandlerFactory, alertEntry, canReplyMessage);
+            updateLayoutParams();
+            updateVisibility();
             return;
         }
 
         Context packageContext = alertEntry.getStatusBarNotification().getPackageContext(mContext);
-        int length = Math.min(actions.length, MAX_NUM_ACTIONS);
+        int length = actions == null ? 0 : Math.min(actions.length, MAX_NUM_ACTIONS);
         for (int i = 0; i < length; i++) {
             Notification.Action action = actions[i];
             CarNotificationActionButton button = mActionButtons.get(i);
@@ -235,7 +272,7 @@ public class CarNotificationActionsView extends LinearLayout implements
             }
         }
 
-        if (mIsCategoryCall) {
+        if (mIsCategoryCall && length >= 2) {
             // Notification framework is hardcoded to provide first action button as negative
             // action and second action button as answer action.
             // See {@link android.app.Notification.CallStyle#getActionsListWithSystemActions()}
@@ -244,6 +281,9 @@ public class CarNotificationActionsView extends LinearLayout implements
             mActionButtons.get(1).setTextColor(mCallButtonTextColor);
             mActionButtons.get(1).setBackground(mCallButtonBackground);
         }
+
+        updateLayoutParams();
+        updateVisibility();
     }
 
     /**
@@ -337,6 +377,15 @@ public class CarNotificationActionsView extends LinearLayout implements
         button.setTextColor(isMuted ? mUnmuteTextColor : mMuteTextColor);
         button.setImageDrawable(isMuted ? mUnmuteButtonDrawable : mMuteButtonDrawable);
         button.setBackground(isMuted ? mUnmuteButtonBackground : mActionButtonBackground);
+    }
+
+    private boolean hasActions() {
+        for (CarNotificationActionButton button : mActionButtons) {
+            if (button != null && button.getVisibility() == View.VISIBLE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Implementation of {@link PreprocessingManager.CallStateListener} **/

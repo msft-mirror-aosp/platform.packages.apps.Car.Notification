@@ -38,6 +38,8 @@ import android.os.Handler;
 import android.os.UserHandle;
 import android.service.notification.StatusBarNotification;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -134,6 +136,100 @@ public class CarNotificationActionsViewTest {
 
         when(mCarAssistUtils.hasActiveAssistant()).thenReturn(true);
         when(mCarAssistUtils.isFallbackAssistantEnabled()).thenReturn(false);
+    }
+
+
+    @Test
+    public void onBind_hasActions_updatesDismissButtonLayoutParams() {
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+
+        View dismissButtonContainer = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button_container);
+        CarNotificationActionButton dismissButton = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button);
+
+        LinearLayout.LayoutParams containerParams =
+                (LinearLayout.LayoutParams) dismissButtonContainer.getLayoutParams();
+        ViewGroup.LayoutParams buttonParams = dismissButton.getLayoutParams();
+
+        assertThat(containerParams.width).isEqualTo(LinearLayout.LayoutParams.WRAP_CONTENT);
+        assertThat(containerParams.weight).isEqualTo(0f);
+        assertThat(buttonParams.width).isEqualTo(mContext.getResources().getDimensionPixelSize(
+                R.dimen.action_button_height));
+        assertThat(dismissButton.getText().toString()).isEmpty();
+        assertThat(dismissButton.getDrawable()).isNotNull();
+    }
+
+    @Test
+    public void onBind_noActions_updatesDismissButtonLayoutParams() {
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ false);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+
+        View dismissButtonContainer = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button_container);
+        CarNotificationActionButton dismissButton = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button);
+
+        LinearLayout.LayoutParams containerParams =
+                (LinearLayout.LayoutParams) dismissButtonContainer.getLayoutParams();
+        ViewGroup.LayoutParams buttonParams = dismissButton.getLayoutParams();
+
+        assertThat(containerParams.width).isEqualTo(0);
+        assertThat(containerParams.weight).isEqualTo(1f);
+        assertThat(buttonParams.width).isEqualTo(ViewGroup.LayoutParams.MATCH_PARENT);
+        assertThat(dismissButton.getText()).isEqualTo(mContext.getString(
+                R.string.dismiss_button_close));
+        assertThat(dismissButton.getDrawable()).isNull();
+    }
+
+    @Test
+    public void updateVisibility_hasActions_isVisible() {
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ true);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+
+        assertThat(mCarNotificationActionsView.getVisibility()).isEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void updateVisibility_noActions_hasDismissButton_isVisible() {
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ false);
+
+        CarNotificationActionButton dismissButton = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button);
+        dismissButton.setVisibility(View.VISIBLE);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+        mCarNotificationActionsView.updateVisibility();
+
+        assertThat(mCarNotificationActionsView.getVisibility()).isEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void updateVisibility_noActions_noDismissButton_isHidden() {
+        finishInflateWithIsCall(/* isCall= */ false);
+        statusBarNotificationHasActions(/* hasActions= */ false);
+
+        CarNotificationActionButton dismissButton = mCarNotificationActionsView.findViewById(
+                R.id.dismiss_button);
+        dismissButton.setVisibility(View.GONE);
+
+        mCarNotificationActionsView.bind(mNotificationClickHandlerFactory,
+                new AlertEntry(mStatusBarNotification));
+        mCarNotificationActionsView.updateVisibility();
+
+        assertThat(mCarNotificationActionsView.getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test

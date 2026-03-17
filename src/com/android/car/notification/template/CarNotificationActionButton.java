@@ -85,11 +85,16 @@ public class CarNotificationActionButton extends LinearLayout {
      */
     public void setText(String text) {
         mTextView.setText(text);
-        if (text == null) {
+        MarginLayoutParams params = (MarginLayoutParams) mImageView.getLayoutParams();
+        if (text == null || text.trim().isEmpty()) {
             mTextView.setVisibility(View.GONE);
+            params.setMarginEnd(0);
         } else {
             mTextView.setVisibility(View.VISIBLE);
+            params.setMarginEnd(getContext().getResources().getDimensionPixelSize(
+                    R.dimen.car_action_button_icon_margin));
         }
+        mImageView.setLayoutParams(params);
     }
 
     /**
