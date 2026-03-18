@@ -57,4 +57,6 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"ഏറ്റവും പുതിയ വിവരങ്ങൾ അപ്പപ്പോൾ അറിയൂ"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"ഡ്രൈവിംഗിൽ ശ്രദ്ധിക്കുക"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"അറിയിപ്പ് കേന്ദ്രത്തിൽ ചില പുതിയ അറിയിപ്പുകൾ സംരക്ഷിച്ചിരിക്കുന്നു"</string>
+    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
+    <skip />
 </resources>

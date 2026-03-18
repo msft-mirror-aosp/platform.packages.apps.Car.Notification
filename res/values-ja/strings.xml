@@ -57,4 +57,6 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"最新の通知をチェック"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"運転に集中してください"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"新しい通知が何件か通知センターに保存されています"</string>
+    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
+    <skip />
 </resources>

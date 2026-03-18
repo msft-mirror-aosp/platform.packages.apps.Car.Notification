@@ -61,4 +61,6 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Bądź na bieżąco"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Skup się na prowadzeniu pojazdu"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Niektóre nowe powiadomienia są zapisywane w centrum powiadomień"</string>
+    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
+    <skip />
 </resources>
