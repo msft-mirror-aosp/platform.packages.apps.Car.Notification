@@ -57,4 +57,6 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"အပ်ဒိတ်ဖြစ်နေရန်"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"မောင်းနှင်မှုကို အာရုံပြုရန်"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"အကြောင်းကြားချက်အသစ် အချို့ကို ‘အကြောင်းကြားချက်စင်တာ’ တွင် သိမ်းသည်"</string>
+    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
+    <skip />
 </resources>
