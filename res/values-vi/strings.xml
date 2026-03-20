@@ -57,6 +57,5 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Nắm bắt thông tin mới nhất"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Tập trung lái xe"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Một số thông báo mới được lưu vào Trung tâm thông báo"</string>
-    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
-    <skip />
+    <string name="dismiss_button_close" msgid="1414244190597057519">"Đóng"</string>
 </resources>
