@@ -59,6 +59,5 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"Budite u toku s najnovijim informacijama"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"Fokusirajte se na vožnju"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"Neka nova obavještenja se pohranjuju u Centru za obavještenja"</string>
-    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
-    <skip />
+    <string name="dismiss_button_close" msgid="1414244190597057519">"Odbaci"</string>
 </resources>

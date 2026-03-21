@@ -57,6 +57,5 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"पछिल्लो अवस्थाका बारेमा जानकार रहनुहोस्"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"सवारी साधन चलाउँदा ध्यान दिनुहोस्"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"केही नयाँ सूचनाहरू \"सूचना केन्द्र\" मा सेभ गरिन्छन्"</string>
-    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
-    <skip />
+    <string name="dismiss_button_close" msgid="1414244190597057519">"बन्द गर्नुहोस्"</string>
 </resources>

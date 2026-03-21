@@ -57,6 +57,5 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"隨時掌握最新消息"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"專心開車"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"系統會將某些新通知儲存到通知中心"</string>
-    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
-    <skip />
+    <string name="dismiss_button_close" msgid="1414244190597057519">"關閉"</string>
 </resources>
