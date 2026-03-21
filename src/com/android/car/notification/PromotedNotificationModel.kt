@@ -26,7 +26,7 @@ data class PromotedNotificationModel(
     val isHeadsUp: Boolean,
     val postTime: Long,
     val shortCriticalText: String?,
-    val smallIcon: Icon?,
+    val icon: Icon?,
     val appName: String?
 ) {
     override fun equals(other: Any?): Boolean {
@@ -43,22 +43,22 @@ data class PromotedNotificationModel(
     }
 
     fun areIconsEqual(other: PromotedNotificationModel): Boolean {
-        if (smallIcon == other.smallIcon) {
+        if (icon == other.icon) {
             return true
         }
-        if (smallIcon == null || other.smallIcon == null) {
+        if (icon == null || other.icon == null) {
             return false
         }
-        if (smallIcon.sameAs(other.smallIcon)) {
+        if (icon.sameAs(other.icon)) {
             return true
         }
-        val type = smallIcon.type
-        if (type != other.smallIcon.type) {
+        val type = icon.type
+        if (type != other.icon.type) {
             return false
         }
         if (type == Icon.TYPE_BITMAP || type == Icon.TYPE_ADAPTIVE_BITMAP) {
-            val bitmap = smallIcon.bitmap
-            val otherBitmap = other.smallIcon.bitmap
+            val bitmap = icon.bitmap
+            val otherBitmap = other.icon.bitmap
             return bitmap.getWidth() == otherBitmap.getWidth() &&
                     bitmap.getHeight() == otherBitmap.getHeight() &&
                     bitmap.getConfig() == otherBitmap.getConfig() &&

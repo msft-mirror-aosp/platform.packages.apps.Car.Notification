@@ -19,11 +19,9 @@ package com.android.car.notification.template;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.service.notification.StatusBarNotification;
@@ -56,15 +54,6 @@ public class CarNotificationBodyView extends RelativeLayout {
     @ColorInt
     private final int mDefaultSecondaryTextColor;
     private final boolean mDefaultUseLauncherIcon;
-
-    /**
-     * Key that system apps can add to the Notification extras to override the default
-     * {@link R.bool.config_useLauncherIcon} behavior. If this is set to false, a small and a large
-     * icon should be specified to be shown properly in the relevant default configuration.
-     */
-    @VisibleForTesting
-    static final String EXTRA_USE_LAUNCHER_ICON =
-            "com.android.car.notification.EXTRA_USE_LAUNCHER_ICON";
 
     private boolean mIsHeadsUp;
     private boolean mShowBigIcon;
@@ -156,8 +145,8 @@ public class CarNotificationBodyView extends RelativeLayout {
         CharSequence countText = params.getCountText();
         Long when = params.getWhen();
 
-        boolean useLauncherIcon = setUseLauncherIcon(sbn);
-        Drawable launcherIcon = loadAppLauncherIcon(sbn);
+        boolean useLauncherIcon = NotificationUtils.shouldUseLauncherIcon(getContext(), sbn);
+        Drawable launcherIcon = loadAppLauncherIcon(sbn, useLauncherIcon);
         if (mLargeIconView != null) {
             if (useLauncherIcon && launcherIcon != null) {
                 mLargeIconView.setVisibility(View.VISIBLE);
@@ -497,30 +486,16 @@ public class CarNotificationBodyView extends RelativeLayout {
         }
     }
 
-    /**
-     * Returns true if the launcher icon should be used for a given notification.
-     */
-    private boolean setUseLauncherIcon(StatusBarNotification sbn) {
-        Bundle notificationExtras = sbn.getNotification().extras;
-        if (notificationExtras == null) {
-            return getContext().getResources().getBoolean(R.bool.config_useLauncherIcon);
-        }
-
-        if (notificationExtras.containsKey(EXTRA_USE_LAUNCHER_ICON)
-                && NotificationUtils.isSystemApp(getContext(), sbn)) {
-            return notificationExtras.getBoolean(EXTRA_USE_LAUNCHER_ICON);
-        }
-        return getContext().getResources().getBoolean(R.bool.config_useLauncherIcon);
-    }
-
     @Nullable
-    private Drawable loadAppLauncherIcon(StatusBarNotification sbn) {
-        if (!setUseLauncherIcon(sbn)) {
+    private Drawable loadAppLauncherIcon(StatusBarNotification sbn, boolean useLauncherIcon) {
+        if (!useLauncherIcon) {
             return null;
         }
-        Context packageContext = sbn.getPackageContext(getContext());
-        PackageManager pm = packageContext.getPackageManager();
-        return pm.getApplicationIcon(packageContext.getApplicationInfo());
+        Icon launcherIcon = NotificationUtils.getLauncherIcon(getContext(), sbn);
+        if (launcherIcon != null) {
+            return launcherIcon.loadDrawable(getContext());
+        }
+        return null;
     }
 
     @VisibleForTesting
