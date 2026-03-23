@@ -250,10 +250,10 @@ public class CarNotificationListener extends NotificationListenerService impleme
     /**
      * Shows the notification with the given key as a heads-up notification.
      */
-    public void showHun(String key) {
+    public void showHunImmediately(String key) {
         AlertEntry alertEntry = mActiveNotifications.get(key);
         if (alertEntry != null) {
-            mHeadsUpManager.showHun(alertEntry);
+            mHeadsUpManager.showHunImmediately(alertEntry);
         }
     }
 

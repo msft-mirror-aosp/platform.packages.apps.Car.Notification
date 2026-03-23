@@ -430,14 +430,14 @@ public class CarNotificationListenerTest {
     }
 
     @Test
-    public void showHun_notifiesHeadsUpManager() {
+    public void showHun_Immediately_notifiesHeadsUpManager() {
         testingHeadsUpNotification(false);
         UserHandle userHandle = new UserHandle(CURRENT_USER_ID);
         when(mStatusBarNotification.getUser()).thenReturn(userHandle);
         mCarNotificationListener.onNotificationPosted(mStatusBarNotification, mRankingMap);
 
-        mCarNotificationListener.showHun(TEST_KEY);
+        mCarNotificationListener.showHunImmediately(TEST_KEY);
 
-        verify(mCarHeadsUpNotificationManager).showHun(any(AlertEntry.class));
+        verify(mCarHeadsUpNotificationManager).showHunImmediately(any(AlertEntry.class));
     }
 }
