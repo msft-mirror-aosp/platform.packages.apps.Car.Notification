@@ -104,7 +104,7 @@ public class CarHeadsUpNotificationContainerTest {
     @Test
     public void displayNotification_emptyContent_notificationOnlyChildInContentView() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
 
         assertThat(mCarHeadsUpNotificationContainer.getHunContent().getChildCount()).isEqualTo(1);
         assertThat(
@@ -115,10 +115,10 @@ public class CarHeadsUpNotificationContainerTest {
     @Test
     public void displayNotification_lowerImportanceContent_higherImportanceOnTop() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView2,
-                CarNotificationTypeItem.CALL);
+                CarNotificationTypeItem.CALL, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(1).getTag()).isEqualTo(
@@ -128,13 +128,37 @@ public class CarHeadsUpNotificationContainerTest {
     @Test
     public void displayNotification_higherImportanceContent_lowerImportanceBehind() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.CALL);
+                CarNotificationTypeItem.CALL, false);
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView2,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(0).getTag()).isEqualTo(
+                TAG2);
+    }
+
+    @Test
+    public void displayNotification_promotedImportance_higherThanWarningLowerThanEmergency() {
+        mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
+                CarNotificationTypeItem.WARNING, false);
+
+        mCarHeadsUpNotificationContainer.displayNotification(mNotificationView2,
+                CarNotificationTypeItem.EMERGENCY, false);
+
+        mCarHeadsUpNotificationContainer.displayNotification(mNotificationView3,
+                CarNotificationTypeItem.INBOX, true);
+
+        assertThat(
+                mCarHeadsUpNotificationContainer.getHunContent().getChildAt(0).getTag()).isEqualTo(
+                TAG1);
+
+        assertThat(
+                mCarHeadsUpNotificationContainer.getHunContent().getChildAt(1).getTag()).isEqualTo(
+                TAG3);
+
+        assertThat(
+                mCarHeadsUpNotificationContainer.getHunContent().getChildAt(2).getTag()).isEqualTo(
                 TAG2);
     }
 
@@ -143,7 +167,7 @@ public class CarHeadsUpNotificationContainerTest {
         displayOneNotificationOfEveryImportance();
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView6,
-                CarNotificationTypeItem.MESSAGE);
+                CarNotificationTypeItem.MESSAGE, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(1).getTag()).isEqualTo(
@@ -155,7 +179,7 @@ public class CarHeadsUpNotificationContainerTest {
         displayOneNotificationOfEveryImportance();
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView6,
-                CarNotificationTypeItem.CALL);
+                CarNotificationTypeItem.CALL, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(2).getTag()).isEqualTo(
@@ -167,7 +191,7 @@ public class CarHeadsUpNotificationContainerTest {
         displayOneNotificationOfEveryImportance();
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView6,
-                CarNotificationTypeItem.NAVIGATION);
+                CarNotificationTypeItem.NAVIGATION, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(3).getTag()).isEqualTo(
@@ -179,7 +203,7 @@ public class CarHeadsUpNotificationContainerTest {
         displayOneNotificationOfEveryImportance();
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView6,
-                CarNotificationTypeItem.WARNING);
+                CarNotificationTypeItem.WARNING, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(4).getTag()).isEqualTo(
@@ -191,7 +215,7 @@ public class CarHeadsUpNotificationContainerTest {
         displayOneNotificationOfEveryImportance();
 
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView6,
-                CarNotificationTypeItem.EMERGENCY);
+                CarNotificationTypeItem.EMERGENCY, false);
 
         assertThat(
                 mCarHeadsUpNotificationContainer.getHunContent().getChildAt(5).getTag()).isEqualTo(
@@ -201,7 +225,7 @@ public class CarHeadsUpNotificationContainerTest {
     @Test
     public void removeNotification_oneViewInContent_contentEmpty() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
 
         mCarHeadsUpNotificationContainer.removeNotification(mNotificationView1);
 
@@ -273,14 +297,14 @@ public class CarHeadsUpNotificationContainerTest {
     public void displayNotification_shouldShow_callsPresentContainer() {
         // Base setup makes shouldShowHunPanel() true
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
         verify(mCarHeadsUpNotificationContainer).presentContainer();
     }
 
     @Test
     public void removeNotification_shouldHide_callsDismissContainer() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
         mCarHeadsUpNotificationContainer.removeNotification(mNotificationView1);
         verify(mCarHeadsUpNotificationContainer).dismissContainer();
     }
@@ -303,14 +327,14 @@ public class CarHeadsUpNotificationContainerTest {
 
     private void displayOneNotificationOfEveryImportance() {
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView1,
-                CarNotificationTypeItem.INBOX);
+                CarNotificationTypeItem.INBOX, false);
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView2,
-                CarNotificationTypeItem.CALL);
+                CarNotificationTypeItem.CALL, false);
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView3,
-                CarNotificationTypeItem.NAVIGATION);
+                CarNotificationTypeItem.NAVIGATION, false);
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView4,
-                CarNotificationTypeItem.WARNING);
+                CarNotificationTypeItem.WARNING, false);
         mCarHeadsUpNotificationContainer.displayNotification(mNotificationView5,
-                CarNotificationTypeItem.EMERGENCY);
+                CarNotificationTypeItem.EMERGENCY, false);
     }
 }

@@ -95,8 +95,10 @@ public class CarHeadsUpNotificationContainer {
      * its {@link HunImportance},
      */
     public void displayNotification(View notificationView,
-            CarNotificationTypeItem notificationTypeItem) {
-        HunImportance hunImportance = getImportanceForCarNotificationTypeItem(notificationTypeItem);
+            CarNotificationTypeItem notificationTypeItem, boolean isPromoted) {
+        HunImportance hunImportance = isPromoted
+                ? HunImportance.PROMOTED
+                : getImportanceForCarNotificationTypeItem(notificationTypeItem);
 
         displayNotificationInner(notificationView, hunImportance);
 
@@ -220,7 +222,8 @@ public class CarHeadsUpNotificationContainer {
         CALL(/* level= */ 1),
         NAVIGATION(/* level= */ 2),
         WARNING(/* level= */ 3),
-        EMERGENCY(/* level= */ 4);
+        PROMOTED(/* level= */ 4),
+        EMERGENCY(/* level= */ 5);
 
         private final Integer mLevel;
 

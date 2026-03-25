@@ -57,6 +57,5 @@
     <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"නවතම දේවල් ගැන දැන ගන්න"</string>
     <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"රිය පැදවීම කෙරෙහි අවධානය යොමු කරන්න"</string>
     <string name="hun_suppression_notification_description" msgid="5269238832987802104">"සමහර නව දැනුම්දීම් දැනුම්දීම් මධ්‍යස්ථානයේ සුරකිනු ලැබේ"</string>
-    <!-- no translation found for dismiss_button_close (1414244190597057519) -->
-    <skip />
+    <string name="dismiss_button_close" msgid="1414244190597057519">"අස් කරන්න"</string>
 </resources>
