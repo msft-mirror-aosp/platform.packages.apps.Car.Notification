@@ -26,10 +26,12 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
@@ -41,6 +43,15 @@ import com.android.internal.graphics.ColorUtils;
 
 public class NotificationUtils {
     private static final String TAG = "NotificationUtils";
+
+    /**
+     * Key that system apps can add to the Notification extras to override the default
+     * {@link R.bool.config_useLauncherIcon} behavior. If this is set to false, a small and a large
+     * icon should be specified to be shown properly in the relevant default configuration.
+     */
+    public static final String EXTRA_USE_LAUNCHER_ICON =
+            "com.android.car.notification.EXTRA_USE_LAUNCHER_ICON";
+
     private static final int MAX_FIND_COLOR_STEPS = 15;
     private static final double MIN_COLOR_CONTRAST = 0.00001;
     private static final double MIN_CONTRAST_RATIO = 4.5;
@@ -423,5 +434,60 @@ public class NotificationUtils {
             return null;
         }
         return String.valueOf(name);
+    }
+
+    /**
+     * Extracts the appropriate icon from the notification to ensure a 1:1 mapping
+     * with the car's standard notification body view. It determines whether to
+     * use the app's launcher icon or the notification's large icon.
+     *
+     * @return the icon to display, or {@code null} if none exists.
+     */
+    @Nullable
+    public static Icon getNotificationIcon(Context context, StatusBarNotification sbn) {
+        if (shouldUseLauncherIcon(context, sbn)) {
+            Icon launcherIcon = getLauncherIcon(context, sbn);
+            if (launcherIcon != null) {
+                return launcherIcon;
+            }
+            // Fallback to large icon if launcher icon is requested but not available
+        }
+        return sbn.getNotification().getLargeIcon();
+    }
+
+    /**
+     * Extracts the launcher icon from an application.
+     * @return the launcher icon as an {@link Icon}, or {@code null} if one doesn't exist or the
+     *         package is not found.
+     */
+    @Nullable
+    public static Icon getLauncherIcon(Context context, StatusBarNotification sbn) {
+        Context packageContext = sbn.getPackageContext(context);
+        // If getPackageContext fails to find the package, it returns the context it was
+        // passed. In that case, we can't get the correct launcher icon.
+        if (!sbn.getPackageName().equals(packageContext.getPackageName())) {
+            Log.w(TAG, "Could not get package context for " + sbn.getPackageName());
+            return null;
+        }
+        ApplicationInfo appInfo = packageContext.getApplicationInfo();
+        if (appInfo.icon != 0) {
+            return Icon.createWithResource(sbn.getPackageName(), appInfo.icon);
+        }
+        return null;
+    }
+
+    /**
+     * Determines whether the launcher icon should be used for a given notification.
+     *
+     * @return true if the app's launcher icon should be displayed instead of the
+     *         large icon.
+     */
+    public static boolean shouldUseLauncherIcon(Context context, StatusBarNotification sbn) {
+        Bundle notificationExtras = sbn.getNotification().extras;
+        if (notificationExtras != null && notificationExtras.containsKey(EXTRA_USE_LAUNCHER_ICON)
+                && isSystemApp(context, sbn)) {
+            return notificationExtras.getBoolean(EXTRA_USE_LAUNCHER_ICON);
+        }
+        return context.getResources().getBoolean(R.bool.config_useLauncherIcon);
     }
 }

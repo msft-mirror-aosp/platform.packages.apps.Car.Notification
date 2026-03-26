@@ -83,7 +83,7 @@ class PromotedNotificationsRepository private constructor() {
                         isHeadsUp,
                         entry.postTime,
                         entry.notification.shortCriticalText,
-                        entry.notification.smallIcon,
+                        NotificationUtils.getNotificationIcon(context, entry.statusBarNotification),
                         NotificationUtils.getAppName(context, entry.statusBarNotification)
                     )
                 )

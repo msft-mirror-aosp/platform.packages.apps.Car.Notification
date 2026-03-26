@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -67,6 +68,12 @@ public class CarNotificationBodyViewTest {
         when(mMockStatusBarNotification.getNotification()).thenReturn(mMockNotification);
         when(mMockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
         when(mMockStatusBarNotification.getPackageContext(any())).thenReturn(mMockContext);
+        when(mMockStatusBarNotification.getPackageName())
+                        .thenReturn("com.android.car.notification.template");
+        when(mMockContext.getPackageName()).thenReturn("com.android.car.notification.template");
+        ApplicationInfo appInfo = new ApplicationInfo();
+        appInfo.icon = 1;
+        when(mMockContext.getApplicationInfo()).thenReturn(appInfo);
     }
 
     @Test
