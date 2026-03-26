@@ -89,15 +89,18 @@ public class CarNotificationListener extends NotificationListenerService impleme
             CarHeadsUpNotificationManager carHeadsUpNotificationManager) {
         try {
             mNotificationDataManager = NotificationDataManager.getInstance();
-            registerAsSystemService(context,
-                    new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
-                    NotificationUtils.getCurrentUser(context));
             mHeadsUpManager = carHeadsUpNotificationManager;
             mHeadsUpManager.registerHeadsUpNotificationStateChangeListener(this);
             mHeadsUpManager.setRankingMapProvider(this);
 
             carUxRestrictionManagerWrapper.setCarHeadsUpNotificationManager(
                     carHeadsUpNotificationManager);
+            PreprocessingManager.getInstance(context).setCarUxRestrictionManagerWrapper(
+                    carUxRestrictionManagerWrapper);
+
+            registerAsSystemService(context,
+                    new ComponentName(context.getPackageName(), getClass().getCanonicalName()),
+                    NotificationUtils.getCurrentUser(context));
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to register notification listener", e);
         }
