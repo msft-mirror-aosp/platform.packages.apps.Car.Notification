@@ -43,10 +43,16 @@ class PromotedNotificationsRepositoryTest {
     @Mock
     private lateinit var mockStatusBarNotification:
         android.service.notification.StatusBarNotification
+    @Mock
+    private lateinit var mockResources: android.content.res.Resources
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
+        `when`(mockContext.resources).thenReturn(mockResources)
+        `when`(
+            mockResources.getBoolean(com.android.car.notification.R.bool.config_useLauncherIcon)
+        ).thenReturn(false)
         repository = PromotedNotificationsRepository.getInstance()
         repository.clearPromotedNotifications()
     }
@@ -64,7 +70,7 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null,
+                icon = null,
                 appName = "app"
             )
 
@@ -83,7 +89,7 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null,
+                icon = null,
                 appName = "app"
             )
             repository.addPromotedNotification(model)
@@ -108,7 +114,7 @@ class PromotedNotificationsRepositoryTest {
             ).thenReturn(org.mockito.Mockito.mock(android.content.pm.PackageManager::class.java))
             `when`(mockStatusBarNotification.notification).thenReturn(mockNotification)
             `when`(mockNotification.isPromotedOngoing).thenReturn(true)
-            `when`(mockNotification.smallIcon).thenReturn(null)
+            `when`(mockNotification.getLargeIcon()).thenReturn(null)
             mockNotification.extras = android.os.Bundle()
 
             repository.updateFromAlertEntries(
@@ -132,7 +138,7 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null,
+                icon = null,
                 appName = "app"
             )
             repository.addPromotedNotification(model)
@@ -161,7 +167,7 @@ class PromotedNotificationsRepositoryTest {
                 isHeadsUp = false,
                 postTime = 123L,
                 shortCriticalText = "text",
-                smallIcon = null,
+                icon = null,
                 appName = "app"
             )
             repository.addPromotedNotification(model)
